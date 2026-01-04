@@ -1,0 +1,898 @@
+package account
+
+//go:generate go tool oapi-codegen -config oai-codegen.yaml swagger.yaml
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"net/http"
+	"strings"
+	"time"
+
+	"github.com/samber/lo"
+	"go.lumeweb.com/portal-sdk/client"
+	"go.lumeweb.com/queryutil"
+	"go.lumeweb.com/queryutil/filter/serializer"
+)
+
+// OperationStatus represents the status of an account operation.
+type OperationStatus string
+
+const (
+	OperationStatusPending   OperationStatus = "pending"
+	OperationStatusRunning   OperationStatus = "running"
+	OperationStatusCompleted OperationStatus = "completed"
+	OperationStatusFailed    OperationStatus = "failed"
+	OperationStatusError     OperationStatus = "error"
+)
+
+// DefaultSettledStates are the default operation statuses considered "settled" (finished).
+var DefaultSettledStates = []OperationStatus{
+	OperationStatusCompleted,
+	OperationStatusFailed,
+	OperationStatusError,
+}
+
+// Named error types for error comparison
+var (
+	// ErrOperationTimeout is returned when WaitForOperation times out waiting for an operation to settle.
+	ErrOperationTimeout = errors.New("operation timed out")
+
+	// ErrUnauthorized is returned when authentication fails (e.g., invalid JWT token).
+	ErrUnauthorized = errors.New("unauthorized")
+)
+
+// Operation identifiers for error message mapping.
+const (
+	OpLogin = iota
+	OpOTPValidation
+	OpPing
+	OpOTPGeneration
+	OpOTPVerification
+	OpOTPDisable
+	OpRegistration
+	OpEmailVerification
+)
+
+const defaultOperationName = "operation"
+
+// DefaultEndpoint is the default API endpoint for the account service.
+const DefaultEndpoint = "account.pinner.xyz"
+
+// operationString maps operation IDs to their string names.
+var operationString = map[int]string{
+	OpLogin:             "login",
+	OpOTPValidation:     "OTP validation",
+	OpPing:              "ping",
+	OpOTPGeneration:     "OTP generation",
+	OpOTPVerification:   "OTP verification",
+	OpOTPDisable:        "OTP disable",
+	OpRegistration:      "registration",
+	OpEmailVerification: "email verification",
+}
+
+// errorFactory is a helper for creating errors with optional ErrUnauthorized wrapping.
+type errorFactory struct {
+	wrapErr bool
+	message string
+}
+
+// Error creates the actual error.
+func (ef errorFactory) Error() error {
+	if ef.wrapErr {
+		return fmt.Errorf("%w: %s", ErrUnauthorized, ef.message)
+	}
+	return fmt.Errorf("%s", ef.message)
+}
+
+// authErr creates an error factory that wraps with ErrUnauthorized.
+func authErr(msg string) errorFactory {
+	return errorFactory{wrapErr: true, message: msg}
+}
+
+// plainErr creates an error factory without wrapping.
+func plainErr(msg string) errorFactory {
+	return errorFactory{wrapErr: false, message: msg}
+}
+
+// httpErrorMessages maps operation IDs to their custom status code error messages.
+// This provides a centralized, DRY way to handle HTTP error responses.
+var httpErrorMessages = map[int]map[int]errorFactory{
+	OpLogin: {
+		http.StatusUnauthorized: authErr("invalid login credentials"),
+	},
+	OpOTPValidation: {
+		http.StatusBadRequest:   plainErr("invalid OTP code"),
+		http.StatusUnauthorized: authErr("invalid or expired 2FA session"),
+	},
+	OpPing: {
+		http.StatusUnauthorized: authErr("invalid JWT token"),
+	},
+	OpOTPGeneration: {
+		http.StatusUnauthorized: authErr("authentication required"),
+	},
+	OpOTPVerification: {
+		http.StatusUnauthorized: authErr("authentication required"),
+		http.StatusBadRequest:   plainErr("invalid OTP code"),
+	},
+	OpOTPDisable: {
+		http.StatusUnauthorized: authErr("authentication required or invalid password"),
+	},
+	OpRegistration: {
+		http.StatusConflict: plainErr("user already exists with this email"),
+	},
+	OpEmailVerification: {
+		http.StatusBadRequest: plainErr("invalid verification token or email"),
+		http.StatusNotFound:   plainErr("user not found"),
+	},
+}
+
+// IsSettled returns true if the operation is in a settled state (finished, no longer being processed).
+func (s OperationStatus) IsSettled() bool {
+	return s == OperationStatusCompleted || s == OperationStatusFailed || s == OperationStatusError
+}
+
+// String returns the string representation of the operation status.
+func (s OperationStatus) String() string {
+	return string(s)
+}
+
+// APIKey represents an API key for the account.
+// Embeds the generated client.CreateAPIKeyResponse to reuse all fields.
+type APIKey struct {
+	client.CreateAPIKeyResponse
+}
+
+// Operation represents an account operation (upload, pin, etc.).
+// Embeds the generated client.OperationDetailResponse to reuse all fields.
+type Operation struct {
+	client.OperationDetailResponse
+}
+
+// OperationListItem represents an operation from a list response.
+type OperationListItem struct {
+	client.OperationListItem
+}
+
+// OperationFilters represents the available filter options for operations.
+// Embeds the generated client.OperationFiltersResponse to reuse all fields.
+type OperationFilters struct {
+	client.OperationFiltersResponse
+}
+
+// OperationFilterItem represents a filter item (e.g., a specific status, protocol, or operation type).
+type OperationFilterItem struct {
+	client.OperationFilterItem
+}
+
+// Filter is a filter for listing operations (legacy, use ListOptions instead).
+type Filter struct {
+	Status OperationStatus
+	CID    string
+	Limit  int
+}
+
+// ListOptions provides options for listing operations with filters, sorting, and pagination.
+type ListOptions struct {
+	Filters    []queryutil.CrudFilter
+	Sorts      []queryutil.Sort
+	Pagination *queryutil.Pagination
+	Search     string
+}
+
+// ListOption is a function that modifies ListOptions.
+type ListOption func(*ListOptions)
+
+// WithFilters adds filters to the list options.
+func WithFilters(filters ...queryutil.CrudFilter) ListOption {
+	return func(opts *ListOptions) {
+		opts.Filters = filters
+	}
+}
+
+// WithSorts adds sorting to the list options.
+func WithSorts(sorts ...queryutil.Sort) ListOption {
+	return func(opts *ListOptions) {
+		opts.Sorts = sorts
+	}
+}
+
+// WithPagination adds pagination to the list options.
+func WithPagination(pagination *queryutil.Pagination) ListOption {
+	return func(opts *ListOptions) {
+		opts.Pagination = pagination
+	}
+}
+
+// WithSearch adds a search term to the list options.
+func WithSearch(search string) ListOption {
+	return func(opts *ListOptions) {
+		opts.Search = search
+	}
+}
+
+// PollOption is an option for WaitForOperation.
+type PollOption func(*pollConfig)
+
+type pollConfig struct {
+	interval      time.Duration
+	timeout       time.Duration
+	settledStates []OperationStatus
+}
+
+// WithPollInterval sets the polling interval.
+func WithPollInterval(d time.Duration) PollOption {
+	return func(c *pollConfig) {
+		c.interval = d
+	}
+}
+
+// WithPollTimeout sets the polling timeout.
+func WithPollTimeout(d time.Duration) PollOption {
+	return func(c *pollConfig) {
+		c.timeout = d
+	}
+}
+
+// WithPollSettledStates sets the operation statuses that are considered "settled".
+// If not provided, defaults to [OperationStatusCompleted, OperationStatusFailed, OperationStatusError].
+func WithPollSettledStates(states ...OperationStatus) PollOption {
+	return func(c *pollConfig) {
+		c.settledStates = states
+	}
+}
+
+// defaultPollConfig returns the default polling configuration.
+func defaultPollConfig() *pollConfig {
+	return &pollConfig{
+		interval:      2 * time.Second,
+		timeout:       5 * time.Minute,
+		settledStates: DefaultSettledStates,
+	}
+}
+
+// checkResponseWithBody validates the HTTP status code and returns a formatted error with body
+func checkResponseWithBody(statusCode int, body []byte, operation string) error {
+	if statusCode != http.StatusOK {
+		return fmt.Errorf("%s failed with status %d: %s", operation, statusCode, string(body))
+	}
+	return nil
+}
+
+// handleResponse processes an HTTP response using the global error message map.
+// op: the operation ID (used to lookup custom error messages)
+// successCodes: status codes that indicate success (e.g., []int{http.StatusOK})
+// Returns nil for success codes, custom error from global map, or generic error with body.
+func handleResponse(statusCode int, body []byte, op int, successCodes []int) error {
+	// Check if status code is in success codes
+	for _, code := range successCodes {
+		if statusCode == code {
+			return nil
+		}
+	}
+
+	// Check for custom error message in global map
+	if errorMessages, ok := httpErrorMessages[op]; ok {
+		if factory, ok := errorMessages[statusCode]; ok {
+			return factory.Error()
+		}
+	}
+
+	// Get operation name for generic error
+	opName := operationString[op]
+	if opName == "" {
+		opName = defaultOperationName
+	}
+
+	// Generic error with body
+	return fmt.Errorf("%s failed with status %d: %s", opName, statusCode, string(body))
+}
+
+// validateJSON200 validates the HTTP status code and JSON200 field, returning the data if valid
+func validateJSON200[T any](statusCode int, body []byte, json200 *T, nilMsg string) (*T, error) {
+	if statusCode == http.StatusUnauthorized {
+		return nil, fmt.Errorf("%w: authentication required", ErrUnauthorized)
+	}
+	if statusCode != http.StatusOK {
+		return nil, fmt.Errorf("failed with status %d: %s", statusCode, string(body))
+	}
+	if json200 == nil {
+		return nil, fmt.Errorf("%s", nilMsg)
+	}
+	return json200, nil
+}
+
+// newAPIKey creates a new APIKey from a CreateAPIKeyResponse.
+func newAPIKey(data client.CreateAPIKeyResponse) *APIKey {
+	return &APIKey{CreateAPIKeyResponse: data}
+}
+
+// newOperation creates a new Operation from an OperationDetailResponse.
+func newOperation(data client.OperationDetailResponse) *Operation {
+	return &Operation{OperationDetailResponse: data}
+}
+
+// LoginResult contains the result of a login attempt.
+type LoginResult struct {
+	Token           string
+	OTPRequired     bool
+	IntermediateJWT string
+}
+
+// AccountAPI provides account management and operation tracking functionality.
+type AccountAPI interface {
+	// Authentication
+	// Login authenticates with email/password and returns a JWT token.
+	// If 2FA is required, the returned token is an intermediate JWT and OTPRequired will be true.
+	Login(ctx context.Context, email, password string) (*LoginResult, error)
+
+	// ValidateOTP completes 2FA login using an intermediate JWT and OTP code.
+	// Returns the final JWT token on success.
+	ValidateOTP(ctx context.Context, intermediateJWT, otp string) (string, error)
+
+	// Register creates a new user account.
+	Register(ctx context.Context, email, firstName, lastName, password string) error
+
+	// VerifyEmail confirms a user's email address with a verification token.
+	VerifyEmail(ctx context.Context, email, token string) error
+
+	// Ping verifies the JWT token is valid.
+	Ping(ctx context.Context) error
+
+	// Two-Factor Authentication
+	// GenerateOTP generates a new OTP secret for 2FA setup.
+	GenerateOTP(ctx context.Context) (string, error)
+
+	// VerifyOTP verifies an OTP code and enables 2FA for the account.
+	VerifyOTP(ctx context.Context, otp string) error
+
+	// DisableOTP disables 2FA for the account.
+	DisableOTP(ctx context.Context, password string) error
+
+	// API Keys
+	// CreateAPIKey creates a new API key for the account.
+	CreateAPIKey(ctx context.Context, name string) (*APIKey, error)
+
+	// ListAPIKeys retrieves a list of API keys for the authenticated user.
+	ListAPIKeys(ctx context.Context, opts ...ListOption) ([]*APIKey, error)
+
+	// DeleteAPIKey deletes a specific API key for the authenticated user.
+	DeleteAPIKey(ctx context.Context, keyID []int) error
+
+	// Account info
+	// UploadLimit returns the account's upload limit in bytes.
+	// This determines the threshold for using TUS resumable uploads.
+	UploadLimit(ctx context.Context) (int64, error)
+
+	// Operations
+	// GetOperation retrieves details of a specific operation.
+	GetOperation(ctx context.Context, id int64) (*Operation, error)
+
+	// ListOperations lists operations with optional filters, sorting, and pagination.
+	ListOperations(ctx context.Context, opts ...ListOption) ([]*Operation, error)
+
+	// GetOperationFilters retrieves available filter values for operations.
+	GetOperationFilters(ctx context.Context) (*OperationFilters, error)
+
+	// WaitForOperation polls an operation until it reaches a settled state.
+	// Settled states are: completed, failed, error.
+	WaitForOperation(ctx context.Context, id int64, opts ...PollOption) (*Operation, error)
+}
+
+// Client implements AccountAPI using the generated OpenAPI client.
+type Client struct {
+	client client.ClientWithResponsesInterface
+	jwt    string
+}
+
+// clientConfig holds the configuration for creating a new Client.
+type clientConfig struct {
+	endpoint   string
+	jwt        string
+	httpClient *http.Client
+}
+
+// defaultClientConfig returns a clientConfig with sensible defaults.
+func defaultClientConfig() *clientConfig {
+	return &clientConfig{
+		endpoint: DefaultEndpoint,
+	}
+}
+
+// ClientOption is an option for configuring the AccountAPI client.
+type ClientOption func(*clientConfig)
+
+// WithJWT sets the JWT token for authentication.
+// This token will be added to the Authorization header as "Bearer {token}".
+func WithJWT(jwt string) ClientOption {
+	return func(cfg *clientConfig) {
+		cfg.jwt = jwt
+	}
+}
+
+// WithEndpoint sets the API endpoint URL.
+// If not provided, DefaultEndpoint will be used.
+func WithEndpoint(endpoint string) ClientOption {
+	return func(cfg *clientConfig) {
+		cfg.endpoint = endpoint
+	}
+}
+
+// WithDisableFollowRedirect disables automatic HTTP redirects.
+// This is useful for testing scenarios where you need to inspect redirect responses.
+func WithDisableFollowRedirect() ClientOption {
+	return func(cfg *clientConfig) {
+		cfg.httpClient = &http.Client{
+			CheckRedirect: func(req *http.Request, via []*http.Request) error {
+				return http.ErrUseLastResponse
+			},
+		}
+	}
+}
+
+// NewClient creates a new AccountAPI client.
+// Uses DefaultEndpoint if no endpoint is provided via WithEndpoint.
+func NewClient(opts ...ClientOption) AccountAPI {
+	cfg := defaultClientConfig()
+
+	// Apply options to configure the client
+	for _, opt := range opts {
+		opt(cfg)
+	}
+
+	// Build client options from config
+	clientOpts := []client.ClientOption{}
+
+	// Add JWT request editor if provided
+	if cfg.jwt != "" {
+		clientOpts = append(clientOpts, client.WithRequestEditorFn(func(ctx context.Context, req *http.Request) error {
+			req.Header.Set("Authorization", "Bearer "+cfg.jwt)
+			return nil
+		}))
+	}
+
+	// Add custom HTTP client if provided
+	if cfg.httpClient != nil {
+		clientOpts = append(clientOpts, client.WithHTTPClient(cfg.httpClient))
+	}
+
+	c, _ := client.NewClientWithResponses(cfg.endpoint, clientOpts...)
+	return &Client{client: c, jwt: cfg.jwt}
+}
+
+// NewClientWithDefaults creates a new AccountAPI client with default settings (for testing).
+func NewClientWithDefaults(genClient client.ClientWithResponsesInterface) AccountAPI {
+	return &Client{client: genClient}
+}
+
+// Login authenticates with email/password and returns a login result.
+// If 2FA is enabled for the account, OTPRequired will be true and the token
+// is an intermediate JWT that must be used with ValidateOTP.
+func (c *Client) Login(ctx context.Context, email, password string) (*LoginResult, error) {
+	reqBody := client.LoginRequest{
+		Email:    email,
+		Password: password,
+	}
+
+	resp, err := c.client.PostApiAuthLoginWithResponse(ctx, reqBody)
+	if err != nil {
+		return nil, fmt.Errorf("failed to send login request: %w", err)
+	}
+
+	// Validate response using the global error map (login returns 200 for OTP, 302 redirect for non-OTP)
+	if err := handleResponse(resp.StatusCode(), resp.Body, OpLogin, []int{http.StatusOK, http.StatusFound}); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON200 == nil || resp.JSON200.Token == "" {
+		return nil, fmt.Errorf("login response did not contain a token")
+	}
+
+	result := &LoginResult{
+		Token:           resp.JSON200.Token,
+		OTPRequired:     resp.JSON200.Otp != nil && *resp.JSON200.Otp,
+		IntermediateJWT: resp.JSON200.Token,
+	}
+
+	return result, nil
+}
+
+// ValidateOTP completes 2FA login using an intermediate JWT and OTP code.
+// Returns the final JWT token on success.
+func (c *Client) ValidateOTP(ctx context.Context, intermediateJWT, otp string) (string, error) {
+	reqBody := client.OTPValidateRequest{
+		Otp: otp,
+	}
+
+	// Use the client with a request editor to add the intermediate JWT
+	resp, err := c.client.PostApiAuthOtpValidateWithResponse(ctx, reqBody,
+		func(ctx context.Context, req *http.Request) error {
+			req.Header.Set("Authorization", "Bearer "+intermediateJWT)
+			return nil
+		},
+	)
+	if err != nil {
+		return "", fmt.Errorf("failed to send OTP validate request: %w", err)
+	}
+
+	// Validate response using the global error map
+	if err := handleResponse(resp.StatusCode(), resp.Body, OpOTPValidation, []int{http.StatusFound}); err != nil {
+		return "", err
+	}
+
+	location := resp.HTTPResponse.Header.Get("Location")
+	if location == "" {
+		return "", fmt.Errorf("OTP validation successful but no redirect location provided")
+	}
+
+	// The portal sets the final JWT in a cookie. For CLI, we need to extract it.
+	// The cookie name is typically "auth" or similar. We'll look for JWT in Set-Cookie.
+	cookies := resp.HTTPResponse.Cookies()
+	for _, cookie := range cookies {
+		if cookie.Name == "auth" && cookie.Value != "" {
+			return cookie.Value, nil
+		}
+	}
+
+	// If no cookie found, try to extract from Location header (may contain JWT as query param)
+	if strings.Contains(location, "token=") {
+		parts := strings.Split(location, "token=")
+		if len(parts) > 1 {
+			tokenEnd := strings.Index(parts[1], "&")
+			if tokenEnd > 0 {
+				return parts[1][:tokenEnd], nil
+			}
+			return parts[1], nil
+		}
+	}
+
+	return "", fmt.Errorf("OTP validation successful but unable to extract final JWT from response")
+}
+
+// Ping verifies the JWT token is valid.
+func (c *Client) Ping(ctx context.Context) error {
+	resp, err := c.client.PostApiAuthPingWithResponse(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to send ping request: %w", err)
+	}
+
+	return handleResponse(resp.StatusCode(), resp.Body, OpPing, []int{http.StatusOK})
+}
+
+// GenerateOTP generates a new OTP secret for 2FA setup.
+func (c *Client) GenerateOTP(ctx context.Context) (string, error) {
+	resp, err := c.client.PostApiAuthOtpGenerateWithResponse(ctx)
+	if err != nil {
+		return "", fmt.Errorf("failed to send OTP generate request: %w", err)
+	}
+
+	if err := handleResponse(resp.StatusCode(), resp.Body, OpOTPGeneration, []int{http.StatusOK}); err != nil {
+		return "", err
+	}
+
+	if resp.JSON200 == nil || resp.JSON200.Otp == "" {
+		return "", fmt.Errorf("OTP generation response did not contain a secret")
+	}
+
+	return resp.JSON200.Otp, nil
+}
+
+// VerifyOTP verifies an OTP code and enables 2FA for the account.
+func (c *Client) VerifyOTP(ctx context.Context, otp string) error {
+	reqBody := client.OTPVerifyRequest{
+		Otp: otp,
+	}
+
+	resp, err := c.client.PostApiAuthOtpVerifyWithResponse(ctx, reqBody)
+	if err != nil {
+		return fmt.Errorf("failed to send OTP verify request: %w", err)
+	}
+
+	return handleResponse(resp.StatusCode(), resp.Body, OpOTPVerification, []int{http.StatusNoContent})
+}
+
+// DisableOTP disables 2FA for the account.
+func (c *Client) DisableOTP(ctx context.Context, password string) error {
+	reqBody := client.OTPDisableRequest{
+		Password: password,
+	}
+
+	resp, err := c.client.PostApiAuthOtpDisableWithResponse(ctx, reqBody)
+	if err != nil {
+		return fmt.Errorf("failed to send OTP disable request: %w", err)
+	}
+
+	return handleResponse(resp.StatusCode(), resp.Body, OpOTPDisable, []int{http.StatusNoContent})
+}
+
+// Register creates a new user account.
+func (c *Client) Register(ctx context.Context, email, firstName, lastName, password string) error {
+	reqBody := client.RegisterRequest{
+		Email:     email,
+		FirstName: firstName,
+		LastName:  lastName,
+		Password:  password,
+	}
+
+	resp, err := c.client.PostApiAuthRegisterWithResponse(ctx, reqBody)
+	if err != nil {
+		return fmt.Errorf("failed to send register request: %w", err)
+	}
+
+	return handleResponse(resp.StatusCode(), resp.Body, OpRegistration, []int{http.StatusCreated, http.StatusOK})
+}
+
+// VerifyEmail confirms a user's email address with a verification token.
+func (c *Client) VerifyEmail(ctx context.Context, email, token string) error {
+	reqBody := client.VerifyEmailRequest{
+		Email: email,
+		Token: token,
+	}
+
+	resp, err := c.client.PostApiAccountVerifyEmailWithResponse(ctx, nil, reqBody)
+	if err != nil {
+		return fmt.Errorf("failed to send verify email request: %w", err)
+	}
+
+	return handleResponse(resp.StatusCode(), resp.Body, OpEmailVerification, []int{http.StatusOK})
+}
+
+// CreateAPIKey creates a new API key for the account.
+func (c *Client) CreateAPIKey(ctx context.Context, name string) (*APIKey, error) {
+	reqBody := client.APIKeyCreateRequest{
+		Name: name,
+	}
+
+	resp, err := c.client.PostApiAccountKeysWithResponse(ctx, reqBody)
+	if err != nil {
+		return nil, fmt.Errorf("failed to send create API key request: %w", err)
+	}
+
+	data, err := validateJSON200(resp.StatusCode(), resp.Body, resp.JSON200, "create API key response did not contain data")
+	if err != nil {
+		return nil, err
+	}
+
+	return newAPIKey(*data), nil
+}
+
+// ListAPIKeys retrieves a list of API keys for the authenticated user.
+func (c *Client) ListAPIKeys(ctx context.Context, opts ...ListOption) ([]*APIKey, error) {
+	options := &ListOptions{}
+	for _, opt := range opts {
+		opt(options)
+	}
+
+	// Build request parameters
+	params := &client.GetApiAccountKeysParams{}
+	if options.Pagination != nil {
+		params.UnderscoreStart = &options.Pagination.Start
+		if options.Pagination.End != 0 {
+			params.UnderscoreEnd = &options.Pagination.End
+		}
+	}
+
+	resp, err := c.client.GetApiAccountKeysWithResponse(ctx, params)
+	if err != nil {
+		return nil, fmt.Errorf("failed to send list API keys request: %w", err)
+	}
+
+	if resp.StatusCode() != http.StatusOK {
+		return nil, fmt.Errorf("failed to list API keys with status %d: %s", resp.StatusCode(), string(resp.Body))
+	}
+
+	if resp.JSON200 == nil {
+		return nil, fmt.Errorf("list API keys response did not contain data")
+	}
+
+	keys := lo.Map(resp.JSON200.Data, func(key client.APIKeyResponse, _ int) *APIKey {
+		return &APIKey{CreateAPIKeyResponse: client.CreateAPIKeyResponse{
+			Name:  key.Name,
+			Token: "",
+			Uuid:  key.Uuid,
+		}}
+	})
+
+	return keys, nil
+}
+
+// DeleteAPIKey deletes a specific API key for the authenticated user.
+func (c *Client) DeleteAPIKey(ctx context.Context, keyID []int) error {
+	resp, err := c.client.DeleteApiAccountKeysKeyIDWithResponse(ctx, keyID)
+	if err != nil {
+		return fmt.Errorf("failed to send delete API key request: %w", err)
+	}
+
+	if resp.StatusCode() != http.StatusOK {
+		return fmt.Errorf("failed to delete API key with status %d: %s", resp.StatusCode(), string(resp.Body))
+	}
+
+	return nil
+}
+
+// UploadLimit returns the account's upload limit in bytes.
+func (c *Client) UploadLimit(ctx context.Context) (int64, error) {
+	resp, err := c.client.GetApiUploadLimitWithResponse(ctx)
+	if err != nil {
+		return 0, fmt.Errorf("failed to send upload limit request: %w", err)
+	}
+
+	data, err := validateJSON200(resp.StatusCode(), resp.Body, resp.JSON200, "upload limit response did not contain data")
+	if err != nil {
+		return 0, err
+	}
+
+	return int64(data.Limit), nil
+}
+
+// GetOperation retrieves details of a specific operation.
+func (c *Client) GetOperation(ctx context.Context, id int64) (*Operation, error) {
+	resp, err := c.client.GetApiOperationsIdWithResponse(ctx, int(id))
+	if err != nil {
+		return nil, fmt.Errorf("failed to get operation %d: %w", id, err)
+	}
+
+	data, err := validateJSON200(resp.StatusCode(), resp.Body, resp.JSON200, "operation response did not contain data")
+	if err != nil {
+		return nil, err
+	}
+
+	return newOperation(*data), nil
+}
+
+// ListOperations lists operations with optional filters, sorting, and pagination.
+func (c *Client) ListOperations(ctx context.Context, opts ...ListOption) ([]*Operation, error) {
+	options := &ListOptions{}
+	for _, opt := range opts {
+		opt(options)
+	}
+
+	// Use serializers to generate query parameters
+	ser := serializer.NewQueryParamSerializer()
+
+	// Serialize pagination
+	pagination := options.Pagination
+	if pagination == nil {
+		pagination = &queryutil.DefaultPagination
+	}
+	paginationValues, _ := ser.SerializePagination(*pagination)
+
+	// Serialize sorts
+	sortValues, _ := ser.SerializeSorts(options.Sorts)
+
+	// Serialize filters
+	filterValues, _ := ser.SerializeFilters(options.Filters)
+
+	// Use request editor to dynamically add query parameters
+	reqEditor := func(ctx context.Context, req *http.Request) error {
+		query := req.URL.Query()
+
+		// Add search parameter
+		if options.Search != "" {
+			query.Set("q", options.Search)
+		}
+
+		// Add pagination parameters
+		for key, values := range paginationValues {
+			for _, v := range values {
+				query.Add(key, v)
+			}
+		}
+
+		// Add sort parameters
+		for key, values := range sortValues {
+			for _, v := range values {
+				query.Add(key, v)
+			}
+		}
+
+		// Add filter parameters
+		for key, values := range filterValues {
+			for _, v := range values {
+				query.Add(key, v)
+			}
+		}
+
+		req.URL.RawQuery = query.Encode()
+		return nil
+	}
+
+	resp, err := c.client.GetApiOperationsWithResponse(ctx, &client.GetApiOperationsParams{}, reqEditor)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list operations: %w", err)
+	}
+
+	data, err := validateJSON200(resp.StatusCode(), resp.Body, resp.JSON200, "operations response did not contain data")
+	if err != nil {
+		return nil, err
+	}
+
+	ops := lo.Map(data.Data, func(op client.OperationListItem, _ int) *Operation {
+		return newOperation(operationListItemToDetail(op))
+	})
+	return ops, nil
+}
+
+// GetOperationFilters retrieves available filter values for operations.
+func (c *Client) GetOperationFilters(ctx context.Context) (*OperationFilters, error) {
+	resp, err := c.client.GetApiOperationsFiltersWithResponse(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get operation filters: %w", err)
+	}
+
+	data, err := validateJSON200(resp.StatusCode(), resp.Body, resp.JSON200, "operation filters response did not contain data")
+	if err != nil {
+		return nil, err
+	}
+
+	return &OperationFilters{OperationFiltersResponse: data.Data}, nil
+}
+
+// operationListItemToDetail converts an OperationListItem to OperationDetailResponse.
+func operationListItemToDetail(op client.OperationListItem) client.OperationDetailResponse {
+	return client.OperationDetailResponse{
+		Cid:                   op.Cid,
+		CurrentStep:           op.CurrentStep,
+		Error:                 op.Error,
+		EstimatedCompletionAt: op.EstimatedCompletionAt,
+		Id:                    op.Id,
+		Operation:             op.Operation,
+		OperationDisplayName:  op.OperationDisplayName,
+		ProgressPercent:       op.ProgressPercent,
+		Protocol:              op.Protocol,
+		ProtocolDisplayName:   op.ProtocolDisplayName,
+		StartedAt:             op.StartedAt,
+		Status:                op.Status,
+		StatusDisplayName:     op.StatusDisplayName,
+		StatusMessage:         op.StatusMessage,
+		TotalSteps:            op.TotalSteps,
+		UpdatedAt:             op.UpdatedAt,
+	}
+}
+
+// IsSettled returns true if the operation is in a settled state.
+func (op *Operation) IsSettled() bool {
+	return OperationStatus(op.Status).IsSettled()
+}
+
+// WaitForOperation polls an operation until it reaches a settled state.
+// Polling options match the TypeScript SDK's OperationPollingOptions:
+//   - interval: polling interval in milliseconds (default: 2000ms)
+//   - timeout: maximum time to wait in milliseconds (default: 300000ms = 5 minutes)
+//   - settledStates: operation statuses considered "settled" (default: [completed, failed, error])
+func (c *Client) WaitForOperation(ctx context.Context, id int64, opts ...PollOption) (*Operation, error) {
+	cfg := defaultPollConfig()
+	for _, opt := range opts {
+		opt(cfg)
+	}
+
+	// Create a map of settled states for O(1) lookup
+	settledStatesMap := make(map[OperationStatus]bool)
+	for _, state := range cfg.settledStates {
+		settledStatesMap[state] = true
+	}
+
+	ctx, cancel := context.WithTimeout(ctx, cfg.timeout)
+	defer cancel()
+
+	ticker := time.NewTicker(cfg.interval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return nil, fmt.Errorf("%w: operation %d", ErrOperationTimeout, id)
+		case <-ticker.C:
+			op, err := c.GetOperation(ctx, id)
+			if err != nil {
+				return nil, fmt.Errorf("failed to get operation %d: %w", id, err)
+			}
+
+			opStatus := OperationStatus(op.Status)
+			if settledStatesMap[opStatus] {
+				return op, nil
+			}
+		}
+	}
+}

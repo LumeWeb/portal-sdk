@@ -1,0 +1,18 @@
+template: testify
+template-data:
+  unroll-variadic: true
+filename: "{{.InterfaceName}}.go"
+include-auto-generated: true
+packages:
+  go.lumeweb.com/portal-sdk:
+    config:
+      dir: ./mocks
+      pkgname: "mocks"
+    interfaces:
+      AccountAPI: {}
+  go.lumeweb.com/portal-sdk/client:
+    config:
+      dir: ./client/mocks
+      pkgname: "mocks"
+    interfaces:
+      ClientWithResponsesInterface: {}
