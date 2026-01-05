@@ -7,7 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"strings"
+	"net/url"
 	"time"
 
 	"github.com/samber/lo"
@@ -536,15 +536,13 @@ func (c *Client) ValidateOTP(ctx context.Context, intermediateJWT, otp string) (
 	}
 
 	// If no cookie found, try to extract from Location header (may contain JWT as query param)
-	if strings.Contains(location, "token=") {
-		parts := strings.Split(location, "token=")
-		if len(parts) > 1 {
-			tokenEnd := strings.Index(parts[1], "&")
-			if tokenEnd > 0 {
-				return parts[1][:tokenEnd], nil
-			}
-			return parts[1], nil
-		}
+	parsedURL, err := url.Parse(location)
+	if err != nil {
+		return "", fmt.Errorf("failed to parse redirect location: %w", err)
+	}
+	token := parsedURL.Query().Get("token")
+	if token != "" {
+		return token, nil
 	}
 
 	return "", fmt.Errorf("OTP validation successful but unable to extract final JWT from response")

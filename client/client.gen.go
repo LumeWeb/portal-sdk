@@ -280,8 +280,44 @@ type GetApiAccountKeysParams struct {
 	// UnderscoreEnd Ending index of the items to return (exclusive). Defaults to 10.
 	UnderscoreEnd *int `form:"_end,omitempty" json:"_end,omitempty"`
 
+	// UnderscoreOrder Comma-separated list of sort orders ('asc' or 'desc') corresponding to _sort fields. Defaults to 'asc'.
+	UnderscoreOrder *string `form:"_order,omitempty" json:"_order,omitempty"`
+
+	// UnderscoreSort Comma-separated list of fields to sort by. Available fields:
+	UnderscoreSort *string `form:"_sort,omitempty" json:"_sort,omitempty"`
+
 	// UnderscoreStart Starting index of the items to return (0-based). Defaults to 0.
 	UnderscoreStart *int `form:"_start,omitempty" json:"_start,omitempty"`
+
+	// FiltersNameContains Filter by name contains
+	FiltersNameContains *string `form:"filters[name][contains],omitempty" json:"filters[name][contains],omitempty"`
+
+	// FiltersNameEndswith Filter by name endswith
+	FiltersNameEndswith *string `form:"filters[name][endswith],omitempty" json:"filters[name][endswith],omitempty"`
+
+	// FiltersNameEq Filter by name eq
+	FiltersNameEq *string `form:"filters[name][eq],omitempty" json:"filters[name][eq],omitempty"`
+
+	// FiltersNameNe Filter by name ne
+	FiltersNameNe *string `form:"filters[name][ne],omitempty" json:"filters[name][ne],omitempty"`
+
+	// FiltersNameStartswith Filter by name startswith
+	FiltersNameStartswith *string `form:"filters[name][startswith],omitempty" json:"filters[name][startswith],omitempty"`
+
+	// NameContains Filter by name contains
+	NameContains *string `form:"name_contains,omitempty" json:"name_contains,omitempty"`
+
+	// NameEndswith Filter by name endswith
+	NameEndswith *string `form:"name_endswith,omitempty" json:"name_endswith,omitempty"`
+
+	// NameEq Filter by name eq
+	NameEq *string `form:"name_eq,omitempty" json:"name_eq,omitempty"`
+
+	// NameNe Filter by name ne
+	NameNe *string `form:"name_ne,omitempty" json:"name_ne,omitempty"`
+
+	// NameStartswith Filter by name startswith
+	NameStartswith *string `form:"name_startswith,omitempty" json:"name_startswith,omitempty"`
 }
 
 // PostApiAccountVerifyEmailParams defines parameters for PostApiAccountVerifyEmail.
@@ -1358,9 +1394,201 @@ func NewGetApiAccountKeysRequest(server string, params *GetApiAccountKeysParams)
 
 		}
 
+		if params.UnderscoreOrder != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "_order", runtime.ParamLocationQuery, *params.UnderscoreOrder); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.UnderscoreSort != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "_sort", runtime.ParamLocationQuery, *params.UnderscoreSort); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
 		if params.UnderscoreStart != nil {
 
 			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "_start", runtime.ParamLocationQuery, *params.UnderscoreStart); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersNameContains != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[name][contains]", runtime.ParamLocationQuery, *params.FiltersNameContains); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersNameEndswith != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[name][endswith]", runtime.ParamLocationQuery, *params.FiltersNameEndswith); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersNameEq != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[name][eq]", runtime.ParamLocationQuery, *params.FiltersNameEq); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersNameNe != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[name][ne]", runtime.ParamLocationQuery, *params.FiltersNameNe); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersNameStartswith != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[name][startswith]", runtime.ParamLocationQuery, *params.FiltersNameStartswith); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.NameContains != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "name_contains", runtime.ParamLocationQuery, *params.NameContains); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.NameEndswith != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "name_endswith", runtime.ParamLocationQuery, *params.NameEndswith); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.NameEq != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "name_eq", runtime.ParamLocationQuery, *params.NameEq); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.NameNe != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "name_ne", runtime.ParamLocationQuery, *params.NameNe); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.NameStartswith != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "name_startswith", runtime.ParamLocationQuery, *params.NameStartswith); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err

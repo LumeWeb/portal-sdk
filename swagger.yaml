@@ -704,12 +704,73 @@ paths:
           name: _end
           schema:
             type: integer
+        - description: Comma-separated list of sort orders ('asc' or 'desc') corresponding
+            to _sort fields. Defaults to 'asc'.
+          in: query
+          name: _order
+          schema:
+            type: string
+        - description: 'Comma-separated list of fields to sort by. Available fields: '
+          in: query
+          name: _sort
+          schema:
+            type: string
         - description: Starting index of the items to return (0-based). Defaults to
             0.
           in: query
           name: _start
           schema:
             type: integer
+        - description: Filter by name contains
+          in: query
+          name: filters[name][contains]
+          schema:
+            type: string
+        - description: Filter by name endswith
+          in: query
+          name: filters[name][endswith]
+          schema:
+            type: string
+        - description: Filter by name eq
+          in: query
+          name: filters[name][eq]
+          schema:
+            type: string
+        - description: Filter by name ne
+          in: query
+          name: filters[name][ne]
+          schema:
+            type: string
+        - description: Filter by name startswith
+          in: query
+          name: filters[name][startswith]
+          schema:
+            type: string
+        - description: Filter by name contains
+          in: query
+          name: name_contains
+          schema:
+            type: string
+        - description: Filter by name endswith
+          in: query
+          name: name_endswith
+          schema:
+            type: string
+        - description: Filter by name eq
+          in: query
+          name: name_eq
+          schema:
+            type: string
+        - description: Filter by name ne
+          in: query
+          name: name_ne
+          schema:
+            type: string
+        - description: Filter by name startswith
+          in: query
+          name: name_startswith
+          schema:
+            type: string
       responses:
         "200":
           content:

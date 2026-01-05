@@ -429,6 +429,34 @@ func TestValidateOTP_UnableToExtractJWT(t *testing.T) {
 	require.Contains(t, err.Error(), "unable to extract final JWT")
 }
 
+func TestValidateOTP_EmptyTokenWithOtherParams(t *testing.T) {
+	// Regression test for bug where empty token value followed by other params
+	// caused incorrect extraction of subsequent parameters as the token
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "POST" {
+			t.Errorf("expected POST request, got %s", r.Method)
+		}
+
+		if r.URL.Path != "/api/auth/otp/validate" {
+			t.Errorf("expected /api/auth/otp/validate path, got %s", r.URL.Path)
+		}
+
+		// Return 302 with Location header containing empty token followed by other params
+		w.Header().Set("Location", "/auth/complete?token=&other=abc&session=xyz")
+		w.WriteHeader(http.StatusFound)
+	}))
+	defer server.Close()
+
+	// Create client with redirect following disabled to inspect response
+	acc := NewClient(WithEndpoint(server.URL), WithDisableFollowRedirect())
+	token, err := acc.ValidateOTP(context.Background(), "intermediate-jwt", "123456")
+
+	// Should return an error since token is empty, not extract "&other=abc&session=xyz"
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "unable to extract final JWT")
+	require.Empty(t, token)
+}
+
 func TestPing(t *testing.T) {
 	tests := []struct {
 		name       string
