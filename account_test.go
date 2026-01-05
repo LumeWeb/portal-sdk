@@ -1,0 +1,2246 @@
+package account
+
+import (
+	"context"
+	"encoding/json"
+	"errors"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+	"time"
+
+	"github.com/samber/lo"
+	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
+	"go.lumeweb.com/portal-sdk/client"
+	"go.lumeweb.com/portal-sdk/client/mocks"
+	"go.lumeweb.com/queryutil"
+)
+
+func TestLogin(t *testing.T) {
+	tests := []struct {
+		name        string
+		email       string
+		password    string
+		token       string
+		otpRequired bool
+		statusCode  int
+		wantErr     bool
+	}{
+		{
+			name:        "successful login without 2FA",
+			email:       "test@example.com",
+			password:    "password",
+			token:       "test-jwt-token",
+			otpRequired: false,
+			statusCode:  http.StatusOK,
+			wantErr:     false,
+		},
+		{
+			name:        "successful login with 2FA",
+			email:       "test@example.com",
+			password:    "password",
+			token:       "intermediate-jwt-token",
+			otpRequired: true,
+			statusCode:  http.StatusOK,
+			wantErr:     false,
+		},
+		{
+			name:        "invalid credentials",
+			email:       "test@example.com",
+			password:    "wrong",
+			token:       "",
+			otpRequired: false,
+			statusCode:  http.StatusUnauthorized,
+			wantErr:     true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "POST" {
+					t.Errorf("expected POST request, got %s", r.Method)
+				}
+
+				if r.URL.Path != "/api/auth/login" {
+					t.Errorf("expected /api/auth/login path, got %s", r.URL.Path)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				if tt.statusCode == http.StatusConflict {
+					resp := client.Error{Error: "user already exists"}
+					require.NoError(t, json.NewEncoder(w).Encode(resp))
+				}
+				if tt.statusCode == http.StatusOK {
+					otp := &tt.otpRequired
+					resp := client.LoginResponse{Token: tt.token, Otp: otp}
+					require.NoError(t, json.NewEncoder(w).Encode(resp))
+				} else if tt.statusCode == http.StatusUnauthorized {
+					// Write error response for 401
+					resp := client.ErrorResponse{Error: "unauthorized"}
+					require.NoError(t, json.NewEncoder(w).Encode(resp))
+				}
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithEndpoint(server.URL))
+			result, err := acc.Login(context.Background(), tt.email, tt.password)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Login() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.statusCode == http.StatusUnauthorized {
+				if !errors.Is(err, ErrUnauthorized) {
+					t.Errorf("Login() error should be ErrUnauthorized, got: %v", err)
+				}
+			}
+
+			if !tt.wantErr {
+				if result.Token != tt.token {
+					t.Errorf("Login() got token = %v, want %v", result.Token, tt.token)
+				}
+				if result.OTPRequired != tt.otpRequired {
+					t.Errorf("Login() got otpRequired = %v, want %v", result.OTPRequired, tt.otpRequired)
+				}
+			}
+		})
+	}
+}
+
+func TestGenerateOTP(t *testing.T) {
+	tests := []struct {
+		name       string
+		secret     string
+		statusCode int
+		wantErr    bool
+	}{
+		{
+			name:       "successful OTP generation",
+			secret:     "JBSWY3DPEHPK3PXP",
+			statusCode: http.StatusOK,
+			wantErr:    false,
+		},
+		{
+			name:       "unauthorized",
+			secret:     "",
+			statusCode: http.StatusUnauthorized,
+			wantErr:    true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "POST" {
+					t.Errorf("expected POST request, got %s", r.Method)
+				}
+
+				if r.URL.Path != "/api/auth/otp/generate" {
+					t.Errorf("expected /api/auth/otp/generate path, got %s", r.URL.Path)
+				}
+
+				switch tt.statusCode {
+				case http.StatusOK:
+					resp := client.OTPGenerateResponse{Otp: tt.secret}
+					body, _ := json.Marshal(resp)
+					w.Header().Set("Content-Type", "application/json")
+					w.WriteHeader(tt.statusCode)
+					w.Write(body)
+				case http.StatusUnauthorized:
+					resp := client.ErrorResponse{Error: "unauthorized"}
+					body, _ := json.Marshal(resp)
+					w.Header().Set("Content-Type", "application/json")
+					w.WriteHeader(tt.statusCode)
+					w.Write(body)
+				default:
+					w.Header().Set("Content-Type", "application/json")
+					w.WriteHeader(tt.statusCode)
+				}
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithEndpoint(server.URL), WithJWT("valid-token"))
+			secret, err := acc.GenerateOTP(context.Background())
+
+			if (err != nil) != tt.wantErr {
+				// Just check that an error occurred for unauthorized
+				if tt.wantErr && err != nil {
+					return
+				}
+				t.Errorf("GenerateOTP() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.statusCode == http.StatusUnauthorized {
+				// Error is expected to be returned
+				return
+			}
+
+			if !tt.wantErr && secret != tt.secret {
+				t.Errorf("GenerateOTP() got = %v, want %v", secret, tt.secret)
+			}
+		})
+	}
+}
+
+func TestVerifyOTP(t *testing.T) {
+	tests := []struct {
+		name       string
+		otp        string
+		statusCode int
+		wantErr    bool
+	}{
+		{
+			name:       "successful OTP verification",
+			otp:        "123456",
+			statusCode: http.StatusNoContent,
+			wantErr:    false,
+		},
+		{
+			name:       "invalid OTP code",
+			otp:        "000000",
+			statusCode: http.StatusBadRequest,
+			wantErr:    true,
+		},
+		{
+			name:       "unauthorized",
+			otp:        "123456",
+			statusCode: http.StatusUnauthorized,
+			wantErr:    true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "POST" {
+					t.Errorf("expected POST request, got %s", r.Method)
+				}
+
+				if r.URL.Path != "/api/auth/otp/verify" {
+					t.Errorf("expected /api/auth/otp/verify path, got %s", r.URL.Path)
+				}
+
+				w.WriteHeader(tt.statusCode)
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithEndpoint(server.URL), WithJWT("valid-token"))
+			err := acc.VerifyOTP(context.Background(), tt.otp)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("VerifyOTP() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.statusCode == http.StatusUnauthorized {
+				if !errors.Is(err, ErrUnauthorized) {
+					t.Errorf("VerifyOTP() error should be ErrUnauthorized, got: %v", err)
+				}
+			}
+		})
+	}
+}
+
+func TestDisableOTP(t *testing.T) {
+	tests := []struct {
+		name       string
+		password   string
+		statusCode int
+		wantErr    bool
+	}{
+		{
+			name:       "successful OTP disable",
+			password:   "password123",
+			statusCode: http.StatusNoContent,
+			wantErr:    false,
+		},
+		{
+			name:       "unauthorized",
+			password:   "wrongpassword",
+			statusCode: http.StatusUnauthorized,
+			wantErr:    true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "POST" {
+					t.Errorf("expected POST request, got %s", r.Method)
+				}
+
+				if r.URL.Path != "/api/auth/otp/disable" {
+					t.Errorf("expected /api/auth/otp/disable path, got %s", r.URL.Path)
+				}
+
+				w.WriteHeader(tt.statusCode)
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithEndpoint(server.URL), WithJWT("valid-token"))
+			err := acc.DisableOTP(context.Background(), tt.password)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("DisableOTP() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.statusCode == http.StatusUnauthorized {
+				if !errors.Is(err, ErrUnauthorized) {
+					t.Errorf("DisableOTP() error should be ErrUnauthorized, got: %v", err)
+				}
+			}
+		})
+	}
+}
+
+func TestValidateOTP(t *testing.T) {
+	tests := []struct {
+		name         string
+		intermediate string
+		otp          string
+		finalToken   string
+		statusCode   int
+		wantErr      bool
+	}{
+		{
+			name:         "invalid OTP code",
+			intermediate: "intermediate-jwt",
+			otp:          "000000",
+			finalToken:   "",
+			statusCode:   http.StatusBadRequest,
+			wantErr:      true,
+		},
+		{
+			name:         "unauthorized",
+			intermediate: "expired-intermediate",
+			otp:          "123456",
+			finalToken:   "",
+			statusCode:   http.StatusUnauthorized,
+			wantErr:      true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "POST" {
+					t.Errorf("expected POST request, got %s", r.Method)
+				}
+
+				if r.URL.Path != "/api/auth/otp/validate" {
+					t.Errorf("expected /api/auth/otp/validate path, got %s", r.URL.Path)
+				}
+
+				authHeader := r.Header.Get("Authorization")
+				expectedAuth := "Bearer " + tt.intermediate
+				if authHeader != expectedAuth {
+					t.Errorf("expected Authorization header %s, got %s", expectedAuth, authHeader)
+				}
+
+				w.WriteHeader(tt.statusCode)
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithEndpoint(server.URL))
+			_, err := acc.ValidateOTP(context.Background(), tt.intermediate, tt.otp)
+
+			if !tt.wantErr {
+				t.Errorf("ValidateOTP() expected error, got none")
+			}
+			if err == nil {
+				t.Errorf("ValidateOTP() expected error, got none")
+			}
+		})
+	}
+}
+
+func TestValidateOTP_NetworkError(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "POST" {
+			t.Errorf("expected POST request, got %s", r.Method)
+		}
+
+		if r.URL.Path != "/api/auth/otp/validate" {
+			t.Errorf("expected /api/auth/otp/validate path, got %s", r.URL.Path)
+		}
+
+		// Simulate network error
+		conn, _, _ := w.(http.Hijacker).Hijack()
+		conn.Close()
+	}))
+	defer server.Close()
+
+	acc := NewClient(WithEndpoint(server.URL))
+	_, err := acc.ValidateOTP(context.Background(), "intermediate-jwt", "123456")
+
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "failed to send OTP validate request")
+}
+
+func TestValidateOTP_EmptyLocation(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "POST" {
+			t.Errorf("expected POST request, got %s", r.Method)
+		}
+
+		if r.URL.Path != "/api/auth/otp/validate" {
+			t.Errorf("expected /api/auth/otp/validate path, got %s", r.URL.Path)
+		}
+
+		// Return 302 but without Location header
+		w.WriteHeader(http.StatusFound)
+	}))
+	defer server.Close()
+
+	acc := NewClient(WithEndpoint(server.URL))
+	_, err := acc.ValidateOTP(context.Background(), "intermediate-jwt", "123456")
+
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "no redirect location provided")
+}
+
+func TestValidateOTP_UnableToExtractJWT(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "POST" {
+			t.Errorf("expected POST request, got %s", r.Method)
+		}
+
+		if r.URL.Path != "/api/auth/otp/validate" {
+			t.Errorf("expected /api/auth/otp/validate path, got %s", r.URL.Path)
+		}
+
+		// Return 302 with Location header that doesn't contain JWT
+		w.Header().Set("Location", "/auth/complete")
+		w.WriteHeader(http.StatusFound)
+	}))
+	defer server.Close()
+
+	// Create client with redirect following disabled to inspect response
+	acc := NewClient(WithEndpoint(server.URL), WithDisableFollowRedirect())
+	_, err := acc.ValidateOTP(context.Background(), "intermediate-jwt", "123456")
+
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "unable to extract final JWT")
+}
+
+func TestValidateOTP_EmptyTokenWithOtherParams(t *testing.T) {
+	// Regression test for bug where empty token value followed by other params
+	// caused incorrect extraction of subsequent parameters as the token
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "POST" {
+			t.Errorf("expected POST request, got %s", r.Method)
+		}
+
+		if r.URL.Path != "/api/auth/otp/validate" {
+			t.Errorf("expected /api/auth/otp/validate path, got %s", r.URL.Path)
+		}
+
+		// Return 302 with Location header containing empty token followed by other params
+		w.Header().Set("Location", "/auth/complete?token=&other=abc&session=xyz")
+		w.WriteHeader(http.StatusFound)
+	}))
+	defer server.Close()
+
+	// Create client with redirect following disabled to inspect response
+	acc := NewClient(WithEndpoint(server.URL), WithDisableFollowRedirect())
+	token, err := acc.ValidateOTP(context.Background(), "intermediate-jwt", "123456")
+
+	// Should return an error since token is empty, not extract "&other=abc&session=xyz"
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "unable to extract final JWT")
+	require.Empty(t, token)
+}
+
+func TestPing(t *testing.T) {
+	tests := []struct {
+		name       string
+		jwt        string
+		statusCode int
+		wantErr    bool
+	}{
+		{
+			name:       "successful ping",
+			jwt:        "valid-token",
+			statusCode: http.StatusOK,
+			wantErr:    false,
+		},
+		{
+			name:       "unauthorized",
+			jwt:        "invalid-token",
+			statusCode: http.StatusUnauthorized,
+			wantErr:    true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "POST" {
+					t.Errorf("expected POST request, got %s", r.Method)
+				}
+
+				if r.URL.Path != "/api/auth/ping" {
+					t.Errorf("expected /api/auth/ping path, got %s", r.URL.Path)
+				}
+
+				w.WriteHeader(tt.statusCode)
+				if tt.statusCode == http.StatusOK {
+					w.Header().Set("Content-Type", "application/json")
+					resp := client.PongResponse{Ping: "pong"}
+					require.NoError(t, json.NewEncoder(w).Encode(resp))
+				}
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithEndpoint(server.URL), WithJWT(tt.jwt))
+			err := acc.Ping(context.Background())
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Ping() error = %v, wantErr %v", err, tt.wantErr)
+			}
+
+			if tt.wantErr && tt.statusCode == http.StatusUnauthorized {
+				if !errors.Is(err, ErrUnauthorized) {
+					t.Errorf("Ping() error should be ErrUnauthorized, got: %v", err)
+				}
+			}
+		})
+	}
+}
+
+func TestUploadLimit(t *testing.T) {
+	tests := []struct {
+		name       string
+		jwt        string
+		limit      int64
+		statusCode int
+		wantErr    bool
+	}{
+		{
+			name:       "successful upload limit",
+			jwt:        "valid-token",
+			limit:      100 * 1024 * 1024,
+			statusCode: http.StatusOK,
+			wantErr:    false,
+		},
+		{
+			name:       "unauthorized",
+			jwt:        "invalid-token",
+			statusCode: http.StatusUnauthorized,
+			wantErr:    true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "GET" {
+					t.Errorf("expected GET request, got %s", r.Method)
+				}
+
+				if r.URL.Path != "/api/upload-limit" {
+					t.Errorf("expected /api/upload-limit path, got %s", r.URL.Path)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				if tt.statusCode == http.StatusOK {
+					resp := client.UploadLimitResponse{Limit: int(tt.limit)}
+					require.NoError(t, json.NewEncoder(w).Encode(resp))
+				}
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithEndpoint(server.URL), WithJWT(tt.jwt))
+			limit, err := acc.UploadLimit(context.Background())
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("UploadLimit() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.statusCode == http.StatusUnauthorized {
+				if !errors.Is(err, ErrUnauthorized) {
+					t.Errorf("UploadLimit() error should be ErrUnauthorized, got: %v", err)
+				}
+			}
+
+			if !tt.wantErr && limit != tt.limit {
+				t.Errorf("UploadLimit() got = %v, want %v", limit, tt.limit)
+			}
+		})
+	}
+}
+
+func TestOperationStatus_IsSettled(t *testing.T) {
+	tests := []struct {
+		name   string
+		status OperationStatus
+		want   bool
+	}{
+		{"pending is not settled", OperationStatusPending, false},
+		{"running is not settled", OperationStatusRunning, false},
+		{"completed is settled", OperationStatusCompleted, true},
+		{"failed is settled", OperationStatusFailed, true},
+		{"error is settled", OperationStatusError, true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.status.IsSettled(); got != tt.want {
+				t.Errorf("IsSettled() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestWaitForOperation(t *testing.T) {
+	// Test with a mock that returns running first, then completed
+	callCount := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		callCount++
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		var resp client.OperationDetailResponse
+		if callCount == 1 {
+			// First call: running
+			resp = client.OperationDetailResponse{
+				Id:              123,
+				Status:          OperationStatusRunning.String(),
+				Cid:             lo.ToPtr("QmTest"),
+				ProgressPercent: float32(25.0),
+				StatusMessage:   "In progress",
+				TotalSteps:      lo.ToPtr[int](4),
+				CurrentStep:     lo.ToPtr[int](1),
+			}
+		} else {
+			// Second call: completed
+			resp = client.OperationDetailResponse{
+				Id:              123,
+				Status:          OperationStatusCompleted.String(),
+				Cid:             lo.ToPtr("QmTest"),
+				ProgressPercent: float32(100.0),
+				StatusMessage:   "Completed",
+				TotalSteps:      lo.ToPtr[int](4),
+				CurrentStep:     lo.ToPtr[int](4),
+			}
+		}
+		require.NoError(t, json.NewEncoder(w).Encode(resp))
+	}))
+	defer server.Close()
+
+	acc := NewClient(WithEndpoint(server.URL), WithJWT("test-token"))
+
+	op, err := acc.WaitForOperation(context.Background(), 123, WithPollInterval(100*time.Millisecond))
+	require.NoError(t, err)
+	require.NotNil(t, op)
+	require.Equal(t, 123, op.Id)
+	require.Equal(t, OperationStatusCompleted.String(), op.Status)
+	require.Equal(t, "QmTest", *op.Cid)
+	require.GreaterOrEqual(t, callCount, 2)
+}
+
+func TestRegister(t *testing.T) {
+	tests := []struct {
+		name       string
+		email      string
+		firstName  string
+		lastName   string
+		password   string
+		statusCode int
+		wantErr    bool
+		errMsg     string
+	}{
+		{
+			name:       "successful registration",
+			email:      "newuser@example.com",
+			firstName:  "John",
+			lastName:   "Doe",
+			password:   "password123",
+			statusCode: http.StatusCreated,
+			wantErr:    false,
+		},
+		{
+			name:       "email already exists",
+			email:      "existing@example.com",
+			firstName:  "John",
+			lastName:   "Doe",
+			password:   "password123",
+			statusCode: http.StatusConflict,
+			wantErr:    true,
+		},
+		{
+			name:       "server error",
+			email:      "test@example.com",
+			firstName:  "John",
+			lastName:   "Doe",
+			password:   "password123",
+			statusCode: http.StatusInternalServerError,
+			wantErr:    true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "POST" {
+					t.Errorf("expected POST request, got %s", r.Method)
+				}
+
+				if r.URL.Path != "/api/auth/register" {
+					t.Errorf("expected /api/auth/register path, got %s", r.URL.Path)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithEndpoint(server.URL))
+			err := acc.Register(context.Background(), tt.email, tt.firstName, tt.lastName, tt.password)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Register() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr {
+				if err == nil {
+					t.Errorf("Register() expected error, got nil")
+				}
+			}
+		})
+	}
+}
+
+func TestVerifyEmail(t *testing.T) {
+	tests := []struct {
+		name       string
+		email      string
+		token      string
+		statusCode int
+		wantErr    bool
+		errMsg     string
+	}{
+		{
+			name:       "successful verification",
+			email:      "user@example.com",
+			token:      "valid-token",
+			statusCode: http.StatusOK,
+			wantErr:    false,
+		},
+		{
+			name:       "invalid token",
+			email:      "user@example.com",
+			token:      "invalid-token",
+			statusCode: http.StatusBadRequest,
+			wantErr:    true,
+			errMsg:     "invalid verification",
+		},
+		{
+			name:       "user not found",
+			email:      "nonexistent@example.com",
+			token:      "token",
+			statusCode: http.StatusNotFound,
+			wantErr:    true,
+			errMsg:     "not found",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "POST" {
+					t.Errorf("expected POST request, got %s", r.Method)
+				}
+
+				if r.URL.Path != "/api/account/verify-email" {
+					t.Errorf("expected /api/account/verify-email path, got %s", r.URL.Path)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithEndpoint(server.URL))
+			err := acc.VerifyEmail(context.Background(), tt.email, tt.token)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("VerifyEmail() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errMsg != "" {
+				if err == nil {
+					t.Errorf("VerifyEmail() expected error containing %q, got nil", tt.errMsg)
+				}
+			}
+		})
+	}
+}
+
+func TestNewClient(t *testing.T) {
+	endpoint := "https://api.example.com"
+	jwt := "test-token"
+
+	acc := NewClient(WithEndpoint(endpoint), WithJWT(jwt))
+
+	c, ok := acc.(*Client)
+	if !ok {
+		t.Fatal("NewClient did not return *Client")
+	}
+
+	if c.client == nil {
+		t.Fatal("generated client should not be nil")
+	}
+}
+
+func TestCreateAPIKey(t *testing.T) {
+	tests := []struct {
+		name       string
+		jwt        string
+		apiKeyName string
+		token      string
+		statusCode int
+		wantErr    bool
+	}{
+		{
+			name:       "successful API key creation",
+			jwt:        "valid-token",
+			apiKeyName: "test-key",
+			token:      "test-api-key-token",
+			statusCode: http.StatusOK,
+			wantErr:    false,
+		},
+		{
+			name:       "unauthorized",
+			jwt:        "invalid-token",
+			apiKeyName: "test-key",
+			statusCode: http.StatusUnauthorized,
+			wantErr:    true,
+		},
+		{
+			name:       "bad request",
+			jwt:        "valid-token",
+			apiKeyName: "",
+			statusCode: http.StatusBadRequest,
+			wantErr:    true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "POST" {
+					t.Errorf("expected POST request, got %s", r.Method)
+				}
+
+				if r.URL.Path != "/api/account/keys" {
+					t.Errorf("expected /api/account/keys path, got %s", r.URL.Path)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				if tt.statusCode == http.StatusOK {
+					resp := client.CreateAPIKeyResponse{
+						Name:  tt.apiKeyName,
+						Token: tt.token,
+						Uuid:  client.BinaryUUID{BinUUID: []int{1, 2, 3, 4}},
+					}
+					require.NoError(t, json.NewEncoder(w).Encode(resp))
+				}
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithEndpoint(server.URL), WithJWT(tt.jwt))
+			apiKey, err := acc.CreateAPIKey(context.Background(), tt.apiKeyName)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("CreateAPIKey() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.statusCode == http.StatusUnauthorized {
+				if !errors.Is(err, ErrUnauthorized) {
+					t.Errorf("CreateAPIKey() error should be ErrUnauthorized, got: %v", err)
+				}
+			}
+
+			if !tt.wantErr {
+				if apiKey == nil {
+					t.Fatal("CreateAPIKey() returned nil API key")
+				}
+				if apiKey.Name != tt.apiKeyName {
+					t.Errorf("CreateAPIKey() got name = %v, want %v", apiKey.Name, tt.apiKeyName)
+				}
+				if apiKey.Token != tt.token {
+					t.Errorf("CreateAPIKey() got token = %v, want %v", apiKey.Token, tt.token)
+				}
+			}
+		})
+	}
+}
+
+func TestPollOptions(t *testing.T) {
+	cfg := &pollConfig{}
+
+	WithPollInterval(2 * time.Second)(cfg)
+	if cfg.interval != 2*time.Second {
+		t.Errorf("expected interval 2s, got %v", cfg.interval)
+	}
+
+	WithPollTimeout(10 * time.Minute)(cfg)
+	if cfg.timeout != 10*time.Minute {
+		t.Errorf("expected timeout 10m, got %v", cfg.timeout)
+	}
+
+	WithPollSettledStates(OperationStatusCompleted, OperationStatusFailed)(cfg)
+	if len(cfg.settledStates) != 2 {
+		t.Errorf("expected 2 settled states, got %d", len(cfg.settledStates))
+	}
+	if cfg.settledStates[0] != OperationStatusCompleted {
+		t.Errorf("expected first state to be completed, got %v", cfg.settledStates[0])
+	}
+}
+
+func TestWaitForOperation_Timeout(t *testing.T) {
+	// Test that WaitForOperation times out when operation never settles
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		resp := client.OperationDetailResponse{
+			Id:            123,
+			Status:        OperationStatusRunning.String(),
+			Cid:           lo.ToPtr("QmTest"),
+			StatusMessage: "Still running",
+		}
+		require.NoError(t, json.NewEncoder(w).Encode(resp))
+	}))
+	defer server.Close()
+
+	acc := NewClient(WithEndpoint(server.URL), WithJWT("test-token"))
+
+	_, err := acc.WaitForOperation(
+		context.Background(),
+		123,
+		WithPollInterval(50*time.Millisecond),
+		WithPollTimeout(200*time.Millisecond),
+	)
+	require.Error(t, err)
+	// Can be either ErrOperationTimeout (from ctx.Done()) or context.DeadlineExceeded (from HTTP request)
+	require.True(t,
+		errors.Is(err, ErrOperationTimeout) || errors.Is(err, context.DeadlineExceeded),
+		"expected timeout error, got: %v", err,
+	)
+}
+
+func TestWaitForOperation_CustomSettledStates(t *testing.T) {
+	// Test that custom settled states work
+	callCount := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		callCount++
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		resp := client.OperationDetailResponse{
+			Id:            123,
+			Status:        OperationStatusFailed.String(),
+			Cid:           lo.ToPtr("QmTest"),
+			StatusMessage: "Operation failed",
+			Error:         lo.ToPtr("test error"),
+		}
+		require.NoError(t, json.NewEncoder(w).Encode(resp))
+	}))
+	defer server.Close()
+
+	acc := NewClient(WithEndpoint(server.URL), WithJWT("test-token"))
+
+	// Only consider "failed" as settled
+	op, err := acc.WaitForOperation(
+		context.Background(),
+		123,
+		WithPollInterval(50*time.Millisecond),
+		WithPollSettledStates(OperationStatusFailed),
+	)
+	require.NoError(t, err)
+	require.NotNil(t, op)
+	require.Equal(t, OperationStatusFailed.String(), op.Status)
+	require.Equal(t, 1, callCount)
+}
+
+func TestWaitForOperation_GetOperationError(t *testing.T) {
+	// Test that WaitForOperation returns error when GetOperation fails
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/api/operations/123" {
+			// Simulate network error
+			conn, _, _ := w.(http.Hijacker).Hijack()
+			conn.Close()
+			return
+		}
+	}))
+	defer server.Close()
+
+	acc := NewClient(WithEndpoint(server.URL), WithJWT("test-token"))
+
+	_, err := acc.WaitForOperation(
+		context.Background(),
+		123,
+		WithPollInterval(50*time.Millisecond),
+		WithPollTimeout(200*time.Millisecond),
+	)
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "failed to get operation 123")
+}
+
+func TestWaitForOperation_ContextTimeout(t *testing.T) {
+	// Test that WaitForOperation returns ErrOperationTimeout when context times out
+	// Use a very short timeout and very long poll interval to ensure context times out first
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/api/operations/123" {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			resp := client.OperationDetailResponse{
+				Id:            123,
+				Status:        OperationStatusRunning.String(),
+				Cid:           lo.ToPtr("QmTest"),
+				StatusMessage: "Still running",
+			}
+			require.NoError(t, json.NewEncoder(w).Encode(resp))
+		}
+	}))
+	defer server.Close()
+
+	acc := NewClient(WithEndpoint(server.URL), WithJWT("test-token"))
+
+	_, err := acc.WaitForOperation(
+		context.Background(),
+		123,
+		WithPollInterval(1*time.Second),      // Long interval so it doesn't tick before timeout
+		WithPollTimeout(50*time.Millisecond), // Very short timeout
+	)
+	require.Error(t, err)
+	require.ErrorIs(t, err, ErrOperationTimeout)
+}
+
+func TestGetOperationFilters(t *testing.T) {
+	tests := []struct {
+		name       string
+		jwt        string
+		statusCode int
+		wantErr    bool
+	}{
+		{
+			name:       "successful get filters",
+			jwt:        "valid-token",
+			statusCode: http.StatusOK,
+			wantErr:    false,
+		},
+		{
+			name:       "unauthorized",
+			jwt:        "invalid-token",
+			statusCode: http.StatusUnauthorized,
+			wantErr:    true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "GET" {
+					t.Errorf("expected GET request, got %s", r.Method)
+				}
+
+				if r.URL.Path != "/api/operations/filters" {
+					t.Errorf("expected /api/operations/filters path, got %s", r.URL.Path)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				if tt.statusCode == http.StatusOK {
+					resp := client.OperationFiltersResponseResponse{
+						Data: client.OperationFiltersResponse{
+							Data: client.OperationFiltersResponseData{
+								Operations: []client.OperationFilterItem{
+									{Name: "upload", Value: "upload"},
+									{Name: "download", Value: "download"},
+								},
+								Protocols: []client.OperationFilterItem{
+									{Name: "ipfs", Value: "ipfs"},
+								},
+								Statuses: []client.OperationFilterItem{
+									{Name: "completed", Value: OperationStatusCompleted.String()},
+									{Name: "running", Value: OperationStatusRunning.String()},
+								},
+							},
+						},
+					}
+					require.NoError(t, json.NewEncoder(w).Encode(resp))
+				}
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithEndpoint(server.URL), WithJWT(tt.jwt))
+			filters, err := acc.GetOperationFilters(context.Background())
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetOperationFilters() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.statusCode == http.StatusUnauthorized {
+				if !errors.Is(err, ErrUnauthorized) {
+					t.Errorf("GetOperationFilters() error should be ErrUnauthorized, got: %v", err)
+				}
+			}
+
+			if !tt.wantErr {
+				if filters == nil {
+					t.Fatal("GetOperationFilters() returned nil filters")
+				}
+				if len(filters.Data.Operations) != 2 {
+					t.Errorf("expected 2 operations, got %d", len(filters.Data.Operations))
+				}
+				if len(filters.Data.Protocols) != 1 {
+					t.Errorf("expected 1 protocol, got %d", len(filters.Data.Protocols))
+				}
+				if len(filters.Data.Statuses) != 2 {
+					t.Errorf("expected 2 statuses, got %d", len(filters.Data.Statuses))
+				}
+			}
+		})
+	}
+}
+
+func TestGetOperationFilters_NetworkError(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "GET" {
+			t.Errorf("expected GET request, got %s", r.Method)
+		}
+
+		if r.URL.Path != "/api/operations/filters" {
+			t.Errorf("expected /api/operations/filters path, got %s", r.URL.Path)
+		}
+
+		// Simulate network error
+		conn, _, _ := w.(http.Hijacker).Hijack()
+		conn.Close()
+	}))
+	defer server.Close()
+
+	acc := NewClient(WithEndpoint(server.URL), WithJWT("valid-token"))
+	_, err := acc.GetOperationFilters(context.Background())
+
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "failed to get operation filters")
+}
+
+func TestListOptions(t *testing.T) {
+	// Test WithFilters - using a real filter
+	filter := queryutil.Equal("status", "completed")
+	opts := &ListOptions{}
+	WithFilters(filter)(opts)
+	require.Len(t, opts.Filters, 1)
+
+	// Test WithSorts - using a real sort
+	sort := queryutil.Sort{Field: "id", Order: "desc"}
+	opts = &ListOptions{}
+	WithSorts(sort)(opts)
+	require.Len(t, opts.Sorts, 1)
+
+	// Test WithPagination - using a real pagination
+	pagination, _ := queryutil.NewPagination(0, 10)
+	opts = &ListOptions{}
+	WithPagination(&pagination)(opts)
+	require.NotNil(t, opts.Pagination)
+
+	// Test WithSearch
+	opts = &ListOptions{}
+	WithSearch("test query")(opts)
+	require.Equal(t, "test query", opts.Search)
+}
+
+func TestListAPIKeys(t *testing.T) {
+	tests := []struct {
+		name       string
+		jwt        string
+		statusCode int
+		wantErr    bool
+		opts       []ListOption
+	}{
+		{
+			name:       "successful list API keys",
+			jwt:        "valid-token",
+			statusCode: http.StatusOK,
+			wantErr:    false,
+			opts:       []ListOption{WithPagination(&queryutil.DefaultPagination)},
+		},
+		{
+			name:       "list API keys with pagination",
+			jwt:        "valid-token",
+			statusCode: http.StatusOK,
+			wantErr:    false,
+			opts:       []ListOption{WithPagination(&queryutil.Pagination{Start: 0, End: 10})},
+		},
+		{
+			name:       "list API keys with pagination (End = 0)",
+			jwt:        "valid-token",
+			statusCode: http.StatusOK,
+			wantErr:    false,
+			opts:       []ListOption{WithPagination(&queryutil.Pagination{Start: 0, End: 0})},
+		},
+		{
+			name:       "list API keys with empty data",
+			jwt:        "valid-token",
+			statusCode: http.StatusOK,
+			wantErr:    false,
+			opts:       []ListOption{},
+		},
+		{
+			name:       "unauthorized",
+			jwt:        "invalid-token",
+			statusCode: http.StatusUnauthorized,
+			wantErr:    true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "GET" {
+					t.Errorf("expected GET request, got %s", r.Method)
+				}
+
+				if r.URL.Path != "/api/account/keys" {
+					t.Errorf("expected /api/account/keys path, got %s", r.URL.Path)
+				}
+
+				// Verify query parameters for pagination test
+				if tt.name == "list API keys with pagination" {
+					if r.URL.Query().Get("_start") != "0" {
+						t.Errorf("expected _start=0, got %s", r.URL.Query().Get("_start"))
+					}
+					if r.URL.Query().Get("_end") != "10" {
+						t.Errorf("expected _end=10, got %s", r.URL.Query().Get("_end"))
+					}
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				if tt.statusCode == http.StatusOK {
+					var resp client.APIKeyListResponse
+					if tt.name == "list API keys with empty data" {
+						resp = client.APIKeyListResponse{
+							Data:  []client.APIKeyResponse{},
+							Total: 0,
+						}
+					} else {
+						resp = client.APIKeyListResponse{
+							Data: []client.APIKeyResponse{
+								{
+									Name:      "test-key-1",
+									CreatedAt: time.Now(),
+									Uuid:      client.BinaryUUID{BinUUID: []int{1, 2, 3, 4}},
+								},
+								{
+									Name:      "test-key-2",
+									CreatedAt: time.Now(),
+									Uuid:      client.BinaryUUID{BinUUID: []int{5, 6, 7, 8}},
+								},
+							},
+							Total: 2,
+						}
+					}
+					require.NoError(t, json.NewEncoder(w).Encode(resp))
+				}
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithEndpoint(server.URL), WithJWT(tt.jwt))
+			keys, err := acc.ListAPIKeys(context.Background(), tt.opts...)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ListAPIKeys() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.statusCode == http.StatusUnauthorized {
+				// The error is a generic error message, not ErrUnauthorized
+				if err == nil {
+					t.Errorf("ListAPIKeys() expected error for unauthorized, got nil")
+				}
+			}
+
+			if !tt.wantErr {
+				if keys == nil {
+					t.Fatal("ListAPIKeys() returned nil keys")
+				}
+				if tt.name == "list API keys with empty data" {
+					if len(keys) != 0 {
+						t.Errorf("expected 0 API keys for empty data, got %d", len(keys))
+					}
+				} else {
+					if len(keys) != 2 {
+						t.Errorf("expected 2 API keys, got %d", len(keys))
+					}
+					if keys[0].Name != "test-key-1" {
+						t.Errorf("ListAPIKeys() got name = %v, want test-key-1", keys[0].Name)
+					}
+				}
+			}
+		})
+	}
+}
+
+func TestListAPIKeys_NetworkError(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "GET" {
+			t.Errorf("expected GET request, got %s", r.Method)
+		}
+
+		if r.URL.Path != "/api/account/keys" {
+			t.Errorf("expected /api/account/keys path, got %s", r.URL.Path)
+		}
+
+		// Simulate network error
+		conn, _, _ := w.(http.Hijacker).Hijack()
+		conn.Close()
+	}))
+	defer server.Close()
+
+	acc := NewClient(WithEndpoint(server.URL), WithJWT("valid-token"))
+	_, err := acc.ListAPIKeys(context.Background())
+
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "failed to send list API keys request")
+}
+
+func TestListAPIKeys_NilJSON200(t *testing.T) {
+	// This test specifically targets the coverage gap where resp.JSON200 == nil
+	// We need to mock the generated client to return a response with 200 status but nil JSON200
+
+	mockClient := mocks.NewMockClientWithResponsesInterface(t)
+
+	// Create a mock response with 200 status but nil JSON200
+	mockResp := &client.GetApiAccountKeysResponse{
+		Body:         []byte(""),
+		HTTPResponse: &http.Response{StatusCode: http.StatusOK},
+		JSON200:      nil, // This is the key - 200 status but nil JSON200
+	}
+
+	mockClient.On("GetApiAccountKeysWithResponse", mock.Anything, mock.Anything).
+		Return(mockResp, nil)
+
+	acc := NewClientWithDefaults(mockClient)
+	_, err := acc.ListAPIKeys(context.Background())
+
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "list API keys response did not contain data")
+}
+
+func TestListAPIKeys_PaginationCoverage(t *testing.T) {
+	// This test specifically targets the coverage gap in ListAPIKeys
+	// where params.UnderscoreEnd is set when options.Pagination.End != 0
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "GET" {
+			t.Errorf("expected GET request, got %s", r.Method)
+		}
+
+		if r.URL.Path != "/api/account/keys" {
+			t.Errorf("expected /api/account/keys path, got %s", r.URL.Path)
+		}
+
+		// Verify that pagination parameters are present
+		start := r.URL.Query().Get("_start")
+		end := r.URL.Query().Get("_end")
+
+		if start != "0" {
+			t.Errorf("expected _start=0, got %s", start)
+		}
+		if end != "10" {
+			t.Errorf("expected _end=10, got %s", end)
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		resp := client.APIKeyListResponse{
+			Data: []client.APIKeyResponse{
+				{
+					Name:      "test-key",
+					CreatedAt: time.Now(),
+					Uuid:      client.BinaryUUID{BinUUID: []int{1, 2, 3, 4}},
+				},
+			},
+			Total: 1,
+		}
+		require.NoError(t, json.NewEncoder(w).Encode(resp))
+	}))
+	defer server.Close()
+
+	acc := NewClient(WithEndpoint(server.URL), WithJWT("valid-token"))
+
+	// Create a pagination struct with both Start and End set
+	pagination := queryutil.Pagination{Start: 0, End: 10}
+
+	// Call ListAPIKeys with pagination options
+	keys, err := acc.ListAPIKeys(context.Background(), WithPagination(&pagination))
+
+	require.NoError(t, err)
+	require.NotNil(t, keys)
+	require.Len(t, keys, 1)
+	require.Equal(t, "test-key", keys[0].Name)
+}
+
+func TestDeleteAPIKey(t *testing.T) {
+	tests := []struct {
+		name       string
+		jwt        string
+		keyID      []int
+		statusCode int
+		wantErr    bool
+	}{
+		{
+			name:       "successful delete API key",
+			jwt:        "valid-token",
+			keyID:      []int{1, 2, 3, 4},
+			statusCode: http.StatusOK,
+			wantErr:    false,
+		},
+		{
+			name:       "unauthorized",
+			jwt:        "invalid-token",
+			keyID:      []int{1, 2, 3, 4},
+			statusCode: http.StatusUnauthorized,
+			wantErr:    true,
+		},
+		{
+			name:       "not found",
+			jwt:        "valid-token",
+			keyID:      []int{9, 9, 9, 9},
+			statusCode: http.StatusNotFound,
+			wantErr:    true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "DELETE" {
+					t.Errorf("expected DELETE request, got %s", r.Method)
+				}
+
+				w.WriteHeader(tt.statusCode)
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithEndpoint(server.URL), WithJWT(tt.jwt))
+			err := acc.DeleteAPIKey(context.Background(), tt.keyID)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("DeleteAPIKey() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.statusCode == http.StatusUnauthorized {
+				// The error is a generic error message, not ErrUnauthorized
+				if err == nil {
+					t.Errorf("DeleteAPIKey() expected error for unauthorized, got nil")
+				}
+			}
+		})
+	}
+}
+
+func TestDeleteAPIKey_NetworkError(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "DELETE" {
+			t.Errorf("expected DELETE request, got %s", r.Method)
+		}
+
+		// Simulate network error
+		conn, _, _ := w.(http.Hijacker).Hijack()
+		conn.Close()
+	}))
+	defer server.Close()
+
+	acc := NewClient(WithEndpoint(server.URL), WithJWT("valid-token"))
+	err := acc.DeleteAPIKey(context.Background(), []int{1, 2, 3, 4})
+
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "failed to send delete API key request")
+}
+
+func TestNewClientWithDefaults(t *testing.T) {
+	// Create a mock client for testing
+	mockClient := mocks.NewMockClientWithResponsesInterface(t)
+	acc := NewClientWithDefaults(mockClient)
+
+	c, ok := acc.(*Client)
+	require.True(t, ok)
+	require.NotNil(t, c)
+	require.Equal(t, mockClient, c.client)
+}
+
+func TestValidateOTP_Success(t *testing.T) {
+	tests := []struct {
+		name         string
+		intermediate string
+		otp          string
+		finalToken   string
+		location     string
+		cookies      []*http.Cookie
+	}{
+		{
+			name:         "JWT from cookie",
+			intermediate: "intermediate-jwt",
+			otp:          "123456",
+			finalToken:   "final-jwt-token",
+			location:     "/auth/complete",
+			cookies:      []*http.Cookie{{Name: "auth", Value: "final-jwt-token"}},
+		},
+		{
+			name:         "JWT from full URL Location header with &",
+			intermediate: "intermediate-jwt",
+			otp:          "123456",
+			finalToken:   "final-jwt-token",
+			location:     "http://localhost/auth/complete?token=final-jwt-token&redirect=/",
+		},
+		{
+			name:         "JWT from full URL Location header without &",
+			intermediate: "intermediate-jwt",
+			otp:          "123456",
+			finalToken:   "final-jwt-token",
+			location:     "http://localhost/auth/complete?token=final-jwt-token",
+		},
+		{
+			name:         "JWT from Location header with &",
+			intermediate: "intermediate-jwt",
+			otp:          "123456",
+			finalToken:   "final-jwt-token",
+			location:     "/auth/complete?token=final-jwt-token&redirect=/",
+		},
+		{
+			name:         "JWT from Location header without &",
+			intermediate: "intermediate-jwt",
+			otp:          "123456",
+			finalToken:   "final-jwt-token",
+			location:     "/auth/complete?token=final-jwt-token",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "POST" {
+					t.Errorf("expected POST request, got %s", r.Method)
+				}
+
+				if r.URL.Path != "/api/auth/otp/validate" {
+					t.Errorf("expected /api/auth/otp/validate path, got %s", r.URL.Path)
+				}
+
+				authHeader := r.Header.Get("Authorization")
+				expectedAuth := "Bearer " + tt.intermediate
+				if authHeader != expectedAuth {
+					t.Errorf("expected Authorization header %s, got %s", expectedAuth, authHeader)
+				}
+
+				w.Header().Set("Location", tt.location)
+				for _, cookie := range tt.cookies {
+					http.SetCookie(w, cookie)
+				}
+				w.WriteHeader(http.StatusFound)
+			}))
+			defer server.Close()
+
+			// Create client with redirect following disabled to inspect response
+			acc := NewClient(WithEndpoint(server.URL), WithDisableFollowRedirect())
+			token, err := acc.ValidateOTP(context.Background(), tt.intermediate, tt.otp)
+
+			if err != nil {
+				t.Errorf("ValidateOTP() error = %v", err)
+			}
+			if token != tt.finalToken {
+				t.Errorf("ValidateOTP() got = %v, want %v", token, tt.finalToken)
+			}
+		})
+	}
+}
+
+func TestLogin_ErrorPaths(t *testing.T) {
+	tests := []struct {
+		name       string
+		email      string
+		password   string
+		statusCode int
+		token      string
+		wantErr    bool
+		errCheck   func(t *testing.T, err error)
+	}{
+		{
+			name:       "network error",
+			email:      "test@example.com",
+			password:   "password",
+			statusCode: http.StatusOK,
+			token:      "",
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), "failed to send login request")
+			},
+		},
+		{
+			name:       "empty token response",
+			email:      "test@example.com",
+			password:   "password",
+			statusCode: http.StatusOK,
+			token:      "",
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), "did not contain a token")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if tt.name == "network error" {
+					// Force connection close to simulate network error
+					conn, _, _ := w.(http.Hijacker).Hijack()
+					conn.Close()
+					return
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				if tt.token != "" {
+					otp := false
+					resp := client.LoginResponse{Token: tt.token, Otp: &otp}
+					require.NoError(t, json.NewEncoder(w).Encode(resp))
+				} else {
+					resp := client.LoginResponse{Token: ""}
+					require.NoError(t, json.NewEncoder(w).Encode(resp))
+				}
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithEndpoint(server.URL))
+			_, err := acc.Login(context.Background(), tt.email, tt.password)
+
+			if tt.wantErr {
+				require.Error(t, err)
+				tt.errCheck(t, err)
+			}
+		})
+	}
+}
+
+func TestPing_ErrorPath(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "POST" {
+			t.Errorf("expected POST request, got %s", r.Method)
+		}
+
+		if r.URL.Path != "/api/auth/ping" {
+			t.Errorf("expected /api/auth/ping path, got %s", r.URL.Path)
+		}
+
+		// Simulate network error
+		conn, _, _ := w.(http.Hijacker).Hijack()
+		conn.Close()
+	}))
+	defer server.Close()
+
+	acc := NewClient(WithEndpoint(server.URL), WithJWT("valid-token"))
+	err := acc.Ping(context.Background())
+
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "failed to send ping request")
+}
+
+func TestGenerateOTP_ErrorPaths(t *testing.T) {
+	tests := []struct {
+		name       string
+		statusCode int
+		secret     string
+		wantErr    bool
+		errCheck   func(t *testing.T, err error)
+	}{
+		{
+			name:       "network error",
+			statusCode: http.StatusOK,
+			secret:     "",
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), "failed to send OTP generate request")
+			},
+		},
+		{
+			name:       "bad request",
+			statusCode: http.StatusUnauthorized,
+			secret:     "",
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.Error(t, err)
+				// The error should be "unauthorized" or "authentication required"
+				// Note: This test may fail due to JSON parsing errors in the generated client
+				// before handleResponse is called
+			},
+		},
+		{
+			name:       "empty secret response",
+			statusCode: http.StatusOK,
+			secret:     "",
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), "did not contain a secret")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "POST" {
+					t.Errorf("expected POST request, got %s", r.Method)
+				}
+
+				if r.URL.Path != "/api/auth/otp/generate" {
+					t.Errorf("expected /api/auth/otp/generate path, got %s", r.URL.Path)
+				}
+
+				if tt.name == "network error" {
+					conn, _, _ := w.(http.Hijacker).Hijack()
+					conn.Close()
+					return
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				if tt.statusCode == http.StatusOK {
+					resp := client.OTPGenerateResponse{Otp: tt.secret}
+					require.NoError(t, json.NewEncoder(w).Encode(resp))
+				}
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithEndpoint(server.URL), WithJWT("valid-token"))
+			secret, err := acc.GenerateOTP(context.Background())
+
+			if tt.wantErr {
+				require.Error(t, err)
+				tt.errCheck(t, err)
+			} else {
+				require.NoError(t, err)
+				require.Equal(t, tt.secret, secret)
+			}
+		})
+	}
+}
+
+func TestVerifyOTP_ErrorPath(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "POST" {
+			t.Errorf("expected POST request, got %s", r.Method)
+		}
+
+		if r.URL.Path != "/api/auth/otp/verify" {
+			t.Errorf("expected /api/auth/otp/verify path, got %s", r.URL.Path)
+		}
+
+		// Simulate network error
+		conn, _, _ := w.(http.Hijacker).Hijack()
+		conn.Close()
+	}))
+	defer server.Close()
+
+	acc := NewClient(WithEndpoint(server.URL), WithJWT("valid-token"))
+	err := acc.VerifyOTP(context.Background(), "123456")
+
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "failed to send OTP verify request")
+}
+
+func TestDisableOTP_ErrorPath(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "POST" {
+			t.Errorf("expected POST request, got %s", r.Method)
+		}
+
+		if r.URL.Path != "/api/auth/otp/disable" {
+			t.Errorf("expected /api/auth/otp/disable path, got %s", r.URL.Path)
+		}
+
+		// Simulate network error
+		conn, _, _ := w.(http.Hijacker).Hijack()
+		conn.Close()
+	}))
+	defer server.Close()
+
+	acc := NewClient(WithEndpoint(server.URL), WithJWT("valid-token"))
+	err := acc.DisableOTP(context.Background(), "password123")
+
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "failed to send OTP disable request")
+}
+
+func TestUploadLimit_ErrorPath(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "GET" {
+			t.Errorf("expected GET request, got %s", r.Method)
+		}
+
+		if r.URL.Path != "/api/upload-limit" {
+			t.Errorf("expected /api/upload-limit path, got %s", r.URL.Path)
+		}
+
+		// Simulate network error
+		conn, _, _ := w.(http.Hijacker).Hijack()
+		conn.Close()
+	}))
+	defer server.Close()
+
+	acc := NewClient(WithEndpoint(server.URL), WithJWT("valid-token"))
+	_, err := acc.UploadLimit(context.Background())
+
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "failed to send upload limit request")
+}
+
+func TestGetOperation_ErrorPath(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "GET" {
+			t.Errorf("expected GET request, got %s", r.Method)
+		}
+
+		if r.URL.Path != "/api/operations/123" {
+			t.Errorf("expected /api/operations/123 path, got %s", r.URL.Path)
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		resp := client.OperationDetailResponse{
+			Id:            123,
+			Status:        OperationStatusCompleted.String(),
+			Cid:           lo.ToPtr("QmTest"),
+			StatusMessage: "Completed",
+		}
+		require.NoError(t, json.NewEncoder(w).Encode(resp))
+	}))
+	defer server.Close()
+
+	acc := NewClient(WithEndpoint(server.URL), WithJWT("test-token"))
+
+	// First call should succeed
+	op, err := acc.GetOperation(context.Background(), 123)
+	require.NoError(t, err)
+	require.NotNil(t, op)
+	require.Equal(t, 123, op.Id)
+}
+
+func TestGetOperation_NetworkError(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "GET" {
+			t.Errorf("expected GET request, got %s", r.Method)
+		}
+
+		if r.URL.Path != "/api/operations/123" {
+			t.Errorf("expected /api/operations/123 path, got %s", r.URL.Path)
+		}
+
+		// Simulate network error
+		conn, _, _ := w.(http.Hijacker).Hijack()
+		conn.Close()
+	}))
+	defer server.Close()
+
+	acc := NewClient(WithEndpoint(server.URL), WithJWT("test-token"))
+	_, err := acc.GetOperation(context.Background(), 123)
+
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "failed to get operation 123")
+}
+
+func TestGetOperation_Unauthorized(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "GET" {
+			t.Errorf("expected GET request, got %s", r.Method)
+		}
+
+		if r.URL.Path != "/api/operations/123" {
+			t.Errorf("expected /api/operations/123 path, got %s", r.URL.Path)
+		}
+
+		w.WriteHeader(http.StatusUnauthorized)
+	}))
+	defer server.Close()
+
+	acc := NewClient(WithEndpoint(server.URL), WithJWT("invalid-token"))
+	_, err := acc.GetOperation(context.Background(), 123)
+
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "authentication required")
+}
+
+func TestListOperations(t *testing.T) {
+	tests := []struct {
+		name       string
+		jwt        string
+		statusCode int
+		wantErr    bool
+		opts       []ListOption
+	}{
+		{
+			name:       "successful list operations",
+			jwt:        "valid-token",
+			statusCode: http.StatusOK,
+			wantErr:    false,
+			opts:       []ListOption{WithSearch("test"), WithPagination(&queryutil.DefaultPagination)},
+		},
+		{
+			name:       "list operations with sorts and filters",
+			jwt:        "valid-token",
+			statusCode: http.StatusOK,
+			wantErr:    false,
+			opts: []ListOption{
+				WithSorts(queryutil.Sort{Field: "id", Order: "desc"}),
+				WithFilters(queryutil.Equal("status", "completed")),
+			},
+		},
+		{
+			name:       "unauthorized",
+			jwt:        "invalid-token",
+			statusCode: http.StatusUnauthorized,
+			wantErr:    true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "GET" {
+					t.Errorf("expected GET request, got %s", r.Method)
+				}
+
+				if r.URL.Path != "/api/operations" {
+					t.Errorf("expected /api/operations path, got %s", r.URL.Path)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				if tt.statusCode == http.StatusOK {
+					resp := client.OperationListItemResponse{
+						Data: []client.OperationListItem{
+							{
+								Id:                   1,
+								Operation:            "upload",
+								OperationDisplayName: "Upload",
+								Protocol:             "ipfs",
+								ProtocolDisplayName:  "IPFS",
+								Status:               OperationStatusCompleted.String(),
+								StatusDisplayName:    "Completed",
+								StatusMessage:        "Done",
+								ProgressPercent:      100.0,
+								Cid:                  lo.ToPtr("QmTest1"),
+								CurrentStep:          lo.ToPtr[int](1),
+								TotalSteps:           lo.ToPtr[int](1),
+								StartedAt:            time.Now(),
+								UpdatedAt:            time.Now(),
+							},
+							{
+								Id:                   2,
+								Operation:            "download",
+								OperationDisplayName: "Download",
+								Protocol:             "ipfs",
+								ProtocolDisplayName:  "IPFS",
+								Status:               OperationStatusRunning.String(),
+								StatusDisplayName:    "Running",
+								StatusMessage:        "In progress",
+								ProgressPercent:      50.0,
+								Cid:                  lo.ToPtr("QmTest2"),
+								CurrentStep:          lo.ToPtr[int](1),
+								TotalSteps:           lo.ToPtr[int](2),
+								StartedAt:            time.Now(),
+								UpdatedAt:            time.Now(),
+							},
+						},
+						Total: 2,
+					}
+					require.NoError(t, json.NewEncoder(w).Encode(resp))
+				}
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithEndpoint(server.URL), WithJWT(tt.jwt))
+			ops, err := acc.ListOperations(context.Background(), tt.opts...)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ListOperations() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.statusCode == http.StatusUnauthorized {
+				if !errors.Is(err, ErrUnauthorized) {
+					t.Errorf("ListOperations() error should be ErrUnauthorized, got: %v", err)
+				}
+			}
+
+			if !tt.wantErr {
+				if ops == nil {
+					t.Fatal("ListOperations() returned nil operations")
+				}
+				if len(ops) != 2 {
+					t.Errorf("expected 2 operations, got %d", len(ops))
+				}
+			}
+		})
+	}
+}
+
+func TestListOperations_NetworkError(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "GET" {
+			t.Errorf("expected GET request, got %s", r.Method)
+		}
+
+		if r.URL.Path != "/api/operations" {
+			t.Errorf("expected /api/operations path, got %s", r.URL.Path)
+		}
+
+		// Simulate network error
+		conn, _, _ := w.(http.Hijacker).Hijack()
+		conn.Close()
+	}))
+	defer server.Close()
+
+	acc := NewClient(WithEndpoint(server.URL), WithJWT("valid-token"))
+	_, err := acc.ListOperations(context.Background())
+
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "failed to list operations")
+}
+
+func TestOperationListItemToDetail(t *testing.T) {
+	now := time.Now()
+	nowPtr := &now
+	listItem := client.OperationListItem{
+		Id:                    123,
+		Operation:             "upload",
+		OperationDisplayName:  "Upload",
+		Protocol:              "ipfs",
+		ProtocolDisplayName:   "IPFS",
+		Status:                OperationStatusCompleted.String(),
+		StatusDisplayName:     "Completed",
+		StatusMessage:         "Done",
+		ProgressPercent:       100.0,
+		Cid:                   lo.ToPtr("QmTest"),
+		CurrentStep:           lo.ToPtr[int](2),
+		TotalSteps:            lo.ToPtr[int](4),
+		Error:                 lo.ToPtr("test error"),
+		StartedAt:             now,
+		UpdatedAt:             now,
+		EstimatedCompletionAt: nowPtr,
+	}
+
+	detail := operationListItemToDetail(listItem)
+
+	require.Equal(t, listItem.Id, detail.Id)
+	require.Equal(t, listItem.Operation, detail.Operation)
+	require.Equal(t, listItem.Protocol, detail.Protocol)
+	require.Equal(t, listItem.Status, detail.Status)
+	require.Equal(t, listItem.Cid, detail.Cid)
+	require.Equal(t, listItem.CurrentStep, detail.CurrentStep)
+	require.Equal(t, listItem.TotalSteps, detail.TotalSteps)
+	require.Equal(t, listItem.Error, detail.Error)
+	require.Equal(t, listItem.EstimatedCompletionAt, detail.EstimatedCompletionAt)
+}
+
+func TestOperation_IsSettled(t *testing.T) {
+	tests := []struct {
+		name   string
+		status string
+		want   bool
+	}{
+		{"pending is not settled", OperationStatusPending.String(), false},
+		{"running is not settled", OperationStatusRunning.String(), false},
+		{"completed is settled", OperationStatusCompleted.String(), true},
+		{"failed is settled", OperationStatusFailed.String(), true},
+		{"error is settled", OperationStatusError.String(), true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			op := &Operation{OperationDetailResponse: client.OperationDetailResponse{
+				Id:     123,
+				Status: tt.status,
+			}}
+			if got := op.IsSettled(); got != tt.want {
+				t.Errorf("IsSettled() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestValidateJSON200_ErrorPaths(t *testing.T) {
+	tests := []struct {
+		name       string
+		statusCode int
+		json200    *client.UploadLimitResponse
+		nilMsg     string
+		wantErr    bool
+		errCheck   func(t *testing.T, err error)
+	}{
+		{
+			name:       "unauthorized",
+			statusCode: http.StatusUnauthorized,
+			json200:    nil,
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), "authentication required")
+			},
+		},
+		{
+			name:       "bad request with body",
+			statusCode: http.StatusBadRequest,
+			json200:    nil,
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), "failed with status 400")
+			},
+		},
+		{
+			name:       "ok but nil json200",
+			statusCode: http.StatusOK,
+			json200:    nil,
+			nilMsg:     "test nil message",
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), "test nil message")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			body := []byte("test body")
+			data, err := validateJSON200(tt.statusCode, body, tt.json200, tt.nilMsg)
+
+			if tt.wantErr {
+				require.Error(t, err)
+				tt.errCheck(t, err)
+			} else {
+				require.NoError(t, err)
+				require.NotNil(t, data)
+			}
+		})
+	}
+}
+
+func TestHandleResponse_GenericErrorPath(t *testing.T) {
+	tests := []struct {
+		name         string
+		statusCode   int
+		op           int
+		successCodes []int
+		body         []byte
+		wantErr      bool
+		errCheck     func(t *testing.T, err error)
+	}{
+		{
+			name:         "generic error with unknown operation",
+			statusCode:   http.StatusInternalServerError,
+			op:           999, // unknown operation
+			successCodes: []int{http.StatusOK},
+			body:         []byte("internal server error"),
+			wantErr:      true,
+			errCheck: func(t *testing.T, err error) {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), "operation failed with status 500")
+			},
+		},
+		{
+			name:         "generic error with unknown status code for known operation",
+			statusCode:   http.StatusTooManyRequests,
+			op:           OpLogin,
+			successCodes: []int{http.StatusOK},
+			body:         []byte("rate limit exceeded"),
+			wantErr:      true,
+			errCheck: func(t *testing.T, err error) {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), "login failed with status 429")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := handleResponse(tt.statusCode, tt.body, tt.op, tt.successCodes)
+
+			if tt.wantErr {
+				require.Error(t, err)
+				tt.errCheck(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+		})
+	}
+}
+
+func TestCheckResponseWithBody(t *testing.T) {
+	tests := []struct {
+		name       string
+		statusCode int
+		body       []byte
+		operation  string
+		wantErr    bool
+		errCheck   func(t *testing.T, err error)
+	}{
+		{
+			name:       "success",
+			statusCode: http.StatusOK,
+			body:       []byte("success"),
+			operation:  "test operation",
+			wantErr:    false,
+		},
+		{
+			name:       "error with status",
+			statusCode: http.StatusBadRequest,
+			body:       []byte("bad request"),
+			operation:  "test operation",
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), "test operation failed with status 400")
+				require.Contains(t, err.Error(), "bad request")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := checkResponseWithBody(tt.statusCode, tt.body, tt.operation)
+
+			if tt.wantErr {
+				require.Error(t, err)
+				tt.errCheck(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+		})
+	}
+}
