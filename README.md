@@ -200,7 +200,7 @@ client := account.NewClient(
 The SDK follows a layered architecture:
 
 1. **OpenAPI Specification** (`swagger.yaml`) - Source of truth for API contract
-2. **Generated Client** (`client/client.gen.go`) - Auto-generated HTTP client
+2. **Generated Client** (`internal/client/client.gen.go`) - Auto-generated HTTP client (internal implementation)
 3. **Public API** (`account.go`) - High-level abstractions and convenience methods
 4. **Testing Layer** (`account_test.go`) - Unit tests with HTTP mocking
 
@@ -223,7 +223,7 @@ go build ./...
 ```go generate ./...
 ```
 
-This regenerates `client/client.gen.go` from `swagger.yaml`.
+This regenerates `internal/client/client.gen.go` from `swagger.yaml`.
 
 ### Run Tests
 

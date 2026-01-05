@@ -9,7 +9,7 @@ import (
 	"io"
 
 	mock "github.com/stretchr/testify/mock"
-	"go.lumeweb.com/portal-sdk/client"
+	"go.lumeweb.com/portal-sdk/internal/client"
 )
 
 // NewMockClientWithResponsesInterface creates a new instance of MockClientWithResponsesInterface. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
