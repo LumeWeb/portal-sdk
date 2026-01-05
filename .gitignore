@@ -31,3 +31,9 @@ go.work.sum
  .idea/
 # .vscode/
 .aider*
+
+# Knope changesets (consumed during release)
+.knope/
+ .idea/
+# .vscode/
+.aider*
