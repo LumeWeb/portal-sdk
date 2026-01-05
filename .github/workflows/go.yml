@@ -62,4 +62,5 @@ jobs:
           **Total Coverage:** ${{ steps.coverage.outputs.percent }}
           
           Generated from commit: ${{ github.sha }}
+          **Repository:** ${{ github.repository }}
         edit-mode: replace
