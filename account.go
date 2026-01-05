@@ -309,6 +309,23 @@ func newAPIKey(data client.CreateAPIKeyResponse) *APIKey {
 	return &APIKey{CreateAPIKeyResponse: data}
 }
 
+// NewAPIKey creates an APIKey with the given name and token.
+func NewAPIKey(name, token string) *APIKey {
+	return &APIKey{CreateAPIKeyResponse: client.CreateAPIKeyResponse{
+		Name:  name,
+		Token: token,
+	}}
+}
+
+// NewLoginResult creates a LoginResult with the given parameters.
+func NewLoginResult(token string, otpRequired bool, intermediateJWT string) *LoginResult {
+	return &LoginResult{
+		Token:           token,
+		OTPRequired:     otpRequired,
+		IntermediateJWT: intermediateJWT,
+	}
+}
+
 // newOperation creates a new Operation from an OperationDetailResponse.
 func newOperation(data client.OperationDetailResponse) *Operation {
 	return &Operation{OperationDetailResponse: data}
