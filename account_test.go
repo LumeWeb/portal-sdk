@@ -1403,28 +1403,28 @@ func TestDeleteAPIKey(t *testing.T) {
 	tests := []struct {
 		name       string
 		jwt        string
-		keyID      []int
+		keyID      string
 		statusCode int
 		wantErr    bool
 	}{
 		{
 			name:       "successful delete API key",
 			jwt:        "valid-token",
-			keyID:      []int{1, 2, 3, 4},
+			keyID:      "550e8400-e29b-41d4-a716-446655440000",
 			statusCode: http.StatusOK,
 			wantErr:    false,
 		},
 		{
 			name:       "unauthorized",
 			jwt:        "invalid-token",
-			keyID:      []int{1, 2, 3, 4},
+			keyID:      "550e8400-e29b-41d4-a716-446655440000",
 			statusCode: http.StatusUnauthorized,
 			wantErr:    true,
 		},
 		{
 			name:       "not found",
 			jwt:        "valid-token",
-			keyID:      []int{9, 9, 9, 9},
+			keyID:      "550e8400-e29b-41d4-a716-446655440001",
 			statusCode: http.StatusNotFound,
 			wantErr:    true,
 		},
@@ -1472,7 +1472,7 @@ func TestDeleteAPIKey_NetworkError(t *testing.T) {
 	defer server.Close()
 
 	acc := NewClient(WithEndpoint(server.URL), WithJWT("valid-token"))
-	err := acc.DeleteAPIKey(context.Background(), []int{1, 2, 3, 4})
+	err := acc.DeleteAPIKey(context.Background(), "550e8400-e29b-41d4-a716-446655440000")
 
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "failed to send delete API key request")

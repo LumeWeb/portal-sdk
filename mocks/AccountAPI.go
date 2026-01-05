@@ -106,6 +106,63 @@ func (_c *MockAccountAPI_CreateAPIKey_Call) RunAndReturn(run func(ctx context.Co
 	return _c
 }
 
+// DeleteAPIKey provides a mock function for the type MockAccountAPI
+func (_mock *MockAccountAPI) DeleteAPIKey(ctx context.Context, keyID string) error {
+	ret := _mock.Called(ctx, keyID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteAPIKey")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = returnFunc(ctx, keyID)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockAccountAPI_DeleteAPIKey_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteAPIKey'
+type MockAccountAPI_DeleteAPIKey_Call struct {
+	*mock.Call
+}
+
+// DeleteAPIKey is a helper method to define mock.On call
+//   - ctx context.Context
+//   - keyID string
+func (_e *MockAccountAPI_Expecter) DeleteAPIKey(ctx interface{}, keyID interface{}) *MockAccountAPI_DeleteAPIKey_Call {
+	return &MockAccountAPI_DeleteAPIKey_Call{Call: _e.mock.On("DeleteAPIKey", ctx, keyID)}
+}
+
+func (_c *MockAccountAPI_DeleteAPIKey_Call) Run(run func(ctx context.Context, keyID string)) *MockAccountAPI_DeleteAPIKey_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockAccountAPI_DeleteAPIKey_Call) Return(err error) *MockAccountAPI_DeleteAPIKey_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockAccountAPI_DeleteAPIKey_Call) RunAndReturn(run func(ctx context.Context, keyID string) error) *MockAccountAPI_DeleteAPIKey_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // DisableOTP provides a mock function for the type MockAccountAPI
 func (_mock *MockAccountAPI) DisableOTP(ctx context.Context, password string) error {
 	ret := _mock.Called(ctx, password)
@@ -349,6 +406,87 @@ func (_c *MockAccountAPI_GetOperationFilters_Call) Return(operationFilters *acco
 }
 
 func (_c *MockAccountAPI_GetOperationFilters_Call) RunAndReturn(run func(ctx context.Context) (*account.OperationFilters, error)) *MockAccountAPI_GetOperationFilters_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ListAPIKeys provides a mock function for the type MockAccountAPI
+func (_mock *MockAccountAPI) ListAPIKeys(ctx context.Context, opts ...account.ListOption) ([]*account.APIKey, error) {
+	// account.ListOption
+	_va := make([]interface{}, len(opts))
+	for _i := range opts {
+		_va[_i] = opts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListAPIKeys")
+	}
+
+	var r0 []*account.APIKey
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ...account.ListOption) ([]*account.APIKey, error)); ok {
+		return returnFunc(ctx, opts...)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ...account.ListOption) []*account.APIKey); ok {
+		r0 = returnFunc(ctx, opts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*account.APIKey)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, ...account.ListOption) error); ok {
+		r1 = returnFunc(ctx, opts...)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockAccountAPI_ListAPIKeys_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListAPIKeys'
+type MockAccountAPI_ListAPIKeys_Call struct {
+	*mock.Call
+}
+
+// ListAPIKeys is a helper method to define mock.On call
+//   - ctx context.Context
+//   - opts ...account.ListOption
+func (_e *MockAccountAPI_Expecter) ListAPIKeys(ctx interface{}, opts ...interface{}) *MockAccountAPI_ListAPIKeys_Call {
+	return &MockAccountAPI_ListAPIKeys_Call{Call: _e.mock.On("ListAPIKeys",
+		append([]interface{}{ctx}, opts...)...)}
+}
+
+func (_c *MockAccountAPI_ListAPIKeys_Call) Run(run func(ctx context.Context, opts ...account.ListOption)) *MockAccountAPI_ListAPIKeys_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 []account.ListOption
+		variadicArgs := make([]account.ListOption, len(args)-1)
+		for i, a := range args[1:] {
+			if a != nil {
+				variadicArgs[i] = a.(account.ListOption)
+			}
+		}
+		arg1 = variadicArgs
+		run(
+			arg0,
+			arg1...,
+		)
+	})
+	return _c
+}
+
+func (_c *MockAccountAPI_ListAPIKeys_Call) Return(aPIKeys []*account.APIKey, err error) *MockAccountAPI_ListAPIKeys_Call {
+	_c.Call.Return(aPIKeys, err)
+	return _c
+}
+
+func (_c *MockAccountAPI_ListAPIKeys_Call) RunAndReturn(run func(ctx context.Context, opts ...account.ListOption) ([]*account.APIKey, error)) *MockAccountAPI_ListAPIKeys_Call {
 	_c.Call.Return(run)
 	return _c
 }

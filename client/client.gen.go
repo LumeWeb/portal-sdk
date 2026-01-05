@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/oapi-codegen/runtime"
+	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
 // APIKeyCreateRequest defines model for APIKeyCreateRequest.
@@ -238,9 +239,6 @@ type ResendVerifyEmailRequest struct {
 	Email string `json:"email"`
 }
 
-// UUID defines model for UUID.
-type UUID = []int
-
 // UpdateEmailRequest defines model for UpdateEmailRequest.
 type UpdateEmailRequest struct {
 	Email    string `json:"email"`
@@ -270,9 +268,12 @@ type VerifyEmailRequest struct {
 	Token string `json:"token"`
 }
 
+// StringUUIDSchema defines model for stringUUIDSchema.
+type StringUUIDSchema = openapi_types.UUID
+
 // PostApiAccountAvatarMultipartBody defines parameters for PostApiAccountAvatar.
 type PostApiAccountAvatarMultipartBody struct {
-	File string `json:"file"`
+	File openapi_types.File `json:"file"`
 }
 
 // GetApiAccountKeysParams defines parameters for GetApiAccountKeys.
@@ -629,7 +630,7 @@ type ClientInterface interface {
 	PostApiAccountKeys(ctx context.Context, body PostApiAccountKeysJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeleteApiAccountKeysKeyID request
-	DeleteApiAccountKeysKeyID(ctx context.Context, keyID UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+	DeleteApiAccountKeysKeyID(ctx context.Context, keyID StringUUIDSchema, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// PostApiAccountPasswordResetConfirmWithBody request with any body
 	PostApiAccountPasswordResetConfirmWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -822,7 +823,7 @@ func (c *Client) PostApiAccountKeys(ctx context.Context, body PostApiAccountKeys
 	return c.Client.Do(req)
 }
 
-func (c *Client) DeleteApiAccountKeysKeyID(ctx context.Context, keyID UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+func (c *Client) DeleteApiAccountKeysKeyID(ctx context.Context, keyID StringUUIDSchema, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewDeleteApiAccountKeysKeyIDRequest(c.Server, keyID)
 	if err != nil {
 		return nil, err
@@ -1654,7 +1655,7 @@ func NewPostApiAccountKeysRequestWithBody(server string, contentType string, bod
 }
 
 // NewDeleteApiAccountKeysKeyIDRequest generates requests for DeleteApiAccountKeysKeyID
-func NewDeleteApiAccountKeysKeyIDRequest(server string, keyID UUID) (*http.Request, error) {
+func NewDeleteApiAccountKeysKeyIDRequest(server string, keyID StringUUIDSchema) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -3305,7 +3306,7 @@ type ClientWithResponsesInterface interface {
 	PostApiAccountKeysWithResponse(ctx context.Context, body PostApiAccountKeysJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiAccountKeysResponse, error)
 
 	// DeleteApiAccountKeysKeyIDWithResponse request
-	DeleteApiAccountKeysKeyIDWithResponse(ctx context.Context, keyID UUID, reqEditors ...RequestEditorFn) (*DeleteApiAccountKeysKeyIDResponse, error)
+	DeleteApiAccountKeysKeyIDWithResponse(ctx context.Context, keyID StringUUIDSchema, reqEditors ...RequestEditorFn) (*DeleteApiAccountKeysKeyIDResponse, error)
 
 	// PostApiAccountPasswordResetConfirmWithBodyWithResponse request with any body
 	PostApiAccountPasswordResetConfirmWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAccountPasswordResetConfirmResponse, error)
@@ -4179,7 +4180,7 @@ func (c *ClientWithResponses) PostApiAccountKeysWithResponse(ctx context.Context
 }
 
 // DeleteApiAccountKeysKeyIDWithResponse request returning *DeleteApiAccountKeysKeyIDResponse
-func (c *ClientWithResponses) DeleteApiAccountKeysKeyIDWithResponse(ctx context.Context, keyID UUID, reqEditors ...RequestEditorFn) (*DeleteApiAccountKeysKeyIDResponse, error) {
+func (c *ClientWithResponses) DeleteApiAccountKeysKeyIDWithResponse(ctx context.Context, keyID StringUUIDSchema, reqEditors ...RequestEditorFn) (*DeleteApiAccountKeysKeyIDResponse, error) {
 	rsp, err := c.DeleteApiAccountKeysKeyID(ctx, keyID, reqEditors...)
 	if err != nil {
 		return nil, err

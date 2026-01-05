@@ -456,12 +456,6 @@ components:
       required:
         - email
       type: object
-    UUID:
-      items:
-        type: integer
-      maxItems: 16
-      minItems: 16
-      type: array
     UpdateEmailRequest:
       additionalProperties: false
       properties:
@@ -511,6 +505,9 @@ components:
         - email
         - token
       type: object
+    stringUUIDSchema:
+      format: uuid
+      type: string
 info:
   description: API endpoints for managing user accounts, authentication, and API keys.
   title: Account API
@@ -660,6 +657,7 @@ paths:
               additionalProperties: false
               properties:
                 file:
+                  format: binary
                   type: string
               required:
                 - file
@@ -846,7 +844,7 @@ paths:
           name: keyID
           required: true
           schema:
-            $ref: '#/components/schemas/UUID'
+            $ref: '#/components/schemas/stringUUIDSchema'
       responses:
         "200":
           description: API Key deleted
