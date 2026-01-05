@@ -1,4 +1,5 @@
 [package]
+versioned_files = ["go.mod"]
 changelog = "CHANGELOG.md"
 
 [github]
