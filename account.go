@@ -12,7 +12,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
-	"go.lumeweb.com/portal-sdk/client"
+	"go.lumeweb.com/portal-sdk/internal/client"
 	"go.lumeweb.com/queryutil"
 	"go.lumeweb.com/queryutil/filter/serializer"
 )

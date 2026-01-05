@@ -12,8 +12,8 @@ import (
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
-	"go.lumeweb.com/portal-sdk/client"
-	"go.lumeweb.com/portal-sdk/client/mocks"
+	"go.lumeweb.com/portal-sdk/internal/client"
+	"go.lumeweb.com/portal-sdk/internal/client/mocks"
 	"go.lumeweb.com/queryutil"
 )
 

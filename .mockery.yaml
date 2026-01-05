@@ -10,9 +10,9 @@ packages:
       pkgname: "mocks"
     interfaces:
       AccountAPI: {}
-  go.lumeweb.com/portal-sdk/client:
+  go.lumeweb.com/portal-sdk/internal/client:
     config:
-      dir: ./client/mocks
+      dir: ./internal/client/mocks
       pkgname: "mocks"
     interfaces:
       ClientWithResponsesInterface: {}
