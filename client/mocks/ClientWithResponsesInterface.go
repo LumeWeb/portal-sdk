@@ -40,7 +40,7 @@ func (_m *MockClientWithResponsesInterface) EXPECT() *MockClientWithResponsesInt
 }
 
 // DeleteApiAccountKeysKeyIDWithResponse provides a mock function for the type MockClientWithResponsesInterface
-func (_mock *MockClientWithResponsesInterface) DeleteApiAccountKeysKeyIDWithResponse(ctx context.Context, keyID client.UUID, reqEditors ...client.RequestEditorFn) (*client.DeleteApiAccountKeysKeyIDResponse, error) {
+func (_mock *MockClientWithResponsesInterface) DeleteApiAccountKeysKeyIDWithResponse(ctx context.Context, keyID client.StringUUIDSchema, reqEditors ...client.RequestEditorFn) (*client.DeleteApiAccountKeysKeyIDResponse, error) {
 	// client.RequestEditorFn
 	_va := make([]interface{}, len(reqEditors))
 	for _i := range reqEditors {
@@ -57,17 +57,17 @@ func (_mock *MockClientWithResponsesInterface) DeleteApiAccountKeysKeyIDWithResp
 
 	var r0 *client.DeleteApiAccountKeysKeyIDResponse
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, client.UUID, ...client.RequestEditorFn) (*client.DeleteApiAccountKeysKeyIDResponse, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, client.StringUUIDSchema, ...client.RequestEditorFn) (*client.DeleteApiAccountKeysKeyIDResponse, error)); ok {
 		return returnFunc(ctx, keyID, reqEditors...)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, client.UUID, ...client.RequestEditorFn) *client.DeleteApiAccountKeysKeyIDResponse); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, client.StringUUIDSchema, ...client.RequestEditorFn) *client.DeleteApiAccountKeysKeyIDResponse); ok {
 		r0 = returnFunc(ctx, keyID, reqEditors...)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*client.DeleteApiAccountKeysKeyIDResponse)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, client.UUID, ...client.RequestEditorFn) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, client.StringUUIDSchema, ...client.RequestEditorFn) error); ok {
 		r1 = returnFunc(ctx, keyID, reqEditors...)
 	} else {
 		r1 = ret.Error(1)
@@ -82,22 +82,22 @@ type MockClientWithResponsesInterface_DeleteApiAccountKeysKeyIDWithResponse_Call
 
 // DeleteApiAccountKeysKeyIDWithResponse is a helper method to define mock.On call
 //   - ctx context.Context
-//   - keyID client.UUID
+//   - keyID client.StringUUIDSchema
 //   - reqEditors ...client.RequestEditorFn
 func (_e *MockClientWithResponsesInterface_Expecter) DeleteApiAccountKeysKeyIDWithResponse(ctx interface{}, keyID interface{}, reqEditors ...interface{}) *MockClientWithResponsesInterface_DeleteApiAccountKeysKeyIDWithResponse_Call {
 	return &MockClientWithResponsesInterface_DeleteApiAccountKeysKeyIDWithResponse_Call{Call: _e.mock.On("DeleteApiAccountKeysKeyIDWithResponse",
 		append([]interface{}{ctx, keyID}, reqEditors...)...)}
 }
 
-func (_c *MockClientWithResponsesInterface_DeleteApiAccountKeysKeyIDWithResponse_Call) Run(run func(ctx context.Context, keyID client.UUID, reqEditors ...client.RequestEditorFn)) *MockClientWithResponsesInterface_DeleteApiAccountKeysKeyIDWithResponse_Call {
+func (_c *MockClientWithResponsesInterface_DeleteApiAccountKeysKeyIDWithResponse_Call) Run(run func(ctx context.Context, keyID client.StringUUIDSchema, reqEditors ...client.RequestEditorFn)) *MockClientWithResponsesInterface_DeleteApiAccountKeysKeyIDWithResponse_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 client.UUID
+		var arg1 client.StringUUIDSchema
 		if args[1] != nil {
-			arg1 = args[1].(client.UUID)
+			arg1 = args[1].(client.StringUUIDSchema)
 		}
 		var arg2 []client.RequestEditorFn
 		variadicArgs := make([]client.RequestEditorFn, len(args)-2)
@@ -121,7 +121,7 @@ func (_c *MockClientWithResponsesInterface_DeleteApiAccountKeysKeyIDWithResponse
 	return _c
 }
 
-func (_c *MockClientWithResponsesInterface_DeleteApiAccountKeysKeyIDWithResponse_Call) RunAndReturn(run func(ctx context.Context, keyID client.UUID, reqEditors ...client.RequestEditorFn) (*client.DeleteApiAccountKeysKeyIDResponse, error)) *MockClientWithResponsesInterface_DeleteApiAccountKeysKeyIDWithResponse_Call {
+func (_c *MockClientWithResponsesInterface_DeleteApiAccountKeysKeyIDWithResponse_Call) RunAndReturn(run func(ctx context.Context, keyID client.StringUUIDSchema, reqEditors ...client.RequestEditorFn) (*client.DeleteApiAccountKeysKeyIDResponse, error)) *MockClientWithResponsesInterface_DeleteApiAccountKeysKeyIDWithResponse_Call {
 	_c.Call.Return(run)
 	return _c
 }

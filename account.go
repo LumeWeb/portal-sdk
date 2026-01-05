@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"go.lumeweb.com/portal-sdk/client"
 	"go.lumeweb.com/queryutil"
@@ -358,7 +359,7 @@ type AccountAPI interface {
 	ListAPIKeys(ctx context.Context, opts ...ListOption) ([]*APIKey, error)
 
 	// DeleteAPIKey deletes a specific API key for the authenticated user.
-	DeleteAPIKey(ctx context.Context, keyID []int) error
+	DeleteAPIKey(ctx context.Context, keyID string) error
 
 	// Account info
 	// UploadLimit returns the account's upload limit in bytes.
@@ -696,8 +697,12 @@ func (c *Client) ListAPIKeys(ctx context.Context, opts ...ListOption) ([]*APIKey
 }
 
 // DeleteAPIKey deletes a specific API key for the authenticated user.
-func (c *Client) DeleteAPIKey(ctx context.Context, keyID []int) error {
-	resp, err := c.client.DeleteApiAccountKeysKeyIDWithResponse(ctx, keyID)
+func (c *Client) DeleteAPIKey(ctx context.Context, keyID string) error {
+	_uuid, err := uuid.Parse(keyID)
+	if err != nil {
+		return fmt.Errorf("invalid API key UUID: %w", err)
+	}
+	resp, err := c.client.DeleteApiAccountKeysKeyIDWithResponse(ctx, _uuid)
 	if err != nil {
 		return fmt.Errorf("failed to send delete API key request: %w", err)
 	}
