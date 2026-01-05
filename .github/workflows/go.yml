@@ -13,6 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+      with:
+        repository: ${{ github.repository }}
 
     - name: Set up Go
       uses: actions/setup-go@v5
@@ -62,4 +64,5 @@ jobs:
           **Total Coverage:** ${{ steps.coverage.outputs.percent }}
           
           Generated from commit: ${{ github.sha }}
+          **Repository:** ${{ github.repository }}
         edit-mode: replace
