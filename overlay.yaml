@@ -1,0 +1,12 @@
+overlay: 1.0.0
+info:
+    title: Overlay
+    version: 0.0.0
+actions:
+    - target: $.components.schemas.BinaryUUID
+      update:
+          type: string
+          format: binary
+          "x-go-type": types.BinaryUUID
+          "x-go-type-import":
+              path: go.lumeweb.com/portal/db/types

@@ -1,5 +1,9 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/oapi-codegen/oapi-codegen/main/configuration-schema.json
 package: "client"
-output: "client/client.gen.go"
+output: "internal/client/client.gen.go"
 generate:
-  models: true
-  client: true
+    models: true
+    client: true
+output-options:
+    overlay:
+        path: overlay.yaml
