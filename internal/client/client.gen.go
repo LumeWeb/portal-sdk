@@ -16,6 +16,7 @@ import (
 
 	"github.com/oapi-codegen/runtime"
 	openapi_types "github.com/oapi-codegen/runtime/types"
+	"go.lumeweb.com/portal/db/types"
 )
 
 // APIKeyCreateRequest defines model for APIKeyCreateRequest.
@@ -81,9 +82,7 @@ type AccountPermissionsResponse struct {
 type BinUUID = []int
 
 // BinaryUUID defines model for BinaryUUID.
-type BinaryUUID struct {
-	BinUUID BinUUID `json:"BinUUID"`
-}
+type BinaryUUID = types.BinaryUUID
 
 // CreateAPIKeyResponse defines model for CreateAPIKeyResponse.
 type CreateAPIKeyResponse struct {
