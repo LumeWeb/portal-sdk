@@ -9,12 +9,14 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"go.lumeweb.com/portal-sdk/internal/client"
 	"go.lumeweb.com/portal-sdk/internal/client/mocks"
 	"go.lumeweb.com/queryutil"
+	"gorm.io/datatypes"
 )
 
 func TestLogin(t *testing.T) {
@@ -578,6 +580,157 @@ func TestUploadLimit(t *testing.T) {
 	}
 }
 
+func TestLoginWithAPIKey(t *testing.T) {
+	tests := []struct {
+		name       string
+		apiKey     string
+		token      string
+		statusCode int
+		wantErr    bool
+	}{
+		{
+			name:       "successful API key login",
+			apiKey:     "test-api-key-jwt-token",
+			token:      "session-jwt-token",
+			statusCode: http.StatusOK,
+			wantErr:    false,
+		},
+		{
+			name:       "invalid API key",
+			apiKey:     "invalid-api-key",
+			statusCode: http.StatusUnauthorized,
+			wantErr:    true,
+		},
+		{
+			name:       "account pending deletion",
+			apiKey:     "test-api-key",
+			statusCode: http.StatusForbidden,
+			wantErr:    true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "POST" {
+					t.Errorf("expected POST request, got %s", r.Method)
+				}
+
+				if r.URL.Path != "/api/auth/key" {
+					t.Errorf("expected /api/auth/key path, got %s", r.URL.Path)
+				}
+
+				// Verify Authorization header contains the API key
+				authHeader := r.Header.Get("Authorization")
+				if authHeader != tt.apiKey {
+					t.Errorf("expected Authorization header %q, got %q", tt.apiKey, authHeader)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				if tt.statusCode == http.StatusOK {
+					resp := client.LoginResponse{Token: tt.token}
+					require.NoError(t, json.NewEncoder(w).Encode(resp))
+				} else if tt.statusCode == http.StatusUnauthorized || tt.statusCode == http.StatusForbidden {
+					resp := client.ErrorResponse{Error: "unauthorized"}
+					require.NoError(t, json.NewEncoder(w).Encode(resp))
+				}
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithEndpoint(server.URL))
+			token, err := acc.LoginWithAPIKey(context.Background(), tt.apiKey)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("LoginWithAPIKey() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.statusCode == http.StatusUnauthorized {
+				if !errors.Is(err, ErrUnauthorized) {
+					t.Errorf("LoginWithAPIKey() error should be ErrUnauthorized, got: %v", err)
+				}
+			}
+
+			if !tt.wantErr && token != tt.token {
+				t.Errorf("LoginWithAPIKey() got = %v, want %v", token, tt.token)
+			}
+		})
+	}
+}
+
+func TestLoginWithAPIKey_NetworkError(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "POST" {
+			t.Errorf("expected POST request, got %s", r.Method)
+		}
+
+		if r.URL.Path != "/api/auth/key" {
+			t.Errorf("expected /api/auth/key path, got %s", r.URL.Path)
+		}
+
+		// Simulate network error
+		conn, _, _ := w.(http.Hijacker).Hijack()
+		conn.Close()
+	}))
+	defer server.Close()
+
+	acc := NewClient(WithEndpoint(server.URL))
+	_, err := acc.LoginWithAPIKey(context.Background(), "test-api-key")
+
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "failed to send API key login request")
+}
+
+func TestLoginWithAPIKey_EmptyToken(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "POST" {
+			t.Errorf("expected POST request, got %s", r.Method)
+		}
+
+		if r.URL.Path != "/api/auth/key" {
+			t.Errorf("expected /api/auth/key path, got %s", r.URL.Path)
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		// Return response with empty token
+		resp := client.LoginResponse{Token: ""}
+		require.NoError(t, json.NewEncoder(w).Encode(resp))
+	}))
+	defer server.Close()
+
+	acc := NewClient(WithEndpoint(server.URL))
+	_, err := acc.LoginWithAPIKey(context.Background(), "test-api-key")
+
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "did not contain a token")
+}
+
+func TestLoginWithAPIKey_NilResponse(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "POST" {
+			t.Errorf("expected POST request, got %s", r.Method)
+		}
+
+		if r.URL.Path != "/api/auth/key" {
+			t.Errorf("expected /api/auth/key path, got %s", r.URL.Path)
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		// Return empty JSON body (will result in JSON200 being nil after parsing)
+		w.Write([]byte("{}"))
+	}))
+	defer server.Close()
+
+	acc := NewClient(WithEndpoint(server.URL))
+	_, err := acc.LoginWithAPIKey(context.Background(), "test-api-key")
+
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "did not contain a token")
+}
+
 func TestOperationStatus_IsSettled(t *testing.T) {
 	tests := []struct {
 		name   string
@@ -853,7 +1006,7 @@ func TestCreateAPIKey(t *testing.T) {
 					resp := client.CreateAPIKeyResponse{
 						Name:  tt.apiKeyName,
 						Token: tt.token,
-						Uuid:  client.BinaryUUID{BinUUID: []int{1, 2, 3, 4}},
+						Uuid:  client.BinaryUUID{BinUUID: datatypes.BinUUID(uuid.MustParse("5aabc9d3-ce22-4beb-bdf9-91d0c43340ef"))},
 					}
 					require.NoError(t, json.NewEncoder(w).Encode(resp))
 				}
@@ -1247,12 +1400,12 @@ func TestListAPIKeys(t *testing.T) {
 								{
 									Name:      "test-key-1",
 									CreatedAt: time.Now(),
-									Uuid:      client.BinaryUUID{BinUUID: []int{1, 2, 3, 4}},
+									Uuid:      client.BinaryUUID{BinUUID: datatypes.BinUUID(uuid.MustParse("c9374625-39c4-41b0-be29-a647a868d6eb"))},
 								},
 								{
 									Name:      "test-key-2",
 									CreatedAt: time.Now(),
-									Uuid:      client.BinaryUUID{BinUUID: []int{5, 6, 7, 8}},
+									Uuid:      client.BinaryUUID{BinUUID: datatypes.BinUUID(uuid.MustParse("621cb859-31a0-4d71-ac7d-78395cc56daa"))},
 								},
 							},
 							Total: 2,
@@ -1376,7 +1529,7 @@ func TestListAPIKeys_PaginationCoverage(t *testing.T) {
 				{
 					Name:      "test-key",
 					CreatedAt: time.Now(),
-					Uuid:      client.BinaryUUID{BinUUID: []int{1, 2, 3, 4}},
+					Uuid:      client.BinaryUUID{BinUUID: datatypes.BinUUID(uuid.MustParse("0ce0e6b1-94d8-486e-8e78-e639d6f922e0"))},
 				},
 			},
 			Total: 1,
