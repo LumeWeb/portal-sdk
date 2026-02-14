@@ -52,6 +52,7 @@ const (
 	OpOTPGeneration
 	OpOTPVerification
 	OpOTPDisable
+	OpAPIKeyLogin
 	OpRegistration
 	OpEmailVerification
 )
@@ -63,13 +64,14 @@ const DefaultEndpoint = "account.pinner.xyz"
 
 // operationString maps operation IDs to their string names.
 var operationString = map[int]string{
-	OpLogin:             "login",
-	OpOTPValidation:     "OTP validation",
-	OpPing:              "ping",
-	OpOTPGeneration:     "OTP generation",
-	OpOTPVerification:   "OTP verification",
-	OpOTPDisable:        "OTP disable",
-	OpRegistration:      "registration",
+	OpLogin:           "login",
+	OpOTPValidation:   "OTP validation",
+	OpPing:            "ping",
+	OpOTPGeneration:   "OTP generation",
+	OpOTPVerification: "OTP verification",
+	OpOTPDisable:      "OTP disable",
+	OpAPIKeyLogin:     "API key login",
+	OpRegistration:    "registration",
 	OpEmailVerification: "email verification",
 }
 
@@ -119,6 +121,10 @@ var httpErrorMessages = map[int]map[int]errorFactory{
 	},
 	OpOTPDisable: {
 		http.StatusUnauthorized: authErr("authentication required or invalid password"),
+	},
+	OpAPIKeyLogin: {
+		http.StatusUnauthorized: authErr("invalid API key"),
+		http.StatusForbidden:    plainErr("account is pending deletion"),
 	},
 	OpRegistration: {
 		http.StatusConflict: plainErr("user already exists with this email"),
@@ -345,6 +351,10 @@ type AccountAPI interface {
 	// If 2FA is required, the returned token is an intermediate JWT and OTPRequired will be true.
 	Login(ctx context.Context, email, password string) (*LoginResult, error)
 
+	// LoginWithAPIKey authenticates using an API key and returns a JWT token.
+	// The API key should be passed as the token value (JWT issued when the API key was created).
+	LoginWithAPIKey(ctx context.Context, apiKey string) (string, error)
+
 	// ValidateOTP completes 2FA login using an intermediate JWT and OTP code.
 	// Returns the final JWT token on success.
 	ValidateOTP(ctx context.Context, intermediateJWT, otp string) (string, error)
@@ -514,6 +524,28 @@ func (c *Client) Login(ctx context.Context, email, password string) (*LoginResul
 	}
 
 	return result, nil
+}
+
+// LoginWithAPIKey authenticates using an API key and returns a JWT token.
+// The API key should be passed as a JWT token (the token returned when the API key was created).
+func (c *Client) LoginWithAPIKey(ctx context.Context, apiKey string) (string, error) {
+	resp, err := c.client.PostApiAuthKeyWithResponse(ctx, &client.PostApiAuthKeyParams{
+		Authorization: &apiKey,
+	})
+	if err != nil {
+		return "", fmt.Errorf("failed to send API key login request: %w", err)
+	}
+
+	// Validate response using the global error map
+	if err := handleResponse(resp.StatusCode(), resp.Body, OpAPIKeyLogin, []int{http.StatusOK}); err != nil {
+		return "", err
+	}
+
+	if resp.JSON200 == nil || resp.JSON200.Token == "" {
+		return "", fmt.Errorf("API key login response did not contain a token")
+	}
+
+	return resp.JSON200.Token, nil
 }
 
 // ValidateOTP completes 2FA login using an intermediate JWT and OTP code.
