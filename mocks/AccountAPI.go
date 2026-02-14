@@ -646,6 +646,72 @@ func (_c *MockAccountAPI_Login_Call) RunAndReturn(run func(ctx context.Context, 
 	return _c
 }
 
+// LoginWithAPIKey provides a mock function for the type MockAccountAPI
+func (_mock *MockAccountAPI) LoginWithAPIKey(ctx context.Context, apiKey string) (string, error) {
+	ret := _mock.Called(ctx, apiKey)
+
+	if len(ret) == 0 {
+		panic("no return value specified for LoginWithAPIKey")
+	}
+
+	var r0 string
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (string, error)); ok {
+		return returnFunc(ctx, apiKey)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) string); ok {
+		r0 = returnFunc(ctx, apiKey)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = returnFunc(ctx, apiKey)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockAccountAPI_LoginWithAPIKey_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'LoginWithAPIKey'
+type MockAccountAPI_LoginWithAPIKey_Call struct {
+	*mock.Call
+}
+
+// LoginWithAPIKey is a helper method to define mock.On call
+//   - ctx context.Context
+//   - apiKey string
+func (_e *MockAccountAPI_Expecter) LoginWithAPIKey(ctx interface{}, apiKey interface{}) *MockAccountAPI_LoginWithAPIKey_Call {
+	return &MockAccountAPI_LoginWithAPIKey_Call{Call: _e.mock.On("LoginWithAPIKey", ctx, apiKey)}
+}
+
+func (_c *MockAccountAPI_LoginWithAPIKey_Call) Run(run func(ctx context.Context, apiKey string)) *MockAccountAPI_LoginWithAPIKey_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockAccountAPI_LoginWithAPIKey_Call) Return(s string, err error) *MockAccountAPI_LoginWithAPIKey_Call {
+	_c.Call.Return(s, err)
+	return _c
+}
+
+func (_c *MockAccountAPI_LoginWithAPIKey_Call) RunAndReturn(run func(ctx context.Context, apiKey string) (string, error)) *MockAccountAPI_LoginWithAPIKey_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Ping provides a mock function for the type MockAccountAPI
 func (_mock *MockAccountAPI) Ping(ctx context.Context) error {
 	ret := _mock.Called(ctx)
