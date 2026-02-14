@@ -1,3 +1,9 @@
+## 0.1.3 (2026-02-14)
+
+### Features
+
+- add API key login support
+
 ## 0.1.2 (2026-02-03)
 
 ### Fixes
