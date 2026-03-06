@@ -561,10 +561,10 @@ func (h *hostOverrideRoundTripper) RoundTrip(req *http.Request) (*http.Response,
 	originalURL := req.URL
 
 	// Create a new URL with the target address
-	// If target doesn't have a scheme, prepend http://
+	// If target doesn't have a scheme, use the original request's scheme
 	targetStr := h.target
 	if !strings.Contains(targetStr, "://") {
-		targetStr = "http://" + targetStr
+		targetStr = originalURL.Scheme + "://" + targetStr
 	}
 	targetURL, err := url.Parse(targetStr)
 	if err != nil {
@@ -573,9 +573,6 @@ func (h *hostOverrideRoundTripper) RoundTrip(req *http.Request) (*http.Response,
 
 	// Replace the URL scheme, host, and port with the target
 	reqCopy.URL.Scheme = targetURL.Scheme
-	if reqCopy.URL.Scheme == "" {
-		reqCopy.URL.Scheme = originalURL.Scheme
-	}
 	reqCopy.URL.Host = targetURL.Host
 
 	// Keep the original path, query, and fragment
@@ -615,11 +612,6 @@ func NewClient(opts ...ClientOption) AccountAPI {
 		}))
 	}
 
-	// Add custom HTTP client if provided
-	if cfg.httpClient != nil {
-		clientOpts = append(clientOpts, client.WithHTTPClient(cfg.httpClient))
-	}
-
 	// If host override is configured, set up a custom transport
 	if cfg.hostOverride != nil {
 		// Create a custom HTTP client with the host override round tripper
@@ -640,7 +632,10 @@ func NewClient(opts ...ClientOption) AccountAPI {
 				Transport: customTransport,
 			}
 		}
-		
+	}
+
+	// Add custom HTTP client if provided (or configured above)
+	if cfg.httpClient != nil {
 		clientOpts = append(clientOpts, client.WithHTTPClient(cfg.httpClient))
 	}
 

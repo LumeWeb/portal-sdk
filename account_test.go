@@ -2,6 +2,7 @@ package account
 
 import (
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -2994,4 +2995,55 @@ func TestHostOverrideWithQueryParams(t *testing.T) {
 	
 	// Verify query parameters were preserved
 	require.Equal(t, "status=completed&limit=10", receivedQuery)
+}
+
+func TestHostOverridePreservesHTTPSScheme(t *testing.T) {
+	// Test that HTTPS scheme is preserved when target doesn't specify a scheme
+	receivedHost := ""
+	requestWasHTTPS := false
+	
+	server := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		receivedHost = r.Host
+		requestWasHTTPS = r.TLS != nil
+		
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer server.Close()
+
+	serverURL, _ := url.Parse(server.URL)
+
+	// Create a custom transport that skips TLS verification for testing
+	customTransport := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+
+	// Create the round tripper with target that doesn't specify scheme
+	transport := &hostOverrideRoundTripper{
+		transport: customTransport,
+		host:      "account.pinner.xyz",
+		target:    serverURL.Host, // No scheme, should use original request's scheme
+	}
+
+	// Create an HTTPS request
+	req := &http.Request{
+		Method: http.MethodGet,
+		URL: &url.URL{
+			Scheme: "https",
+			Host:   "account.pinner.xyz",
+			Path:   "/api/test",
+		},
+		Header: http.Header{},
+	}
+
+	// Use the round tripper
+	resp, err := transport.RoundTrip(req)
+	require.NoError(t, err)
+	defer resp.Body.Close()
+
+	// Verify the request was made over HTTPS (not downgraded to HTTP)
+	require.True(t, requestWasHTTPS, "Request should be HTTPS, not HTTP")
+	
+	// Verify the Host header was overridden
+	require.Equal(t, "account.pinner.xyz", receivedHost)
 }
