@@ -1,3 +1,13 @@
+## 0.1.5 (2026-03-06)
+
+### Features
+
+- add DeleteAccount method to AccountAPI
+
+### Fixes
+
+- add error handling for Hijack() in network error tests
+
 ## 0.1.4 (2026-02-14)
 
 ### Fixes
