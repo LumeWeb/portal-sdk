@@ -1,3 +1,13 @@
+## 0.1.7 (2026-03-06)
+
+### Features
+
+- add host override support for vhost testing
+
+### Fixes
+
+- address review feedback from Kody code review
+
 ## 0.1.6 (2026-03-06)
 
 ### Features
