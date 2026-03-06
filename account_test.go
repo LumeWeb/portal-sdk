@@ -373,7 +373,8 @@ func TestValidateOTP_NetworkError(t *testing.T) {
 		}
 
 		// Simulate network error
-		conn, _, _ := w.(http.Hijacker).Hijack()
+		conn, _, err := w.(http.Hijacker).Hijack()
+		require.NoError(t, err)
 		conn.Close()
 	}))
 	defer server.Close()
@@ -670,7 +671,8 @@ func TestLoginWithAPIKey_NetworkError(t *testing.T) {
 		}
 
 		// Simulate network error
-		conn, _, _ := w.(http.Hijacker).Hijack()
+		conn, _, err := w.(http.Hijacker).Hijack()
+		require.NoError(t, err)
 		conn.Close()
 	}))
 	defer server.Close()
@@ -1283,7 +1285,8 @@ func TestGetOperationFilters_NetworkError(t *testing.T) {
 		}
 
 		// Simulate network error
-		conn, _, _ := w.(http.Hijacker).Hijack()
+		conn, _, err := w.(http.Hijacker).Hijack()
+		require.NoError(t, err)
 		conn.Close()
 	}))
 	defer server.Close()
@@ -1463,7 +1466,8 @@ func TestListAPIKeys_NetworkError(t *testing.T) {
 		}
 
 		// Simulate network error
-		conn, _, _ := w.(http.Hijacker).Hijack()
+		conn, _, err := w.(http.Hijacker).Hijack()
+		require.NoError(t, err)
 		conn.Close()
 	}))
 	defer server.Close()
@@ -1619,7 +1623,8 @@ func TestDeleteAPIKey_NetworkError(t *testing.T) {
 		}
 
 		// Simulate network error
-		conn, _, _ := w.(http.Hijacker).Hijack()
+		conn, _, err := w.(http.Hijacker).Hijack()
+		require.NoError(t, err)
 		conn.Close()
 	}))
 	defer server.Close()
@@ -1706,8 +1711,8 @@ func TestDeleteAccount_NetworkError(t *testing.T) {
 			t.Errorf("expected DELETE request, got %s", r.Method)
 		}
 
-		// Simulate network error
-		conn, _, _ := w.(http.Hijacker).Hijack()
+		conn, _, err := w.(http.Hijacker).Hijack()
+		require.NoError(t, err)
 		conn.Close()
 	}))
 	defer server.Close()
