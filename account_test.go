@@ -1631,6 +1631,94 @@ func TestDeleteAPIKey_NetworkError(t *testing.T) {
 	require.Contains(t, err.Error(), "failed to send delete API key request")
 }
 
+func TestDeleteAccount(t *testing.T) {
+	tests := []struct {
+		name       string
+		jwt        string
+		statusCode int
+		wantErr    bool
+	}{
+		{
+			name:       "successful account deletion",
+			jwt:        "valid-token",
+			statusCode: http.StatusOK,
+			wantErr:    false,
+		},
+		{
+			name:       "unauthorized",
+			jwt:        "invalid-token",
+			statusCode: http.StatusUnauthorized,
+			wantErr:    true,
+		},
+		{
+			name:       "bad request",
+			jwt:        "valid-token",
+			statusCode: http.StatusBadRequest,
+			wantErr:    true,
+		},
+		{
+			name:       "not found",
+			jwt:        "valid-token",
+			statusCode: http.StatusNotFound,
+			wantErr:    true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "DELETE" {
+					t.Errorf("expected DELETE request, got %s", r.Method)
+				}
+
+				if r.URL.Path != "/api/account" {
+					t.Errorf("expected /api/account path, got %s", r.URL.Path)
+				}
+
+				w.WriteHeader(tt.statusCode)
+				if tt.statusCode == http.StatusUnauthorized {
+					resp := client.ErrorResponse{Error: "unauthorized"}
+					require.NoError(t, json.NewEncoder(w).Encode(resp))
+				}
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithEndpoint(server.URL), WithJWT(tt.jwt))
+			err := acc.DeleteAccount(context.Background())
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("DeleteAccount() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.statusCode == http.StatusUnauthorized {
+				if !errors.Is(err, ErrUnauthorized) {
+					t.Errorf("DeleteAccount() error should be ErrUnauthorized, got: %v", err)
+				}
+			}
+		})
+	}
+}
+
+func TestDeleteAccount_NetworkError(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "DELETE" {
+			t.Errorf("expected DELETE request, got %s", r.Method)
+		}
+
+		// Simulate network error
+		conn, _, _ := w.(http.Hijacker).Hijack()
+		conn.Close()
+	}))
+	defer server.Close()
+
+	acc := NewClient(WithEndpoint(server.URL), WithJWT("valid-token"))
+	err := acc.DeleteAccount(context.Background())
+
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "failed to send delete account request")
+}
+
 func TestNewClientWithDefaults(t *testing.T) {
 	// Create a mock client for testing
 	mockClient := mocks.NewMockClientWithResponsesInterface(t)

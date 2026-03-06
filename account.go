@@ -55,6 +55,7 @@ const (
 	OpAPIKeyLogin
 	OpRegistration
 	OpEmailVerification
+	OpDeleteAccount
 )
 
 const defaultOperationName = "operation"
@@ -64,15 +65,16 @@ const DefaultEndpoint = "account.pinner.xyz"
 
 // operationString maps operation IDs to their string names.
 var operationString = map[int]string{
-	OpLogin:           "login",
-	OpOTPValidation:   "OTP validation",
-	OpPing:            "ping",
-	OpOTPGeneration:   "OTP generation",
-	OpOTPVerification: "OTP verification",
-	OpOTPDisable:      "OTP disable",
-	OpAPIKeyLogin:     "API key login",
-	OpRegistration:    "registration",
+	OpLogin:            "login",
+	OpOTPValidation:    "OTP validation",
+	OpPing:             "ping",
+	OpOTPGeneration:    "OTP generation",
+	OpOTPVerification:   "OTP verification",
+	OpOTPDisable:       "OTP disable",
+	OpAPIKeyLogin:      "API key login",
+	OpRegistration:     "registration",
 	OpEmailVerification: "email verification",
+	OpDeleteAccount:    "account deletion",
 }
 
 // errorFactory is a helper for creating errors with optional ErrUnauthorized wrapping.
@@ -132,6 +134,11 @@ var httpErrorMessages = map[int]map[int]errorFactory{
 	OpEmailVerification: {
 		http.StatusBadRequest: plainErr("invalid verification token or email"),
 		http.StatusNotFound:   plainErr("user not found"),
+	},
+	OpDeleteAccount: {
+		http.StatusUnauthorized: authErr("authentication required"),
+		http.StatusBadRequest:   plainErr("cannot delete account"),
+		http.StatusNotFound:     plainErr("account not found"),
 	},
 }
 
@@ -387,6 +394,9 @@ type AccountAPI interface {
 
 	// DeleteAPIKey deletes a specific API key for the authenticated user.
 	DeleteAPIKey(ctx context.Context, keyID string) error
+
+	// DeleteAccount initiates the process to delete the authenticated user's account.
+	DeleteAccount(ctx context.Context) error
 
 	// Account info
 	// UploadLimit returns the account's upload limit in bytes.
@@ -761,6 +771,16 @@ func (c *Client) DeleteAPIKey(ctx context.Context, keyID string) error {
 	}
 
 	return nil
+}
+
+// DeleteAccount initiates the process to delete the authenticated user's account.
+func (c *Client) DeleteAccount(ctx context.Context) error {
+	resp, err := c.client.DeleteApiAccountWithResponse(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to send delete account request: %w", err)
+	}
+
+	return handleResponse(resp.StatusCode(), resp.Body, OpDeleteAccount, []int{http.StatusOK})
 }
 
 // UploadLimit returns the account's upload limit in bytes.
