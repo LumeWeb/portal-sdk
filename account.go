@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -462,11 +463,22 @@ type Client struct {
 	jwt    string
 }
 
+// HostOverride holds the configuration for host header override.
+// This is useful for testing with vhosts where you need to connect to an IP address
+// but send a different hostname in the Host header.
+type HostOverride struct {
+	// Host is the hostname to use in the Host header (e.g., "account.pinner.xyz")
+	Host string
+	// Target is the IP address to connect to (e.g., "127.0.0.1:8080")
+	Target string
+}
+
 // clientConfig holds the configuration for creating a new Client.
 type clientConfig struct {
-	endpoint   string
-	jwt        string
-	httpClient *http.Client
+	endpoint    string
+	jwt         string
+	httpClient  *http.Client
+	hostOverride *HostOverride
 }
 
 // defaultClientConfig returns a clientConfig with sensible defaults.
@@ -507,6 +519,81 @@ func WithDisableFollowRedirect() ClientOption {
 	}
 }
 
+// WithHostOverride sets up host header override for testing with vhosts.
+// This allows connecting to a specific IP address while sending a different hostname in the Host header.
+//
+// Parameters:
+//   - host: The hostname to use in the Host header (e.g., "account.pinner.xyz")
+//   - target: The IP address:port to connect to (e.g., "127.0.0.1:8080")
+//
+// Example:
+//
+//	client := account.NewClient(
+//	    account.WithHostOverride("account.pinner.xyz", "127.0.0.1:8080"),
+//	)
+func WithHostOverride(host, target string) ClientOption {
+	return func(cfg *clientConfig) {
+		cfg.hostOverride = &HostOverride{
+			Host:   host,
+			Target: target,
+		}
+	}
+}
+
+// hostOverrideRoundTripper is a custom http.RoundTripper that overrides the Host header
+// and redirects requests to a target IP address. This is useful for testing with vhosts.
+type hostOverrideRoundTripper struct {
+	transport http.RoundTripper
+	host      string
+	target    string
+}
+
+// RoundTrip implements the http.RoundTripper interface.
+// It modifies the request to use the target URL while keeping the original Host header.
+func (h *hostOverrideRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
+	// Create a copy of the request to avoid modifying the original
+	reqCopy := req.Clone(req.Context())
+
+	// Override the Host header with the configured host
+	reqCopy.Host = h.host
+
+	// Parse the original URL
+	originalURL := req.URL
+
+	// Create a new URL with the target address
+	// If target doesn't have a scheme, prepend http://
+	targetStr := h.target
+	if !strings.Contains(targetStr, "://") {
+		targetStr = "http://" + targetStr
+	}
+	targetURL, err := url.Parse(targetStr)
+	if err != nil {
+		return nil, fmt.Errorf("invalid target URL %q: %w", h.target, err)
+	}
+
+	// Replace the URL scheme, host, and port with the target
+	reqCopy.URL.Scheme = targetURL.Scheme
+	if reqCopy.URL.Scheme == "" {
+		reqCopy.URL.Scheme = originalURL.Scheme
+	}
+	reqCopy.URL.Host = targetURL.Host
+
+	// Keep the original path, query, and fragment
+	reqCopy.URL.Path = originalURL.Path
+	reqCopy.URL.RawQuery = originalURL.RawQuery
+	reqCopy.URL.Fragment = originalURL.Fragment
+
+	// Ensure we don't override the Host header in the request
+	// The Host field is already set above, but we need to make sure
+	// it's not lost when the request is sent
+	if h.host != "" {
+		reqCopy.Host = h.host
+	}
+
+	// Use the underlying transport to make the request
+	return h.transport.RoundTrip(reqCopy)
+}
+
 // NewClient creates a new AccountAPI client.
 // Uses DefaultEndpoint if no endpoint is provided via WithEndpoint.
 func NewClient(opts ...ClientOption) AccountAPI {
@@ -530,6 +617,30 @@ func NewClient(opts ...ClientOption) AccountAPI {
 
 	// Add custom HTTP client if provided
 	if cfg.httpClient != nil {
+		clientOpts = append(clientOpts, client.WithHTTPClient(cfg.httpClient))
+	}
+
+	// If host override is configured, set up a custom transport
+	if cfg.hostOverride != nil {
+		// Create a custom HTTP client with the host override round tripper
+		customTransport := &hostOverrideRoundTripper{
+			transport: http.DefaultTransport,
+			host:      cfg.hostOverride.Host,
+			target:    cfg.hostOverride.Target,
+		}
+		
+		// If there's already a custom HTTP client, wrap its transport
+		if cfg.httpClient != nil {
+			if cfg.httpClient.Transport != nil {
+				customTransport.transport = cfg.httpClient.Transport
+			}
+			cfg.httpClient.Transport = customTransport
+		} else {
+			cfg.httpClient = &http.Client{
+				Transport: customTransport,
+			}
+		}
+		
 		clientOpts = append(clientOpts, client.WithHTTPClient(cfg.httpClient))
 	}
 

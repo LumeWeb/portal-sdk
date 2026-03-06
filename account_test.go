@@ -6,6 +6,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 	"time"
 
@@ -2795,4 +2796,202 @@ func TestCheckResponseWithBody(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestWithHostOverride(t *testing.T) {
+	tests := []struct {
+		name        string
+		host        string
+		target      string
+		verifyHost  string
+		setupServer func(*testing.T) *httptest.Server
+	}{
+		{
+			name:       "host override redirects to target with correct Host header",
+			host:       "account.pinner.xyz",
+			target:     "127.0.0.1:8080",
+			verifyHost: "account.pinner.xyz",
+			setupServer: func(t *testing.T) *httptest.Server {
+				return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					// Verify the Host header is set to the overridden value
+					require.Equal(t, "account.pinner.xyz", r.Host)
+					
+					// Verify the request came from our test server
+					w.Header().Set("Content-Type", "application/json")
+					w.WriteHeader(http.StatusOK)
+					json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
+				}))
+			},
+		},
+		{
+			name:       "host override with different host and target",
+			host:       "api.example.com",
+			target:     "192.168.1.100:3000",
+			verifyHost: "api.example.com",
+			setupServer: func(t *testing.T) *httptest.Server {
+				return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					// Verify the Host header is set to the overridden value
+					require.Equal(t, "api.example.com", r.Host)
+					
+					w.Header().Set("Content-Type", "application/json")
+					w.WriteHeader(http.StatusOK)
+					json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
+				}))
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := tt.setupServer(t)
+			defer server.Close()
+
+			// Parse the server URL to get host:port
+			serverURL, err := url.Parse(server.URL)
+			require.NoError(t, err)
+
+			// Create client with host override
+			// Use http:// prefix for target to ensure it's a valid URL
+			targetURL := "http://" + serverURL.Host
+			acc := NewClient(
+				WithHostOverride(tt.host, targetURL),
+			)
+
+			// Make a request to verify the host override works
+			// We'll use Ping as it's a simple authenticated endpoint
+			// For this test, we need to set a JWT to avoid auth errors
+			ctx := context.Background()
+			
+			// The request should be routed to the target with the overridden Host header
+			// We can verify this by checking the server received the correct Host header
+			err = acc.Ping(ctx)
+			
+			// If the host override worked correctly, the request should succeed
+			// (unless there's an auth error, which is expected without valid JWT)
+			// The important thing is that the request reached our test server
+			require.NoError(t, err)
+		})
+	}
+}
+
+func TestHostOverrideRoundTripper(t *testing.T) {
+	tests := []struct {
+		name          string
+		host          string
+		target        string
+		expectedHost  string
+		expectedPath  string
+	}{
+		{
+			name:         "round tripper overrides Host header correctly",
+			host:         "account.pinner.xyz",
+			target:       "http://127.0.0.1:8080",
+			expectedHost: "account.pinner.xyz",
+			expectedPath: "/api/test",
+		},
+		{
+			name:         "round tripper preserves path",
+			host:         "api.example.com",
+			target:       "http://192.168.1.100:3000",
+			expectedHost: "api.example.com",
+			expectedPath: "/api/operations",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Create a test server that verifies the request
+			receivedHost := ""
+			receivedPath := ""
+			
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				receivedHost = r.Host
+				receivedPath = r.URL.Path
+				
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusOK)
+			}))
+			defer server.Close()
+
+			// Parse the server URL
+			serverURL, err := url.Parse(server.URL)
+			require.NoError(t, err)
+
+			// Create the round tripper
+			transport := &hostOverrideRoundTripper{
+				transport: http.DefaultTransport,
+				host:      tt.host,
+				target:    "http://" + serverURL.Host,
+			}
+
+			// Create a request with the original URL
+			req := &http.Request{
+				Method: http.MethodGet,
+				URL: &url.URL{
+					Scheme: "http",
+					Host:   tt.host,
+					Path:   tt.expectedPath,
+				},
+				Header: http.Header{},
+			}
+
+			// Use the round tripper
+			resp, err := transport.RoundTrip(req)
+			require.NoError(t, err)
+			defer resp.Body.Close()
+
+			// Verify the Host header was overridden
+			require.Equal(t, tt.expectedHost, receivedHost)
+			
+			// Verify the path was preserved
+			require.Equal(t, tt.expectedPath, receivedPath)
+		})
+	}
+}
+
+func TestHostOverrideWithQueryParams(t *testing.T) {
+	// Test that query parameters are preserved when using host override
+	receivedHost := ""
+	receivedQuery := ""
+	
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		receivedHost = r.Host
+		receivedQuery = r.URL.RawQuery
+		
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer server.Close()
+
+	serverURL, _ := url.Parse(server.URL)
+
+	// Create the round tripper
+	transport := &hostOverrideRoundTripper{
+		transport: http.DefaultTransport,
+		host:      "account.pinner.xyz",
+		target:    "http://" + serverURL.Host,
+	}
+
+	// Create a request with query parameters
+	req := &http.Request{
+		Method: http.MethodGet,
+		URL: &url.URL{
+			Scheme:   "http",
+			Host:     "account.pinner.xyz",
+			Path:     "/api/operations",
+			RawQuery: "status=completed&limit=10",
+		},
+		Header: http.Header{},
+	}
+
+	// Use the round tripper
+	resp, err := transport.RoundTrip(req)
+	require.NoError(t, err)
+	defer resp.Body.Close()
+
+	// Verify the Host header was overridden
+	require.Equal(t, "account.pinner.xyz", receivedHost)
+	
+	// Verify query parameters were preserved
+	require.Equal(t, "status=completed&limit=10", receivedQuery)
 }
