@@ -107,6 +107,15 @@ client := account.NewClient(
 )
 ```
 
+**Host Override Pattern**
+Used for testing with vhosts where you need to connect to an IP address but send a different hostname in the Host header:
+```go
+// Connect to a local test server but send the production hostname in the Host header
+client := account.NewClient(
+    account.WithHostOverride("account.pinner.xyz", "http://127.0.0.1:8080"),
+)
+```
+
 **Builder Pattern for List Operations**
 Used for operations that accept filters, sorting, and pagination:
 ```go
@@ -194,6 +203,7 @@ portal-sdk/
 - The SDK uses JWT authentication via `Authorization: Bearer {token}` header
 - Default API endpoint is `account.pinner.xyz` (configurable via `WithEndpoint`)
 - The SDK supports 2FA (OTP) with a two-step login process
+- **Host Override**: Use `WithHostOverride(host, target)` for testing with vhosts. This allows connecting to a specific IP address while sending a different hostname in the Host header, useful when you cannot modify local DNS configuration.
 
 ### Operation Status Flow
 
