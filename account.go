@@ -56,6 +56,9 @@ const (
 	OpRegistration
 	OpEmailVerification
 	OpDeleteAccount
+	OpPasswordResetRequest
+	OpPasswordResetConfirm
+	OpPasswordUpdate
 )
 
 const defaultOperationName = "operation"
@@ -65,16 +68,19 @@ const DefaultEndpoint = "account.pinner.xyz"
 
 // operationString maps operation IDs to their string names.
 var operationString = map[int]string{
-	OpLogin:            "login",
-	OpOTPValidation:    "OTP validation",
-	OpPing:             "ping",
-	OpOTPGeneration:    "OTP generation",
-	OpOTPVerification:   "OTP verification",
-	OpOTPDisable:       "OTP disable",
-	OpAPIKeyLogin:      "API key login",
-	OpRegistration:     "registration",
-	OpEmailVerification: "email verification",
-	OpDeleteAccount:    "account deletion",
+	OpLogin:               "login",
+	OpOTPValidation:       "OTP validation",
+	OpPing:                "ping",
+	OpOTPGeneration:       "OTP generation",
+	OpOTPVerification:     "OTP verification",
+	OpOTPDisable:          "OTP disable",
+	OpAPIKeyLogin:         "API key login",
+	OpRegistration:        "registration",
+	OpEmailVerification:   "email verification",
+	OpDeleteAccount:       "account deletion",
+	OpPasswordResetRequest: "password reset request",
+	OpPasswordResetConfirm: "password reset confirm",
+	OpPasswordUpdate:       "password update",
 }
 
 // errorFactory is a helper for creating errors with optional ErrUnauthorized wrapping.
@@ -139,6 +145,19 @@ var httpErrorMessages = map[int]map[int]errorFactory{
 		http.StatusUnauthorized: authErr("authentication required"),
 		http.StatusBadRequest:   plainErr("cannot delete account"),
 		http.StatusNotFound:     plainErr("account not found"),
+	},
+	OpPasswordResetRequest: {
+		http.StatusBadRequest: plainErr("invalid email address"),
+		http.StatusNotFound:   plainErr("user not found"),
+	},
+	OpPasswordResetConfirm: {
+		http.StatusBadRequest: plainErr("invalid or expired reset token"),
+		http.StatusNotFound:   plainErr("user not found"),
+	},
+	OpPasswordUpdate: {
+		http.StatusUnauthorized: authErr("authentication required"),
+		http.StatusBadRequest:   plainErr("invalid password"),
+		http.StatusNotFound:     plainErr("user not found"),
 	},
 }
 
@@ -416,6 +435,16 @@ type AccountAPI interface {
 	// WaitForOperation polls an operation until it reaches a settled state.
 	// Settled states are: completed, failed, error.
 	WaitForOperation(ctx context.Context, id int64, opts ...PollOption) (*Operation, error)
+
+	// Password Management
+	// RequestPasswordReset initiates the password reset process by sending a reset link to the user's email.
+	RequestPasswordReset(ctx context.Context, email string) error
+
+	// ConfirmPasswordReset resets the user's password using a token received via email.
+	ConfirmPasswordReset(ctx context.Context, email, token, newPassword string) error
+
+	// UpdatePassword updates the authenticated user's password.
+	UpdatePassword(ctx context.Context, currentPassword, newPassword string) error
 }
 
 // Client implements AccountAPI using the generated OpenAPI client.
@@ -967,4 +996,49 @@ func (c *Client) WaitForOperation(ctx context.Context, id int64, opts ...PollOpt
 			}
 		}
 	}
+}
+
+// RequestPasswordReset initiates the password reset process by sending a reset link to the user's email.
+func (c *Client) RequestPasswordReset(ctx context.Context, email string) error {
+	reqBody := client.PasswordResetRequest{
+		Email: email,
+	}
+
+	resp, err := c.client.PostApiAccountPasswordResetRequestWithResponse(ctx, reqBody)
+	if err != nil {
+		return fmt.Errorf("failed to send password reset request: %w", err)
+	}
+
+	return handleResponse(resp.StatusCode(), resp.Body, OpPasswordResetRequest, []int{http.StatusOK})
+}
+
+// ConfirmPasswordReset resets the user's password using a token received via email.
+func (c *Client) ConfirmPasswordReset(ctx context.Context, email, token, newPassword string) error {
+	reqBody := client.PasswordResetVerifyRequest{
+		Email:    email,
+		Token:    token,
+		Password: newPassword,
+	}
+
+	resp, err := c.client.PostApiAccountPasswordResetConfirmWithResponse(ctx, reqBody)
+	if err != nil {
+		return fmt.Errorf("failed to confirm password reset: %w", err)
+	}
+
+	return handleResponse(resp.StatusCode(), resp.Body, OpPasswordResetConfirm, []int{http.StatusOK})
+}
+
+// UpdatePassword updates the authenticated user's password.
+func (c *Client) UpdatePassword(ctx context.Context, currentPassword, newPassword string) error {
+	reqBody := client.UpdatePasswordRequest{
+		CurrentPassword: currentPassword,
+		NewPassword:     newPassword,
+	}
+
+	resp, err := c.client.PostApiAccountUpdatePasswordWithResponse(ctx, reqBody)
+	if err != nil {
+		return fmt.Errorf("failed to update password: %w", err)
+	}
+
+	return handleResponse(resp.StatusCode(), resp.Body, OpPasswordUpdate, []int{http.StatusOK})
 }

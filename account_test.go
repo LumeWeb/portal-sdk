@@ -113,6 +113,249 @@ func TestLogin(t *testing.T) {
 	}
 }
 
+func TestRequestPasswordReset(t *testing.T) {
+	tests := []struct {
+		name       string
+		email      string
+		statusCode int
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:       "successful password reset request",
+			email:      "test@example.com",
+			statusCode: http.StatusOK,
+			wantErr:    false,
+		},
+		{
+			name:       "invalid email",
+			email:      "invalid-email",
+			statusCode: http.StatusBadRequest,
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "invalid email address")
+			},
+		},
+		{
+			name:       "user not found",
+			email:      "nonexistent@example.com",
+			statusCode: http.StatusNotFound,
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "user not found")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "POST" {
+					t.Errorf("expected POST request, got %s", r.Method)
+				}
+
+				if r.URL.Path != "/api/account/password-reset/request" {
+					t.Errorf("expected /api/account/password-reset/request path, got %s", r.URL.Path)
+				}
+
+				// Verify request body
+				var reqBody client.PasswordResetRequest
+				require.NoError(t, json.NewDecoder(r.Body).Decode(&reqBody))
+				require.Equal(t, tt.email, reqBody.Email)
+
+				w.WriteHeader(tt.statusCode)
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithEndpoint(server.URL))
+			err := acc.RequestPasswordReset(context.Background(), tt.email)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("RequestPasswordReset() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+		})
+	}
+}
+
+func TestConfirmPasswordReset(t *testing.T) {
+	tests := []struct {
+		name        string
+		email       string
+		token       string
+		newPassword string
+		statusCode  int
+		wantErr     bool
+		errCheck    func(*testing.T, error)
+	}{
+		{
+			name:        "successful password reset confirmation",
+			email:       "test@example.com",
+			token:       "reset-token-123",
+			newPassword: "new-password",
+			statusCode:  http.StatusOK,
+			wantErr:     false,
+		},
+		{
+			name:        "invalid token",
+			email:       "test@example.com",
+			token:       "invalid-token",
+			newPassword: "new-password",
+			statusCode:  http.StatusBadRequest,
+			wantErr:     true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "invalid or expired reset token")
+			},
+		},
+		{
+			name:        "user not found",
+			email:       "nonexistent@example.com",
+			token:       "reset-token-123",
+			newPassword: "new-password",
+			statusCode:  http.StatusNotFound,
+			wantErr:     true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "user not found")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "POST" {
+					t.Errorf("expected POST request, got %s", r.Method)
+				}
+
+				if r.URL.Path != "/api/account/password-reset/confirm" {
+					t.Errorf("expected /api/account/password-reset/confirm path, got %s", r.URL.Path)
+				}
+
+				// Verify request body
+				var reqBody client.PasswordResetVerifyRequest
+				require.NoError(t, json.NewDecoder(r.Body).Decode(&reqBody))
+				require.Equal(t, tt.email, reqBody.Email)
+				require.Equal(t, tt.token, reqBody.Token)
+				require.Equal(t, tt.newPassword, reqBody.Password)
+
+				w.WriteHeader(tt.statusCode)
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithEndpoint(server.URL))
+			err := acc.ConfirmPasswordReset(context.Background(), tt.email, tt.token, tt.newPassword)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ConfirmPasswordReset() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+		})
+	}
+}
+
+func TestUpdatePassword(t *testing.T) {
+	tests := []struct {
+		name           string
+		currentPassword string
+		newPassword     string
+		jwt             string
+		statusCode      int
+		wantErr         bool
+		errCheck        func(*testing.T, error)
+	}{
+		{
+			name:           "successful password update",
+			currentPassword: "old-password",
+			newPassword:     "new-password",
+			jwt:             "test-jwt-token",
+			statusCode:      http.StatusOK,
+			wantErr:         false,
+		},
+		{
+			name:           "unauthorized - missing JWT",
+			currentPassword: "old-password",
+			newPassword:     "new-password",
+			jwt:             "",
+			statusCode:      http.StatusUnauthorized,
+			wantErr:         true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorIs(t, err, ErrUnauthorized)
+			},
+		},
+		{
+			name:           "invalid current password",
+			currentPassword: "wrong-password",
+			newPassword:     "new-password",
+			jwt:             "test-jwt-token",
+			statusCode:      http.StatusBadRequest,
+			wantErr:         true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "invalid password")
+			},
+		},
+		{
+			name:           "user not found",
+			currentPassword: "old-password",
+			newPassword:     "new-password",
+			jwt:             "test-jwt-token",
+			statusCode:      http.StatusNotFound,
+			wantErr:         true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "user not found")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "POST" {
+					t.Errorf("expected POST request, got %s", r.Method)
+				}
+
+				if r.URL.Path != "/api/account/update-password" {
+					t.Errorf("expected /api/account/update-password path, got %s", r.URL.Path)
+				}
+
+				// Verify Authorization header
+				authHeader := r.Header.Get("Authorization")
+				if tt.jwt != "" {
+					require.Equal(t, "Bearer "+tt.jwt, authHeader)
+				}
+
+				// Verify request body
+				var reqBody client.UpdatePasswordRequest
+				require.NoError(t, json.NewDecoder(r.Body).Decode(&reqBody))
+				require.Equal(t, tt.currentPassword, reqBody.CurrentPassword)
+				require.Equal(t, tt.newPassword, reqBody.NewPassword)
+
+				w.WriteHeader(tt.statusCode)
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithEndpoint(server.URL), WithJWT(tt.jwt))
+			err := acc.UpdatePassword(context.Background(), tt.currentPassword, tt.newPassword)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("UpdatePassword() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+		})
+	}
+}
+
 func TestGenerateOTP(t *testing.T) {
 	tests := []struct {
 		name       string
