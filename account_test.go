@@ -1185,6 +1185,69 @@ func TestVerifyEmail(t *testing.T) {
 	}
 }
 
+func TestResendVerifyEmail(t *testing.T) {
+	tests := []struct {
+		name       string
+		email      string
+		statusCode int
+		wantErr    bool
+		errMsg     string
+	}{
+		{
+			name:       "successful resend",
+			email:      "user@example.com",
+			statusCode: http.StatusOK,
+			wantErr:    false,
+		},
+		{
+			name:       "invalid email",
+			email:      "invalid-email",
+			statusCode: http.StatusBadRequest,
+			wantErr:    true,
+			errMsg:     "invalid email",
+		},
+		{
+			name:       "user not found",
+			email:      "nonexistent@example.com",
+			statusCode: http.StatusNotFound,
+			wantErr:    true,
+			errMsg:     "not found",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "POST" {
+					t.Errorf("expected POST request, got %s", r.Method)
+				}
+
+				if r.URL.Path != "/api/account/verify-email/resend" {
+					t.Errorf("expected /api/account/verify-email/resend path, got %s", r.URL.Path)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithEndpoint(server.URL))
+			err := acc.ResendVerifyEmail(context.Background(), tt.email)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ResendVerifyEmail() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errMsg != "" {
+				if err == nil {
+					t.Errorf("ResendVerifyEmail() expected error containing %q, got nil", tt.errMsg)
+				}
+			}
+		})
+	}
+}
+
 func TestNewClient(t *testing.T) {
 	endpoint := "https://api.example.com"
 	jwt := "test-token"

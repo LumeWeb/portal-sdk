@@ -55,6 +55,7 @@ const (
 	OpAPIKeyLogin
 	OpRegistration
 	OpEmailVerification
+	OpResendEmailVerification
 	OpDeleteAccount
 	OpPasswordResetRequest
 	OpPasswordResetConfirm
@@ -77,6 +78,7 @@ var operationString = map[int]string{
 	OpAPIKeyLogin:         "API key login",
 	OpRegistration:        "registration",
 	OpEmailVerification:   "email verification",
+	OpResendEmailVerification: "resend email verification",
 	OpDeleteAccount:       "account deletion",
 	OpPasswordResetRequest: "password reset request",
 	OpPasswordResetConfirm: "password reset confirm",
@@ -139,6 +141,10 @@ var httpErrorMessages = map[int]map[int]errorFactory{
 	},
 	OpEmailVerification: {
 		http.StatusBadRequest: plainErr("invalid verification token or email"),
+		http.StatusNotFound:   plainErr("user not found"),
+	},
+	OpResendEmailVerification: {
+		http.StatusBadRequest: plainErr("invalid email address"),
 		http.StatusNotFound:   plainErr("user not found"),
 	},
 	OpDeleteAccount: {
@@ -390,6 +396,9 @@ type AccountAPI interface {
 
 	// VerifyEmail confirms a user's email address with a verification token.
 	VerifyEmail(ctx context.Context, email, token string) error
+
+	// ResendVerifyEmail resends the email verification link to the user's email address.
+	ResendVerifyEmail(ctx context.Context, email string) error
 
 	// Ping verifies the JWT token is valid.
 	Ping(ctx context.Context) error
@@ -723,6 +732,20 @@ func (c *Client) VerifyEmail(ctx context.Context, email, token string) error {
 	}
 
 	return handleResponse(resp.StatusCode(), resp.Body, OpEmailVerification, []int{http.StatusOK})
+}
+
+// ResendVerifyEmail resends the email verification link to the user's email address.
+func (c *Client) ResendVerifyEmail(ctx context.Context, email string) error {
+	reqBody := client.ResendVerifyEmailRequest{
+		Email: email,
+	}
+
+	resp, err := c.client.PostApiAccountVerifyEmailResendWithResponse(ctx, reqBody)
+	if err != nil {
+		return fmt.Errorf("failed to send resend verify email request: %w", err)
+	}
+
+	return handleResponse(resp.StatusCode(), resp.Body, OpResendEmailVerification, []int{http.StatusOK})
 }
 
 // CreateAPIKey creates a new API key for the account.
