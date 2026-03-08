@@ -459,8 +459,9 @@ type AccountAPI interface {
 
 // Client implements AccountAPI using the generated OpenAPI client.
 type Client struct {
-	client client.ClientWithResponsesInterface
-	jwt    string
+	client         client.ClientWithResponsesInterface
+	jwt            string
+	disableRedirect bool
 }
 
 // HostOverride holds the configuration for host header override.
@@ -475,10 +476,11 @@ type HostOverride struct {
 
 // clientConfig holds the configuration for creating a new Client.
 type clientConfig struct {
-	endpoint    string
-	jwt         string
-	httpClient  *http.Client
-	hostOverride *HostOverride
+	endpoint       string
+	jwt            string
+	httpClient     *http.Client
+	hostOverride   *HostOverride
+	disableRedirect bool
 }
 
 // defaultClientConfig returns a clientConfig with sensible defaults.
@@ -511,11 +513,7 @@ func WithEndpoint(endpoint string) ClientOption {
 // This is useful for testing scenarios where you need to inspect redirect responses.
 func WithDisableFollowRedirect() ClientOption {
 	return func(cfg *clientConfig) {
-		cfg.httpClient = &http.Client{
-			CheckRedirect: func(req *http.Request, via []*http.Request) error {
-				return http.ErrUseLastResponse
-			},
-		}
+		cfg.disableRedirect = true
 	}
 }
 
@@ -601,6 +599,13 @@ func NewClient(opts ...ClientOption) AccountAPI {
 		opt(cfg)
 	}
 
+	// Create the Client first so we can reference it in the CheckRedirect closure
+	clientWrapper := &Client{
+		client:         nil,
+		jwt:            cfg.jwt,
+		disableRedirect: cfg.disableRedirect,
+	}
+
 	// Build client options from config
 	clientOpts := []client.ClientOption{}
 
@@ -612,40 +617,53 @@ func NewClient(opts ...ClientOption) AccountAPI {
 		}))
 	}
 
-	// If host override is configured, set up a custom transport
+	// Create HTTP client with redirect control
+	// The CheckRedirect function checks the Client's disableRedirect field to determine
+	// whether to follow redirects or stop at the redirect response
+	httpClient := &http.Client{
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			// If redirects are disabled, stop at the redirect response
+			if clientWrapper.disableRedirect {
+				return http.ErrUseLastResponse
+			}
+			// Otherwise, follow redirects normally (default behavior)
+			return nil
+		},
+	}
+
+	// If host override is configured, wrap the transport
 	if cfg.hostOverride != nil {
-		// Create a custom HTTP client with the host override round tripper
 		customTransport := &hostOverrideRoundTripper{
 			transport: http.DefaultTransport,
 			host:      cfg.hostOverride.Host,
 			target:    cfg.hostOverride.Target,
 		}
-		
-		// If there's already a custom HTTP client, wrap its transport
-		if cfg.httpClient != nil {
-			if cfg.httpClient.Transport != nil {
-				customTransport.transport = cfg.httpClient.Transport
-			}
-			cfg.httpClient.Transport = customTransport
-		} else {
-			cfg.httpClient = &http.Client{
-				Transport: customTransport,
-			}
-		}
+		httpClient.Transport = customTransport
 	}
 
-	// Add custom HTTP client if provided (or configured above)
-	if cfg.httpClient != nil {
-		clientOpts = append(clientOpts, client.WithHTTPClient(cfg.httpClient))
-	}
+	// Add the HTTP client to client options
+	clientOpts = append(clientOpts, client.WithHTTPClient(httpClient))
 
 	c, _ := client.NewClientWithResponses(cfg.endpoint, clientOpts...)
-	return &Client{client: c, jwt: cfg.jwt}
+	clientWrapper.client = c
+	return clientWrapper
 }
 
 // NewClientWithDefaults creates a new AccountAPI client with default settings (for testing).
 func NewClientWithDefaults(genClient client.ClientWithResponsesInterface) AccountAPI {
 	return &Client{client: genClient}
+}
+
+// disableRedirects temporarily disables HTTP redirect following for the next request.
+// This is thread-safe and should be used with enableRedirects in a defer pattern.
+func (c *Client) disableRedirects() {
+	c.disableRedirect = true
+}
+
+// enableRedirects re-enables HTTP redirect following after a disableRedirects call.
+// This is thread-safe and should be used in a defer pattern.
+func (c *Client) enableRedirects() {
+	c.disableRedirect = false
 }
 
 // Login authenticates with email/password and returns a login result.
@@ -708,6 +726,12 @@ func (c *Client) ValidateOTP(ctx context.Context, intermediateJWT, otp string) (
 	reqBody := client.OTPValidateRequest{
 		Otp: otp,
 	}
+
+	// Temporarily disable redirect following to capture the 302 response
+	// The OTP validate endpoint returns 302 with Location header containing the JWT
+	originalState := c.disableRedirect
+	c.disableRedirect = true
+	defer func() { c.disableRedirect = originalState }()
 
 	// Use the client with a request editor to add the intermediate JWT
 	resp, err := c.client.PostApiAuthOtpValidateWithResponse(ctx, reqBody,
