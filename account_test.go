@@ -3221,9 +3221,13 @@ func TestGetAvatar(t *testing.T) {
 					t.Errorf("expected /api/account/avatar path, got %s", r.URL.Path)
 				}
 
+				w.Header().Set("Content-Type", "application/json")
 				w.WriteHeader(tt.statusCode)
 				if tt.statusCode == http.StatusOK {
 					w.Write([]byte("fake-image-data"))
+				} else {
+					resp := client.ErrorResponse{Error: "error"}
+					require.NoError(t, json.NewEncoder(w).Encode(resp))
 				}
 			}))
 			defer server.Close()
@@ -3281,9 +3285,13 @@ func TestUploadAvatar(t *testing.T) {
 					t.Errorf("expected /api/account/avatar path, got %s", r.URL.Path)
 				}
 
+				w.Header().Set("Content-Type", "application/json")
 				w.WriteHeader(tt.statusCode)
 				if tt.statusCode == http.StatusOK {
 					w.Write([]byte(`{"message":"uploaded"}`))
+				} else if tt.statusCode != http.StatusNoContent {
+					resp := client.ErrorResponse{Error: "error"}
+					require.NoError(t, json.NewEncoder(w).Encode(resp))
 				}
 			}))
 			defer server.Close()

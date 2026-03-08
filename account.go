@@ -1326,7 +1326,7 @@ func (c *Client) GetAvatar(ctx context.Context) ([]byte, error) {
 // UploadAvatar uploads a profile picture/avatar for the authenticated user.
 // The file content should be the raw image data.
 func (c *Client) UploadAvatar(ctx context.Context, file []byte) error {
-	resp, err := c.client.PostApiAccountAvatarWithBodyWithResponse(ctx, "multipart/form-data", bytes.NewReader(file))
+	resp, err := c.client.PostApiAccountAvatarWithBodyWithResponse(ctx, http.DetectContentType(file), bytes.NewReader(file))
 	if err != nil {
 		return fmt.Errorf("failed to upload avatar: %w", err)
 	}
