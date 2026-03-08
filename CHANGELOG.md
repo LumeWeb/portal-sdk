@@ -1,3 +1,9 @@
+## 0.1.10 (2026-03-08)
+
+### Fixes
+
+- update OTP auth cookie and query param names
+
 ## 0.1.9 (2026-03-08)
 
 ### Fixes
