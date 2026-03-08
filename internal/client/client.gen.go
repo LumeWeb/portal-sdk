@@ -78,9 +78,6 @@ type AccountPermissionsResponse struct {
 	Permissions []AccessPolicy `json:"permissions"`
 }
 
-// BinUUID defines model for BinUUID.
-type BinUUID = []int
-
 // BinaryUUID defines model for BinaryUUID.
 type BinaryUUID = types.BinaryUUID
 
@@ -3896,7 +3893,6 @@ func (r PostApiAuthOtpGenerateResponse) StatusCode() int {
 type PostApiAuthOtpValidateResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *ErrorResponse
 	JSON400      *ErrorResponse
 	JSON401      *ErrorResponse
 	JSON403      *ErrorResponse
@@ -5430,13 +5426,6 @@ func ParsePostApiAuthOtpValidateResponse(rsp *http.Response) (*PostApiAuthOtpVal
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest ErrorResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
