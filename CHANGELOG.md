@@ -1,3 +1,9 @@
+## 0.1.9 (2026-03-08)
+
+### Fixes
+
+- add runtime redirect control for OTP validate endpoint
+
 ## 0.1.8 (2026-03-08)
 
 ### Fixes
