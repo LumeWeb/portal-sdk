@@ -1,3 +1,9 @@
+## 0.1.8 (2026-03-08)
+
+### Fixes
+
+- update swagger spec and regenerated client for OTP validate endpoint
+
 ## 0.1.7 (2026-03-06)
 
 ### Features
