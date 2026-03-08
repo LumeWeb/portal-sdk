@@ -47,6 +47,14 @@ var (
 
 // Operation identifiers for error message mapping.
 const (
+	// AuthTokenCookie is the name of the cookie that contains the JWT token.
+	AuthTokenCookie = "auth_token"
+
+	// AuthTokenQueryParam is the query parameter name for the JWT token in redirect URLs.
+	AuthTokenQueryParam = "auth_token"
+)
+
+const (
 	OpLogin = iota
 	OpOTPValidation
 	OpPing
@@ -758,7 +766,7 @@ func (c *Client) ValidateOTP(ctx context.Context, intermediateJWT, otp string) (
 	// The cookie name is typically "auth" or similar. We'll look for JWT in Set-Cookie.
 	cookies := resp.HTTPResponse.Cookies()
 	for _, cookie := range cookies {
-		if cookie.Name == "auth" && cookie.Value != "" {
+		if cookie.Name == AuthTokenCookie && cookie.Value != "" {
 			return cookie.Value, nil
 		}
 	}
@@ -768,7 +776,7 @@ func (c *Client) ValidateOTP(ctx context.Context, intermediateJWT, otp string) (
 	if err != nil {
 		return "", fmt.Errorf("failed to parse redirect location: %w", err)
 	}
-	token := parsedURL.Query().Get("token")
+	token := parsedURL.Query().Get(AuthTokenQueryParam)
 	if token != "" {
 		return token, nil
 	}
