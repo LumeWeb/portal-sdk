@@ -3047,3 +3047,400 @@ func TestHostOverridePreservesHTTPSScheme(t *testing.T) {
 	// Verify the Host header was overridden
 	require.Equal(t, "account.pinner.xyz", receivedHost)
 }
+
+func TestGetAccount(t *testing.T) {
+	tests := []struct {
+		name       string
+		statusCode int
+		wantErr    bool
+	}{
+		{
+			name:       "successful get account",
+			statusCode: http.StatusOK,
+			wantErr:    false,
+		},
+		{
+			name:       "unauthorized",
+			statusCode: http.StatusUnauthorized,
+			wantErr:    true,
+		},
+		{
+			name:       "not found",
+			statusCode: http.StatusNotFound,
+			wantErr:    true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "GET" {
+					t.Errorf("expected GET request, got %s", r.Method)
+				}
+				if r.URL.Path != "/api/account" {
+					t.Errorf("expected /api/account path, got %s", r.URL.Path)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				if tt.statusCode == http.StatusOK {
+					now := time.Now()
+					resp := client.AccountInfoResponse{
+						Id:        1,
+						Email:     "test@example.com",
+						FirstName: "John",
+						LastName:  "Doe",
+						Verified:  true,
+						Otp:       false,
+						CreatedAt: &now,
+					}
+					require.NoError(t, json.NewEncoder(w).Encode(resp))
+				} else if tt.statusCode == http.StatusUnauthorized {
+					resp := client.ErrorResponse{Error: "unauthorized"}
+					require.NoError(t, json.NewEncoder(w).Encode(resp))
+				}
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithJWT("test-token"), WithEndpoint(server.URL))
+			result, err := acc.GetAccount(context.Background())
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetAccount() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if !tt.wantErr {
+				require.NotNil(t, result)
+				require.Equal(t, "test@example.com", result.Email)
+				require.Equal(t, "John", result.FirstName)
+			}
+		})
+	}
+}
+
+func TestUpdateProfile(t *testing.T) {
+	tests := []struct {
+		name        string
+		firstName   string
+		lastName    string
+		statusCode  int
+		wantErr     bool
+	}{
+		{
+			name:       "successful update",
+			firstName:  "Jane",
+			lastName:   "Smith",
+			statusCode: http.StatusOK,
+			wantErr:    false,
+		},
+		{
+			name:       "update with empty values",
+			firstName:  "",
+			lastName:   "",
+			statusCode: http.StatusOK,
+			wantErr:    false,
+		},
+		{
+			name:       "unauthorized",
+			firstName:  "Jane",
+			lastName:   "Smith",
+			statusCode: http.StatusUnauthorized,
+			wantErr:    true,
+		},
+		{
+			name:       "bad request",
+			firstName:  "Jane",
+			lastName:   "Smith",
+			statusCode: http.StatusBadRequest,
+			wantErr:    true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "PATCH" {
+					t.Errorf("expected PATCH request, got %s", r.Method)
+				}
+				if r.URL.Path != "/api/account" {
+					t.Errorf("expected /api/account path, got %s", r.URL.Path)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				if tt.statusCode == http.StatusOK {
+					w.Write([]byte(`{"message":"updated"}`))
+				} else if tt.statusCode == http.StatusUnauthorized {
+					resp := client.ErrorResponse{Error: "unauthorized"}
+					require.NoError(t, json.NewEncoder(w).Encode(resp))
+				}
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithJWT("test-token"), WithEndpoint(server.URL))
+			err := acc.UpdateProfile(context.Background(), tt.firstName, tt.lastName)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("UpdateProfile() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestGetAvatar(t *testing.T) {
+	tests := []struct {
+		name       string
+		statusCode int
+		wantErr    bool
+	}{
+		{
+			name:       "successful get avatar",
+			statusCode: http.StatusOK,
+			wantErr:    false,
+		},
+		{
+			name:       "not found",
+			statusCode: http.StatusNotFound,
+			wantErr:    true,
+		},
+		{
+			name:       "bad request",
+			statusCode: http.StatusBadRequest,
+			wantErr:    true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "GET" {
+					t.Errorf("expected GET request, got %s", r.Method)
+				}
+				if r.URL.Path != "/api/account/avatar" {
+					t.Errorf("expected /api/account/avatar path, got %s", r.URL.Path)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				if tt.statusCode == http.StatusOK {
+					w.Write([]byte("fake-image-data"))
+				} else {
+					resp := client.ErrorResponse{Error: "error"}
+					require.NoError(t, json.NewEncoder(w).Encode(resp))
+				}
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithJWT("test-token"), WithEndpoint(server.URL))
+			result, err := acc.GetAvatar(context.Background())
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetAvatar() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if !tt.wantErr {
+				require.NotNil(t, result)
+				require.Equal(t, "fake-image-data", string(result))
+			}
+		})
+	}
+}
+
+func TestUploadAvatar(t *testing.T) {
+	tests := []struct {
+		name       string
+		fileData   []byte
+		statusCode int
+		wantErr    bool
+	}{
+		{
+			name:       "successful upload",
+			fileData:   []byte("fake-image-data"),
+			statusCode: http.StatusOK,
+			wantErr:    false,
+		},
+		{
+			name:       "successful upload (204)",
+			fileData:   []byte("fake-image-data"),
+			statusCode: http.StatusNoContent,
+			wantErr:    false,
+		},
+		{
+			name:       "bad request",
+			fileData:   []byte("fake-image-data"),
+			statusCode: http.StatusBadRequest,
+			wantErr:    true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "POST" {
+					t.Errorf("expected POST request, got %s", r.Method)
+				}
+				if r.URL.Path != "/api/account/avatar" {
+					t.Errorf("expected /api/account/avatar path, got %s", r.URL.Path)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				if tt.statusCode == http.StatusOK {
+					w.Write([]byte(`{"message":"uploaded"}`))
+				} else if tt.statusCode != http.StatusNoContent {
+					resp := client.ErrorResponse{Error: "error"}
+					require.NoError(t, json.NewEncoder(w).Encode(resp))
+				}
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithJWT("test-token"), WithEndpoint(server.URL))
+			err := acc.UploadAvatar(context.Background(), tt.fileData)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("UploadAvatar() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestUpdateEmail(t *testing.T) {
+	tests := []struct {
+		name       string
+		email      string
+		password   string
+		statusCode int
+		wantErr    bool
+	}{
+		{
+			name:       "successful update",
+			email:      "newemail@example.com",
+			password:   "currentpassword",
+			statusCode: http.StatusOK,
+			wantErr:    false,
+		},
+		{
+			name:       "unauthorized",
+			email:      "newemail@example.com",
+			password:   "wrongpassword",
+			statusCode: http.StatusUnauthorized,
+			wantErr:    true,
+		},
+		{
+			name:       "bad request",
+			email:      "invalid-email",
+			password:   "currentpassword",
+			statusCode: http.StatusBadRequest,
+			wantErr:    true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "POST" {
+					t.Errorf("expected POST request, got %s", r.Method)
+				}
+				if r.URL.Path != "/api/account/update-email" {
+					t.Errorf("expected /api/account/update-email path, got %s", r.URL.Path)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				if tt.statusCode == http.StatusOK {
+					w.Write([]byte(`{"message":"updated"}`))
+				} else if tt.statusCode == http.StatusUnauthorized {
+					resp := client.ErrorResponse{Error: "unauthorized"}
+					require.NoError(t, json.NewEncoder(w).Encode(resp))
+				}
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithJWT("test-token"), WithEndpoint(server.URL))
+			err := acc.UpdateEmail(context.Background(), tt.email, tt.password)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("UpdateEmail() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestGetPermissions(t *testing.T) {
+	tests := []struct {
+		name       string
+		statusCode int
+		wantErr    bool
+	}{
+		{
+			name:       "successful get permissions",
+			statusCode: http.StatusOK,
+			wantErr:    false,
+		},
+		{
+			name:       "unauthorized",
+			statusCode: http.StatusUnauthorized,
+			wantErr:    true,
+		},
+		{
+			name:       "not found",
+			statusCode: http.StatusNotFound,
+			wantErr:    true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "GET" {
+					t.Errorf("expected GET request, got %s", r.Method)
+				}
+				if r.URL.Path != "/api/account/permissions" {
+					t.Errorf("expected /api/account/permissions path, got %s", r.URL.Path)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				if tt.statusCode == http.StatusOK {
+					resp := client.AccountPermissionsResponse{
+						Model: client.AccessModel{
+							RequestDefinition:  client.AccessModelDef{Key: "user", Value: "id"},
+							PolicyDefinition:   client.AccessModelDef{Key: "policy", Value: "data"},
+							RoleDefinition:     client.AccessModelDef{Key: "role", Value: "data"},
+							PolicyEffect:       client.AccessModelDef{Key: "effect", Value: "data"},
+							Matchers:           client.AccessModelDef{Key: "match", Value: "data"},
+						},
+						Permissions: []client.AccessPolicy{
+							{
+								Sub: "user:1",
+								Dom: "domain",
+								Obj: "resource",
+								Act: "action",
+							},
+						},
+					}
+					require.NoError(t, json.NewEncoder(w).Encode(resp))
+				} else if tt.statusCode == http.StatusUnauthorized {
+					resp := client.ErrorResponse{Error: "unauthorized"}
+					require.NoError(t, json.NewEncoder(w).Encode(resp))
+				}
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithJWT("test-token"), WithEndpoint(server.URL))
+			result, err := acc.GetPermissions(context.Background())
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetPermissions() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if !tt.wantErr {
+				require.NotNil(t, result)
+				require.NotEmpty(t, result.Permissions)
+			}
+		})
+	}
+}

@@ -3,6 +3,7 @@ package account
 //go:generate go tool oapi-codegen -config oai-codegen.yaml swagger.yaml
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -69,6 +70,12 @@ const (
 	OpPasswordResetRequest
 	OpPasswordResetConfirm
 	OpPasswordUpdate
+	OpGetAccount
+	OpUpdateProfile
+	OpGetAvatar
+	OpUploadAvatar
+	OpUpdateEmail
+	OpGetPermissions
 )
 
 const defaultOperationName = "operation"
@@ -78,20 +85,26 @@ const DefaultEndpoint = "account.pinner.xyz"
 
 // operationString maps operation IDs to their string names.
 var operationString = map[int]string{
-	OpLogin:               "login",
-	OpOTPValidation:       "OTP validation",
-	OpPing:                "ping",
-	OpOTPGeneration:       "OTP generation",
-	OpOTPVerification:     "OTP verification",
-	OpOTPDisable:          "OTP disable",
-	OpAPIKeyLogin:         "API key login",
-	OpRegistration:        "registration",
-	OpEmailVerification:   "email verification",
+	OpLogin:        "login",
+	OpOTPValidation: "OTP validation",
+	OpPing:         "ping",
+	OpOTPGeneration: "OTP generation",
+	OpOTPVerification: "OTP verification",
+	OpOTPDisable:   "OTP disable",
+	OpAPIKeyLogin:  "API key login",
+	OpRegistration: "registration",
+	OpEmailVerification: "email verification",
 	OpResendEmailVerification: "resend email verification",
-	OpDeleteAccount:       "account deletion",
+	OpDeleteAccount: "account deletion",
 	OpPasswordResetRequest: "password reset request",
 	OpPasswordResetConfirm: "password reset confirm",
-	OpPasswordUpdate:       "password update",
+	OpPasswordUpdate: "password update",
+	OpGetAccount:   "get account",
+	OpUpdateProfile: "update profile",
+	OpGetAvatar:    "get avatar",
+	OpUploadAvatar: "upload avatar",
+	OpUpdateEmail:  "update email",
+	OpGetPermissions: "get account permissions",
 }
 
 // errorFactory is a helper for creating errors with optional ErrUnauthorized wrapping.
@@ -174,6 +187,32 @@ var httpErrorMessages = map[int]map[int]errorFactory{
 		http.StatusBadRequest:   plainErr("invalid password"),
 		http.StatusNotFound:     plainErr("user not found"),
 	},
+	OpGetAccount: {
+		http.StatusUnauthorized: authErr("authentication required"),
+		http.StatusNotFound:     plainErr("account not found"),
+	},
+	OpUpdateProfile: {
+		http.StatusUnauthorized: authErr("authentication required"),
+		http.StatusBadRequest:   plainErr("invalid profile data"),
+		http.StatusNotFound:     plainErr("user not found"),
+	},
+	OpGetAvatar: {
+		http.StatusBadRequest:   plainErr("bad request"),
+		http.StatusNotFound:     plainErr("avatar not found"),
+	},
+	OpUploadAvatar: {
+		http.StatusBadRequest:plainErr("bad request"),
+		http.StatusNotFound:    plainErr("not found"),
+	},
+	OpUpdateEmail: {
+		http.StatusUnauthorized: authErr("authentication required"),
+		http.StatusBadRequest: plainErr("invalid email or password"),
+		http.StatusNotFound:   plainErr("user not found"),
+	},
+	OpGetPermissions: {
+		http.StatusBadRequest:  plainErr("bad request"),
+		http.StatusNotFound:     plainErr("permissions not found"),
+	},
 }
 
 // IsSettled returns true if the operation is in a settled state (finished, no longer being processed).
@@ -212,6 +251,18 @@ type OperationFilters struct {
 // OperationFilterItem represents a filter item (e.g., a specific status, protocol, or operation type).
 type OperationFilterItem struct {
 	client.OperationFilterItem
+}
+
+// AccountInfo represents user account information.
+// Embeds the generated client.AccountInfoResponse to reuse all fields.
+type AccountInfo struct {
+	client.AccountInfoResponse
+}
+
+// AccountPermissions represents the access control policies and model for the authenticated user.
+// Embeds the generated client.AccountPermissionsResponse to reuse all fields.
+type AccountPermissions struct {
+	client.AccountPermissionsResponse
 }
 
 // Filter is a filter for listing operations (legacy, use ListOptions instead).
@@ -463,6 +514,25 @@ type AccountAPI interface {
 
 	// UpdatePassword updates the authenticated user's password.
 	UpdatePassword(ctx context.Context, currentPassword, newPassword string) error
+
+	// Profile Management
+	// GetAccount retrieves information about the authenticated user's account.
+	GetAccount(ctx context.Context) (*AccountInfo, error)
+
+	// UpdateProfile updates the authenticated user's profile information (first name and last name).
+	UpdateProfile(ctx context.Context, firstName, lastName string) error
+
+	// GetAvatar retrieves the authenticated user's profile picture.
+	GetAvatar(ctx context.Context) ([]byte, error)
+
+	// UploadAvatar uploads a profile picture/avatar for the authenticated user.
+	UploadAvatar(ctx context.Context, file []byte) error
+
+	// UpdateEmail updates the authenticated user's email address.
+	UpdateEmail(ctx context.Context, email, password string) error
+
+	// GetPermissions retrieves the access control policies and model for the authenticated user.
+	GetPermissions(ctx context.Context) (*AccountPermissions, error)
 }
 
 // Client implements AccountAPI using the generated OpenAPI client.
@@ -1202,4 +1272,94 @@ func (c *Client) UpdatePassword(ctx context.Context, currentPassword, newPasswor
 	}
 
 	return handleResponse(resp.StatusCode(), resp.Body, OpPasswordUpdate, []int{http.StatusOK})
+}
+
+// GetAccount retrieves information about the authenticated user's account.
+func (c *Client) GetAccount(ctx context.Context) (*AccountInfo, error) {
+	resp, err := c.client.GetApiAccountWithResponse(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get account information: %w", err)
+	}
+
+	if resp.StatusCode() != http.StatusOK {
+		return nil, handleResponse(resp.StatusCode(), resp.Body, OpGetAccount, []int{http.StatusOK})
+	}
+
+	return &AccountInfo{AccountInfoResponse: *resp.JSON200}, nil
+}
+
+// UpdateProfile updates the authenticated user's profile information (first name and last name).
+// Passing empty strings for firstName or lastName will leave those fields unchanged.
+func (c *Client) UpdateProfile(ctx context.Context, firstName, lastName string) error {
+	reqBody := client.UpdateProfileRequest{}
+
+	if firstName != "" {
+		reqBody.FirstName = &firstName
+	}
+	if lastName != "" {
+		reqBody.LastName = &lastName
+	}
+
+	resp, err := c.client.PatchApiAccountWithResponse(ctx, reqBody)
+	if err != nil {
+		return fmt.Errorf("failed to update profile: %w", err)
+	}
+
+	return handleResponse(resp.StatusCode(), resp.Body, OpUpdateProfile, []int{http.StatusOK})
+}
+
+// GetAvatar retrieves the authenticated user's profile picture.
+// Returns the image data as bytes.
+func (c *Client) GetAvatar(ctx context.Context) ([]byte, error) {
+	resp, err := c.client.GetApiAccountAvatarWithResponse(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get avatar: %w", err)
+	}
+
+	if resp.StatusCode() != http.StatusOK {
+		return nil, handleResponse(resp.StatusCode(), resp.Body, OpGetAvatar, []int{http.StatusOK})
+	}
+
+	return resp.Body, nil
+}
+
+// UploadAvatar uploads a profile picture/avatar for the authenticated user.
+// The file content should be the raw image data.
+func (c *Client) UploadAvatar(ctx context.Context, file []byte) error {
+	resp, err := c.client.PostApiAccountAvatarWithBodyWithResponse(ctx, http.DetectContentType(file), bytes.NewReader(file))
+	if err != nil {
+		return fmt.Errorf("failed to upload avatar: %w", err)
+	}
+
+	return handleResponse(resp.StatusCode(), resp.Body, OpUploadAvatar, []int{http.StatusOK, http.StatusNoContent})
+}
+
+// UpdateEmail updates the authenticated user's email address.
+// Requires the user's current password for verification.
+func (c *Client) UpdateEmail(ctx context.Context, email, password string) error {
+	reqBody := client.UpdateEmailRequest{
+		Email:    email,
+		Password: password,
+	}
+
+	resp, err := c.client.PostApiAccountUpdateEmailWithResponse(ctx, reqBody)
+	if err != nil {
+		return fmt.Errorf("failed to update email: %w", err)
+	}
+
+	return handleResponse(resp.StatusCode(), resp.Body, OpUpdateEmail, []int{http.StatusOK})
+}
+
+// GetPermissions retrieves the access control policies and model for the authenticated user.
+func (c *Client) GetPermissions(ctx context.Context) (*AccountPermissions, error) {
+	resp, err := c.client.GetApiAccountPermissionsWithResponse(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get account permissions: %w", err)
+	}
+
+	if resp.StatusCode() != http.StatusOK {
+		return nil, handleResponse(resp.StatusCode(), resp.Body, OpGetPermissions, []int{http.StatusOK})
+	}
+
+	return &AccountPermissions{AccountPermissionsResponse: *resp.JSON200}, nil
 }
