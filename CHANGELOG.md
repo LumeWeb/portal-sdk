@@ -1,3 +1,13 @@
+## 0.1.11 (2026-03-09)
+
+### Features
+
+- add profile management endpoints to AccountAPI
+
+### Fixes
+
+- address PR review feedback
+
 ## 0.1.10 (2026-03-08)
 
 ### Fixes
