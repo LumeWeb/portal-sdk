@@ -1,3 +1,14 @@
+## 0.1.12 (2026-03-24)
+
+### Features
+
+- implement multi-spec admin API with quota service
+
+### Fixes
+
+- address PR review feedback
+- remove unused userID field from ListAllowances test
+
 ## 0.1.11 (2026-03-09)
 
 ### Features
