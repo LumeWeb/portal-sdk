@@ -430,7 +430,6 @@ func TestQuotaService_GetPlan(t *testing.T) {
 func TestQuotaService_ListAllowances(t *testing.T) {
 	tests := []struct {
 		name       string
-		userID     int
 		statusCode int
 		response   interface{}
 		wantErr    bool
@@ -438,7 +437,6 @@ func TestQuotaService_ListAllowances(t *testing.T) {
 	}{
 		{
 			name:       "successful list allowances",
-			userID:     123,
 			statusCode: http.StatusOK,
 			response: admin.AllowanceListResponse{
 				Grants: []admin.AllowanceGrantResponse{
@@ -457,7 +455,6 @@ func TestQuotaService_ListAllowances(t *testing.T) {
 		},
 		{
 			name:       "unauthorized",
-			userID:     123,
 			statusCode: http.StatusUnauthorized,
 			response:   admin.ErrorResponse{Error: "unauthorized"},
 			wantErr:    true,
