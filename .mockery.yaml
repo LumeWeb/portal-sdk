@@ -16,3 +16,9 @@ packages:
       pkgname: "mocks"
     interfaces:
       ClientWithResponsesInterface: {}
+  go.lumeweb.com/portal-sdk/internal/admin:
+    config:
+      dir: ./internal/admin/mocks
+      pkgname: "mocks"
+    interfaces:
+      ClientWithResponsesInterface: {}

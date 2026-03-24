@@ -420,6 +420,47 @@ components:
       - ping
       - token
       type: object
+    QuotaHistoryResponse:
+      additionalProperties: false
+      properties:
+        points:
+          items:
+            $ref: '#/components/schemas/UsagePoint'
+          type: array
+        user_id:
+          type: integer
+      required:
+      - user_id
+      - points
+      type: object
+    QuotaStatusResponse:
+      additionalProperties: false
+      properties:
+        bandwidth:
+          $ref: '#/components/schemas/QuotaTypeStatus'
+        download:
+          $ref: '#/components/schemas/QuotaTypeStatus'
+        upload:
+          $ref: '#/components/schemas/QuotaTypeStatus'
+      required:
+      - upload
+      - download
+      type: object
+    QuotaTypeStatus:
+      additionalProperties: false
+      properties:
+        limit:
+          type: integer
+        percentage:
+          type: integer
+        remaining:
+          type: integer
+        used:
+          type: integer
+      required:
+      - used
+      - percentage
+      type: object
     RegisterRequest:
       additionalProperties: false
       properties:
@@ -483,6 +524,17 @@ components:
       required:
       - limit
       type: object
+    UsagePoint:
+      additionalProperties: false
+      properties:
+        bytes:
+          type: integer
+        date:
+          type: string
+      required:
+      - date
+      - bytes
+      type: object
     VerifyEmailRequest:
       additionalProperties: false
       properties:
@@ -500,7 +552,7 @@ components:
 info:
   description: API endpoints for managing user accounts, authentication, and API keys.
   title: Account API
-  version: v0.2.7-0.20260308093909-80f381086370
+  version: v0.2.7-0.20260312042836-d9dfa043a80d
 openapi: 3.0.0
 paths:
   /api/account:
@@ -963,6 +1015,84 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Internal server error
       summary: Get account permissions
+  /api/account/quota:
+    get:
+      description: Retrieve the current quota status including upload and download
+        usage, limits, and remaining allowance for the authenticated user.
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuotaStatusResponse'
+          description: Quota status
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Get current quota status
+      tags:
+      - quota
+      - status
+  /api/account/quota/history:
+    get:
+      description: Retrieves historical quota usage data for charting and analytics.
+      parameters:
+      - description: End date in RFC3339 format
+        in: query
+        name: end_date
+        schema:
+          type: string
+      - description: Start date in RFC3339 format
+        in: query
+        name: start_date
+        schema:
+          type: string
+      - description: Usage type (upload or download)
+        in: query
+        name: type
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuotaHistoryResponse'
+          description: Quota usage history
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Get quota usage history
   /api/account/update-email:
     post:
       description: Updates the authenticated user's email address.

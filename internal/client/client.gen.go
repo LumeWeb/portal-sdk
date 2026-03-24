@@ -222,6 +222,27 @@ type PongResponse struct {
 	Token string `json:"token"`
 }
 
+// QuotaHistoryResponse defines model for QuotaHistoryResponse.
+type QuotaHistoryResponse struct {
+	Points []UsagePoint `json:"points"`
+	UserId int          `json:"user_id"`
+}
+
+// QuotaStatusResponse defines model for QuotaStatusResponse.
+type QuotaStatusResponse struct {
+	Bandwidth *QuotaTypeStatus `json:"bandwidth,omitempty"`
+	Download  QuotaTypeStatus  `json:"download"`
+	Upload    QuotaTypeStatus  `json:"upload"`
+}
+
+// QuotaTypeStatus defines model for QuotaTypeStatus.
+type QuotaTypeStatus struct {
+	Limit      *int `json:"limit,omitempty"`
+	Percentage int  `json:"percentage"`
+	Remaining  *int `json:"remaining,omitempty"`
+	Used       int  `json:"used"`
+}
+
 // RegisterRequest defines model for RegisterRequest.
 type RegisterRequest struct {
 	Email     string `json:"email"`
@@ -256,6 +277,12 @@ type UpdateProfileRequest struct {
 // UploadLimitResponse defines model for UploadLimitResponse.
 type UploadLimitResponse struct {
 	Limit int `json:"limit"`
+}
+
+// UsagePoint defines model for UsagePoint.
+type UsagePoint struct {
+	Bytes int    `json:"bytes"`
+	Date  string `json:"date"`
 }
 
 // VerifyEmailRequest defines model for VerifyEmailRequest.
@@ -315,6 +342,18 @@ type GetApiAccountKeysParams struct {
 
 	// NameStartswith Filter by name startswith
 	NameStartswith *string `form:"name_startswith,omitempty" json:"name_startswith,omitempty"`
+}
+
+// GetApiAccountQuotaHistoryParams defines parameters for GetApiAccountQuotaHistory.
+type GetApiAccountQuotaHistoryParams struct {
+	// EndDate End date in RFC3339 format
+	EndDate *string `form:"end_date,omitempty" json:"end_date,omitempty"`
+
+	// StartDate Start date in RFC3339 format
+	StartDate *string `form:"start_date,omitempty" json:"start_date,omitempty"`
+
+	// Type Usage type (upload or download)
+	Type *string `form:"type,omitempty" json:"type,omitempty"`
 }
 
 // PostApiAccountVerifyEmailParams defines parameters for PostApiAccountVerifyEmail.
@@ -641,6 +680,12 @@ type ClientInterface interface {
 	// GetApiAccountPermissions request
 	GetApiAccountPermissions(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetApiAccountQuota request
+	GetApiAccountQuota(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiAccountQuotaHistory request
+	GetApiAccountQuotaHistory(ctx context.Context, params *GetApiAccountQuotaHistoryParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// PostApiAccountUpdateEmailWithBody request with any body
 	PostApiAccountUpdateEmailWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -881,6 +926,30 @@ func (c *Client) PostApiAccountPasswordResetRequest(ctx context.Context, body Po
 
 func (c *Client) GetApiAccountPermissions(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetApiAccountPermissionsRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetApiAccountQuota(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiAccountQuotaRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetApiAccountQuotaHistory(ctx context.Context, params *GetApiAccountQuotaHistoryParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiAccountQuotaHistoryRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -1781,6 +1850,114 @@ func NewGetApiAccountPermissionsRequest(server string) (*http.Request, error) {
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetApiAccountQuotaRequest generates requests for GetApiAccountQuota
+func NewGetApiAccountQuotaRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/account/quota")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetApiAccountQuotaHistoryRequest generates requests for GetApiAccountQuotaHistory
+func NewGetApiAccountQuotaHistoryRequest(server string, params *GetApiAccountQuotaHistoryParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/account/quota/history")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.EndDate != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "end_date", runtime.ParamLocationQuery, *params.EndDate); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.StartDate != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "start_date", runtime.ParamLocationQuery, *params.StartDate); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Type != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "type", runtime.ParamLocationQuery, *params.Type); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
 	}
 
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
@@ -3317,6 +3494,12 @@ type ClientWithResponsesInterface interface {
 	// GetApiAccountPermissionsWithResponse request
 	GetApiAccountPermissionsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiAccountPermissionsResponse, error)
 
+	// GetApiAccountQuotaWithResponse request
+	GetApiAccountQuotaWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiAccountQuotaResponse, error)
+
+	// GetApiAccountQuotaHistoryWithResponse request
+	GetApiAccountQuotaHistoryWithResponse(ctx context.Context, params *GetApiAccountQuotaHistoryParams, reqEditors ...RequestEditorFn) (*GetApiAccountQuotaHistoryResponse, error)
+
 	// PostApiAccountUpdateEmailWithBodyWithResponse request with any body
 	PostApiAccountUpdateEmailWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAccountUpdateEmailResponse, error)
 
@@ -3656,6 +3839,56 @@ func (r GetApiAccountPermissionsResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetApiAccountPermissionsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetApiAccountQuotaResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *QuotaStatusResponse
+	JSON400      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiAccountQuotaResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiAccountQuotaResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetApiAccountQuotaHistoryResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *QuotaHistoryResponse
+	JSON400      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiAccountQuotaHistoryResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiAccountQuotaHistoryResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -4224,6 +4457,24 @@ func (c *ClientWithResponses) GetApiAccountPermissionsWithResponse(ctx context.C
 		return nil, err
 	}
 	return ParseGetApiAccountPermissionsResponse(rsp)
+}
+
+// GetApiAccountQuotaWithResponse request returning *GetApiAccountQuotaResponse
+func (c *ClientWithResponses) GetApiAccountQuotaWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiAccountQuotaResponse, error) {
+	rsp, err := c.GetApiAccountQuota(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiAccountQuotaResponse(rsp)
+}
+
+// GetApiAccountQuotaHistoryWithResponse request returning *GetApiAccountQuotaHistoryResponse
+func (c *ClientWithResponses) GetApiAccountQuotaHistoryWithResponse(ctx context.Context, params *GetApiAccountQuotaHistoryParams, reqEditors ...RequestEditorFn) (*GetApiAccountQuotaHistoryResponse, error) {
+	rsp, err := c.GetApiAccountQuotaHistory(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiAccountQuotaHistoryResponse(rsp)
 }
 
 // PostApiAccountUpdateEmailWithBodyWithResponse request with arbitrary body returning *PostApiAccountUpdateEmailResponse
@@ -4937,6 +5188,100 @@ func ParseGetApiAccountPermissionsResponse(rsp *http.Response) (*GetApiAccountPe
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest AccountPermissionsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiAccountQuotaResponse parses an HTTP response from a GetApiAccountQuotaWithResponse call
+func ParseGetApiAccountQuotaResponse(rsp *http.Response) (*GetApiAccountQuotaResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiAccountQuotaResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest QuotaStatusResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiAccountQuotaHistoryResponse parses an HTTP response from a GetApiAccountQuotaHistoryWithResponse call
+func ParseGetApiAccountQuotaHistoryResponse(rsp *http.Response) (*GetApiAccountQuotaHistoryResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiAccountQuotaHistoryResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest QuotaHistoryResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

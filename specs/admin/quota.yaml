@@ -1,0 +1,1070 @@
+components:
+  schemas:
+    AllowanceGrantRequest:
+      additionalProperties: false
+      properties:
+        download:
+          type: integer
+        expiry_date:
+          format: date-time
+          type: string
+        source:
+          type: string
+        storage:
+          type: integer
+        type:
+          type: string
+        upload:
+          type: integer
+        user_id:
+          type: integer
+      required:
+      - user_id
+      - type
+      - source
+      - storage
+      - upload
+      - download
+      - expiry_date
+      type: object
+    AllowanceGrantResponse:
+      additionalProperties: false
+      properties:
+        bytes:
+          type: integer
+        bytes_remaining:
+          type: integer
+        bytes_used:
+          type: integer
+        created_at:
+          format: date-time
+          type: string
+        expiry_date:
+          format: date-time
+          type: string
+        id:
+          type: integer
+        is_active:
+          type: boolean
+        source:
+          type: string
+        type:
+          type: string
+        updated_at:
+          format: date-time
+          type: string
+        user_id:
+          type: integer
+      required:
+      - id
+      - user_id
+      - type
+      - source
+      - bytes
+      - bytes_used
+      - bytes_remaining
+      - expiry_date
+      - is_active
+      - created_at
+      - updated_at
+      type: object
+    AllowanceListResponse:
+      additionalProperties: false
+      properties:
+        grants:
+          items:
+            $ref: '#/components/schemas/AllowanceGrantResponse'
+          type: array
+        total:
+          type: integer
+      required:
+      - grants
+      - total
+      type: object
+    CleanupRequest:
+      additionalProperties: false
+      properties:
+        retention_days:
+          type: integer
+      required:
+      - retention_days
+      type: object
+    CleanupResponse:
+      additionalProperties: false
+      properties:
+        records_deleted:
+          type: integer
+      required:
+      - records_deleted
+      type: object
+    ErrorResponse:
+      additionalProperties: false
+      properties:
+        error:
+          type: string
+      required:
+      - error
+      type: object
+    PlanListResponse:
+      additionalProperties: false
+      properties:
+        plans:
+          items:
+            $ref: '#/components/schemas/QuotaPlanResponse'
+          type: array
+        total:
+          type: integer
+      required:
+      - plans
+      - total
+      type: object
+    QuotaConfigResponse:
+      additionalProperties: false
+      properties:
+        default_plan_id:
+          type: integer
+        default_plan_name:
+          type: string
+        enable_quota_enforcement:
+          type: boolean
+        storage_retention_days:
+          type: integer
+      required:
+      - default_plan_id
+      - enable_quota_enforcement
+      - storage_retention_days
+      type: object
+    QuotaConfigUpdateRequest:
+      additionalProperties: false
+      properties:
+        default_plan_id:
+          type: integer
+        enable_quota_enforcement:
+          type: boolean
+        storage_retention_days:
+          type: integer
+      required:
+      - default_plan_id
+      - enable_quota_enforcement
+      - storage_retention_days
+      type: object
+    QuotaPlanRequest:
+      additionalProperties: false
+      properties:
+        description:
+          type: string
+        download_daily_limit:
+          type: integer
+        download_threshold:
+          type: integer
+        download_total_limit:
+          type: integer
+        is_active:
+          type: boolean
+        name:
+          type: string
+        storage_limit:
+          type: integer
+        storage_threshold:
+          type: integer
+        upload_daily_limit:
+          type: integer
+        upload_threshold:
+          type: integer
+        upload_total_limit:
+          type: integer
+      required:
+      - name
+      - description
+      - storage_limit
+      - upload_daily_limit
+      - download_daily_limit
+      - upload_total_limit
+      - download_total_limit
+      - storage_threshold
+      - upload_threshold
+      - download_threshold
+      - is_active
+      type: object
+    QuotaPlanResponse:
+      additionalProperties: false
+      properties:
+        created_at:
+          format: date-time
+          type: string
+        description:
+          type: string
+        download_daily_limit:
+          type: integer
+        download_threshold:
+          type: integer
+        download_total_limit:
+          type: integer
+        id:
+          type: integer
+        is_active:
+          type: boolean
+        is_default:
+          type: boolean
+        name:
+          type: string
+        storage_limit:
+          type: integer
+        storage_threshold:
+          type: integer
+        updated_at:
+          format: date-time
+          type: string
+        upload_daily_limit:
+          type: integer
+        upload_threshold:
+          type: integer
+        upload_total_limit:
+          type: integer
+      required:
+      - id
+      - name
+      - description
+      - storage_limit
+      - upload_daily_limit
+      - download_daily_limit
+      - upload_total_limit
+      - download_total_limit
+      - storage_threshold
+      - upload_threshold
+      - download_threshold
+      - is_default
+      - is_active
+      - created_at
+      - updated_at
+      type: object
+    ReconcileRequest:
+      additionalProperties: false
+      properties:
+        user_id:
+          type: integer
+      type: object
+    ReconcileResponse:
+      additionalProperties: false
+      properties:
+        message:
+          type: string
+        users_processed:
+          type: integer
+      required:
+      - users_processed
+      - message
+      type: object
+    SSLStatusInfo:
+      additionalProperties: false
+      properties:
+        error:
+          type: string
+        issued_at:
+          format: date-time
+          type: string
+        last_updated_at:
+          format: date-time
+          type: string
+        status:
+          type: string
+      required:
+      - status
+      type: object
+    SystemStatsResponse:
+      additionalProperties: false
+      properties:
+        active_users:
+          type: integer
+        current_usage:
+          $ref: '#/components/schemas/Usage'
+        total_active_grants:
+          type: integer
+        total_active_plans:
+          type: integer
+        total_grants:
+          type: integer
+        total_plans:
+          type: integer
+        total_usage_bytes:
+          type: integer
+        total_users:
+          type: integer
+      required:
+      - total_users
+      - active_users
+      - total_plans
+      - total_active_plans
+      - total_grants
+      - total_active_grants
+      - current_usage
+      - total_usage_bytes
+      type: object
+    Usage:
+      additionalProperties: false
+      properties:
+        download_bytes:
+          type: integer
+        storage_bytes:
+          type: integer
+        upload_bytes:
+          type: integer
+      required:
+      - storage_bytes
+      - upload_bytes
+      - download_bytes
+      type: object
+    WebsiteResponse:
+      additionalProperties: false
+      properties:
+        created:
+          format: date-time
+          type: string
+        dns_hosting_enabled:
+          type: boolean
+        dns_zone_id:
+          type: integer
+        domain:
+          type: string
+        expired:
+          type: boolean
+        id:
+          type: integer
+        last_checked_at:
+          format: date-time
+          type: string
+        ssl:
+          $ref: '#/components/schemas/SSLStatusInfo'
+        status:
+          type: string
+        target_hash:
+          type: string
+        target_type:
+          type: string
+        updated:
+          format: date-time
+          type: string
+        validation_expires_at:
+          format: date-time
+          type: string
+        validation_token:
+          type: string
+      required:
+      - id
+      - domain
+      - target_type
+      - target_hash
+      - status
+      - validation_token
+      - dns_hosting_enabled
+      - created
+      - updated
+      - expired
+      type: object
+info:
+  description: Provides administrative endpoints for managing the Portal.
+  title: Portal Admin API
+  version: unknown
+openapi: 3.0.0
+paths:
+  /api/ipfs/websites/{id}/block:
+    post:
+      description: |-
+        Blocks a website by setting status to 'blocked'.
+
+        Admin-only operation that prevents deletion of problematic websites. Blocked websites remain in the system but cannot be modified or removed by users.
+
+        Prerequisites: Admin access required
+
+        See also: POST /websites/:id/unblock (unblock website)
+      parameters:
+      - description: Website ID
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebsiteResponse'
+          description: Website blocked
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Block website
+      tags:
+      - Admin
+      - Websites
+      - Content
+  /api/ipfs/websites/{id}/unblock:
+    post:
+      description: |-
+        Unblocks a website by restoring status to 'active'.
+
+        Admin-only operation that re-enables a previously blocked website, allowing users to manage it again.
+
+        Prerequisites: Admin access required
+
+        See also: POST /websites/:id/block (block website)
+      parameters:
+      - description: Website ID
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebsiteResponse'
+          description: Website unblocked
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Unblock website
+      tags:
+      - Admin
+      - Websites
+      - Content
+  /api/quota/allowances:
+    get:
+      description: Get a paginated list of all allowance grants
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllowanceListResponse'
+          description: List of allowance grants
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: List allowance grants
+      tags:
+      - quota
+      - grants
+    post:
+      description: Create a new allowance grant for a user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AllowanceGrantRequest'
+        description: Allowance grant configuration
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Success
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllowanceGrantResponse'
+          description: Grant created
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Create allowance grant
+      tags:
+      - quota
+      - grants
+  /api/quota/allowances/{grantID}:
+    delete:
+      description: Deactivate an allowance grant
+      parameters:
+      - description: Numeric ID of the allowance grant
+        in: path
+        name: grantID
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Success
+        "204":
+          description: Grant deactivated
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Deactivate allowance grant
+      tags:
+      - quota
+      - grants
+    put:
+      description: Update an existing allowance grant
+      parameters:
+      - description: Numeric ID of the allowance grant
+        in: path
+        name: grantID
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AllowanceGrantRequest'
+        description: Allowance grant configuration
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllowanceGrantResponse'
+          description: Grant updated
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Update allowance grant
+      tags:
+      - quota
+      - grants
+  /api/quota/plans:
+    get:
+      description: Get a paginated list of all quota plans
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanListResponse'
+          description: List of quota plans
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: List quota plans
+      tags:
+      - quota
+      - plans
+    post:
+      description: Create a new quota plan with specified limits
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuotaPlanRequest'
+        description: Quota plan configuration
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Success
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuotaPlanResponse'
+          description: Plan created successfully
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Create quota plan
+      tags:
+      - quota
+      - plans
+  /api/quota/plans/{planID}:
+    delete:
+      description: Delete a quota plan by ID
+      parameters:
+      - description: Numeric ID of the quota plan
+        in: path
+        name: planID
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Success
+        "204":
+          description: Plan deleted successfully
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Delete quota plan
+      tags:
+      - quota
+      - plans
+    get:
+      description: Get details of a specific quota plan by ID
+      parameters:
+      - description: Numeric ID of the quota plan
+        in: path
+        name: planID
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuotaPlanResponse'
+          description: Quota plan details
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Get quota plan
+      tags:
+      - quota
+      - plans
+    put:
+      description: Update an existing quota plan
+      parameters:
+      - description: Numeric ID of the quota plan
+        in: path
+        name: planID
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuotaPlanRequest'
+        description: Quota plan configuration
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuotaPlanResponse'
+          description: Plan updated successfully
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Update quota plan
+      tags:
+      - quota
+      - plans
+  /api/quota/plans/{planID}/default:
+    post:
+      description: Set a quota plan as the default for new users
+      parameters:
+      - description: Numeric ID of the quota plan
+        in: path
+        name: planID
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Success
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Set default quota plan
+      tags:
+      - quota
+      - plans
+  /api/quota/system/cleanup:
+    post:
+      description: Delete old quota records based on retention policy
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CleanupRequest'
+        description: Cleanup options
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CleanupResponse'
+          description: Cleanup result
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Cleanup old records
+      tags:
+      - quota
+      - system
+  /api/quota/system/config:
+    get:
+      description: Get current quota system configuration
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuotaConfigResponse'
+          description: System configuration
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Get system configuration
+      tags:
+      - quota
+      - system
+    put:
+      description: Update quota system configuration
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuotaConfigUpdateRequest'
+        description: System configuration
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuotaConfigResponse'
+          description: System configuration updated
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Update system configuration
+      tags:
+      - quota
+      - system
+  /api/quota/system/reconcile:
+    post:
+      description: Reconcile user quota usage with actual storage/files
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReconcileRequest'
+        description: Reconciliation options
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReconcileResponse'
+          description: Reconciliation result
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Reconcile quota usage
+      tags:
+      - quota
+      - system
+  /api/quota/system/stats:
+    get:
+      description: Get system-wide quota usage statistics
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemStatsResponse'
+          description: System statistics
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Get system statistics
+      tags:
+      - quota
+      - system
+servers:
+- url: /api
