@@ -169,11 +169,17 @@ func handleQuotaResponse(statusCode int, body []byte, op int, successCodes []int
 }
 
 // validateQuotaJSON201 validates HTTP 201 responses with JSON201 data.
-func validateQuotaJSON201[T any](respStatusCode int, json201 *T, nilMsg string) (*T, error) {
+func validateQuotaJSON201[T any](respStatusCode int, json201 *T, nilMsg string, op int) (*T, error) {
 	if respStatusCode == stdhttp.StatusUnauthorized {
 		return nil, fmt.Errorf("%w: authentication required", internalhttp.ErrUnauthorized)
 	}
 	if respStatusCode != stdhttp.StatusCreated {
+		// Check for custom error message in global map first
+		if errorMessages, ok := quotaHTTPErrorMessages[op]; ok {
+			if factory, ok := errorMessages[respStatusCode]; ok {
+				return nil, factory.Error()
+			}
+		}
 		return nil, fmt.Errorf("expected status 201, got %d", respStatusCode)
 	}
 	if json201 == nil {
@@ -324,7 +330,7 @@ func (q *QuotaService) CreatePlan(ctx context.Context, plan *QuotaPlan) (*QuotaP
 		return nil, fmt.Errorf("failed to send create plan request: %w", err)
 	}
 
-	data, err := validateQuotaJSON201(resp.StatusCode(), resp.JSON201, "create plan response did not contain data")
+	data, err := validateQuotaJSON201(resp.StatusCode(), resp.JSON201, "create plan response did not contain data", OpQuotaCreatePlan)
 	if err != nil {
 		return nil, err
 	}
@@ -396,8 +402,8 @@ func (q *QuotaService) SetDefaultPlan(ctx context.Context, planID string) error 
 	return handleQuotaResponse(resp.StatusCode(), resp.Body, OpQuotaSetDefaultPlan, []int{stdhttp.StatusNoContent})
 }
 
-// ListAllowances lists all quota allowances for a user.
-func (q *QuotaService) ListAllowances(ctx context.Context, userID int) ([]*QuotaAllowance, int, error) {
+// ListAllowances lists all quota allowances.
+func (q *QuotaService) ListAllowances(ctx context.Context) ([]*QuotaAllowance, int, error) {
 	resp, err := q.client.GetApiQuotaAllowancesWithResponse(ctx)
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to send list allowances request: %w", err)
@@ -436,7 +442,7 @@ func (q *QuotaService) CreateAllowance(ctx context.Context, userID int, source, 
 		return nil, fmt.Errorf("failed to send create allowance request: %w", err)
 	}
 
-	data, err := validateQuotaJSON201(resp.StatusCode(), resp.JSON201, "create allowance response did not contain data")
+	data, err := validateQuotaJSON201(resp.StatusCode(), resp.JSON201, "create allowance response did not contain data", OpQuotaCreateAllowance)
 	if err != nil {
 		return nil, err
 	}

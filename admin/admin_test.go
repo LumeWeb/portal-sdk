@@ -484,7 +484,7 @@ func TestQuotaService_ListAllowances(t *testing.T) {
 			defer server.Close()
 
 			client := NewClient(WithEndpoint(server.URL))
-			allowances, _, err := client.Quota().ListAllowances(context.Background(), tt.userID)
+			allowances, _, err := client.Quota().ListAllowances(context.Background())
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ListAllowances() error = %v, wantErr %v", err, tt.wantErr)

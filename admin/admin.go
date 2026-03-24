@@ -20,19 +20,21 @@ type AdminAPI interface {
 
 // AdminClient provides access to admin APIs for managing quotas, billing, and users.
 type AdminClient struct {
-	client       admin.ClientWithResponsesInterface
-	quota        *QuotaService
-	config       *clientConfig
-	jwt          string
-	apiKey       string
+	client          admin.ClientWithResponsesInterface
+	quota           *QuotaService
+	config          *clientConfig
+	jwt             string
+	apiKey          string
+	disableRedirect bool
 }
 
 // clientConfig holds the configuration for creating a new AdminClient.
 type clientConfig struct {
-	endpoint    string
-	jwt         string
-	apiKey      string
-	hostOverride *http.HostOverride
+	endpoint       string
+	jwt            string
+	apiKey         string
+	hostOverride   *http.HostOverride
+	disableRedirect bool
 }
 
 // ClientOption defines a configuration option for AdminClient.
@@ -56,6 +58,14 @@ func WithJWT(token string) ClientOption {
 func WithAPIKey(apiKey string) ClientOption {
 	return func(c *clientConfig) {
 		c.apiKey = apiKey
+	}
+}
+
+// WithDisableFollowRedirect disables automatic HTTP redirects.
+// This is useful for testing scenarios where you need to inspect redirect responses.
+func WithDisableFollowRedirect() ClientOption {
+	return func(c *clientConfig) {
+		c.disableRedirect = true
 	}
 }
 
@@ -97,22 +107,20 @@ func NewClient(opts ...ClientOption) *AdminClient {
 		opt(cfg)
 	}
 
+	// Create the AdminClient first so we can reference it in the CheckRedirect closure
+	clientWrapper := &AdminClient{
+		jwt:             cfg.jwt,
+		disableRedirect: cfg.disableRedirect,
+	}
+
 	// Build admin client options
 	clientOpts := []admin.ClientOption{}
 
-	// Create HTTP client with host override if configured
-	var httpClient *stdhttp.Client
-	if cfg.hostOverride != nil {
-		// Create a simple HTTP client with host override for testing
-		// No redirect control needed for admin API initially
-		disableRedirect := false
-		httpClient = http.BuildHTTPClient(&disableRedirect, cfg.hostOverride)
-	}
+	// Create HTTP client with redirect control and optional host override using shared utilities
+	httpClient := http.BuildHTTPClient(&clientWrapper.disableRedirect, cfg.hostOverride)
 
-	// Add the HTTP client if one was created
-	if httpClient != nil {
-		clientOpts = append(clientOpts, admin.WithHTTPClient(httpClient))
-	}
+	// Add the HTTP client to client options
+	clientOpts = append(clientOpts, admin.WithHTTPClient(httpClient))
 
 	// Add JWT request editor if provided
 	if cfg.jwt != "" {
@@ -136,11 +144,10 @@ func NewClient(opts ...ClientOption) *AdminClient {
 		client: c,
 	}
 
-	return &AdminClient{
-		client: c,
-		quota:  quotaService,
-		config: cfg,
-	}
+	clientWrapper.client = c
+	clientWrapper.quota = quotaService
+	clientWrapper.config = cfg
+	return clientWrapper
 }
 
 // Quota returns the quota service for managing quotas.

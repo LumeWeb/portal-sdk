@@ -144,7 +144,7 @@ func BuildHTTPClient(disablePtr *bool, hostOverride *HostOverride) *http.Client 
 
 	return &http.Client{
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			if *disablePtr {
+			if disablePtr != nil && *disablePtr {
 				return http.ErrUseLastResponse
 			}
 			return nil
