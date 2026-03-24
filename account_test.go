@@ -17,6 +17,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.lumeweb.com/portal-sdk/internal/client"
 	"go.lumeweb.com/portal-sdk/internal/client/mocks"
+	internalhttp "go.lumeweb.com/portal-sdk/internal/http"
 	"go.lumeweb.com/queryutil"
 	"gorm.io/datatypes"
 )
@@ -2918,12 +2919,8 @@ func TestHostOverrideRoundTripper(t *testing.T) {
 			serverURL, err := url.Parse(server.URL)
 			require.NoError(t, err)
 
-			// Create the round tripper
-			transport := &hostOverrideRoundTripper{
-				transport: http.DefaultTransport,
-				host:      tt.host,
-				target:    "http://" + serverURL.Host,
-			}
+			// Create the round tripper using shared utilities
+			transport := internalhttp.NewHostOverrideRoundTripper(tt.host, "http://"+serverURL.Host)
 
 			// Create a request with the original URL
 			req := &http.Request{
@@ -2966,12 +2963,8 @@ func TestHostOverrideWithQueryParams(t *testing.T) {
 
 	serverURL, _ := url.Parse(server.URL)
 
-	// Create the round tripper
-	transport := &hostOverrideRoundTripper{
-		transport: http.DefaultTransport,
-		host:      "account.pinner.xyz",
-		target:    "http://" + serverURL.Host,
-	}
+	// Create the round tripper using shared utilities
+	transport := internalhttp.NewHostOverrideRoundTripper("account.pinner.xyz", "http://"+serverURL.Host)
 
 	// Create a request with query parameters
 	req := &http.Request{
@@ -3019,11 +3012,7 @@ func TestHostOverridePreservesHTTPSScheme(t *testing.T) {
 	}
 
 	// Create the round tripper with target that doesn't specify scheme
-	transport := &hostOverrideRoundTripper{
-		transport: customTransport,
-		host:      "account.pinner.xyz",
-		target:    serverURL.Host, // No scheme, should use original request's scheme
-	}
+	transport := internalhttp.NewHostOverrideRoundTripperWithTransport(customTransport, "account.pinner.xyz", serverURL.Host) // No scheme, should use original request's scheme
 
 	// Create an HTTPS request
 	req := &http.Request{
@@ -3440,6 +3429,245 @@ func TestGetPermissions(t *testing.T) {
 			if !tt.wantErr {
 				require.NotNil(t, result)
 				require.NotEmpty(t, result.Permissions)
+			}
+		})
+	}
+}
+
+
+func TestGetQuota(t *testing.T) {
+	tests := []struct {
+		name       string
+		jwt        string
+		statusCode int
+		response   interface{}
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:       "successful quota retrieval",
+			jwt:        "valid-token",
+			statusCode: http.StatusOK,
+			response: client.QuotaStatusResponse{
+				Upload: client.QuotaTypeStatus{
+					Limit:      func() *int { i := 1000000; return &i }(),
+					Used:      500000,
+					Remaining: func() *int { i := 500000; return &i }(),
+					Percentage: 50,
+				},
+				Download: client.QuotaTypeStatus{
+					Limit:      func() *int { i := 2000000; return &i }(),
+					Used:      1000000,
+					Remaining: func() *int { i := 1000000; return &i }(),
+					Percentage: 50,
+				},
+				Bandwidth: &client.QuotaTypeStatus{
+					Limit:      func() *int { i := 3000000; return &i }(),
+					Used:      1500000,
+					Remaining: func() *int { i := 1500000; return &i }(),
+					Percentage: 50,
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name:       "unauthorized",
+			jwt:        "invalid-token",
+			statusCode: http.StatusUnauthorized,
+			response:   client.ErrorResponse{Error: "unauthorized"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorIs(t, err, ErrUnauthorized)
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "GET" {
+					t.Errorf("expected GET request, got %s", r.Method)
+				}
+
+				if r.URL.Path != "/api/account/quota" {
+					t.Errorf("expected /api/account/quota path, got %s", r.URL.Path)
+				}
+
+				authHeader := r.Header.Get("Authorization")
+				expectedAuth := "Bearer " + tt.jwt
+				require.Equal(t, expectedAuth, authHeader)
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+
+				if tt.statusCode == http.StatusOK {
+					require.NoError(t, json.NewEncoder(w).Encode(tt.response))
+				} else if tt.statusCode == http.StatusUnauthorized {
+					require.NoError(t, json.NewEncoder(w).Encode(tt.response))
+				}
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithEndpoint(server.URL), WithJWT(tt.jwt))
+			quota, err := acc.GetQuota(context.Background())
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetQuota() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.NotNil(t, quota, "quota should not be nil")
+				require.Equal(t, 50, quota.Upload.Percentage, "upload percentage mismatch")
+				require.Equal(t, 50, quota.Download.Percentage, "download percentage mismatch")
+				require.NotNil(t, quota.Bandwidth, "bandwidth should not be nil")
+			}
+		})
+	}
+}
+
+func TestGetQuotaHistory(t *testing.T) {
+	startDate := "2024-01-01T00:00:00Z"
+	endDate := "2024-01-31T23:59:59Z"
+
+	tests := []struct {
+		name       string
+		jwt        string
+		startDate  string
+		endDate    string
+		usageType  string
+		statusCode int
+		response   interface{}
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:      "successful quota history with date range",
+			jwt:       "valid-token",
+			startDate: startDate,
+			endDate:   endDate,
+			usageType: "upload",
+			statusCode: http.StatusOK,
+			response: client.QuotaHistoryResponse{
+				UserId: 123,
+				Points: []client.UsagePoint{
+					{
+						Bytes: 1024000,
+						Date:  "2024-01-01T00:00:00Z",
+					},
+					{
+						Bytes: 512000,
+						Date:  "2024-01-02T00:00:00Z",
+					},
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name:      "successful quota history with all parameters",
+			jwt:       "valid-token",
+			startDate: startDate,
+			endDate:   endDate,
+			usageType: "download",
+			statusCode: http.StatusOK,
+			response: client.QuotaHistoryResponse{
+				UserId: 123,
+				Points: []client.UsagePoint{
+					{
+						Bytes: 2048000,
+						Date:  "2024-01-01T00:00:00Z",
+					},
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name:      "unauthorized",
+			jwt:       "invalid-token",
+			startDate: startDate,
+			endDate:   endDate,
+			usageType: "upload",
+			statusCode: http.StatusUnauthorized,
+			response:  client.ErrorResponse{Error: "unauthorized"},
+			wantErr:   true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorIs(t, err, ErrUnauthorized)
+			},
+		},
+		{
+			name:      "invalid date parameters",
+			jwt:       "valid-token",
+			startDate: "invalid-date",
+			endDate:   endDate,
+			usageType: "upload",
+			statusCode: http.StatusBadRequest,
+			response:  client.ErrorResponse{Error: "invalid date parameters"},
+			wantErr:   true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "invalid date")
+			},
+		},
+		{
+			name:      "quota history not found",
+			jwt:       "valid-token",
+			startDate: "2099-01-01T00:00:00Z",
+			endDate:   "2099-12-31T23:59:59Z",
+			usageType: "upload",
+			statusCode: http.StatusNotFound,
+			response:  client.ErrorResponse{Error: "quota history not found"},
+			wantErr:   true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "not found")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "GET" {
+					t.Errorf("expected GET request, got %s", r.Method)
+				}
+
+				if r.URL.Path != "/api/account/quota/history" {
+					t.Errorf("expected /api/account/quota/history path, got %s", r.URL.Path)
+				}
+
+				authHeader := r.Header.Get("Authorization")
+				expectedAuth := "Bearer " + tt.jwt
+				require.Equal(t, expectedAuth, authHeader)
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+
+				if tt.statusCode == http.StatusOK {
+					require.NoError(t, json.NewEncoder(w).Encode(tt.response))
+				} else if tt.statusCode == http.StatusUnauthorized || tt.statusCode == http.StatusBadRequest || tt.statusCode == http.StatusNotFound {
+					require.NoError(t, json.NewEncoder(w).Encode(tt.response))
+				}
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithEndpoint(server.URL), WithJWT(tt.jwt))
+			history, err := acc.GetQuotaHistory(context.Background(), tt.startDate, tt.endDate, tt.usageType)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetQuotaHistory() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.NotNil(t, history, "history should not be nil")
+				require.Equal(t, 123, history.UserId, "user ID mismatch")
+				require.Len(t, history.Points, len(tt.response.(client.QuotaHistoryResponse).Points), "points count mismatch")
 			}
 		})
 	}

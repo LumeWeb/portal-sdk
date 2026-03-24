@@ -1,6 +1,6 @@
 package account
 
-//go:generate go tool oapi-codegen -config oai-codegen.yaml swagger.yaml
+//go:generate go tool oapi-codegen -config oai-codegen.yaml specs/account.yaml
 
 import (
 	"bytes"
@@ -9,12 +9,12 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"strings"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"go.lumeweb.com/portal-sdk/internal/client"
+	internalhttp "go.lumeweb.com/portal-sdk/internal/http"
 	"go.lumeweb.com/queryutil"
 	"go.lumeweb.com/queryutil/filter/serializer"
 )
@@ -76,6 +76,8 @@ const (
 	OpUploadAvatar
 	OpUpdateEmail
 	OpGetPermissions
+	OpGetQuota
+	OpGetQuotaHistory
 )
 
 const defaultOperationName = "operation"
@@ -105,6 +107,8 @@ var operationString = map[int]string{
 	OpUploadAvatar: "upload avatar",
 	OpUpdateEmail:  "update email",
 	OpGetPermissions: "get account permissions",
+	OpGetQuota:      "get quota status",
+	OpGetQuotaHistory: "get quota history",
 }
 
 // errorFactory is a helper for creating errors with optional ErrUnauthorized wrapping.
@@ -213,6 +217,16 @@ var httpErrorMessages = map[int]map[int]errorFactory{
 		http.StatusBadRequest:  plainErr("bad request"),
 		http.StatusNotFound:     plainErr("permissions not found"),
 	},
+	OpGetQuota: {
+		http.StatusUnauthorized: authErr("authentication required"),
+		http.StatusBadRequest:   plainErr("bad request"),
+		http.StatusNotFound:     plainErr("quota not found"),
+	},
+	OpGetQuotaHistory: {
+		http.StatusUnauthorized: authErr("authentication required"),
+		http.StatusBadRequest:   plainErr("invalid date parameters"),
+		http.StatusNotFound:     plainErr("quota history not found"),
+	},
 }
 
 // IsSettled returns true if the operation is in a settled state (finished, no longer being processed).
@@ -263,6 +277,30 @@ type AccountInfo struct {
 // Embeds the generated client.AccountPermissionsResponse to reuse all fields.
 type AccountPermissions struct {
 	client.AccountPermissionsResponse
+}
+
+// QuotaTypeStatus represents the usage status for a single quota type (upload/download/storage).
+// Embeds the generated client.QuotaTypeStatus to reuse all fields.
+type QuotaTypeStatus struct {
+	client.QuotaTypeStatus
+}
+
+// QuotaStatus represents the current quota status for the authenticated user.
+// Embeds the generated client.QuotaStatusResponse to reuse all fields.
+type QuotaStatus struct {
+	client.QuotaStatusResponse
+}
+
+// UsagePoint represents a data point in quota history with timestamp and byte count.
+// Embeds the generated client.UsagePoint to reuse all fields.
+type UsagePoint struct {
+	client.UsagePoint
+}
+
+// QuotaHistory represents historical quota usage data for charting and analytics.
+// Embeds the generated client.QuotaHistoryResponse to reuse all fields.
+type QuotaHistory struct {
+	client.QuotaHistoryResponse
 }
 
 // Filter is a filter for listing operations (legacy, use ListOptions instead).
@@ -533,6 +571,15 @@ type AccountAPI interface {
 
 	// GetPermissions retrieves the access control policies and model for the authenticated user.
 	GetPermissions(ctx context.Context) (*AccountPermissions, error)
+
+	// Quota Management
+	// GetQuota retrieves the current quota status including upload and download usage, limits, and remaining allowance for the authenticated user.
+	GetQuota(ctx context.Context) (*QuotaStatus, error)
+
+	// GetQuotaHistory retrieves historical quota usage data for charting and analytics.
+	// startDate and endDate should be in RFC3339 format.
+	// usageType should be "upload", "download", or "bandwidth".
+	GetQuotaHistory(ctx context.Context, startDate, endDate, usageType string) (*QuotaHistory, error)
 }
 
 // Client implements AccountAPI using the generated OpenAPI client.
@@ -542,22 +589,12 @@ type Client struct {
 	disableRedirect bool
 }
 
-// HostOverride holds the configuration for host header override.
-// This is useful for testing with vhosts where you need to connect to an IP address
-// but send a different hostname in the Host header.
-type HostOverride struct {
-	// Host is the hostname to use in the Host header (e.g., "account.pinner.xyz")
-	Host string
-	// Target is the IP address to connect to (e.g., "127.0.0.1:8080")
-	Target string
-}
-
 // clientConfig holds the configuration for creating a new Client.
 type clientConfig struct {
 	endpoint       string
 	jwt            string
 	httpClient     *http.Client
-	hostOverride   *HostOverride
+	hostOverride   *internalhttp.HostOverride
 	disableRedirect bool
 }
 
@@ -609,62 +646,11 @@ func WithDisableFollowRedirect() ClientOption {
 //	)
 func WithHostOverride(host, target string) ClientOption {
 	return func(cfg *clientConfig) {
-		cfg.hostOverride = &HostOverride{
+		cfg.hostOverride = &internalhttp.HostOverride{
 			Host:   host,
 			Target: target,
 		}
 	}
-}
-
-// hostOverrideRoundTripper is a custom http.RoundTripper that overrides the Host header
-// and redirects requests to a target IP address. This is useful for testing with vhosts.
-type hostOverrideRoundTripper struct {
-	transport http.RoundTripper
-	host      string
-	target    string
-}
-
-// RoundTrip implements the http.RoundTripper interface.
-// It modifies the request to use the target URL while keeping the original Host header.
-func (h *hostOverrideRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
-	// Create a copy of the request to avoid modifying the original
-	reqCopy := req.Clone(req.Context())
-
-	// Override the Host header with the configured host
-	reqCopy.Host = h.host
-
-	// Parse the original URL
-	originalURL := req.URL
-
-	// Create a new URL with the target address
-	// If target doesn't have a scheme, use the original request's scheme
-	targetStr := h.target
-	if !strings.Contains(targetStr, "://") {
-		targetStr = originalURL.Scheme + "://" + targetStr
-	}
-	targetURL, err := url.Parse(targetStr)
-	if err != nil {
-		return nil, fmt.Errorf("invalid target URL %q: %w", h.target, err)
-	}
-
-	// Replace the URL scheme, host, and port with the target
-	reqCopy.URL.Scheme = targetURL.Scheme
-	reqCopy.URL.Host = targetURL.Host
-
-	// Keep the original path, query, and fragment
-	reqCopy.URL.Path = originalURL.Path
-	reqCopy.URL.RawQuery = originalURL.RawQuery
-	reqCopy.URL.Fragment = originalURL.Fragment
-
-	// Ensure we don't override the Host header in the request
-	// The Host field is already set above, but we need to make sure
-	// it's not lost when the request is sent
-	if h.host != "" {
-		reqCopy.Host = h.host
-	}
-
-	// Use the underlying transport to make the request
-	return h.transport.RoundTrip(reqCopy)
 }
 
 // NewClient creates a new AccountAPI client.
@@ -695,29 +681,8 @@ func NewClient(opts ...ClientOption) AccountAPI {
 		}))
 	}
 
-	// Create HTTP client with redirect control
-	// The CheckRedirect function checks the Client's disableRedirect field to determine
-	// whether to follow redirects or stop at the redirect response
-	httpClient := &http.Client{
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			// If redirects are disabled, stop at the redirect response
-			if clientWrapper.disableRedirect {
-				return http.ErrUseLastResponse
-			}
-			// Otherwise, follow redirects normally (default behavior)
-			return nil
-		},
-	}
-
-	// If host override is configured, wrap the transport
-	if cfg.hostOverride != nil {
-		customTransport := &hostOverrideRoundTripper{
-			transport: http.DefaultTransport,
-			host:      cfg.hostOverride.Host,
-			target:    cfg.hostOverride.Target,
-		}
-		httpClient.Transport = customTransport
-	}
+	// Create HTTP client with redirect control and optional host override using shared utilities
+	httpClient := internalhttp.BuildHTTPClient(&clientWrapper.disableRedirect, cfg.hostOverride)
 
 	// Add the HTTP client to client options
 	clientOpts = append(clientOpts, client.WithHTTPClient(httpClient))
@@ -1362,4 +1327,53 @@ func (c *Client) GetPermissions(ctx context.Context) (*AccountPermissions, error
 	}
 
 	return &AccountPermissions{AccountPermissionsResponse: *resp.JSON200}, nil
+}
+
+// GetQuota retrieves the current quota status including upload and download usage, limits, and remaining allowance for the authenticated user.
+func (c *Client) GetQuota(ctx context.Context) (*QuotaStatus, error) {
+	resp, err := c.client.GetApiAccountQuotaWithResponse(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get quota status: %w", err)
+	}
+
+	if err := handleResponse(resp.StatusCode(), resp.Body, OpGetQuota, []int{http.StatusOK}); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, fmt.Errorf("get quota response did not contain data")
+	}
+
+	return &QuotaStatus{QuotaStatusResponse: *resp.JSON200}, nil
+}
+
+// GetQuotaHistory retrieves historical quota usage data for charting and analytics.
+// startDate and endDate should be in RFC3339 format.
+// usageType should be "upload", "download", or "bandwidth".
+func (c *Client) GetQuotaHistory(ctx context.Context, startDate, endDate, usageType string) (*QuotaHistory, error) {
+	params := &client.GetApiAccountQuotaHistoryParams{}
+	if startDate != "" {
+		params.StartDate = &startDate
+	}
+	if endDate != "" {
+		params.EndDate = &endDate
+	}
+	if usageType != "" {
+		params.Type = &usageType
+	}
+
+	resp, err := c.client.GetApiAccountQuotaHistoryWithResponse(ctx, params)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get quota history: %w", err)
+	}
+
+	if err := handleResponse(resp.StatusCode(), resp.Body, OpGetQuotaHistory, []int{http.StatusOK}); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, fmt.Errorf("get quota history response did not contain data")
+	}
+
+	return &QuotaHistory{QuotaHistoryResponse: *resp.JSON200}, nil
 }

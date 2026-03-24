@@ -456,6 +456,174 @@ func (_c *MockClientWithResponsesInterface_GetApiAccountPermissionsWithResponse_
 	return _c
 }
 
+// GetApiAccountQuotaHistoryWithResponse provides a mock function for the type MockClientWithResponsesInterface
+func (_mock *MockClientWithResponsesInterface) GetApiAccountQuotaHistoryWithResponse(ctx context.Context, params *client.GetApiAccountQuotaHistoryParams, reqEditors ...client.RequestEditorFn) (*client.GetApiAccountQuotaHistoryResponse, error) {
+	// client.RequestEditorFn
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, params)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetApiAccountQuotaHistoryWithResponse")
+	}
+
+	var r0 *client.GetApiAccountQuotaHistoryResponse
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *client.GetApiAccountQuotaHistoryParams, ...client.RequestEditorFn) (*client.GetApiAccountQuotaHistoryResponse, error)); ok {
+		return returnFunc(ctx, params, reqEditors...)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *client.GetApiAccountQuotaHistoryParams, ...client.RequestEditorFn) *client.GetApiAccountQuotaHistoryResponse); ok {
+		r0 = returnFunc(ctx, params, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*client.GetApiAccountQuotaHistoryResponse)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, *client.GetApiAccountQuotaHistoryParams, ...client.RequestEditorFn) error); ok {
+		r1 = returnFunc(ctx, params, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_GetApiAccountQuotaHistoryWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetApiAccountQuotaHistoryWithResponse'
+type MockClientWithResponsesInterface_GetApiAccountQuotaHistoryWithResponse_Call struct {
+	*mock.Call
+}
+
+// GetApiAccountQuotaHistoryWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - params *client.GetApiAccountQuotaHistoryParams
+//   - reqEditors ...client.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) GetApiAccountQuotaHistoryWithResponse(ctx interface{}, params interface{}, reqEditors ...interface{}) *MockClientWithResponsesInterface_GetApiAccountQuotaHistoryWithResponse_Call {
+	return &MockClientWithResponsesInterface_GetApiAccountQuotaHistoryWithResponse_Call{Call: _e.mock.On("GetApiAccountQuotaHistoryWithResponse",
+		append([]interface{}{ctx, params}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiAccountQuotaHistoryWithResponse_Call) Run(run func(ctx context.Context, params *client.GetApiAccountQuotaHistoryParams, reqEditors ...client.RequestEditorFn)) *MockClientWithResponsesInterface_GetApiAccountQuotaHistoryWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *client.GetApiAccountQuotaHistoryParams
+		if args[1] != nil {
+			arg1 = args[1].(*client.GetApiAccountQuotaHistoryParams)
+		}
+		var arg2 []client.RequestEditorFn
+		variadicArgs := make([]client.RequestEditorFn, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(client.RequestEditorFn)
+			}
+		}
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiAccountQuotaHistoryWithResponse_Call) Return(getApiAccountQuotaHistoryResponse *client.GetApiAccountQuotaHistoryResponse, err error) *MockClientWithResponsesInterface_GetApiAccountQuotaHistoryWithResponse_Call {
+	_c.Call.Return(getApiAccountQuotaHistoryResponse, err)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiAccountQuotaHistoryWithResponse_Call) RunAndReturn(run func(ctx context.Context, params *client.GetApiAccountQuotaHistoryParams, reqEditors ...client.RequestEditorFn) (*client.GetApiAccountQuotaHistoryResponse, error)) *MockClientWithResponsesInterface_GetApiAccountQuotaHistoryWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetApiAccountQuotaWithResponse provides a mock function for the type MockClientWithResponsesInterface
+func (_mock *MockClientWithResponsesInterface) GetApiAccountQuotaWithResponse(ctx context.Context, reqEditors ...client.RequestEditorFn) (*client.GetApiAccountQuotaResponse, error) {
+	// client.RequestEditorFn
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetApiAccountQuotaWithResponse")
+	}
+
+	var r0 *client.GetApiAccountQuotaResponse
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ...client.RequestEditorFn) (*client.GetApiAccountQuotaResponse, error)); ok {
+		return returnFunc(ctx, reqEditors...)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ...client.RequestEditorFn) *client.GetApiAccountQuotaResponse); ok {
+		r0 = returnFunc(ctx, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*client.GetApiAccountQuotaResponse)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, ...client.RequestEditorFn) error); ok {
+		r1 = returnFunc(ctx, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_GetApiAccountQuotaWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetApiAccountQuotaWithResponse'
+type MockClientWithResponsesInterface_GetApiAccountQuotaWithResponse_Call struct {
+	*mock.Call
+}
+
+// GetApiAccountQuotaWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - reqEditors ...client.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) GetApiAccountQuotaWithResponse(ctx interface{}, reqEditors ...interface{}) *MockClientWithResponsesInterface_GetApiAccountQuotaWithResponse_Call {
+	return &MockClientWithResponsesInterface_GetApiAccountQuotaWithResponse_Call{Call: _e.mock.On("GetApiAccountQuotaWithResponse",
+		append([]interface{}{ctx}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiAccountQuotaWithResponse_Call) Run(run func(ctx context.Context, reqEditors ...client.RequestEditorFn)) *MockClientWithResponsesInterface_GetApiAccountQuotaWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 []client.RequestEditorFn
+		variadicArgs := make([]client.RequestEditorFn, len(args)-1)
+		for i, a := range args[1:] {
+			if a != nil {
+				variadicArgs[i] = a.(client.RequestEditorFn)
+			}
+		}
+		arg1 = variadicArgs
+		run(
+			arg0,
+			arg1...,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiAccountQuotaWithResponse_Call) Return(getApiAccountQuotaResponse *client.GetApiAccountQuotaResponse, err error) *MockClientWithResponsesInterface_GetApiAccountQuotaWithResponse_Call {
+	_c.Call.Return(getApiAccountQuotaResponse, err)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiAccountQuotaWithResponse_Call) RunAndReturn(run func(ctx context.Context, reqEditors ...client.RequestEditorFn) (*client.GetApiAccountQuotaResponse, error)) *MockClientWithResponsesInterface_GetApiAccountQuotaWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetApiAccountWithResponse provides a mock function for the type MockClientWithResponsesInterface
 func (_mock *MockClientWithResponsesInterface) GetApiAccountWithResponse(ctx context.Context, reqEditors ...client.RequestEditorFn) (*client.GetApiAccountResponse, error) {
 	// client.RequestEditorFn
