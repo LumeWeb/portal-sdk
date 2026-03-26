@@ -3461,11 +3461,12 @@ func TestGetQuota(t *testing.T) {
 					Remaining: func() *int { i := 1000000; return &i }(),
 					Percentage: 50,
 				},
-				Bandwidth: &client.QuotaTypeStatus{
+				Storage: client.QuotaTypeStatus{
 					Limit:      func() *int { i := 3000000; return &i }(),
-					Used:      1500000,
-					Remaining: func() *int { i := 1500000; return &i }(),
+					Used:       1500000,
+					Remaining:  func() *int { i := 1500000; return &i }(),
 					Percentage: 50,
+					Threshold:  func() *int { i := 100000; return &i }(),
 				},
 			},
 			wantErr: false,
@@ -3524,7 +3525,7 @@ func TestGetQuota(t *testing.T) {
 				require.NotNil(t, quota, "quota should not be nil")
 				require.Equal(t, 50, quota.Upload.Percentage, "upload percentage mismatch")
 				require.Equal(t, 50, quota.Download.Percentage, "download percentage mismatch")
-				require.NotNil(t, quota.Bandwidth, "bandwidth should not be nil")
+				require.Equal(t, 50, quota.Storage.Percentage, "storage percentage mismatch")
 			}
 		})
 	}

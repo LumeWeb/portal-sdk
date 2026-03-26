@@ -230,9 +230,9 @@ type QuotaHistoryResponse struct {
 
 // QuotaStatusResponse defines model for QuotaStatusResponse.
 type QuotaStatusResponse struct {
-	Bandwidth *QuotaTypeStatus `json:"bandwidth,omitempty"`
-	Download  QuotaTypeStatus  `json:"download"`
-	Upload    QuotaTypeStatus  `json:"upload"`
+	Download QuotaTypeStatus `json:"download"`
+	Storage  QuotaTypeStatus `json:"storage"`
+	Upload   QuotaTypeStatus `json:"upload"`
 }
 
 // QuotaTypeStatus defines model for QuotaTypeStatus.
@@ -240,6 +240,7 @@ type QuotaTypeStatus struct {
 	Limit      *int `json:"limit,omitempty"`
 	Percentage int  `json:"percentage"`
 	Remaining  *int `json:"remaining,omitempty"`
+	Threshold  *int `json:"threshold,omitempty"`
 	Used       int  `json:"used"`
 }
 
