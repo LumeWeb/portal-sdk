@@ -1,3 +1,9 @@
+## 0.1.13 (2026-03-26)
+
+### Fixes
+
+- align response handling with updated API specification
+
 ## 0.1.12 (2026-03-24)
 
 ### Features

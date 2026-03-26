@@ -1,4 +1,4 @@
-module go.lumeweb.com/portal-sdk // v0.1.12
+module go.lumeweb.com/portal-sdk // v0.1.13
 
 go 1.25
 
