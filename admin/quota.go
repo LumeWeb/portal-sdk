@@ -6,6 +6,7 @@ import (
 	stdhttp "net/http"
 	"time"
 
+	"github.com/samber/lo"
 	"go.lumeweb.com/portal-sdk/internal/admin"
 	internalhttp "go.lumeweb.com/portal-sdk/internal/http"
 )
@@ -301,10 +302,9 @@ func (q *QuotaService) ListPlans(ctx context.Context) ([]*QuotaPlan, int, error)
 		return nil, 0, fmt.Errorf("list plans response did not contain data")
 	}
 
-	plans := make([]*QuotaPlan, len(resp.JSON200.Plans))
-	for i, plan := range resp.JSON200.Plans {
-		plans[i] = &QuotaPlan{QuotaPlanResponse: plan}
-	}
+	plans := lo.Map(resp.JSON200.Data, func(plan admin.QuotaPlanResponse, _ int) *QuotaPlan {
+		return &QuotaPlan{QuotaPlanResponse: plan}
+	})
 
 	return plans, resp.JSON200.Total, nil
 }
@@ -417,10 +417,9 @@ func (q *QuotaService) ListAllowances(ctx context.Context) ([]*QuotaAllowance, i
 		return nil, 0, fmt.Errorf("list allowances response did not contain data")
 	}
 
-	allowances := make([]*QuotaAllowance, len(resp.JSON200.Grants))
-	for i, grant := range resp.JSON200.Grants {
-		allowances[i] = &QuotaAllowance{AllowanceGrantResponse: grant}
-	}
+	allowances := lo.Map(resp.JSON200.Data, func(grant admin.AllowanceGrantResponse, _ int) *QuotaAllowance {
+		return &QuotaAllowance{AllowanceGrantResponse: grant}
+	})
 
 	return allowances, resp.JSON200.Total, nil
 }

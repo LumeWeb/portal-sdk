@@ -52,7 +52,7 @@ func TestQuotaService_ListPlans(t *testing.T) {
 			name:       "successful list plans",
 			statusCode: http.StatusOK,
 			response: admin.PlanListResponse{
-				Plans: []admin.QuotaPlanResponse{
+				Data: []admin.QuotaPlanResponse{
 					{
 						Name:               "Basic",
 						UploadDailyLimit:   100,
@@ -439,7 +439,7 @@ func TestQuotaService_ListAllowances(t *testing.T) {
 			name:       "successful list allowances",
 			statusCode: http.StatusOK,
 			response: admin.AllowanceListResponse{
-				Grants: []admin.AllowanceGrantResponse{
+				Data: []admin.AllowanceGrantResponse{
 					{
 						Id:         1,
 						UserId:     123,

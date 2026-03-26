@@ -45,8 +45,8 @@ type AllowanceGrantResponse struct {
 
 // AllowanceListResponse defines model for AllowanceListResponse.
 type AllowanceListResponse struct {
-	Grants []AllowanceGrantResponse `json:"grants"`
-	Total  int                      `json:"total"`
+	Data  []AllowanceGrantResponse `json:"data"`
+	Total int                      `json:"total"`
 }
 
 // CleanupRequest defines model for CleanupRequest.
@@ -66,7 +66,7 @@ type ErrorResponse struct {
 
 // PlanListResponse defines model for PlanListResponse.
 type PlanListResponse struct {
-	Plans []QuotaPlanResponse `json:"plans"`
+	Data  []QuotaPlanResponse `json:"data"`
 	Total int                 `json:"total"`
 }
 
