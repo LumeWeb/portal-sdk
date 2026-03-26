@@ -578,7 +578,7 @@ type AccountAPI interface {
 
 	// GetQuotaHistory retrieves historical quota usage data for charting and analytics.
 	// startDate and endDate should be in RFC3339 format.
-	// usageType should be "upload", "download", or "bandwidth".
+	// usageType should be "upload", "download", or "storage".
 	GetQuotaHistory(ctx context.Context, startDate, endDate, usageType string) (*QuotaHistory, error)
 }
 

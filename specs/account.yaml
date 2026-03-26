@@ -436,15 +436,16 @@ components:
     QuotaStatusResponse:
       additionalProperties: false
       properties:
-        bandwidth:
-          $ref: '#/components/schemas/QuotaTypeStatus'
         download:
+          $ref: '#/components/schemas/QuotaTypeStatus'
+        storage:
           $ref: '#/components/schemas/QuotaTypeStatus'
         upload:
           $ref: '#/components/schemas/QuotaTypeStatus'
       required:
       - upload
       - download
+      - storage
       type: object
     QuotaTypeStatus:
       additionalProperties: false
@@ -454,6 +455,8 @@ components:
         percentage:
           type: integer
         remaining:
+          type: integer
+        threshold:
           type: integer
         used:
           type: integer
