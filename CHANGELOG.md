@@ -1,3 +1,10 @@
+## 0.1.14 (2026-03-26)
+
+### Fixes
+
+- update quota response from bandwidth to storage field
+- update GetQuotaHistory usage type from bandwidth to storage
+
 ## 0.1.13 (2026-03-26)
 
 ### Fixes
