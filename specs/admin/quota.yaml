@@ -71,14 +71,14 @@ components:
     AllowanceListResponse:
       additionalProperties: false
       properties:
-        grants:
+        data:
           items:
             $ref: '#/components/schemas/AllowanceGrantResponse'
           type: array
         total:
           type: integer
       required:
-      - grants
+      - data
       - total
       type: object
     CleanupRequest:
@@ -108,14 +108,14 @@ components:
     PlanListResponse:
       additionalProperties: false
       properties:
-        plans:
+        data:
           items:
             $ref: '#/components/schemas/QuotaPlanResponse'
           type: array
         total:
           type: integer
       required:
-      - plans
+      - data
       - total
       type: object
     QuotaConfigResponse:
