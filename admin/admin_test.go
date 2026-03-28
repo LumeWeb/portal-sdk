@@ -12,6 +12,8 @@ import (
 	"go.lumeweb.com/portal-sdk/internal/admin"
 )
 
+
+
 func TestNewClient(t *testing.T) {
 	t.Run("default client", func(t *testing.T) {
 		client := NewClient()
@@ -121,9 +123,293 @@ func TestQuotaService_ListPlans(t *testing.T) {
 	}
 }
 
-func ptrStr(s string) *string {
-	return &s
+func TestQuotaService_ListUserConfigs(t *testing.T) {
+	now := time.Now()
+
+	tests := []struct {
+		name       string
+		statusCode int
+		response   interface{}
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:       "successful list user configs",
+			statusCode: http.StatusOK,
+			response: admin.UserQuotaConfigListResponse{
+				Data: []admin.UserQuotaConfigResponse{
+					{
+						Id:                 1,
+						UserId:             100,
+						UploadDailyLimit:   new(100),
+						DownloadDailyLimit: new(1000),
+						StorageLimit:       new(10000),
+						EnforcementPolicy:  "strict",
+						CreatedAt: now,
+						UpdatedAt: now,
+					},
+					{
+						Id:                 2,
+						UserId:             200,
+						UploadDailyLimit:   new(500),
+						DownloadDailyLimit: new(5000),
+						StorageLimit:       new(50000),
+						EnforcementPolicy:  "lenient",
+						CreatedAt: now,
+						UpdatedAt: now,
+					},
+				},
+				Total: 2,
+			},
+			wantErr: false,
+		},
+		{
+			name:       "unauthorized",
+			statusCode: http.StatusUnauthorized,
+			response:   admin.ErrorResponse{Error: "unauthorized"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "unauthorized")
+			},
+		},
+		{
+			name:       "bad request",
+			statusCode: http.StatusBadRequest,
+			response:   admin.ErrorResponse{Error: "invalid request"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "invalid request")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "GET" {
+					t.Errorf("expected GET request, got %s", r.Method)
+				}
+				if r.URL.Path != "/api/quota/user-configs" {
+					t.Errorf("expected /api/quota/user-configs path, got %s", r.URL.Path)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				require.NoError(t, json.NewEncoder(w).Encode(tt.response))
+			}))
+			defer server.Close()
+
+			client := NewClient(WithEndpoint(server.URL))
+			configs, total, err := client.Quota().ListUserConfigs(context.Background())
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ListUserConfigs() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.Equal(t, 2, total)
+				require.Len(t, configs, 2)
+				require.Equal(t, int(100), configs[0].UserId)
+				require.Equal(t, "strict", configs[0].EnforcementPolicy)
+				require.Equal(t, int(200), configs[1].UserId)
+				require.Equal(t, "lenient", configs[1].EnforcementPolicy)
+			}
+		})
+	}
 }
+
+func TestQuotaService_UpdateUserConfig(t *testing.T) {
+	now := time.Now()
+	tests := []struct {
+		name       string
+		userID     int
+		update     *UserQuotaConfigUpdate
+		statusCode int
+		response   interface{}
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:   "successful update user config",
+			userID: 100,
+			update: &UserQuotaConfigUpdate{
+				UserID:             100,
+				UploadDailyLimit:   new(1000),
+				DownloadDailyLimit: new(10000),
+				StorageLimit:       new(100000),
+				EnforcementPolicy:  "strict",
+			},
+			statusCode: http.StatusOK,
+			response: admin.UserQuotaConfigResponse{
+				Id:                1,
+				UserId:            100,
+				UploadDailyLimit:  new(1000),
+				DownloadDailyLimit: new(10000),
+				StorageLimit:      new(100000),
+				EnforcementPolicy: "strict",
+				CreatedAt:         now,
+				UpdatedAt:         now,
+			},
+			wantErr: false,
+		},
+		{
+			name:   "unauthorized",
+			userID: 100,
+			update: &UserQuotaConfigUpdate{
+				UserID: 100,
+			},
+			statusCode: http.StatusUnauthorized,
+			response:   admin.ErrorResponse{Error: "unauthorized"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "unauthorized")
+			},
+		},
+		{
+			name:   "user not found",
+			userID: 999,
+			update: &UserQuotaConfigUpdate{
+				UserID: 999,
+			},
+			statusCode: http.StatusNotFound,
+			response:   admin.ErrorResponse{Error: "user not found"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "not found")
+			},
+		},
+		{
+			name:   "bad request",
+			userID: 100,
+			update: &UserQuotaConfigUpdate{
+				UserID: 100,
+			},
+			statusCode: http.StatusBadRequest,
+			response:   admin.ErrorResponse{Error: "invalid configuration"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "configuration")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "PUT" {
+					t.Errorf("expected PUT request, got %s", r.Method)
+				}
+				if r.URL.Path != "/api/quota/user-configs/100" && r.URL.Path != "/api/quota/user-configs/999" {
+					t.Errorf("expected /api/quota/user-configs/{userID} path, got %s", r.URL.Path)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				require.NoError(t, json.NewEncoder(w).Encode(tt.response))
+			}))
+			defer server.Close()
+
+			client := NewClient(WithEndpoint(server.URL))
+			config, err := client.Quota().UpdateUserConfig(context.Background(), tt.userID, tt.update)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("UpdateUserConfig() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.Equal(t, int(100), config.UserId)
+				require.Equal(t, int(1000), *config.UploadDailyLimit)
+				require.Equal(t, int(10000), *config.DownloadDailyLimit)
+				require.Equal(t, int(100000), *config.StorageLimit)
+				require.Equal(t, "strict", config.EnforcementPolicy)
+			}
+		})
+	}
+}
+
+func TestQuotaService_ResetUserPlan(t *testing.T) {
+	tests := []struct {
+		name       string
+		userID     int
+		statusCode int
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:       "successful reset user plan",
+			userID:     100,
+			statusCode: http.StatusNoContent,
+			wantErr:    false,
+		},
+		{
+			name:       "unauthorized",
+			userID:     100,
+			statusCode: http.StatusUnauthorized,
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "unauthorized")
+			},
+		},
+		{
+			name:       "user not found",
+			userID:     999,
+			statusCode: http.StatusNotFound,
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "not found")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "DELETE" {
+					t.Errorf("expected DELETE request, got %s", r.Method)
+				}
+				if r.URL.Path != "/api/quota/user-configs/100/plan" && r.URL.Path != "/api/quota/user-configs/999/plan" {
+					t.Errorf("expected /api/quota/user-configs/{userID}/plan path, got %s", r.URL.Path)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				
+				// Add response body for error cases
+				if tt.statusCode == http.StatusNotFound {
+					json.NewEncoder(w).Encode(admin.ErrorResponse{Error: "user not found"})
+				} else if tt.statusCode == http.StatusUnauthorized {
+					json.NewEncoder(w).Encode(admin.ErrorResponse{Error: "unauthorized"})
+				}
+			}))
+			defer server.Close()
+
+			client := NewClient(WithEndpoint(server.URL))
+			err := client.Quota().ResetUserPlan(context.Background(), tt.userID)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ResetUserPlan() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+		})
+	}
+}
+
+
+
 
 
 func TestQuotaService_CreatePlan(t *testing.T) {
@@ -756,7 +1042,7 @@ func TestQuotaService_GetConfig(t *testing.T) {
 			statusCode: http.StatusOK,
 			response: admin.QuotaConfigResponse{
 				DefaultPlanId:          1,
-				DefaultPlanName:       ptrStr("Basic"),
+				DefaultPlanName:       new("Basic"),
 				EnableQuotaEnforcement: true,
 				StorageRetentionDays:  30,
 			},
@@ -823,7 +1109,7 @@ func TestQuotaService_UpdateConfig(t *testing.T) {
 			config: &QuotaConfig{
 				QuotaConfigResponse: admin.QuotaConfigResponse{
 					DefaultPlanId:          2,
-					DefaultPlanName:       ptrStr("Premium"),
+					DefaultPlanName:       new("Premium"),
 					EnableQuotaEnforcement: true,
 					StorageRetentionDays:  60,
 				},
@@ -831,7 +1117,7 @@ func TestQuotaService_UpdateConfig(t *testing.T) {
 			statusCode: http.StatusOK,
 			response: admin.QuotaConfigResponse{
 				DefaultPlanId:          2,
-				DefaultPlanName:       ptrStr("Premium"),
+				DefaultPlanName:       new("Premium"),
 				EnableQuotaEnforcement: true,
 				StorageRetentionDays:  60,
 			},

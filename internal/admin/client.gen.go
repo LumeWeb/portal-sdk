@@ -157,6 +157,44 @@ type Usage struct {
 	UploadBytes   int `json:"upload_bytes"`
 }
 
+// UserQuotaConfigListResponse defines model for UserQuotaConfigListResponse.
+type UserQuotaConfigListResponse struct {
+	Data  []UserQuotaConfigResponse `json:"data"`
+	Total int                       `json:"total"`
+}
+
+// UserQuotaConfigResponse defines model for UserQuotaConfigResponse.
+type UserQuotaConfigResponse struct {
+	CreatedAt          time.Time `json:"created_at"`
+	DownloadDailyLimit *int      `json:"download_daily_limit,omitempty"`
+	DownloadThreshold  *int      `json:"download_threshold,omitempty"`
+	DownloadTotalLimit *int      `json:"download_total_limit,omitempty"`
+	EnforcementPolicy  string    `json:"enforcement_policy"`
+	Id                 int       `json:"id"`
+	QuotaPlanId        *int      `json:"quota_plan_id,omitempty"`
+	StorageLimit       *int      `json:"storage_limit,omitempty"`
+	StorageThreshold   *int      `json:"storage_threshold,omitempty"`
+	UpdatedAt          time.Time `json:"updated_at"`
+	UploadDailyLimit   *int      `json:"upload_daily_limit,omitempty"`
+	UploadThreshold    *int      `json:"upload_threshold,omitempty"`
+	UploadTotalLimit   *int      `json:"upload_total_limit,omitempty"`
+	UserId             int       `json:"user_id"`
+}
+
+// UserQuotaConfigUpdateRequest defines model for UserQuotaConfigUpdateRequest.
+type UserQuotaConfigUpdateRequest struct {
+	DownloadDailyLimit *int    `json:"download_daily_limit,omitempty"`
+	DownloadThreshold  *int    `json:"download_threshold,omitempty"`
+	DownloadTotalLimit *int    `json:"download_total_limit,omitempty"`
+	EnforcementPolicy  *string `json:"enforcement_policy,omitempty"`
+	QuotaPlanId        *int    `json:"quota_plan_id,omitempty"`
+	StorageLimit       *int    `json:"storage_limit,omitempty"`
+	StorageThreshold   *int    `json:"storage_threshold,omitempty"`
+	UploadDailyLimit   *int    `json:"upload_daily_limit,omitempty"`
+	UploadThreshold    *int    `json:"upload_threshold,omitempty"`
+	UploadTotalLimit   *int    `json:"upload_total_limit,omitempty"`
+}
+
 // WebsiteResponse defines model for WebsiteResponse.
 type WebsiteResponse struct {
 	Created             time.Time      `json:"created"`
@@ -195,6 +233,9 @@ type PutApiQuotaSystemConfigJSONRequestBody = QuotaConfigUpdateRequest
 
 // PostApiQuotaSystemReconcileJSONRequestBody defines body for PostApiQuotaSystemReconcile for application/json ContentType.
 type PostApiQuotaSystemReconcileJSONRequestBody = ReconcileRequest
+
+// PutApiQuotaUserConfigsUserIDJSONRequestBody defines body for PutApiQuotaUserConfigsUserID for application/json ContentType.
+type PutApiQuotaUserConfigsUserIDJSONRequestBody = UserQuotaConfigUpdateRequest
 
 // RequestEditorFn  is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
@@ -333,6 +374,17 @@ type ClientInterface interface {
 
 	// GetApiQuotaSystemStats request
 	GetApiQuotaSystemStats(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiQuotaUserConfigs request
+	GetApiQuotaUserConfigs(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PutApiQuotaUserConfigsUserIDWithBody request with any body
+	PutApiQuotaUserConfigsUserIDWithBody(ctx context.Context, userID string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PutApiQuotaUserConfigsUserID(ctx context.Context, userID string, body PutApiQuotaUserConfigsUserIDJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteApiQuotaUserConfigsUserIDPlan request
+	DeleteApiQuotaUserConfigsUserIDPlan(ctx context.Context, userID string, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) PostApiIpfsWebsitesIdBlock(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -613,6 +665,54 @@ func (c *Client) PostApiQuotaSystemReconcile(ctx context.Context, body PostApiQu
 
 func (c *Client) GetApiQuotaSystemStats(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetApiQuotaSystemStatsRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetApiQuotaUserConfigs(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiQuotaUserConfigsRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutApiQuotaUserConfigsUserIDWithBody(ctx context.Context, userID string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutApiQuotaUserConfigsUserIDRequestWithBody(c.Server, userID, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutApiQuotaUserConfigsUserID(ctx context.Context, userID string, body PutApiQuotaUserConfigsUserIDJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutApiQuotaUserConfigsUserIDRequest(c.Server, userID, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteApiQuotaUserConfigsUserIDPlan(ctx context.Context, userID string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteApiQuotaUserConfigsUserIDPlanRequest(c.Server, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -1229,6 +1329,114 @@ func NewGetApiQuotaSystemStatsRequest(server string) (*http.Request, error) {
 	return req, nil
 }
 
+// NewGetApiQuotaUserConfigsRequest generates requests for GetApiQuotaUserConfigs
+func NewGetApiQuotaUserConfigsRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/quota/user-configs")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPutApiQuotaUserConfigsUserIDRequest calls the generic PutApiQuotaUserConfigsUserID builder with application/json body
+func NewPutApiQuotaUserConfigsUserIDRequest(server string, userID string, body PutApiQuotaUserConfigsUserIDJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPutApiQuotaUserConfigsUserIDRequestWithBody(server, userID, "application/json", bodyReader)
+}
+
+// NewPutApiQuotaUserConfigsUserIDRequestWithBody generates requests for PutApiQuotaUserConfigsUserID with any type of body
+func NewPutApiQuotaUserConfigsUserIDRequestWithBody(server string, userID string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "userID", runtime.ParamLocationPath, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/quota/user-configs/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteApiQuotaUserConfigsUserIDPlanRequest generates requests for DeleteApiQuotaUserConfigsUserIDPlan
+func NewDeleteApiQuotaUserConfigsUserIDPlanRequest(server string, userID string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "userID", runtime.ParamLocationPath, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/quota/user-configs/%s/plan", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 func (c *Client) applyEditors(ctx context.Context, req *http.Request, additionalEditors []RequestEditorFn) error {
 	for _, r := range c.RequestEditors {
 		if err := r(ctx, req); err != nil {
@@ -1336,6 +1544,17 @@ type ClientWithResponsesInterface interface {
 
 	// GetApiQuotaSystemStatsWithResponse request
 	GetApiQuotaSystemStatsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiQuotaSystemStatsResponse, error)
+
+	// GetApiQuotaUserConfigsWithResponse request
+	GetApiQuotaUserConfigsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiQuotaUserConfigsResponse, error)
+
+	// PutApiQuotaUserConfigsUserIDWithBodyWithResponse request with any body
+	PutApiQuotaUserConfigsUserIDWithBodyWithResponse(ctx context.Context, userID string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutApiQuotaUserConfigsUserIDResponse, error)
+
+	PutApiQuotaUserConfigsUserIDWithResponse(ctx context.Context, userID string, body PutApiQuotaUserConfigsUserIDJSONRequestBody, reqEditors ...RequestEditorFn) (*PutApiQuotaUserConfigsUserIDResponse, error)
+
+	// DeleteApiQuotaUserConfigsUserIDPlanWithResponse request
+	DeleteApiQuotaUserConfigsUserIDPlanWithResponse(ctx context.Context, userID string, reqEditors ...RequestEditorFn) (*DeleteApiQuotaUserConfigsUserIDPlanResponse, error)
 }
 
 type PostApiIpfsWebsitesIdBlockResponse struct {
@@ -1446,7 +1665,6 @@ func (r PostApiQuotaAllowancesResponse) StatusCode() int {
 type DeleteApiQuotaAllowancesGrantIDResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *ErrorResponse
 	JSON400      *ErrorResponse
 	JSON404      *ErrorResponse
 	JSON500      *ErrorResponse
@@ -1547,7 +1765,6 @@ func (r PostApiQuotaPlansResponse) StatusCode() int {
 type DeleteApiQuotaPlansPlanIDResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *ErrorResponse
 	JSON400      *ErrorResponse
 	JSON404      *ErrorResponse
 	JSON500      *ErrorResponse
@@ -1622,7 +1839,6 @@ func (r PutApiQuotaPlansPlanIDResponse) StatusCode() int {
 type PostApiQuotaPlansPlanIDDefaultResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *ErrorResponse
 	JSON400      *ErrorResponse
 	JSON404      *ErrorResponse
 	JSON500      *ErrorResponse
@@ -1763,6 +1979,80 @@ func (r GetApiQuotaSystemStatsResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetApiQuotaSystemStatsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetApiQuotaUserConfigsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *UserQuotaConfigListResponse
+	JSON400      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiQuotaUserConfigsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiQuotaUserConfigsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PutApiQuotaUserConfigsUserIDResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *UserQuotaConfigResponse
+	JSON400      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PutApiQuotaUserConfigsUserIDResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PutApiQuotaUserConfigsUserIDResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteApiQuotaUserConfigsUserIDPlanResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteApiQuotaUserConfigsUserIDPlanResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteApiQuotaUserConfigsUserIDPlanResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -1976,6 +2266,41 @@ func (c *ClientWithResponses) GetApiQuotaSystemStatsWithResponse(ctx context.Con
 		return nil, err
 	}
 	return ParseGetApiQuotaSystemStatsResponse(rsp)
+}
+
+// GetApiQuotaUserConfigsWithResponse request returning *GetApiQuotaUserConfigsResponse
+func (c *ClientWithResponses) GetApiQuotaUserConfigsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiQuotaUserConfigsResponse, error) {
+	rsp, err := c.GetApiQuotaUserConfigs(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiQuotaUserConfigsResponse(rsp)
+}
+
+// PutApiQuotaUserConfigsUserIDWithBodyWithResponse request with arbitrary body returning *PutApiQuotaUserConfigsUserIDResponse
+func (c *ClientWithResponses) PutApiQuotaUserConfigsUserIDWithBodyWithResponse(ctx context.Context, userID string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutApiQuotaUserConfigsUserIDResponse, error) {
+	rsp, err := c.PutApiQuotaUserConfigsUserIDWithBody(ctx, userID, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutApiQuotaUserConfigsUserIDResponse(rsp)
+}
+
+func (c *ClientWithResponses) PutApiQuotaUserConfigsUserIDWithResponse(ctx context.Context, userID string, body PutApiQuotaUserConfigsUserIDJSONRequestBody, reqEditors ...RequestEditorFn) (*PutApiQuotaUserConfigsUserIDResponse, error) {
+	rsp, err := c.PutApiQuotaUserConfigsUserID(ctx, userID, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutApiQuotaUserConfigsUserIDResponse(rsp)
+}
+
+// DeleteApiQuotaUserConfigsUserIDPlanWithResponse request returning *DeleteApiQuotaUserConfigsUserIDPlanResponse
+func (c *ClientWithResponses) DeleteApiQuotaUserConfigsUserIDPlanWithResponse(ctx context.Context, userID string, reqEditors ...RequestEditorFn) (*DeleteApiQuotaUserConfigsUserIDPlanResponse, error) {
+	rsp, err := c.DeleteApiQuotaUserConfigsUserIDPlan(ctx, userID, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteApiQuotaUserConfigsUserIDPlanResponse(rsp)
 }
 
 // ParsePostApiIpfsWebsitesIdBlockResponse parses an HTTP response from a PostApiIpfsWebsitesIdBlockWithResponse call
@@ -2215,13 +2540,6 @@ func ParseDeleteApiQuotaAllowancesGrantIDResponse(rsp *http.Response) (*DeleteAp
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest ErrorResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -2410,13 +2728,6 @@ func ParseDeleteApiQuotaPlansPlanIDResponse(rsp *http.Response) (*DeleteApiQuota
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest ErrorResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -2551,13 +2862,6 @@ func ParsePostApiQuotaPlansPlanIDDefaultResponse(rsp *http.Response) (*PostApiQu
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest ErrorResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -2793,6 +3097,140 @@ func ParseGetApiQuotaSystemStatsResponse(rsp *http.Response) (*GetApiQuotaSystem
 		}
 		response.JSON200 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiQuotaUserConfigsResponse parses an HTTP response from a GetApiQuotaUserConfigsWithResponse call
+func ParseGetApiQuotaUserConfigsResponse(rsp *http.Response) (*GetApiQuotaUserConfigsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiQuotaUserConfigsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest UserQuotaConfigListResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePutApiQuotaUserConfigsUserIDResponse parses an HTTP response from a PutApiQuotaUserConfigsUserIDWithResponse call
+func ParsePutApiQuotaUserConfigsUserIDResponse(rsp *http.Response) (*PutApiQuotaUserConfigsUserIDResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PutApiQuotaUserConfigsUserIDResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest UserQuotaConfigResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteApiQuotaUserConfigsUserIDPlanResponse parses an HTTP response from a DeleteApiQuotaUserConfigsUserIDPlanWithResponse call
+func ParseDeleteApiQuotaUserConfigsUserIDPlanResponse(rsp *http.Response) (*DeleteApiQuotaUserConfigsUserIDPlanResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteApiQuotaUserConfigsUserIDPlanResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {

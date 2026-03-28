@@ -28,6 +28,9 @@ const (
 	OpQuotaGetStats
 	OpQuotaReconcile
 	OpQuotaCleanup
+	OpQuotaListUserConfigs
+	OpQuotaUpdateUserConfig
+	OpQuotaResetUserPlan
 )
 
 const defaultQuotaOperationName = "quota operation"
@@ -49,6 +52,9 @@ var quotaOperationString = map[int]string{
 	OpQuotaGetStats:        "get quota statistics",
 	OpQuotaReconcile:       "reconcile quota",
 	OpQuotaCleanup:         "cleanup quota",
+	OpQuotaListUserConfigs:  "list user quota configs",
+	OpQuotaUpdateUserConfig: "update user quota config",
+	OpQuotaResetUserPlan:    "reset user quota plan",
 }
 
 // QuotaOperationErrorFactory is a helper for creating errors with optional ErrUnauthorized wrapping.
@@ -137,6 +143,20 @@ var quotaHTTPErrorMessages = map[int]map[int]QuotaOperationErrorFactory{
 	},
 	OpQuotaCleanup: {
 		stdhttp.StatusUnauthorized: quotaAuthErr("authentication required"),
+	},
+	OpQuotaListUserConfigs: {
+		stdhttp.StatusUnauthorized: quotaAuthErr("authentication required"),
+		stdhttp.StatusBadRequest:   quotaPlainErr("invalid request parameters"),
+		stdhttp.StatusNotFound:     quotaPlainErr("invalid endpoint"),
+	},
+	OpQuotaUpdateUserConfig: {
+		stdhttp.StatusUnauthorized: quotaAuthErr("authentication required"),
+		stdhttp.StatusBadRequest:   quotaPlainErr("invalid user configuration data"),
+		stdhttp.StatusNotFound:     quotaPlainErr("user not found"),
+	},
+	OpQuotaResetUserPlan: {
+		stdhttp.StatusUnauthorized: quotaAuthErr("authentication required"),
+		stdhttp.StatusNotFound:     quotaPlainErr("user not found"),
 	},
 }
 
@@ -231,6 +251,12 @@ type QuotaConfig struct {
 	admin.QuotaConfigResponse
 }
 
+// UserQuotaConfig represents a user's quota configuration.
+// Embeds the generated admin.UserQuotaConfigResponse to reuse all fields.
+type UserQuotaConfig struct {
+	admin.UserQuotaConfigResponse
+}
+
 // SystemUsage represents system-wide usage statistics.
 type SystemUsage struct {
 	DownloadBytes int `json:"download_bytes"`
@@ -241,6 +267,22 @@ type SystemUsage struct {
 // SystemStats represents system-wide quota statistics.
 type SystemStats struct {
 	admin.SystemStatsResponse
+}
+
+// UserQuotaConfigUpdate represents a user quota configuration update request.
+type UserQuotaConfigUpdate struct {
+	ID                 int
+	UserID             int
+	DownloadDailyLimit *int
+	DownloadThreshold  *int
+	DownloadTotalLimit *int
+	EnforcementPolicy  string
+	QuotaPlanID        *int
+	StorageLimit       *int
+	StorageThreshold   *int
+	UploadDailyLimit   *int
+	UploadThreshold    *int
+	UploadTotalLimit   *int
 }
 
 // QuotaService provides methods for managing quotas.
@@ -577,6 +619,82 @@ func (q *QuotaService) Cleanup(ctx context.Context, retentionDays int) (int, err
 	}
 
 	return resp.JSON200.RecordsDeleted, nil
+}
+
+// ListUserConfigs lists all user quota configurations with pagination.
+func (q *QuotaService) ListUserConfigs(ctx context.Context) ([]*UserQuotaConfig, int, error) {
+	resp, err := q.client.GetApiQuotaUserConfigsWithResponse(ctx)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to send list user configs request: %w", err)
+	}
+
+	if err := handleQuotaResponse(resp.StatusCode(), resp.Body, OpQuotaListUserConfigs, []int{stdhttp.StatusOK}); err != nil {
+		return nil, 0, err
+	}
+
+	configs := lo.Map(resp.JSON200.Data, func(config admin.UserQuotaConfigResponse, _ int) *UserQuotaConfig {
+		return &UserQuotaConfig{UserQuotaConfigResponse: config}
+	})
+
+	return configs, resp.JSON200.Total, nil
+}
+
+// UpdateUserConfig updates a user's quota configuration.
+func (q *QuotaService) UpdateUserConfig(ctx context.Context, userID int, config *UserQuotaConfigUpdate) (*UserQuotaConfig, error) {
+	reqBody := admin.UserQuotaConfigUpdateRequest{}
+
+	if config.DownloadDailyLimit != nil {
+		reqBody.DownloadDailyLimit = config.DownloadDailyLimit
+	}
+	if config.DownloadThreshold != nil {
+		reqBody.DownloadThreshold = config.DownloadThreshold
+	}
+	if config.DownloadTotalLimit != nil {
+		reqBody.DownloadTotalLimit = config.DownloadTotalLimit
+	}
+	if config.EnforcementPolicy != "" {
+		reqBody.EnforcementPolicy = &config.EnforcementPolicy
+	}
+	if config.QuotaPlanID != nil {
+		reqBody.QuotaPlanId = config.QuotaPlanID
+	}
+	if config.StorageLimit != nil {
+		reqBody.StorageLimit = config.StorageLimit
+	}
+	if config.StorageThreshold != nil {
+		reqBody.StorageThreshold = config.StorageThreshold
+	}
+	if config.UploadDailyLimit != nil {
+		reqBody.UploadDailyLimit = config.UploadDailyLimit
+	}
+	if config.UploadThreshold != nil {
+		reqBody.UploadThreshold = config.UploadThreshold
+	}
+	if config.UploadTotalLimit != nil {
+		reqBody.UploadTotalLimit = config.UploadTotalLimit
+	}
+
+	resp, err := q.client.PutApiQuotaUserConfigsUserIDWithResponse(ctx, fmt.Sprintf("%d", userID), reqBody)
+	if err != nil {
+		return nil, fmt.Errorf("failed to send update user config request: %w", err)
+	}
+
+	data, err := validateQuotaJSON200(resp.StatusCode(), resp.JSON200, OpQuotaUpdateUserConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	return &UserQuotaConfig{UserQuotaConfigResponse: *data}, nil
+}
+
+// ResetUserPlan removes a user's assigned quota plan (sets to NULL).
+func (q *QuotaService) ResetUserPlan(ctx context.Context, userID int) error {
+	resp, err := q.client.DeleteApiQuotaUserConfigsUserIDPlanWithResponse(ctx, fmt.Sprintf("%d", userID))
+	if err != nil {
+		return fmt.Errorf("failed to send reset user plan request: %w", err)
+	}
+
+	return handleQuotaResponse(resp.StatusCode(), resp.Body, OpQuotaResetUserPlan, []int{stdhttp.StatusNoContent})
 }
 
 // SetRequestExecutor sets the underlying admin client for the quota service.
