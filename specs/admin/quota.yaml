@@ -649,12 +649,6 @@ paths:
         schema:
           type: string
       responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: Success
         "204":
           description: Grant deactivated
         "400":
@@ -811,12 +805,6 @@ paths:
         schema:
           type: string
       responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: Success
         "204":
           description: Plan deleted successfully
         "400":
@@ -935,12 +923,6 @@ paths:
         schema:
           type: string
       responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: Success
         "204":
           description: Default plan set successfully
         "400":
@@ -1235,12 +1217,6 @@ paths:
         schema:
           type: string
       responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: Success
         "204":
           description: User quota plan reset successfully
         "400":

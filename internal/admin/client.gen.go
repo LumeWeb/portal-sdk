@@ -1665,7 +1665,6 @@ func (r PostApiQuotaAllowancesResponse) StatusCode() int {
 type DeleteApiQuotaAllowancesGrantIDResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *ErrorResponse
 	JSON400      *ErrorResponse
 	JSON404      *ErrorResponse
 	JSON500      *ErrorResponse
@@ -1766,7 +1765,6 @@ func (r PostApiQuotaPlansResponse) StatusCode() int {
 type DeleteApiQuotaPlansPlanIDResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *ErrorResponse
 	JSON400      *ErrorResponse
 	JSON404      *ErrorResponse
 	JSON500      *ErrorResponse
@@ -1841,7 +1839,6 @@ func (r PutApiQuotaPlansPlanIDResponse) StatusCode() int {
 type PostApiQuotaPlansPlanIDDefaultResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *ErrorResponse
 	JSON400      *ErrorResponse
 	JSON404      *ErrorResponse
 	JSON500      *ErrorResponse
@@ -2041,7 +2038,6 @@ func (r PutApiQuotaUserConfigsUserIDResponse) StatusCode() int {
 type DeleteApiQuotaUserConfigsUserIDPlanResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *ErrorResponse
 	JSON400      *ErrorResponse
 	JSON404      *ErrorResponse
 	JSON500      *ErrorResponse
@@ -2544,13 +2540,6 @@ func ParseDeleteApiQuotaAllowancesGrantIDResponse(rsp *http.Response) (*DeleteAp
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest ErrorResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -2739,13 +2728,6 @@ func ParseDeleteApiQuotaPlansPlanIDResponse(rsp *http.Response) (*DeleteApiQuota
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest ErrorResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -2880,13 +2862,6 @@ func ParsePostApiQuotaPlansPlanIDDefaultResponse(rsp *http.Response) (*PostApiQu
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest ErrorResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -3256,13 +3231,6 @@ func ParseDeleteApiQuotaUserConfigsUserIDPlanResponse(rsp *http.Response) (*Dele
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest ErrorResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
