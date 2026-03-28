@@ -941,6 +941,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Success
+        "204":
+          description: Default plan set successfully
         "400":
           content:
             application/json:
