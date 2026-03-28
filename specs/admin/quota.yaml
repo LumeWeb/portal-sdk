@@ -314,6 +314,83 @@ components:
       - upload_bytes
       - download_bytes
       type: object
+    UserQuotaConfigListResponse:
+      additionalProperties: false
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/UserQuotaConfigResponse'
+          type: array
+        total:
+          type: integer
+      required:
+      - data
+      - total
+      type: object
+    UserQuotaConfigResponse:
+      additionalProperties: false
+      properties:
+        created_at:
+          format: date-time
+          type: string
+        download_daily_limit:
+          type: integer
+        download_threshold:
+          type: integer
+        download_total_limit:
+          type: integer
+        enforcement_policy:
+          type: string
+        id:
+          type: integer
+        quota_plan_id:
+          type: integer
+        storage_limit:
+          type: integer
+        storage_threshold:
+          type: integer
+        updated_at:
+          format: date-time
+          type: string
+        upload_daily_limit:
+          type: integer
+        upload_threshold:
+          type: integer
+        upload_total_limit:
+          type: integer
+        user_id:
+          type: integer
+      required:
+      - id
+      - user_id
+      - enforcement_policy
+      - created_at
+      - updated_at
+      type: object
+    UserQuotaConfigUpdateRequest:
+      additionalProperties: false
+      properties:
+        download_daily_limit:
+          type: integer
+        download_threshold:
+          type: integer
+        download_total_limit:
+          type: integer
+        enforcement_policy:
+          type: string
+        quota_plan_id:
+          type: integer
+        storage_limit:
+          type: integer
+        storage_threshold:
+          type: integer
+        upload_daily_limit:
+          type: integer
+        upload_threshold:
+          type: integer
+        upload_total_limit:
+          type: integer
+      type: object
     WebsiteResponse:
       additionalProperties: false
       properties:
@@ -1066,5 +1143,125 @@ paths:
       tags:
       - quota
       - system
+  /api/quota/user-configs:
+    get:
+      description: Get a paginated list of user quota configurations with filtering
+        and sorting
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserQuotaConfigListResponse'
+          description: List of user quota configs
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: List user quota configs
+      tags:
+      - quota
+      - user-configs
+  /api/quota/user-configs/{userID}:
+    put:
+      description: Update a user's quota configuration
+      parameters:
+      - description: Numeric ID of the user
+        in: path
+        name: userID
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserQuotaConfigUpdateRequest'
+        description: User quota config update
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserQuotaConfigResponse'
+          description: User quota config updated
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Update user quota config
+      tags:
+      - quota
+      - user-configs
+  /api/quota/user-configs/{userID}/plan:
+    delete:
+      description: Remove a user's assigned quota plan (sets to NULL)
+      parameters:
+      - description: Numeric ID of the user
+        in: path
+        name: userID
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Success
+        "204":
+          description: User quota plan reset successfully
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Reset user quota plan
+      tags:
+      - quota
+      - user-configs
 servers:
 - url: /api
