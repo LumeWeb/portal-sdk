@@ -1,3 +1,14 @@
+## 0.1.15 (2026-03-28)
+
+### Features
+
+- add user quota config APIs
+
+### Fixes
+
+- update admin quota spec with 204 response documentation
+- remove contradictory 200 responses from all DELETE operations
+
 ## 0.1.14 (2026-03-26)
 
 ### Fixes
