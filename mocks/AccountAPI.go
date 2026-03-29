@@ -716,6 +716,148 @@ func (_c *MockAccountAPI_GetPermissions_Call) RunAndReturn(run func(ctx context.
 	return _c
 }
 
+// GetQuota provides a mock function for the type MockAccountAPI
+func (_mock *MockAccountAPI) GetQuota(ctx context.Context) (*account.QuotaStatus, error) {
+	ret := _mock.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetQuota")
+	}
+
+	var r0 *account.QuotaStatus
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context) (*account.QuotaStatus, error)); ok {
+		return returnFunc(ctx)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context) *account.QuotaStatus); ok {
+		r0 = returnFunc(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*account.QuotaStatus)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = returnFunc(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockAccountAPI_GetQuota_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetQuota'
+type MockAccountAPI_GetQuota_Call struct {
+	*mock.Call
+}
+
+// GetQuota is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockAccountAPI_Expecter) GetQuota(ctx interface{}) *MockAccountAPI_GetQuota_Call {
+	return &MockAccountAPI_GetQuota_Call{Call: _e.mock.On("GetQuota", ctx)}
+}
+
+func (_c *MockAccountAPI_GetQuota_Call) Run(run func(ctx context.Context)) *MockAccountAPI_GetQuota_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockAccountAPI_GetQuota_Call) Return(quotaStatus *account.QuotaStatus, err error) *MockAccountAPI_GetQuota_Call {
+	_c.Call.Return(quotaStatus, err)
+	return _c
+}
+
+func (_c *MockAccountAPI_GetQuota_Call) RunAndReturn(run func(ctx context.Context) (*account.QuotaStatus, error)) *MockAccountAPI_GetQuota_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetQuotaHistory provides a mock function for the type MockAccountAPI
+func (_mock *MockAccountAPI) GetQuotaHistory(ctx context.Context, startDate string, endDate string, usageType string) (*account.QuotaHistory, error) {
+	ret := _mock.Called(ctx, startDate, endDate, usageType)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetQuotaHistory")
+	}
+
+	var r0 *account.QuotaHistory
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, string) (*account.QuotaHistory, error)); ok {
+		return returnFunc(ctx, startDate, endDate, usageType)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, string) *account.QuotaHistory); ok {
+		r0 = returnFunc(ctx, startDate, endDate, usageType)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*account.QuotaHistory)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string, string, string) error); ok {
+		r1 = returnFunc(ctx, startDate, endDate, usageType)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockAccountAPI_GetQuotaHistory_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetQuotaHistory'
+type MockAccountAPI_GetQuotaHistory_Call struct {
+	*mock.Call
+}
+
+// GetQuotaHistory is a helper method to define mock.On call
+//   - ctx context.Context
+//   - startDate string
+//   - endDate string
+//   - usageType string
+func (_e *MockAccountAPI_Expecter) GetQuotaHistory(ctx interface{}, startDate interface{}, endDate interface{}, usageType interface{}) *MockAccountAPI_GetQuotaHistory_Call {
+	return &MockAccountAPI_GetQuotaHistory_Call{Call: _e.mock.On("GetQuotaHistory", ctx, startDate, endDate, usageType)}
+}
+
+func (_c *MockAccountAPI_GetQuotaHistory_Call) Run(run func(ctx context.Context, startDate string, endDate string, usageType string)) *MockAccountAPI_GetQuotaHistory_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		var arg3 string
+		if args[3] != nil {
+			arg3 = args[3].(string)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3,
+		)
+	})
+	return _c
+}
+
+func (_c *MockAccountAPI_GetQuotaHistory_Call) Return(quotaHistory *account.QuotaHistory, err error) *MockAccountAPI_GetQuotaHistory_Call {
+	_c.Call.Return(quotaHistory, err)
+	return _c
+}
+
+func (_c *MockAccountAPI_GetQuotaHistory_Call) RunAndReturn(run func(ctx context.Context, startDate string, endDate string, usageType string) (*account.QuotaHistory, error)) *MockAccountAPI_GetQuotaHistory_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // ListAPIKeys provides a mock function for the type MockAccountAPI
 func (_mock *MockAccountAPI) ListAPIKeys(ctx context.Context, opts ...account.ListOption) ([]*account.APIKey, error) {
 	// account.ListOption

@@ -23,8 +23,6 @@ const (
 	OpQuotaCreateAllowance
 	OpQuotaUpdateAllowance
 	OpQuotaDeleteAllowance
-	OpQuotaGetConfig
-	OpQuotaUpdateConfig
 	OpQuotaGetStats
 	OpQuotaReconcile
 	OpQuotaCleanup
@@ -47,9 +45,7 @@ var quotaOperationString = map[int]string{
 	OpQuotaCreateAllowance: "create quota allowance",
 	OpQuotaUpdateAllowance: "update quota allowance",
 	OpQuotaDeleteAllowance: "delete quota allowance",
-	OpQuotaGetConfig:       "get quota configuration",
-	OpQuotaUpdateConfig:    "update quota configuration",
-	OpQuotaGetStats:        "get quota statistics",
+	OpQuotaGetStats:            "get quota statistics",
 	OpQuotaReconcile:       "reconcile quota",
 	OpQuotaCleanup:         "cleanup quota",
 	OpQuotaListUserConfigs:  "list user quota configs",
@@ -127,13 +123,6 @@ var quotaHTTPErrorMessages = map[int]map[int]QuotaOperationErrorFactory{
 	OpQuotaDeleteAllowance: {
 		stdhttp.StatusUnauthorized: quotaAuthErr("authentication required"),
 		stdhttp.StatusNotFound:     quotaPlainErr("allowance not found"),
-	},
-	OpQuotaGetConfig: {
-		stdhttp.StatusUnauthorized: quotaAuthErr("authentication required"),
-	},
-	OpQuotaUpdateConfig: {
-		stdhttp.StatusUnauthorized: quotaAuthErr("authentication required"),
-		stdhttp.StatusBadRequest:   quotaPlainErr("invalid configuration data"),
 	},
 	OpQuotaGetStats: {
 		stdhttp.StatusUnauthorized: quotaAuthErr("authentication required"),
@@ -243,12 +232,6 @@ type QuotaPlan struct {
 // Embeds the generated admin.AllowanceGrantResponse to reuse all fields.
 type QuotaAllowance struct {
 	admin.AllowanceGrantResponse
-}
-
-// QuotaConfig represents the system-wide quota configuration.
-// Embeds the generated admin.QuotaConfigResponse to reuse all fields.
-type QuotaConfig struct {
-	admin.QuotaConfigResponse
 }
 
 // UserQuotaConfig represents a user's quota configuration.
@@ -524,42 +507,6 @@ func (q *QuotaService) DeleteAllowance(ctx context.Context, grantID string) erro
 	}
 
 	return handleQuotaResponse(resp.StatusCode(), resp.Body, OpQuotaDeleteAllowance, []int{stdhttp.StatusNoContent})
-}
-
-// GetConfig retrieves the system quota configuration.
-func (q *QuotaService) GetConfig(ctx context.Context) (*QuotaConfig, error) {
-	resp, err := q.client.GetApiQuotaSystemConfigWithResponse(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("failed to send get config request: %w", err)
-	}
-
-	data, err := validateQuotaJSON200(resp.StatusCode(), resp.JSON200, OpQuotaGetConfig)
-	if err != nil {
-		return nil, err
-	}
-
-	return &QuotaConfig{QuotaConfigResponse: *data}, nil
-}
-
-// UpdateConfig updates the system quota configuration.
-func (q *QuotaService) UpdateConfig(ctx context.Context, config *QuotaConfig) (*QuotaConfig, error) {
-	reqBody := admin.QuotaConfigUpdateRequest{
-		DefaultPlanId:          config.DefaultPlanId,
-		EnableQuotaEnforcement: config.EnableQuotaEnforcement,
-		StorageRetentionDays:   config.StorageRetentionDays,
-	}
-
-	resp, err := q.client.PutApiQuotaSystemConfigWithResponse(ctx, reqBody)
-	if err != nil {
-		return nil, fmt.Errorf("failed to send update config request: %w", err)
-	}
-
-	data, err := validateQuotaJSON200(resp.StatusCode(), resp.JSON200, OpQuotaUpdateConfig)
-	if err != nil {
-		return nil, err
-	}
-
-	return &QuotaConfig{QuotaConfigResponse: *data}, nil
 }
 
 // GetStats retrieves system-wide quota statistics.

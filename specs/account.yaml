@@ -555,7 +555,7 @@ components:
 info:
   description: API endpoints for managing user accounts, authentication, and API keys.
   title: Account API
-  version: v0.2.7-0.20260312042836-d9dfa043a80d
+  version: develop
 openapi: 3.0.0
 paths:
   /api/account:

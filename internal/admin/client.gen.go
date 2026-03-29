@@ -70,21 +70,6 @@ type PlanListResponse struct {
 	Total int                 `json:"total"`
 }
 
-// QuotaConfigResponse defines model for QuotaConfigResponse.
-type QuotaConfigResponse struct {
-	DefaultPlanId          int     `json:"default_plan_id"`
-	DefaultPlanName        *string `json:"default_plan_name,omitempty"`
-	EnableQuotaEnforcement bool    `json:"enable_quota_enforcement"`
-	StorageRetentionDays   int     `json:"storage_retention_days"`
-}
-
-// QuotaConfigUpdateRequest defines model for QuotaConfigUpdateRequest.
-type QuotaConfigUpdateRequest struct {
-	DefaultPlanId          int  `json:"default_plan_id"`
-	EnableQuotaEnforcement bool `json:"enable_quota_enforcement"`
-	StorageRetentionDays   int  `json:"storage_retention_days"`
-}
-
 // QuotaPlanRequest defines model for QuotaPlanRequest.
 type QuotaPlanRequest struct {
 	Description        string `json:"description"`
@@ -228,9 +213,6 @@ type PutApiQuotaPlansPlanIDJSONRequestBody = QuotaPlanRequest
 // PostApiQuotaSystemCleanupJSONRequestBody defines body for PostApiQuotaSystemCleanup for application/json ContentType.
 type PostApiQuotaSystemCleanupJSONRequestBody = CleanupRequest
 
-// PutApiQuotaSystemConfigJSONRequestBody defines body for PutApiQuotaSystemConfig for application/json ContentType.
-type PutApiQuotaSystemConfigJSONRequestBody = QuotaConfigUpdateRequest
-
 // PostApiQuotaSystemReconcileJSONRequestBody defines body for PostApiQuotaSystemReconcile for application/json ContentType.
 type PostApiQuotaSystemReconcileJSONRequestBody = ReconcileRequest
 
@@ -358,14 +340,6 @@ type ClientInterface interface {
 	PostApiQuotaSystemCleanupWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	PostApiQuotaSystemCleanup(ctx context.Context, body PostApiQuotaSystemCleanupJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// GetApiQuotaSystemConfig request
-	GetApiQuotaSystemConfig(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// PutApiQuotaSystemConfigWithBody request with any body
-	PutApiQuotaSystemConfigWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	PutApiQuotaSystemConfig(ctx context.Context, body PutApiQuotaSystemConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// PostApiQuotaSystemReconcileWithBody request with any body
 	PostApiQuotaSystemReconcileWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -593,42 +567,6 @@ func (c *Client) PostApiQuotaSystemCleanupWithBody(ctx context.Context, contentT
 
 func (c *Client) PostApiQuotaSystemCleanup(ctx context.Context, body PostApiQuotaSystemCleanupJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPostApiQuotaSystemCleanupRequest(c.Server, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) GetApiQuotaSystemConfig(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetApiQuotaSystemConfigRequest(c.Server)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) PutApiQuotaSystemConfigWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPutApiQuotaSystemConfigRequestWithBody(c.Server, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) PutApiQuotaSystemConfig(ctx context.Context, body PutApiQuotaSystemConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPutApiQuotaSystemConfigRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1195,73 +1133,6 @@ func NewPostApiQuotaSystemCleanupRequestWithBody(server string, contentType stri
 	return req, nil
 }
 
-// NewGetApiQuotaSystemConfigRequest generates requests for GetApiQuotaSystemConfig
-func NewGetApiQuotaSystemConfigRequest(server string) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/api/quota/system/config")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewPutApiQuotaSystemConfigRequest calls the generic PutApiQuotaSystemConfig builder with application/json body
-func NewPutApiQuotaSystemConfigRequest(server string, body PutApiQuotaSystemConfigJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewPutApiQuotaSystemConfigRequestWithBody(server, "application/json", bodyReader)
-}
-
-// NewPutApiQuotaSystemConfigRequestWithBody generates requests for PutApiQuotaSystemConfig with any type of body
-func NewPutApiQuotaSystemConfigRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/api/quota/system/config")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("PUT", queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
 // NewPostApiQuotaSystemReconcileRequest calls the generic PostApiQuotaSystemReconcile builder with application/json body
 func NewPostApiQuotaSystemReconcileRequest(server string, body PostApiQuotaSystemReconcileJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -1528,14 +1399,6 @@ type ClientWithResponsesInterface interface {
 	PostApiQuotaSystemCleanupWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiQuotaSystemCleanupResponse, error)
 
 	PostApiQuotaSystemCleanupWithResponse(ctx context.Context, body PostApiQuotaSystemCleanupJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiQuotaSystemCleanupResponse, error)
-
-	// GetApiQuotaSystemConfigWithResponse request
-	GetApiQuotaSystemConfigWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiQuotaSystemConfigResponse, error)
-
-	// PutApiQuotaSystemConfigWithBodyWithResponse request with any body
-	PutApiQuotaSystemConfigWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutApiQuotaSystemConfigResponse, error)
-
-	PutApiQuotaSystemConfigWithResponse(ctx context.Context, body PutApiQuotaSystemConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*PutApiQuotaSystemConfigResponse, error)
 
 	// PostApiQuotaSystemReconcileWithBodyWithResponse request with any body
 	PostApiQuotaSystemReconcileWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiQuotaSystemReconcileResponse, error)
@@ -1885,56 +1748,6 @@ func (r PostApiQuotaSystemCleanupResponse) StatusCode() int {
 	return 0
 }
 
-type GetApiQuotaSystemConfigResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *QuotaConfigResponse
-	JSON400      *ErrorResponse
-	JSON404      *ErrorResponse
-	JSON500      *ErrorResponse
-}
-
-// Status returns HTTPResponse.Status
-func (r GetApiQuotaSystemConfigResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r GetApiQuotaSystemConfigResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type PutApiQuotaSystemConfigResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *QuotaConfigResponse
-	JSON400      *ErrorResponse
-	JSON404      *ErrorResponse
-	JSON500      *ErrorResponse
-}
-
-// Status returns HTTPResponse.Status
-func (r PutApiQuotaSystemConfigResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r PutApiQuotaSystemConfigResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
 type PostApiQuotaSystemReconcileResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -2214,32 +2027,6 @@ func (c *ClientWithResponses) PostApiQuotaSystemCleanupWithResponse(ctx context.
 		return nil, err
 	}
 	return ParsePostApiQuotaSystemCleanupResponse(rsp)
-}
-
-// GetApiQuotaSystemConfigWithResponse request returning *GetApiQuotaSystemConfigResponse
-func (c *ClientWithResponses) GetApiQuotaSystemConfigWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiQuotaSystemConfigResponse, error) {
-	rsp, err := c.GetApiQuotaSystemConfig(ctx, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseGetApiQuotaSystemConfigResponse(rsp)
-}
-
-// PutApiQuotaSystemConfigWithBodyWithResponse request with arbitrary body returning *PutApiQuotaSystemConfigResponse
-func (c *ClientWithResponses) PutApiQuotaSystemConfigWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutApiQuotaSystemConfigResponse, error) {
-	rsp, err := c.PutApiQuotaSystemConfigWithBody(ctx, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParsePutApiQuotaSystemConfigResponse(rsp)
-}
-
-func (c *ClientWithResponses) PutApiQuotaSystemConfigWithResponse(ctx context.Context, body PutApiQuotaSystemConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*PutApiQuotaSystemConfigResponse, error) {
-	rsp, err := c.PutApiQuotaSystemConfig(ctx, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParsePutApiQuotaSystemConfigResponse(rsp)
 }
 
 // PostApiQuotaSystemReconcileWithBodyWithResponse request with arbitrary body returning *PostApiQuotaSystemReconcileResponse
@@ -2904,100 +2691,6 @@ func ParsePostApiQuotaSystemCleanupResponse(rsp *http.Response) (*PostApiQuotaSy
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest CleanupResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
-		var dest ErrorResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON400 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
-		var dest ErrorResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON404 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest ErrorResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON500 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseGetApiQuotaSystemConfigResponse parses an HTTP response from a GetApiQuotaSystemConfigWithResponse call
-func ParseGetApiQuotaSystemConfigResponse(rsp *http.Response) (*GetApiQuotaSystemConfigResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &GetApiQuotaSystemConfigResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest QuotaConfigResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
-		var dest ErrorResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON400 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
-		var dest ErrorResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON404 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest ErrorResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON500 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParsePutApiQuotaSystemConfigResponse parses an HTTP response from a PutApiQuotaSystemConfigWithResponse call
-func ParsePutApiQuotaSystemConfigResponse(rsp *http.Response) (*PutApiQuotaSystemConfigResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &PutApiQuotaSystemConfigResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest QuotaConfigResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
