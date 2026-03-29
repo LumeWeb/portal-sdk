@@ -256,16 +256,18 @@ type SystemStats struct {
 type UserQuotaConfigUpdate struct {
 	ID                 int
 	UserID             int
-	DownloadDailyLimit *int
+	DownloadLimitBytes *int
 	DownloadThreshold  *int
-	DownloadTotalLimit *int
 	EnforcementPolicy  string
 	QuotaPlanID        *int
-	StorageLimit       *int
+	StorageLimitBytes  *int
 	StorageThreshold   *int
-	UploadDailyLimit   *int
+	UploadLimitBytes   *int
 	UploadThreshold    *int
-	UploadTotalLimit   *int
+	WindowDuration     *int
+	WindowStartHour    *int
+	WindowTimezone     *string
+	WindowType         *string
 }
 
 // QuotaService provides methods for managing quotas.
@@ -288,28 +290,32 @@ func NewQuotaPlan(name, description string, limits QuotaLimits) *QuotaPlan {
 		admin.QuotaPlanResponse{
 			Name:               name,
 			Description:        description,
-			UploadDailyLimit:   limits.UploadDailyLimit,
-			UploadTotalLimit:   limits.UploadTotalLimit,
+			UploadLimitBytes:   limits.UploadLimitBytes,
 			UploadThreshold:    limits.UploadThreshold,
-			DownloadDailyLimit: limits.DownloadDailyLimit,
-			DownloadTotalLimit: limits.DownloadTotalLimit,
+			DownloadLimitBytes: limits.DownloadLimitBytes,
 			DownloadThreshold:  limits.DownloadThreshold,
-			StorageLimit:       limits.StorageLimit,
+			StorageLimitBytes:  limits.StorageLimitBytes,
 			StorageThreshold:   limits.StorageThreshold,
+			WindowDuration:     limits.WindowDuration,
+			WindowStartHour:    limits.WindowStartHour,
+			WindowTimezone:     limits.WindowTimezone,
+			WindowType:         limits.WindowType,
 		},
 	}
 }
 
 // QuotaLimits defines quota limit configuration.
 type QuotaLimits struct {
-	UploadDailyLimit   int
-	UploadTotalLimit   int
+	UploadLimitBytes   int
 	UploadThreshold    int
-	DownloadDailyLimit int
-	DownloadTotalLimit int
+	DownloadLimitBytes int
 	DownloadThreshold  int
-	StorageLimit       int
+	StorageLimitBytes  int
 	StorageThreshold   int
+	WindowDuration     int
+	WindowStartHour    int
+	WindowTimezone     string
+	WindowType         string
 }
 
 // ListPlans lists all quota plans.
@@ -339,14 +345,16 @@ func (q *QuotaService) CreatePlan(ctx context.Context, plan *QuotaPlan) (*QuotaP
 	reqBody := admin.QuotaPlanRequest{
 		Name:               plan.Name,
 		Description:        plan.Description,
-		UploadDailyLimit:   plan.UploadDailyLimit,
-		UploadTotalLimit:   plan.UploadTotalLimit,
+		UploadLimitBytes:   plan.UploadLimitBytes,
 		UploadThreshold:    plan.UploadThreshold,
-		DownloadDailyLimit: plan.DownloadDailyLimit,
-		DownloadTotalLimit: plan.DownloadTotalLimit,
+		DownloadLimitBytes: plan.DownloadLimitBytes,
 		DownloadThreshold:  plan.DownloadThreshold,
-		StorageLimit:       plan.StorageLimit,
+		StorageLimitBytes:  plan.StorageLimitBytes,
 		StorageThreshold:   plan.StorageThreshold,
+		WindowDuration:     plan.WindowDuration,
+		WindowStartHour:    plan.WindowStartHour,
+		WindowTimezone:     plan.WindowTimezone,
+		WindowType:         plan.WindowType,
 		IsActive:           plan.IsActive,
 	}
 
@@ -383,14 +391,16 @@ func (q *QuotaService) UpdatePlan(ctx context.Context, planID string, plan *Quot
 	reqBody := admin.QuotaPlanRequest{
 		Name:               plan.Name,
 		Description:        plan.Description,
-		UploadDailyLimit:   plan.UploadDailyLimit,
-		UploadTotalLimit:   plan.UploadTotalLimit,
+		UploadLimitBytes:   plan.UploadLimitBytes,
 		UploadThreshold:    plan.UploadThreshold,
-		DownloadDailyLimit: plan.DownloadDailyLimit,
-		DownloadTotalLimit: plan.DownloadTotalLimit,
+		DownloadLimitBytes: plan.DownloadLimitBytes,
 		DownloadThreshold:  plan.DownloadThreshold,
-		StorageLimit:       plan.StorageLimit,
+		StorageLimitBytes:  plan.StorageLimitBytes,
 		StorageThreshold:   plan.StorageThreshold,
+		WindowDuration:     plan.WindowDuration,
+		WindowStartHour:    plan.WindowStartHour,
+		WindowTimezone:     plan.WindowTimezone,
+		WindowType:         plan.WindowType,
 		IsActive:           plan.IsActive,
 	}
 
@@ -590,14 +600,11 @@ func (q *QuotaService) ListUserConfigs(ctx context.Context) ([]*UserQuotaConfig,
 func (q *QuotaService) UpdateUserConfig(ctx context.Context, userID int, config *UserQuotaConfigUpdate) (*UserQuotaConfig, error) {
 	reqBody := admin.UserQuotaConfigUpdateRequest{}
 
-	if config.DownloadDailyLimit != nil {
-		reqBody.DownloadDailyLimit = config.DownloadDailyLimit
+	if config.DownloadLimitBytes != nil {
+		reqBody.DownloadLimitBytes = config.DownloadLimitBytes
 	}
 	if config.DownloadThreshold != nil {
 		reqBody.DownloadThreshold = config.DownloadThreshold
-	}
-	if config.DownloadTotalLimit != nil {
-		reqBody.DownloadTotalLimit = config.DownloadTotalLimit
 	}
 	if config.EnforcementPolicy != "" {
 		reqBody.EnforcementPolicy = &config.EnforcementPolicy
@@ -605,20 +612,29 @@ func (q *QuotaService) UpdateUserConfig(ctx context.Context, userID int, config 
 	if config.QuotaPlanID != nil {
 		reqBody.QuotaPlanId = config.QuotaPlanID
 	}
-	if config.StorageLimit != nil {
-		reqBody.StorageLimit = config.StorageLimit
+	if config.StorageLimitBytes != nil {
+		reqBody.StorageLimitBytes = config.StorageLimitBytes
 	}
 	if config.StorageThreshold != nil {
 		reqBody.StorageThreshold = config.StorageThreshold
 	}
-	if config.UploadDailyLimit != nil {
-		reqBody.UploadDailyLimit = config.UploadDailyLimit
+	if config.UploadLimitBytes != nil {
+		reqBody.UploadLimitBytes = config.UploadLimitBytes
 	}
 	if config.UploadThreshold != nil {
 		reqBody.UploadThreshold = config.UploadThreshold
 	}
-	if config.UploadTotalLimit != nil {
-		reqBody.UploadTotalLimit = config.UploadTotalLimit
+	if config.WindowDuration != nil {
+		reqBody.WindowDuration = config.WindowDuration
+	}
+	if config.WindowStartHour != nil {
+		reqBody.WindowStartHour = config.WindowStartHour
+	}
+	if config.WindowTimezone != nil {
+		reqBody.WindowTimezone = config.WindowTimezone
+	}
+	if config.WindowType != nil {
+		reqBody.WindowType = config.WindowType
 	}
 
 	resp, err := q.client.PutApiQuotaUserConfigsUserIDWithResponse(ctx, fmt.Sprintf("%d", userID), reqBody)

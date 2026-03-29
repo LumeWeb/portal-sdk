@@ -460,6 +460,8 @@ components:
           type: integer
         used:
           type: integer
+        window:
+          $ref: '#/components/schemas/WindowInfo'
       required:
       - used
       - percentage
@@ -548,6 +550,22 @@ components:
       required:
       - email
       - token
+      type: object
+    WindowInfo:
+      additionalProperties: false
+      properties:
+        duration:
+          type: integer
+        end_date:
+          type: string
+        start_date:
+          type: string
+        timezone:
+          type: string
+        type:
+          type: string
+      required:
+      - type
       type: object
     stringUUIDSchema:
       format: uuid

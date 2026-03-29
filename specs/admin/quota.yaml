@@ -123,34 +123,40 @@ components:
       properties:
         description:
           type: string
-        download_daily_limit:
+        download_limit_bytes:
           type: integer
         download_threshold:
-          type: integer
-        download_total_limit:
           type: integer
         is_active:
           type: boolean
         name:
           type: string
-        storage_limit:
+        storage_limit_bytes:
           type: integer
         storage_threshold:
           type: integer
-        upload_daily_limit:
+        upload_limit_bytes:
           type: integer
         upload_threshold:
           type: integer
-        upload_total_limit:
+        window_duration:
           type: integer
+        window_start_hour:
+          type: integer
+        window_timezone:
+          type: string
+        window_type:
+          type: string
       required:
       - name
       - description
-      - storage_limit
-      - upload_daily_limit
-      - download_daily_limit
-      - upload_total_limit
-      - download_total_limit
+      - window_type
+      - window_duration
+      - window_start_hour
+      - window_timezone
+      - storage_limit_bytes
+      - upload_limit_bytes
+      - download_limit_bytes
       - storage_threshold
       - upload_threshold
       - download_threshold
@@ -164,11 +170,9 @@ components:
           type: string
         description:
           type: string
-        download_daily_limit:
+        download_limit_bytes:
           type: integer
         download_threshold:
-          type: integer
-        download_total_limit:
           type: integer
         id:
           type: integer
@@ -178,28 +182,36 @@ components:
           type: boolean
         name:
           type: string
-        storage_limit:
+        storage_limit_bytes:
           type: integer
         storage_threshold:
           type: integer
         updated_at:
           format: date-time
           type: string
-        upload_daily_limit:
+        upload_limit_bytes:
           type: integer
         upload_threshold:
           type: integer
-        upload_total_limit:
+        window_duration:
           type: integer
+        window_start_hour:
+          type: integer
+        window_timezone:
+          type: string
+        window_type:
+          type: string
       required:
       - id
       - name
       - description
-      - storage_limit
-      - upload_daily_limit
-      - download_daily_limit
-      - upload_total_limit
-      - download_total_limit
+      - window_type
+      - window_duration
+      - window_start_hour
+      - window_timezone
+      - storage_limit_bytes
+      - upload_limit_bytes
+      - download_limit_bytes
       - storage_threshold
       - upload_threshold
       - download_threshold
@@ -303,11 +315,9 @@ components:
         created_at:
           format: date-time
           type: string
-        download_daily_limit:
+        download_limit_bytes:
           type: integer
         download_threshold:
-          type: integer
-        download_total_limit:
           type: integer
         enforcement_policy:
           type: string
@@ -315,21 +325,27 @@ components:
           type: integer
         quota_plan_id:
           type: integer
-        storage_limit:
+        storage_limit_bytes:
           type: integer
         storage_threshold:
           type: integer
         updated_at:
           format: date-time
           type: string
-        upload_daily_limit:
+        upload_limit_bytes:
           type: integer
         upload_threshold:
           type: integer
-        upload_total_limit:
-          type: integer
         user_id:
           type: integer
+        window_duration:
+          type: integer
+        window_start_hour:
+          type: integer
+        window_timezone:
+          type: string
+        window_type:
+          type: string
       required:
       - id
       - user_id
@@ -340,26 +356,30 @@ components:
     UserQuotaConfigUpdateRequest:
       additionalProperties: false
       properties:
-        download_daily_limit:
+        download_limit_bytes:
           type: integer
         download_threshold:
-          type: integer
-        download_total_limit:
           type: integer
         enforcement_policy:
           type: string
         quota_plan_id:
           type: integer
-        storage_limit:
+        storage_limit_bytes:
           type: integer
         storage_threshold:
           type: integer
-        upload_daily_limit:
+        upload_limit_bytes:
           type: integer
         upload_threshold:
           type: integer
-        upload_total_limit:
+        window_duration:
           type: integer
+        window_start_hour:
+          type: integer
+        window_timezone:
+          type: string
+        window_type:
+          type: string
       type: object
     WebsiteResponse:
       additionalProperties: false

@@ -73,35 +73,39 @@ type PlanListResponse struct {
 // QuotaPlanRequest defines model for QuotaPlanRequest.
 type QuotaPlanRequest struct {
 	Description        string `json:"description"`
-	DownloadDailyLimit int    `json:"download_daily_limit"`
+	DownloadLimitBytes int    `json:"download_limit_bytes"`
 	DownloadThreshold  int    `json:"download_threshold"`
-	DownloadTotalLimit int    `json:"download_total_limit"`
 	IsActive           bool   `json:"is_active"`
 	Name               string `json:"name"`
-	StorageLimit       int    `json:"storage_limit"`
+	StorageLimitBytes  int    `json:"storage_limit_bytes"`
 	StorageThreshold   int    `json:"storage_threshold"`
-	UploadDailyLimit   int    `json:"upload_daily_limit"`
+	UploadLimitBytes   int    `json:"upload_limit_bytes"`
 	UploadThreshold    int    `json:"upload_threshold"`
-	UploadTotalLimit   int    `json:"upload_total_limit"`
+	WindowDuration     int    `json:"window_duration"`
+	WindowStartHour    int    `json:"window_start_hour"`
+	WindowTimezone     string `json:"window_timezone"`
+	WindowType         string `json:"window_type"`
 }
 
 // QuotaPlanResponse defines model for QuotaPlanResponse.
 type QuotaPlanResponse struct {
 	CreatedAt          time.Time `json:"created_at"`
 	Description        string    `json:"description"`
-	DownloadDailyLimit int       `json:"download_daily_limit"`
+	DownloadLimitBytes int       `json:"download_limit_bytes"`
 	DownloadThreshold  int       `json:"download_threshold"`
-	DownloadTotalLimit int       `json:"download_total_limit"`
 	Id                 int       `json:"id"`
 	IsActive           bool      `json:"is_active"`
 	IsDefault          bool      `json:"is_default"`
 	Name               string    `json:"name"`
-	StorageLimit       int       `json:"storage_limit"`
+	StorageLimitBytes  int       `json:"storage_limit_bytes"`
 	StorageThreshold   int       `json:"storage_threshold"`
 	UpdatedAt          time.Time `json:"updated_at"`
-	UploadDailyLimit   int       `json:"upload_daily_limit"`
+	UploadLimitBytes   int       `json:"upload_limit_bytes"`
 	UploadThreshold    int       `json:"upload_threshold"`
-	UploadTotalLimit   int       `json:"upload_total_limit"`
+	WindowDuration     int       `json:"window_duration"`
+	WindowStartHour    int       `json:"window_start_hour"`
+	WindowTimezone     string    `json:"window_timezone"`
+	WindowType         string    `json:"window_type"`
 }
 
 // ReconcileRequest defines model for ReconcileRequest.
@@ -151,33 +155,37 @@ type UserQuotaConfigListResponse struct {
 // UserQuotaConfigResponse defines model for UserQuotaConfigResponse.
 type UserQuotaConfigResponse struct {
 	CreatedAt          time.Time `json:"created_at"`
-	DownloadDailyLimit *int      `json:"download_daily_limit,omitempty"`
+	DownloadLimitBytes *int      `json:"download_limit_bytes,omitempty"`
 	DownloadThreshold  *int      `json:"download_threshold,omitempty"`
-	DownloadTotalLimit *int      `json:"download_total_limit,omitempty"`
 	EnforcementPolicy  string    `json:"enforcement_policy"`
 	Id                 int       `json:"id"`
 	QuotaPlanId        *int      `json:"quota_plan_id,omitempty"`
-	StorageLimit       *int      `json:"storage_limit,omitempty"`
+	StorageLimitBytes  *int      `json:"storage_limit_bytes,omitempty"`
 	StorageThreshold   *int      `json:"storage_threshold,omitempty"`
 	UpdatedAt          time.Time `json:"updated_at"`
-	UploadDailyLimit   *int      `json:"upload_daily_limit,omitempty"`
+	UploadLimitBytes   *int      `json:"upload_limit_bytes,omitempty"`
 	UploadThreshold    *int      `json:"upload_threshold,omitempty"`
-	UploadTotalLimit   *int      `json:"upload_total_limit,omitempty"`
 	UserId             int       `json:"user_id"`
+	WindowDuration     *int      `json:"window_duration,omitempty"`
+	WindowStartHour    *int      `json:"window_start_hour,omitempty"`
+	WindowTimezone     *string   `json:"window_timezone,omitempty"`
+	WindowType         *string   `json:"window_type,omitempty"`
 }
 
 // UserQuotaConfigUpdateRequest defines model for UserQuotaConfigUpdateRequest.
 type UserQuotaConfigUpdateRequest struct {
-	DownloadDailyLimit *int    `json:"download_daily_limit,omitempty"`
+	DownloadLimitBytes *int    `json:"download_limit_bytes,omitempty"`
 	DownloadThreshold  *int    `json:"download_threshold,omitempty"`
-	DownloadTotalLimit *int    `json:"download_total_limit,omitempty"`
 	EnforcementPolicy  *string `json:"enforcement_policy,omitempty"`
 	QuotaPlanId        *int    `json:"quota_plan_id,omitempty"`
-	StorageLimit       *int    `json:"storage_limit,omitempty"`
+	StorageLimitBytes  *int    `json:"storage_limit_bytes,omitempty"`
 	StorageThreshold   *int    `json:"storage_threshold,omitempty"`
-	UploadDailyLimit   *int    `json:"upload_daily_limit,omitempty"`
+	UploadLimitBytes   *int    `json:"upload_limit_bytes,omitempty"`
 	UploadThreshold    *int    `json:"upload_threshold,omitempty"`
-	UploadTotalLimit   *int    `json:"upload_total_limit,omitempty"`
+	WindowDuration     *int    `json:"window_duration,omitempty"`
+	WindowStartHour    *int    `json:"window_start_hour,omitempty"`
+	WindowTimezone     *string `json:"window_timezone,omitempty"`
+	WindowType         *string `json:"window_type,omitempty"`
 }
 
 // WebsiteResponse defines model for WebsiteResponse.
