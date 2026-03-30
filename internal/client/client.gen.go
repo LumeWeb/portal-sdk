@@ -237,11 +237,12 @@ type QuotaStatusResponse struct {
 
 // QuotaTypeStatus defines model for QuotaTypeStatus.
 type QuotaTypeStatus struct {
-	Limit      *int `json:"limit,omitempty"`
-	Percentage int  `json:"percentage"`
-	Remaining  *int `json:"remaining,omitempty"`
-	Threshold  *int `json:"threshold,omitempty"`
-	Used       int  `json:"used"`
+	Limit      *int        `json:"limit,omitempty"`
+	Percentage int         `json:"percentage"`
+	Remaining  *int        `json:"remaining,omitempty"`
+	Threshold  *int        `json:"threshold,omitempty"`
+	Used       int         `json:"used"`
+	Window     *WindowInfo `json:"window,omitempty"`
 }
 
 // RegisterRequest defines model for RegisterRequest.
@@ -290,6 +291,15 @@ type UsagePoint struct {
 type VerifyEmailRequest struct {
 	Email string `json:"email"`
 	Token string `json:"token"`
+}
+
+// WindowInfo defines model for WindowInfo.
+type WindowInfo struct {
+	Duration  *int    `json:"duration,omitempty"`
+	EndDate   *string `json:"end_date,omitempty"`
+	StartDate *string `json:"start_date,omitempty"`
+	Timezone  *string `json:"timezone,omitempty"`
+	Type      string  `json:"type"`
 }
 
 // StringUUIDSchema defines model for stringUUIDSchema.

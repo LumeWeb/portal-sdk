@@ -57,16 +57,16 @@ func TestQuotaService_ListPlans(t *testing.T) {
 				Data: []admin.QuotaPlanResponse{
 					{
 						Name:               "Basic",
-						UploadDailyLimit:   100,
-						DownloadDailyLimit: 1000,
-						StorageLimit:       10000,
+						UploadLimitBytes:   100,
+						DownloadLimitBytes: 1000,
+						StorageLimitBytes:  10000,
 						Description:        "Basic plan",
 					},
 					{
 						Name:               "Premium",
-						UploadDailyLimit:   500,
-						DownloadDailyLimit: 5000,
-						StorageLimit:       50000,
+						UploadLimitBytes:   500,
+						DownloadLimitBytes: 5000,
+						StorageLimitBytes:  50000,
 						Description:        "Premium plan",
 					},
 				},
@@ -141,9 +141,9 @@ func TestQuotaService_ListUserConfigs(t *testing.T) {
 					{
 						Id:                 1,
 						UserId:             100,
-						UploadDailyLimit:   new(100),
-						DownloadDailyLimit: new(1000),
-						StorageLimit:       new(10000),
+						UploadLimitBytes:   new(100),
+						DownloadLimitBytes: new(1000),
+						StorageLimitBytes:       new(10000),
 						EnforcementPolicy:  "strict",
 						CreatedAt: now,
 						UpdatedAt: now,
@@ -151,9 +151,9 @@ func TestQuotaService_ListUserConfigs(t *testing.T) {
 					{
 						Id:                 2,
 						UserId:             200,
-						UploadDailyLimit:   new(500),
-						DownloadDailyLimit: new(5000),
-						StorageLimit:       new(50000),
+						UploadLimitBytes:   new(500),
+						DownloadLimitBytes: new(5000),
+						StorageLimitBytes:       new(50000),
 						EnforcementPolicy:  "lenient",
 						CreatedAt: now,
 						UpdatedAt: now,
@@ -239,18 +239,18 @@ func TestQuotaService_UpdateUserConfig(t *testing.T) {
 			userID: 100,
 			update: &UserQuotaConfigUpdate{
 				UserID:             100,
-				UploadDailyLimit:   new(1000),
-				DownloadDailyLimit: new(10000),
-				StorageLimit:       new(100000),
+				UploadLimitBytes:   new(1000),
+				DownloadLimitBytes: new(10000),
+				StorageLimitBytes:       new(100000),
 				EnforcementPolicy:  "strict",
 			},
 			statusCode: http.StatusOK,
 			response: admin.UserQuotaConfigResponse{
 				Id:                1,
 				UserId:            100,
-				UploadDailyLimit:  new(1000),
-				DownloadDailyLimit: new(10000),
-				StorageLimit:      new(100000),
+				UploadLimitBytes:  new(1000),
+				DownloadLimitBytes: new(10000),
+				StorageLimitBytes:      new(100000),
 				EnforcementPolicy: "strict",
 				CreatedAt:         now,
 				UpdatedAt:         now,
@@ -328,9 +328,9 @@ func TestQuotaService_UpdateUserConfig(t *testing.T) {
 
 			if !tt.wantErr {
 				require.Equal(t, int(100), config.UserId)
-				require.Equal(t, int(1000), *config.UploadDailyLimit)
-				require.Equal(t, int(10000), *config.DownloadDailyLimit)
-				require.Equal(t, int(100000), *config.StorageLimit)
+				require.Equal(t, int(1000), *config.UploadLimitBytes)
+				require.Equal(t, int(10000), *config.DownloadLimitBytes)
+				require.Equal(t, int(100000), *config.StorageLimitBytes)
 				require.Equal(t, "strict", config.EnforcementPolicy)
 			}
 		})
@@ -426,18 +426,18 @@ func TestQuotaService_CreatePlan(t *testing.T) {
 			plan: &QuotaPlan{
 				QuotaPlanResponse: admin.QuotaPlanResponse{
 					Name:               "Enterprise",
-					UploadDailyLimit:   1000,
-					DownloadDailyLimit: 10000,
-					StorageLimit:       100000,
+					UploadLimitBytes:   1000,
+					DownloadLimitBytes: 10000,
+					StorageLimitBytes:       100000,
 					Description:        "Enterprise plan",
 				},
 			},
 			statusCode: http.StatusCreated,
 			response: admin.QuotaPlanResponse{
 				Name:               "Enterprise",
-				UploadDailyLimit:   1000,
-				DownloadDailyLimit: 10000,
-				StorageLimit:       100000,
+				UploadLimitBytes:   1000,
+				DownloadLimitBytes: 10000,
+				StorageLimitBytes:       100000,
 				Description:        "Enterprise plan",
 			},
 			wantErr: false,
@@ -447,9 +447,9 @@ func TestQuotaService_CreatePlan(t *testing.T) {
 			plan: &QuotaPlan{
 				QuotaPlanResponse: admin.QuotaPlanResponse{
 					Name:               "Test",
-					UploadDailyLimit:   100,
-					DownloadDailyLimit: 1000,
-					StorageLimit:       10000,
+					UploadLimitBytes:   100,
+					DownloadLimitBytes: 1000,
+					StorageLimitBytes:       10000,
 				},
 			},
 			statusCode: http.StatusUnauthorized,
@@ -491,7 +491,7 @@ func TestQuotaService_CreatePlan(t *testing.T) {
 
 			if !tt.wantErr {
 				require.Equal(t, "Enterprise", plan.Name)
-				require.Equal(t, int(1000), plan.UploadDailyLimit)
+				require.Equal(t, int(1000), plan.UploadLimitBytes)
 			}
 		})
 	}
@@ -513,18 +513,18 @@ func TestQuotaService_UpdatePlan(t *testing.T) {
 			plan: &QuotaPlan{
 				QuotaPlanResponse: admin.QuotaPlanResponse{
 					Name:               "Enterprise Updated",
-					UploadDailyLimit:   1500,
-					DownloadDailyLimit: 15000,
-					StorageLimit:       150000,
+					UploadLimitBytes:   1500,
+					DownloadLimitBytes: 15000,
+					StorageLimitBytes:       150000,
 					Description:        "Updated enterprise plan",
 				},
 			},
 			statusCode: http.StatusOK,
 			response: admin.QuotaPlanResponse{
 				Name:               "Enterprise Updated",
-				UploadDailyLimit:   1500,
-				DownloadDailyLimit: 15000,
-				StorageLimit:       150000,
+				UploadLimitBytes:   1500,
+				DownloadLimitBytes: 15000,
+				StorageLimitBytes:       150000,
 				Description:        "Updated enterprise plan",
 			},
 			wantErr: false,
@@ -658,9 +658,9 @@ func TestQuotaService_GetPlan(t *testing.T) {
 			statusCode: http.StatusOK,
 			response: admin.QuotaPlanResponse{
 				Name:               "Basic",
-				UploadDailyLimit:   100,
-				DownloadDailyLimit: 1000,
-				StorageLimit:       10000,
+				UploadLimitBytes:   100,
+				DownloadLimitBytes: 1000,
+				StorageLimitBytes:       10000,
 				Description:        "Basic plan",
 			},
 			wantErr: false,
