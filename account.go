@@ -1394,8 +1394,8 @@ func (c *Client) GetQuotaHistory(ctx context.Context, startDate, endDate, usageT
 // - Call GetQuota to fetch current download usage
 // - Return true if the requested size is within the remaining download quota
 // - Return true if download quota is unlimited (Remaining is nil)
-// - Return false if quota is insufficient
-// - Return an error if quota cannot be retrieved
+// - Return false if quota is insufficient (this is not an error, quota exhaustion is expected)
+// - Return an error for unexpected conditions (HTTP errors, network issues, or quota check failures)
 func CreateDownloadRateLimiter(client AccountAPI) RateLimiterFunc {
 	return func(ctx context.Context, size int64) (bool, error) {
 		if size < 0 {
