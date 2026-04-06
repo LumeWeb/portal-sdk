@@ -37,6 +37,11 @@ var DefaultSettledStates = []OperationStatus{
 	OperationStatusError,
 }
 
+// RateLimiterFunc is a function that checks whether an operation is allowed based on available quota.
+// The function takes a context and the requested size, and returns true if allowed, false if not,
+// or an error if the quota check cannot be performed.
+type RateLimiterFunc func(ctx context.Context, size int64) (bool, error)
+
 // Named error types for error comparison
 var (
 	// ErrOperationTimeout is returned when WaitForOperation times out waiting for an operation to settle.
@@ -44,6 +49,9 @@ var (
 
 	// ErrUnauthorized is returned when authentication fails (e.g., invalid JWT token).
 	ErrUnauthorized = errors.New("unauthorized")
+
+	// InsufficientQuotaError is returned when a requested operation would exceed available quota.
+	InsufficientQuotaError = errors.New("insufficient quota")
 )
 
 // Operation identifiers for error message mapping.
@@ -1376,4 +1384,35 @@ func (c *Client) GetQuotaHistory(ctx context.Context, startDate, endDate, usageT
 	}
 
 	return &QuotaHistory{QuotaHistoryResponse: *resp.JSON200}, nil
+}
+
+// CreateDownloadRateLimiter returns a rate limiter function that checks download quota before allowing downloads.
+// This is intended for use with external SDKs (e.g., IPFS SDK) to integrate quota checking.
+//
+// The returned RateLimiterFunc will:
+// - Return false for invalid inputs like negative sizes (not an error, expected domain validation)
+// - Return false if quota is insufficient (not an error, quota exhaustion is expected)
+// - Return true if the requested size is within the remaining download quota
+// - Return true if download quota is unlimited (Remaining is nil)
+// - Return an error only for unexpected conditions (HTTP errors, network issues, or quota check failures)
+func CreateDownloadRateLimiter(client AccountAPI) RateLimiterFunc {
+	return func(ctx context.Context, size int64) (bool, error) {
+		// Negative sizes are invalid - return false to deny the request
+		if size < 0 {
+			return false, nil
+		}
+
+		quota, err := client.GetQuota(ctx)
+		if err != nil {
+			return false, fmt.Errorf("failed to check download quota: %w", err)
+		}
+
+		// If Remaining is nil, it means unlimited quota
+		if quota.Download.Remaining == nil {
+			return true, nil
+		}
+
+		// Check if requested size is within remaining quota
+		return int64(*quota.Download.Remaining) >= size, nil
+	}
 }
