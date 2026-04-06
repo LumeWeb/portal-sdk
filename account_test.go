@@ -3855,10 +3855,10 @@ func TestCreateDownloadRateLimiter(t *testing.T) {
 			acc := NewClient(WithEndpoint(server.URL), WithJWT(tt.jwt))
 			rateLimiter := CreateDownloadRateLimiter(acc)
 
-			allowed, err := rateLimiter(context.Background(), tt.requestedSize)
+			allowed, err := rateLimiter.AllowDownload(context.Background(), tt.requestedSize)
 
 			if (err != nil) != tt.wantErr {
-				t.Errorf("CreateDownloadRateLimiter() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("AllowDownload() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 
@@ -3867,7 +3867,7 @@ func TestCreateDownloadRateLimiter(t *testing.T) {
 			}
 
 			if !tt.wantErr && allowed != tt.wantAllowed {
-				t.Errorf("CreateDownloadRateLimiter() allowed = %v, want %v, requestedSize %d", allowed, tt.wantAllowed, tt.requestedSize)
+				t.Errorf("AllowDownload() allowed = %v, want %v, requestedSize %d", allowed, tt.wantAllowed, tt.requestedSize)
 			}
 		})
 	}
