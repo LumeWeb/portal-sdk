@@ -3434,7 +3434,6 @@ func TestGetPermissions(t *testing.T) {
 	}
 }
 
-
 func TestGetQuota(t *testing.T) {
 	tests := []struct {
 		name       string
@@ -3669,6 +3668,174 @@ func TestGetQuotaHistory(t *testing.T) {
 				require.NotNil(t, history, "history should not be nil")
 				require.Equal(t, 123, history.UserId, "user ID mismatch")
 				require.Len(t, history.Points, len(tt.response.(client.QuotaHistoryResponse).Points), "points count mismatch")
+			}
+		})
+	}
+}
+
+func TestCreateDownloadRateLimiter(t *testing.T) {
+	tests := []struct {
+		name          string
+		jwt           string
+		statusCode    int
+		response      interface{}
+		requestedSize int64
+		wantAllowed   bool
+		wantErr       bool
+		errCheck      func(*testing.T, error)
+	}{
+		{
+			name:          "sufficient quota allowed",
+			jwt:           "valid-token",
+			statusCode:    http.StatusOK,
+			requestedSize: 500000,
+			response: client.QuotaStatusResponse{
+				Download: client.QuotaTypeStatus{
+					Limit:      func() *int { i := 2000000; return &i }(),
+					Used:      1000000,
+					Remaining: func() *int { i := 1000000; return &i }(),
+					Percentage: 50,
+				},
+			},
+			wantAllowed: true,
+			wantErr:     false,
+		},
+		{
+			name:          "insufficient quota denied",
+			jwt:           "valid-token",
+			statusCode:    http.StatusOK,
+			requestedSize: 2000000,
+			response: client.QuotaStatusResponse{
+				Download: client.QuotaTypeStatus{
+					Limit:      func() *int { i := 2000000; return &i }(),
+					Used:      1000000,
+					Remaining: func() *int { i := 1000000; return &i }(),
+					Percentage: 50,
+				},
+			},
+			wantAllowed: false,
+			wantErr:     false,
+		},
+		{
+			name:          "unlimited quota always allowed",
+			jwt:           "valid-token",
+			statusCode:    http.StatusOK,
+			requestedSize: 999999999999,
+			response: client.QuotaStatusResponse{
+				Download: client.QuotaTypeStatus{
+					Limit:      nil,
+					Used:      0,
+					Remaining: nil,
+					Percentage: 0,
+				},
+			},
+			wantAllowed: true,
+			wantErr:     false,
+		},
+		{
+			name:          "exact quota match allowed",
+			jwt:           "valid-token",
+			statusCode:    http.StatusOK,
+			requestedSize: 1000000,
+			response: client.QuotaStatusResponse{
+				Download: client.QuotaTypeStatus{
+					Limit:      func() *int { i := 2000000; return &i }(),
+					Used:      1000000,
+					Remaining: func() *int { i := 1000000; return &i }(),
+					Percentage: 50,
+				},
+			},
+			wantAllowed: true,
+			wantErr:     false,
+		},
+		{
+			name:          "zero bytes allowed",
+			jwt:           "valid-token",
+			statusCode:    http.StatusOK,
+			requestedSize: 0,
+			response: client.QuotaStatusResponse{
+				Download: client.QuotaTypeStatus{
+					Limit:      func() *int { i := 100; return &i }(),
+					Used:      100,
+					Remaining: func() *int { i := 0; return &i }(),
+					Percentage: 100,
+				},
+			},
+			wantAllowed: true,
+			wantErr:     false,
+		},
+		{
+			name:          "single byte over quota denied",
+			jwt:           "valid-token",
+			statusCode:    http.StatusOK,
+			requestedSize: 1000001,
+			response: client.QuotaStatusResponse{
+				Download: client.QuotaTypeStatus{
+					Limit:      func() *int { i := 2000000; return &i }(),
+					Used:      1000000,
+					Remaining: func() *int { i := 1000000; return &i }(),
+					Percentage: 50,
+				},
+			},
+			wantAllowed: false,
+			wantErr:     false,
+		},
+		{
+			name:          "quota endpoint error",
+			jwt:           "invalid-token",
+			statusCode:    http.StatusUnauthorized,
+			requestedSize: 500000,
+			response:      client.ErrorResponse{Error: "unauthorized"},
+			wantAllowed:   false,
+			wantErr:       true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorIs(t, err, ErrUnauthorized)
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "GET" {
+					t.Errorf("expected GET request, got %s", r.Method)
+				}
+
+				if r.URL.Path != "/api/account/quota" {
+					t.Errorf("expected /api/account/quota path, got %s", r.URL.Path)
+				}
+
+				authHeader := r.Header.Get("Authorization")
+				expectedAuth := "Bearer " + tt.jwt
+				require.Equal(t, expectedAuth, authHeader)
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+
+				if tt.statusCode == http.StatusOK {
+					require.NoError(t, json.NewEncoder(w).Encode(tt.response))
+				} else if tt.statusCode == http.StatusUnauthorized {
+					require.NoError(t, json.NewEncoder(w).Encode(tt.response))
+				}
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithEndpoint(server.URL), WithJWT(tt.jwt))
+			rateLimiter := CreateDownloadRateLimiter(acc)
+
+			allowed, err := rateLimiter(context.Background(), tt.requestedSize)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("CreateDownloadRateLimiter() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr && allowed != tt.wantAllowed {
+				t.Errorf("CreateDownloadRateLimiter() allowed = %v, want %v, requestedSize %d", allowed, tt.wantAllowed, tt.requestedSize)
 			}
 		})
 	}
