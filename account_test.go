@@ -3778,10 +3778,7 @@ func TestCreateDownloadRateLimiter(t *testing.T) {
 				},
 			},
 			wantAllowed: false,
-			wantErr:     true,
-			errCheck: func(t *testing.T, err error) {
-				require.Contains(t, err.Error(), "invalid negative size")
-			},
+			wantErr:     false,
 		},
 		{
 			name:          "negative size with unlimited quota rejected",
@@ -3797,10 +3794,7 @@ func TestCreateDownloadRateLimiter(t *testing.T) {
 				},
 			},
 			wantAllowed: false,
-			wantErr:     true,
-			errCheck: func(t *testing.T, err error) {
-				require.Contains(t, err.Error(), "invalid negative size")
-			},
+			wantErr:     false,
 		},
 		{
 			name:          "single byte over quota denied",
