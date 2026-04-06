@@ -42,6 +42,12 @@ var DefaultSettledStates = []OperationStatus{
 // or an error if the quota check cannot be performed.
 type RateLimiterFunc func(ctx context.Context, size int64) (bool, error)
 
+// AllowDownload calls the underlying rate limiter function to check if a download is allowed.
+// This method allows RateLimiterFunc to satisfy common rate limiter interfaces.
+func (f RateLimiterFunc) AllowDownload(ctx context.Context, size int64) (bool, error) {
+	return f(ctx, size)
+}
+
 // Named error types for error comparison
 var (
 	// ErrOperationTimeout is returned when WaitForOperation times out waiting for an operation to settle.
