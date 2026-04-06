@@ -3765,6 +3765,44 @@ func TestCreateDownloadRateLimiter(t *testing.T) {
 			wantErr:     false,
 		},
 		{
+			name:          "negative size rejected",
+			jwt:           "valid-token",
+			statusCode:    http.StatusOK,
+			requestedSize: -1,
+			response: client.QuotaStatusResponse{
+				Download: client.QuotaTypeStatus{
+					Limit:      func() *int { i := 1000000; return &i }(),
+					Used:      0,
+					Remaining: func() *int { i := 1000000; return &i }(),
+					Percentage: 0,
+				},
+			},
+			wantAllowed: false,
+			wantErr:     true,
+			errCheck: func(t *testing.T, err error) {
+				require.Contains(t, err.Error(), "invalid negative size")
+			},
+		},
+		{
+			name:          "negative size with unlimited quota rejected",
+			jwt:           "valid-token",
+			statusCode:    http.StatusOK,
+			requestedSize: -100,
+			response: client.QuotaStatusResponse{
+				Download: client.QuotaTypeStatus{
+					Limit:      nil,
+					Used:      0,
+					Remaining: nil,
+					Percentage: 0,
+				},
+			},
+			wantAllowed: false,
+			wantErr:     true,
+			errCheck: func(t *testing.T, err error) {
+				require.Contains(t, err.Error(), "invalid negative size")
+			},
+		},
+		{
 			name:          "single byte over quota denied",
 			jwt:           "valid-token",
 			statusCode:    http.StatusOK,

@@ -1390,6 +1390,7 @@ func (c *Client) GetQuotaHistory(ctx context.Context, startDate, endDate, usageT
 // This is intended for use with external SDKs (e.g., IPFS SDK) to integrate quota checking.
 //
 // The returned RateLimiterFunc will:
+// - Return an error if size is negative (rejects invalid inputs)
 // - Call GetQuota to fetch current download usage
 // - Return true if the requested size is within the remaining download quota
 // - Return true if download quota is unlimited (Remaining is nil)
@@ -1397,6 +1398,10 @@ func (c *Client) GetQuotaHistory(ctx context.Context, startDate, endDate, usageT
 // - Return an error if quota cannot be retrieved
 func CreateDownloadRateLimiter(client AccountAPI) RateLimiterFunc {
 	return func(ctx context.Context, size int64) (bool, error) {
+		if size < 0 {
+			return false, fmt.Errorf("invalid negative size: %d", size)
+		}
+
 		quota, err := client.GetQuota(ctx)
 		if err != nil {
 			return false, fmt.Errorf("failed to check download quota: %w", err)
