@@ -1,3 +1,9 @@
+## 0.1.19 (2026-04-06)
+
+### Fixes
+
+- add AllowDownload method to RateLimiterFunc
+
 ## 0.1.18 (2026-04-06)
 
 ### Features
