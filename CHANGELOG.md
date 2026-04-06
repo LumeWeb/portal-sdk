@@ -1,3 +1,13 @@
+## 0.1.18 (2026-04-06)
+
+### Features
+
+- add download rate limiter for SDK integration
+
+### Fixes
+
+- validate non-negative size in rate limiter
+
 ## 0.1.17 (2026-03-30)
 
 ### Fixes
