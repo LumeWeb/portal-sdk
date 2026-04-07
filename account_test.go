@@ -136,9 +136,9 @@ func TestCreateDownloadPercentLimitedRateLimiter(t *testing.T) {
 			threshold: 90.0,
 			response: client.QuotaStatusResponse{
 				Download: client.QuotaTypeStatus{
-					Limit:      func() *int { i := 2000000; return &i }(),
+					Limit:      new(2000000),
 					Used:      1000000,
-					Remaining: func() *int { i := 1000000; return &i }(),
+					Remaining: new(1000000),
 					Percentage: 50,
 				},
 			},
@@ -153,9 +153,9 @@ func TestCreateDownloadPercentLimitedRateLimiter(t *testing.T) {
 			threshold: 50.0,
 			response: client.QuotaStatusResponse{
 				Download: client.QuotaTypeStatus{
-					Limit:      func() *int { i := 2000000; return &i }(),
+					Limit:      new(2000000),
 					Used:      1000000,
-					Remaining: func() *int { i := 1000000; return &i }(),
+					Remaining: new(1000000),
 					Percentage: 50,
 				},
 			},
@@ -170,9 +170,9 @@ func TestCreateDownloadPercentLimitedRateLimiter(t *testing.T) {
 			threshold: 40.0,
 			response: client.QuotaStatusResponse{
 				Download: client.QuotaTypeStatus{
-					Limit:      func() *int { i := 2000000; return &i }(),
+					Limit:      new(2000000),
 					Used:      1000000,
-					Remaining: func() *int { i := 1000000; return &i }(),
+					Remaining: new(1000000),
 					Percentage: 50,
 				},
 			},
@@ -204,9 +204,9 @@ func TestCreateDownloadPercentLimitedRateLimiter(t *testing.T) {
 			threshold: 90.0,
 			response: client.QuotaStatusResponse{
 				Download: client.QuotaTypeStatus{
-					Limit:      func() *int { i := 1000000; return &i }(),
+					Limit:      new(1000000),
 					Used:      0,
-					Remaining: func() *int { i := 1000000; return &i }(),
+					Remaining: new(1000000),
 					Percentage: 0,
 				},
 			},
@@ -221,9 +221,9 @@ func TestCreateDownloadPercentLimitedRateLimiter(t *testing.T) {
 			threshold: 90.0,
 			response: client.QuotaStatusResponse{
 				Download: client.QuotaTypeStatus{
-					Limit:      func() *int { i := 100; return &i }(),
+					Limit:      new(100),
 					Used:      10,
-					Remaining: func() *int { i := 90; return &i }(),
+					Remaining: new(90),
 					Percentage: 10,
 				},
 			},
@@ -238,9 +238,9 @@ func TestCreateDownloadPercentLimitedRateLimiter(t *testing.T) {
 			threshold: 100.0,
 			response: client.QuotaStatusResponse{
 				Download: client.QuotaTypeStatus{
-					Limit:      func() *int { i := 100; return &i }(),
+					Limit:      new(100),
 					Used:      100,
-					Remaining: func() *int { i := 0; return &i }(),
+					Remaining: new(0),
 					Percentage: 100,
 				},
 			},
@@ -255,9 +255,9 @@ func TestCreateDownloadPercentLimitedRateLimiter(t *testing.T) {
 			threshold: 0.0,
 			response: client.QuotaStatusResponse{
 				Download: client.QuotaTypeStatus{
-					Limit:      func() *int { i := 2000000; return &i }(),
+					Limit:      new(2000000),
 					Used:      0,
-					Remaining: func() *int { i := 2000000; return &i }(),
+					Remaining: new(2000000),
 					Percentage: 0,
 				},
 			},
@@ -272,9 +272,9 @@ func TestCreateDownloadPercentLimitedRateLimiter(t *testing.T) {
 			threshold: 100.0,
 			response: client.QuotaStatusResponse{
 				Download: client.QuotaTypeStatus{
-					Limit:      func() *int { i := 2000000; return &i }(),
+					Limit:      new(2000000),
 					Used:      1000000,
-					Remaining: func() *int { i := 1000000; return &i }(),
+					Remaining: new(1000000),
 					Percentage: 50,
 				},
 			},
@@ -282,37 +282,126 @@ func TestCreateDownloadPercentLimitedRateLimiter(t *testing.T) {
 			wantErr:     false,
 		},
 		{
-			name:      "fractional threshold comparison",
+			name:      "fractional threshold comparison with insufficient quota",
 			jwt:       "valid-token",
 			statusCode: http.StatusOK,
 			requestedSize: 1000000,
 			threshold: 50.5,
 			response: client.QuotaStatusResponse{
 				Download: client.QuotaTypeStatus{
-					Limit:      func() *int { i := 1000; return &i }(),
+					Limit:      new(1000),
 					Used:      505,
-					Remaining: func() *int { i := 495; return &i }(),
+					Remaining: new(495),
 					Percentage: 50,
 				},
 			},
-			wantAllowed: true,
+			wantAllowed: false, // Below threshold but insufficient remaining quota
+			wantErr:     false,
+		},
+		{
+			name:      "fractional threshold comparison with sufficient quota",
+			jwt:       "valid-token",
+			statusCode: http.StatusOK,
+			requestedSize: 400,
+			threshold: 50.5,
+			response: client.QuotaStatusResponse{
+				Download: client.QuotaTypeStatus{
+					Limit:      new(1000),
+					Used:      505,
+					Remaining: new(495),
+					Percentage: 50,
+				},
+			},
+			wantAllowed: true, // Below threshold AND sufficient remaining quota
 			wantErr:     false,
 		},
 		{
 			name:      "fractional threshold comparison at boundary",
 			jwt:       "valid-token",
 			statusCode: http.StatusOK,
-			requestedSize: 1000000,
+			requestedSize: 494,
 			threshold: 50.5,
 			response: client.QuotaStatusResponse{
 				Download: client.QuotaTypeStatus{
-					Limit:      func() *int { i := 1000; return &i }(),
+					Limit:      new(1000),
 					Used:      506,
-					Remaining: func() *int { i := 494; return &i }(),
+					Remaining: new(494),
 					Percentage: 51,
 				},
 			},
 			wantAllowed: false,
+			wantErr:     false,
+		},
+		{
+			name:      "reserved capacity allows download above threshold",
+			jwt:       "valid-token",
+			statusCode: http.StatusOK,
+			requestedSize: 1000000,
+			threshold: 50.0,
+			response: client.QuotaStatusResponse{
+				Download: client.QuotaTypeStatus{
+					Limit:      new(1000),
+					Used:      750,
+					Remaining: new(250),
+					Reserved:   new(1000),
+					Percentage: 75,
+				},
+			},
+			wantAllowed: true, // Reserved allows despite 75% usage (>50% threshold)
+			wantErr:     false,
+		},
+		{
+			name:      "reserved capacity allows download with insufficient remaining",
+			jwt:       "valid-token",
+			statusCode: http.StatusOK,
+			requestedSize: 1000000,
+			threshold: 10.0,
+			response: client.QuotaStatusResponse{
+				Download: client.QuotaTypeStatus{
+					Limit:      new(1000),
+					Used:      200,
+					Remaining: new(800),
+					Reserved:   new(1000),
+					Percentage: 20,
+				},
+			},
+			wantAllowed: true, // Reserved allows despite insufficient remaining for requested size
+			wantErr:     false,
+		},
+		{
+			name:      "zero reserved does not allow above threshold",
+			jwt:       "valid-token",
+			statusCode: http.StatusOK,
+			requestedSize: 1000000,
+			threshold: 50.0,
+			response: client.QuotaStatusResponse{
+				Download: client.QuotaTypeStatus{
+					Limit:      new(1000),
+					Used:      750,
+					Remaining: new(250),
+					Reserved:   new(0),
+					Percentage: 75,
+				},
+			},
+			wantAllowed: false, // Zero reserved should follow threshold logic
+			wantErr:     false,
+		},
+		{
+			name:      "nil reserved allows following threshold logic",
+			jwt:       "valid-token",
+			statusCode: http.StatusOK,
+			requestedSize: 400,
+			threshold: 80.0,
+			response: client.QuotaStatusResponse{
+				Download: client.QuotaTypeStatus{
+					Limit:      new(1000),
+					Used:      600,
+					Remaining: new(400),
+					Reserved:   nil,
+					Percentage: 60,
+				},
+			},
+			wantAllowed: true, // Below threshold (60% < 80%) and size within remaining
 			wantErr:     false,
 		},
 		{
@@ -3710,23 +3799,23 @@ func TestGetQuota(t *testing.T) {
 			statusCode: http.StatusOK,
 			response: client.QuotaStatusResponse{
 				Upload: client.QuotaTypeStatus{
-					Limit:      func() *int { i := 1000000; return &i }(),
+					Limit:      new(1000000),
 					Used:      500000,
-					Remaining: func() *int { i := 500000; return &i }(),
+					Remaining: new(500000),
 					Percentage: 50,
 				},
 				Download: client.QuotaTypeStatus{
-					Limit:      func() *int { i := 2000000; return &i }(),
+					Limit:      new(2000000),
 					Used:      1000000,
-					Remaining: func() *int { i := 1000000; return &i }(),
+					Remaining: new(1000000),
 					Percentage: 50,
 				},
 				Storage: client.QuotaTypeStatus{
-					Limit:      func() *int { i := 3000000; return &i }(),
+					Limit:      new(3000000),
 					Used:       1500000,
-					Remaining:  func() *int { i := 1500000; return &i }(),
+					Remaining:  new(1500000),
 					Percentage: 50,
-					Threshold:  func() *int { i := 100000; return &i }(),
+					Threshold:  new(100000),
 				},
 			},
 			wantErr: false,
@@ -3952,9 +4041,9 @@ func TestCreateDownloadRateLimiter(t *testing.T) {
 			requestedSize: 500000,
 			response: client.QuotaStatusResponse{
 				Download: client.QuotaTypeStatus{
-					Limit:      func() *int { i := 2000000; return &i }(),
+					Limit:      new(2000000),
 					Used:      1000000,
-					Remaining: func() *int { i := 1000000; return &i }(),
+					Remaining: new(1000000),
 					Percentage: 50,
 				},
 			},
@@ -3968,9 +4057,9 @@ func TestCreateDownloadRateLimiter(t *testing.T) {
 			requestedSize: 2000000,
 			response: client.QuotaStatusResponse{
 				Download: client.QuotaTypeStatus{
-					Limit:      func() *int { i := 2000000; return &i }(),
+					Limit:      new(2000000),
 					Used:      1000000,
-					Remaining: func() *int { i := 1000000; return &i }(),
+					Remaining: new(1000000),
 					Percentage: 50,
 				},
 			},
@@ -4000,9 +4089,9 @@ func TestCreateDownloadRateLimiter(t *testing.T) {
 			requestedSize: 1000000,
 			response: client.QuotaStatusResponse{
 				Download: client.QuotaTypeStatus{
-					Limit:      func() *int { i := 2000000; return &i }(),
+					Limit:      new(2000000),
 					Used:      1000000,
-					Remaining: func() *int { i := 1000000; return &i }(),
+					Remaining: new(1000000),
 					Percentage: 50,
 				},
 			},
@@ -4016,9 +4105,9 @@ func TestCreateDownloadRateLimiter(t *testing.T) {
 			requestedSize: 0,
 			response: client.QuotaStatusResponse{
 				Download: client.QuotaTypeStatus{
-					Limit:      func() *int { i := 100; return &i }(),
+					Limit:      new(100),
 					Used:      100,
-					Remaining: func() *int { i := 0; return &i }(),
+					Remaining: new(0),
 					Percentage: 100,
 				},
 			},
@@ -4032,9 +4121,9 @@ func TestCreateDownloadRateLimiter(t *testing.T) {
 			requestedSize: -1,
 			response: client.QuotaStatusResponse{
 				Download: client.QuotaTypeStatus{
-					Limit:      func() *int { i := 1000000; return &i }(),
+					Limit:      new(1000000),
 					Used:      0,
-					Remaining: func() *int { i := 1000000; return &i }(),
+					Remaining: new(1000000),
 					Percentage: 0,
 				},
 			},
@@ -4064,13 +4153,64 @@ func TestCreateDownloadRateLimiter(t *testing.T) {
 			requestedSize: 1000001,
 			response: client.QuotaStatusResponse{
 				Download: client.QuotaTypeStatus{
-					Limit:      func() *int { i := 2000000; return &i }(),
+					Limit:      new(2000000),
 					Used:      1000000,
-					Remaining: func() *int { i := 1000000; return &i }(),
+					Remaining: new(1000000),
 					Percentage: 50,
 				},
 			},
 			wantAllowed: false,
+			wantErr:     false,
+		},
+		{
+			name:          "reserved capacity allows download with insufficient remaining",
+			jwt:           "valid-token",
+			statusCode:    http.StatusOK,
+			requestedSize: 2000000,
+			response: client.QuotaStatusResponse{
+				Download: client.QuotaTypeStatus{
+					Limit:      new(1000000),
+					Used:      500000,
+					Remaining: new(500000),
+					Reserved:   new(1000000),
+					Percentage: 50,
+				},
+			},
+			wantAllowed: true, // Reserved allows despite insufficient remaining
+			wantErr:     false,
+		},
+		{
+			name:          "zero reserved does not allow insufficient quota",
+			jwt:           "valid-token",
+			statusCode:    http.StatusOK,
+			requestedSize: 2000000,
+			response: client.QuotaStatusResponse{
+				Download: client.QuotaTypeStatus{
+					Limit:      new(1000000),
+					Used:      500000,
+					Remaining: new(500000),
+					Reserved:   new(0),
+					Percentage: 50,
+				},
+			},
+			wantAllowed: false, // Zero reserved should follow normal quota logic
+			wantErr:     false,
+		},
+		{
+			name:          "nil reserved does not allow insufficient quota",
+			jwt:           "valid-token",
+			statusCode:    http.StatusOK,
+			requestedSize: 2000000,
+			response: client.QuotaStatusResponse{
+				Download: client.QuotaTypeStatus{
+					Limit:      new(1000000),
+					Used:      500000,
+					Remaining: new(500000),
+					Reserved:   nil,
+					Percentage: 50,
+				},
+			},
+			wantAllowed: false, // Nil reserved should follow normal quota logic
 			wantErr:     false,
 		},
 		{

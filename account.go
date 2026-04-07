@@ -1392,34 +1392,82 @@ func (c *Client) GetQuotaHistory(ctx context.Context, startDate, endDate, usageT
 	return &QuotaHistory{QuotaHistoryResponse: *resp.JSON200}, nil
 }
 
+// checkDownloadQuota performs common quota validation and checks.
+// checkDownloadQuota performs common quota validation and checks for download rate limiting.
+//
+// This is a shared helper function used by both CreateDownloadRateLimiter and
+// CreateDownloadPercentLimitedRateLimiter to reduce code duplication.
+//
+// Returns (allow, error) where allow indicates if the download should proceed.
+//
+// Parameters:
+//   - size: If nil, size is not provided (no size check). If 0, size is explicitly zero (no quota consumption). If > 0, check remaining quota.
+//   - thresholdPercent: If nil, no threshold check. Otherwise, check usage against threshold.
+func checkDownloadQuota(ctx context.Context, client AccountAPI, size *int64, thresholdPercent *float64) (bool, error) {
+	// Negative sizes are invalid - return false to deny the request
+	if size != nil && *size < 0 {
+		return false, nil
+	}
+
+	// If size not provided, no size information to check - deny
+	if size == nil {
+		return false, nil
+	}
+
+	quota, err := client.GetQuota(ctx)
+	if err != nil {
+		return false, fmt.Errorf("failed to check download quota: %w", err)
+	}
+
+	// If Remaining is nil, it means unlimited quota
+	if quota.Download.Remaining == nil {
+		return true, nil
+	}
+
+	// If Reserved capacity is available (Reserved > 0), allow downloads
+	// regardless of remaining quota and threshold. Reserved represents quota allocated but not yet fully utilized.
+	if quota.Download.Reserved != nil && *quota.Download.Reserved > 0 {
+		return true, nil
+	}
+
+	// If threshold is provided, check usage against threshold
+	if thresholdPercent != nil {
+		// Block downloads if usage is at or above the threshold percentage
+		if float64(quota.Download.Percentage) >= *thresholdPercent {
+			return false, nil
+		}
+
+		// Below threshold: if size is 0, allow (no quota consumption but below threshold)
+		if *size == 0 {
+			return true, nil
+		}
+
+		// Below threshold: if size > 0, check remaining quota
+		return int64(*quota.Download.Remaining) >= *size, nil
+	}
+
+	// No threshold: check remaining quota only, allow size 0 regardless of remaining quota
+	if *size == 0 {
+		return true, nil
+	}
+
+	// No threshold: check if requested size is within remaining quota
+	return int64(*quota.Download.Remaining) >= *size, nil
+}
+
 // CreateDownloadRateLimiter returns a rate limiter function that checks download quota before allowing downloads.
 // This is intended for use with external SDKs (e.g., IPFS SDK) to integrate quota checking.
 //
 // The returned RateLimiterFunc will:
 // - Return false for invalid inputs like negative sizes (not an error, expected domain validation)
-// - Return false if quota is insufficient (not an error, quota exhaustion is expected)
-// - Return true if the requested size is within the remaining download quota
+// - Return false if quota is insufficient (not an error, quota exhaustion is expected) - only checked when size > 0
+// - Return true if the requested size is within the remaining download quota (only when size > 0)
 // - Return true if download quota is unlimited (Remaining is nil)
+// - Return true if Reserved capacity is available (Reserved > 0), regardless of remaining quota
 // - Return an error only for unexpected conditions (HTTP errors, network issues, or quota check failures)
 func CreateDownloadRateLimiter(client AccountAPI) RateLimiterFunc {
 	return func(ctx context.Context, size int64) (bool, error) {
-		// Negative sizes are invalid - return false to deny the request
-		if size < 0 {
-			return false, nil
-		}
-
-		quota, err := client.GetQuota(ctx)
-		if err != nil {
-			return false, fmt.Errorf("failed to check download quota: %w", err)
-		}
-
-		// If Remaining is nil, it means unlimited quota
-		if quota.Download.Remaining == nil {
-			return true, nil
-		}
-
-		// Check if requested size is within remaining quota
-		return int64(*quota.Download.Remaining) >= size, nil
+		return checkDownloadQuota(ctx, client, &size, nil) // No threshold check
 	}
 }
 
@@ -1435,28 +1483,13 @@ func CreateDownloadRateLimiter(client AccountAPI) RateLimiterFunc {
 // The returned RateLimiterFunc will:
 // - Return false for invalid inputs like negative sizes (not an error, expected domain validation)
 // - Return false if quota usage is at or above thresholdPercent (not an error, quota exhaustion is expected)
-// - Return true if quota usage is below thresholdPercent
+// - Return false if quota is insufficient for the requested size (not an error, quota exhaustion is expected)
+// - Return true if quota usage is below thresholdPercent AND size is within remaining quota OR size is 0
 // - Return true if download quota is unlimited (Remaining is nil)
+// - Return true if Reserved capacity is available (Reserved > 0), regardless of threshold percentage
 // - Return an error only for unexpected conditions (HTTP errors, network issues, or quota check failures)
 func CreateDownloadPercentLimitedRateLimiter(client AccountAPI, thresholdPercent float64) RateLimiterFunc {
 	return func(ctx context.Context, size int64) (bool, error) {
-		// Negative sizes are invalid - return false to deny the request
-		if size < 0 {
-			return false, nil
-		}
-
-		quota, err := client.GetQuota(ctx)
-		if err != nil {
-			return false, fmt.Errorf("failed to check download quota: %w", err)
-		}
-
-		// If Remaining is nil, it means unlimited quota - always allow
-		if quota.Download.Remaining == nil {
-			return true, nil
-		}
-
-		// Block downloads if usage is at or above the threshold percentage
-		// Return true (allow) only when usage is strictly below threshold
-		return float64(quota.Download.Percentage) < thresholdPercent, nil
+		return checkDownloadQuota(ctx, client, &size, &thresholdPercent)
 	}
 }
