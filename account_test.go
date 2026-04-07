@@ -295,7 +295,7 @@ func TestCreateDownloadPercentLimitedRateLimiter(t *testing.T) {
 					Percentage: 50,
 				},
 			},
-			wantAllowed: false,
+			wantAllowed: true,
 			wantErr:     false,
 		},
 		{

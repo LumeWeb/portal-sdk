@@ -1457,6 +1457,6 @@ func CreateDownloadPercentLimitedRateLimiter(client AccountAPI, thresholdPercent
 
 		// Block downloads if usage is at or above the threshold percentage
 		// Return true (allow) only when usage is strictly below threshold
-		return quota.Download.Percentage < int(thresholdPercent), nil
+		return float64(quota.Download.Percentage) < thresholdPercent, nil
 	}
 }
