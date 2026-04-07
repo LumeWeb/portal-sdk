@@ -1,3 +1,13 @@
+## 0.1.20 (2026-04-07)
+
+### Features
+
+- add percentage-based download rate limiter
+
+### Fixes
+
+- correct threshold comparison in percentage rate limiter
+
 ## 0.1.19 (2026-04-06)
 
 ### Fixes
