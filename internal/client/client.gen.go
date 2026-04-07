@@ -240,6 +240,7 @@ type QuotaTypeStatus struct {
 	Limit      *int        `json:"limit,omitempty"`
 	Percentage int         `json:"percentage"`
 	Remaining  *int        `json:"remaining,omitempty"`
+	Reserved   *int        `json:"reserved,omitempty"`
 	Threshold  *int        `json:"threshold,omitempty"`
 	Used       int         `json:"used"`
 	Window     *WindowInfo `json:"window,omitempty"`
