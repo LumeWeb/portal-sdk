@@ -1422,3 +1422,41 @@ func CreateDownloadRateLimiter(client AccountAPI) RateLimiterFunc {
 		return int64(*quota.Download.Remaining) >= size, nil
 	}
 }
+
+// CreateDownloadPercentLimitedRateLimiter returns a rate limiter function that blocks downloads
+// when the download quota usage is at or above the specified threshold percentage.
+// This is intended for use with external SDKs (e.g., IPFS SDK) to integrate quota checking
+// with proactive blocking before quota is exhausted.
+//
+// The thresholdPercent parameter specifies the usage percentage (0-100) at which to begin
+// blocking downloads. For example, a threshold of 90.0 will block downloads when quota
+// usage reaches 90% or higher.
+//
+// The returned RateLimiterFunc will:
+// - Return false for invalid inputs like negative sizes (not an error, expected domain validation)
+// - Return false if quota usage is at or above thresholdPercent (not an error, quota exhaustion is expected)
+// - Return true if quota usage is below thresholdPercent
+// - Return true if download quota is unlimited (Remaining is nil)
+// - Return an error only for unexpected conditions (HTTP errors, network issues, or quota check failures)
+func CreateDownloadPercentLimitedRateLimiter(client AccountAPI, thresholdPercent float64) RateLimiterFunc {
+	return func(ctx context.Context, size int64) (bool, error) {
+		// Negative sizes are invalid - return false to deny the request
+		if size < 0 {
+			return false, nil
+		}
+
+		quota, err := client.GetQuota(ctx)
+		if err != nil {
+			return false, fmt.Errorf("failed to check download quota: %w", err)
+		}
+
+		// If Remaining is nil, it means unlimited quota - always allow
+		if quota.Download.Remaining == nil {
+			return true, nil
+		}
+
+		// Block downloads if usage is at or above the threshold percentage
+		// Return true (allow) only when usage is strictly below threshold
+		return quota.Download.Percentage < int(thresholdPercent), nil
+	}
+}
