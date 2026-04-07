@@ -1434,8 +1434,9 @@ func CreateDownloadRateLimiter(client AccountAPI) RateLimiterFunc {
 //
 // The returned RateLimiterFunc will:
 // - Return false for invalid inputs like negative sizes (not an error, expected domain validation)
-// - Return false if quota usage is at or above thresholdPercent (not an error, quota exhaustion is expected)
-// - Return true if quota usage is below thresholdPercent
+// - Return true if reserved capacity is in use (Reserved > 0), regardless of usage threshold
+// - Return false if quota usage is at or above thresholdPercent with no reserved capacity (not an error, quota exhaustion is expected)
+// - Return true if quota usage is below thresholdPercent with no reserved capacity
 // - Return true if download quota is unlimited (Remaining is nil)
 // - Return an error only for unexpected conditions (HTTP errors, network issues, or quota check failures)
 func CreateDownloadPercentLimitedRateLimiter(client AccountAPI, thresholdPercent float64) RateLimiterFunc {
@@ -1452,6 +1453,12 @@ func CreateDownloadPercentLimitedRateLimiter(client AccountAPI, thresholdPercent
 
 		// If Remaining is nil, it means unlimited quota - always allow
 		if quota.Download.Remaining == nil {
+			return true, nil
+		}
+
+		// If reserved capacity is in use, allow downloads regardless of usage threshold
+		// Reserved capacity represents quota that has been allocated but not yet fully utilized
+		if quota.Download.Reserved != nil && *quota.Download.Reserved > 0 {
 			return true, nil
 		}
 

@@ -328,6 +328,78 @@ func TestCreateDownloadPercentLimitedRateLimiter(t *testing.T) {
 				require.ErrorIs(t, err, ErrUnauthorized)
 			},
 		},
+		{
+			name:      "reserved capacity allows above threshold",
+			jwt:       "valid-token",
+			statusCode: http.StatusOK,
+			requestedSize: 1000000,
+			threshold: 50.0,
+			response: client.QuotaStatusResponse{
+				Download: client.QuotaTypeStatus{
+					Limit:      func() *int { i := 2000000; return &i }(),
+					Used:      1000000,
+					Remaining: func() *int { i := 1000000; return &i }(),
+					Reserved:   func() *int { i := 100000; return &i }(),
+					Percentage: 50,
+				},
+			},
+			wantAllowed: true,
+			wantErr:     false,
+		},
+		{
+			name:      "reserved capacity allows far above threshold",
+			jwt:       "valid-token",
+			statusCode: http.StatusOK,
+			requestedSize: 1000000,
+			threshold: 10.0,
+			response: client.QuotaStatusResponse{
+				Download: client.QuotaTypeStatus{
+					Limit:      func() *int { i := 2000000; return &i }(),
+					Used:      1900000,
+					Remaining: func() *int { i := 100000; return &i }(),
+					Reserved:   func() *int { i := 500000; return &i }(),
+					Percentage: 95,
+				},
+			},
+			wantAllowed: true,
+			wantErr:     false,
+		},
+		{
+			name:      "zero reserved capacity follows threshold logic",
+			jwt:       "valid-token",
+			statusCode: http.StatusOK,
+			requestedSize: 1000000,
+			threshold: 50.0,
+			response: client.QuotaStatusResponse{
+				Download: client.QuotaTypeStatus{
+					Limit:      func() *int { i := 2000000; return &i }(),
+					Used:      1000000,
+					Remaining: func() *int { i := 1000000; return &i }(),
+					Reserved:   func() *int { i := 0; return &i }(),
+					Percentage: 50,
+				},
+			},
+			wantAllowed: false,
+			wantErr:     false,
+		},
+		{
+			name:      "nil reserved capacity follows threshold logic",
+			jwt:       "valid-token",
+			statusCode: http.StatusOK,
+			requestedSize: 1000000,
+			threshold: 50.0,
+			response: client.QuotaStatusResponse{
+				Download: client.QuotaTypeStatus{
+					Limit:      func() *int { i := 2000000; return &i }(),
+					Used:      1000000,
+					Remaining: func() *int { i := 1000000; return &i }(),
+					Reserved:   nil,
+					Percentage: 50,
+				},
+			},
+			wantAllowed: false,
+			wantErr:     false,
+		},
 	}
 
 	for _, tt := range tests {
