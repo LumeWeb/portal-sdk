@@ -456,6 +456,8 @@ components:
           type: integer
         remaining:
           type: integer
+        reserved:
+          type: integer
         threshold:
           type: integer
         used:
@@ -573,7 +575,7 @@ components:
 info:
   description: API endpoints for managing user accounts, authentication, and API keys.
   title: Account API
-  version: develop
+  version: v0.2.7-0.20260312042836-d9dfa043a80d
 openapi: 3.0.0
 paths:
   /api/account:
