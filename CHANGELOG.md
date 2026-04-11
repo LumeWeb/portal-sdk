@@ -1,3 +1,13 @@
+## 0.1.22 (2026-04-11)
+
+### Features
+
+- enable price line lookup by ID
+
+### Fixes
+
+- correct UUID type generation from integer array to UUID string
+
 ## 0.1.21 (2026-04-11)
 
 ### Features
