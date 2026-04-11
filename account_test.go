@@ -13,6 +13,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"go.lumeweb.com/portal-sdk/internal/client"
@@ -104,7 +105,7 @@ func TestLogin(t *testing.T) {
 			}
 
 			if tt.wantErr && tt.statusCode == http.StatusUnauthorized {
-				if !errors.Is(err, ErrUnauthorized) {
+				if !assert.ErrorIs(t, err, ErrUnauthorized) {
 					t.Errorf("Login() error should be ErrUnauthorized, got: %v", err)
 				}
 			}
@@ -752,7 +753,7 @@ func TestVerifyOTP(t *testing.T) {
 			}
 
 			if tt.wantErr && tt.statusCode == http.StatusUnauthorized {
-				if !errors.Is(err, ErrUnauthorized) {
+				if !assert.ErrorIs(t, err, ErrUnauthorized) {
 					t.Errorf("VerifyOTP() error should be ErrUnauthorized, got: %v", err)
 				}
 			}
@@ -805,7 +806,7 @@ func TestDisableOTP(t *testing.T) {
 			}
 
 			if tt.wantErr && tt.statusCode == http.StatusUnauthorized {
-				if !errors.Is(err, ErrUnauthorized) {
+				if !assert.ErrorIs(t, err, ErrUnauthorized) {
 					t.Errorf("DisableOTP() error should be ErrUnauthorized, got: %v", err)
 				}
 			}
@@ -1021,7 +1022,7 @@ func TestPing(t *testing.T) {
 			}
 
 			if tt.wantErr && tt.statusCode == http.StatusUnauthorized {
-				if !errors.Is(err, ErrUnauthorized) {
+				if !assert.ErrorIs(t, err, ErrUnauthorized) {
 					t.Errorf("Ping() error should be ErrUnauthorized, got: %v", err)
 				}
 			}
@@ -1081,7 +1082,7 @@ func TestUploadLimit(t *testing.T) {
 			}
 
 			if tt.wantErr && tt.statusCode == http.StatusUnauthorized {
-				if !errors.Is(err, ErrUnauthorized) {
+				if !assert.ErrorIs(t, err, ErrUnauthorized) {
 					t.Errorf("UploadLimit() error should be ErrUnauthorized, got: %v", err)
 				}
 			}
@@ -1160,7 +1161,7 @@ func TestLoginWithAPIKey(t *testing.T) {
 			}
 
 			if tt.wantErr && tt.statusCode == http.StatusUnauthorized {
-				if !errors.Is(err, ErrUnauthorized) {
+				if !assert.ErrorIs(t, err, ErrUnauthorized) {
 					t.Errorf("LoginWithAPIKey() error should be ErrUnauthorized, got: %v", err)
 				}
 			}
@@ -1599,7 +1600,7 @@ func TestCreateAPIKey(t *testing.T) {
 			}
 
 			if tt.wantErr && tt.statusCode == http.StatusUnauthorized {
-				if !errors.Is(err, ErrUnauthorized) {
+				if !assert.ErrorIs(t, err, ErrUnauthorized) {
 					t.Errorf("CreateAPIKey() error should be ErrUnauthorized, got: %v", err)
 				}
 			}
@@ -1826,7 +1827,7 @@ func TestGetOperationFilters(t *testing.T) {
 			}
 
 			if tt.wantErr && tt.statusCode == http.StatusUnauthorized {
-				if !errors.Is(err, ErrUnauthorized) {
+				if !assert.ErrorIs(t, err, ErrUnauthorized) {
 					t.Errorf("GetOperationFilters() error should be ErrUnauthorized, got: %v", err)
 				}
 			}
@@ -2272,7 +2273,7 @@ func TestDeleteAccount(t *testing.T) {
 			}
 
 			if tt.wantErr && tt.statusCode == http.StatusUnauthorized {
-				if !errors.Is(err, ErrUnauthorized) {
+				if !assert.ErrorIs(t, err, ErrUnauthorized) {
 					t.Errorf("DeleteAccount() error should be ErrUnauthorized, got: %v", err)
 				}
 			}
@@ -2813,7 +2814,7 @@ func TestListOperations(t *testing.T) {
 			}
 
 			if tt.wantErr && tt.statusCode == http.StatusUnauthorized {
-				if !errors.Is(err, ErrUnauthorized) {
+				if !assert.ErrorIs(t, err, ErrUnauthorized) {
 					t.Errorf("ListOperations() error should be ErrUnauthorized, got: %v", err)
 				}
 			}

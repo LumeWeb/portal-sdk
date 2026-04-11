@@ -12,14 +12,14 @@ const DefaultOperationName = "operation"
 // ErrUnauthorized is returned when authentication fails (e.g., invalid JWT token).
 var ErrUnauthorized = errors.New("unauthorized")
 
-// errorFactory is a helper for creating errors with optional ErrUnauthorized wrapping.
-type errorFactory struct {
+// ErrorFactory is a helper for creating errors with optional ErrUnauthorized wrapping.
+type ErrorFactoryError struct {
 	wrapErr bool
 	message string
 }
 
 // Error creates the actual error.
-func (ef errorFactory) Error() error {
+func (ef ErrorFactoryError) Error() error {
 	if ef.wrapErr {
 		return fmt.Errorf("%w: %s", ErrUnauthorized, ef.message)
 	}
@@ -27,17 +27,17 @@ func (ef errorFactory) Error() error {
 }
 
 // authErr creates an error factory that wraps with ErrUnauthorized.
-func authErr(msg string) errorFactory {
-	return errorFactory{wrapErr: true, message: msg}
+func authErr(msg string) ErrorFactoryError {
+	return ErrorFactoryError{wrapErr: true, message: msg}
 }
 
 // plainErr creates an error factory without wrapping.
-func plainErr(msg string) errorFactory {
-	return errorFactory{wrapErr: false, message: msg}
+func plainErr(msg string) ErrorFactoryError {
+	return ErrorFactoryError{wrapErr: false, message: msg}
 }
 
 // ErrorMessages maps HTTP status codes to error messages for operations.
-type ErrorMessages map[int]map[int]errorFactory
+type ErrorMessages map[int]map[int]ErrorFactoryError
 
 // OpHandler handles operation ID-based error mapping.
 type OpHandler struct {
@@ -56,7 +56,7 @@ func NewOpHandler() *OpHandler {
 }
 
 // AddOperation adds error messages for an operation.
-func (oh *OpHandler) AddOperation(opID int, errorMap map[int]errorFactory) {
+func (oh *OpHandler) AddOperation(opID int, errorMap map[int]ErrorFactoryError) {
 	oh.Messages[opID] = errorMap
 }
 
@@ -92,12 +92,12 @@ func (oh *OpHandler) HandleResponse(statusCode int, body []byte, opID int, succe
 }
 
 // AuthError creates an unauthorized error factory.
-func AuthError(msg string) errorFactory {
+func AuthError(msg string) ErrorFactoryError {
 	return authErr(msg)
 }
 
 // PlainError creates a plain error factory.
-func PlainError(msg string) errorFactory {
+func PlainError(msg string) ErrorFactoryError {
 	return plainErr(msg)
 }
 

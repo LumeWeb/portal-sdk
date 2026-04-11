@@ -62,136 +62,112 @@ var billingOperationString = map[int]string{
 	OpBillingDeletePricingPlanPeriod: "delete pricing plan period",
 }
 
-// BillingOperationErrorFactory is a helper for creating errors with optional ErrUnauthorized wrapping.
-type BillingOperationErrorFactory struct {
-	wrapErr bool
-	message string
-}
-
-// Error creates the actual error.
-func (ef BillingOperationErrorFactory) Error() error {
-	if ef.wrapErr {
-		return fmt.Errorf("%w: %s", internalhttp.ErrUnauthorized, ef.message)
-	}
-	return fmt.Errorf("%s", ef.message)
-}
-
-// billingAuthErr creates an error factory that wraps with ErrUnauthorized.
-func billingAuthErr(msg string) BillingOperationErrorFactory {
-	return BillingOperationErrorFactory{wrapErr: true, message: msg}
-}
-
-// billingPlainErr creates an error factory without wrapping.
-func billingPlainErr(msg string) BillingOperationErrorFactory {
-	return BillingOperationErrorFactory{wrapErr: false, message: msg}
-}
-
 // httpErrorMessages maps billing operation IDs to their custom status code error messages.
-var billingHTTPErrorMessages = map[int]map[int]BillingOperationErrorFactory{
+var billingHTTPErrorMessages = map[int]map[int]internalhttp.ErrorFactoryError{
 	OpBillingListCredits: {
-		stdhttp.StatusUnauthorized: billingAuthErr("authentication required"),
-		stdhttp.StatusForbidden:    billingPlainErr("insufficient permissions"),
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
 	},
 	OpBillingCreateCredit: {
-		stdhttp.StatusUnauthorized: billingAuthErr("authentication required"),
-		stdhttp.StatusForbidden:    billingPlainErr("insufficient permissions"),
-		stdhttp.StatusBadRequest:   billingPlainErr("invalid credit data"),
-		stdhttp.StatusNotFound:     billingPlainErr("user not found"),
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
+		stdhttp.StatusBadRequest:   internalhttp.PlainError("invalid credit data"),
+		stdhttp.StatusNotFound:     internalhttp.PlainError("user not found"),
 	},
 	OpBillingGetCredit: {
-		stdhttp.StatusUnauthorized: billingAuthErr("authentication required"),
-		stdhttp.StatusForbidden:    billingPlainErr("insufficient permissions"),
-		stdhttp.StatusNotFound:     billingPlainErr("credit not found"),
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
+		stdhttp.StatusNotFound:     internalhttp.PlainError("credit not found"),
 	},
 	OpBillingDeleteCredit: {
-		stdhttp.StatusUnauthorized: billingAuthErr("authentication required"),
-		stdhttp.StatusForbidden:    billingPlainErr("insufficient permissions"),
-		stdhttp.StatusNotFound:     billingPlainErr("credit not found"),
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
+		stdhttp.StatusNotFound:     internalhttp.PlainError("credit not found"),
 	},
 	OpBillingRestoreCredit: {
-		stdhttp.StatusUnauthorized: billingAuthErr("authentication required"),
-		stdhttp.StatusForbidden:    billingPlainErr("insufficient permissions"),
-		stdhttp.StatusNotFound:     billingPlainErr("credit not found"),
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
+		stdhttp.StatusNotFound:     internalhttp.PlainError("credit not found"),
 	},
 	OpBillingPurgeCredits: {
-		stdhttp.StatusUnauthorized: billingAuthErr("authentication required"),
-		stdhttp.StatusForbidden:    billingPlainErr("insufficient permissions"),
-		stdhttp.StatusBadRequest:   billingPlainErr("invalid purge request"),
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
+		stdhttp.StatusBadRequest:   internalhttp.PlainError("invalid purge request"),
 	},
 	OpBillingGetUserBalance: {
-		stdhttp.StatusUnauthorized: billingAuthErr("authentication required"),
-		stdhttp.StatusForbidden:    billingPlainErr("insufficient permissions"),
-		stdhttp.StatusNotFound:     billingPlainErr("user not found"),
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
+		stdhttp.StatusNotFound:     internalhttp.PlainError("user not found"),
 	},
 	OpBillingGetUserDeletedCredits: {
-		stdhttp.StatusUnauthorized: billingAuthErr("authentication required"),
-		stdhttp.StatusForbidden:    billingPlainErr("insufficient permissions"),
-		stdhttp.StatusNotFound:     billingPlainErr("user not found"),
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
+		stdhttp.StatusNotFound:     internalhttp.PlainError("user not found"),
 	},
 	OpBillingListPriceLines: {
-		stdhttp.StatusUnauthorized: billingAuthErr("authentication required"),
-		stdhttp.StatusForbidden:    billingPlainErr("insufficient permissions"),
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
 	},
 	OpBillingCreatePriceLine: {
-		stdhttp.StatusUnauthorized: billingAuthErr("authentication required"),
-		stdhttp.StatusForbidden:    billingPlainErr("insufficient permissions"),
-		stdhttp.StatusBadRequest:   billingPlainErr("invalid price line data"),
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
+		stdhttp.StatusBadRequest:   internalhttp.PlainError("invalid price line data"),
 	},
 	OpBillingUpdatePriceLine: {
-		stdhttp.StatusUnauthorized: billingAuthErr("authentication required"),
-		stdhttp.StatusForbidden:    billingPlainErr("insufficient permissions"),
-		stdhttp.StatusBadRequest:   billingPlainErr("invalid price line data"),
-		stdhttp.StatusNotFound:     billingPlainErr("price line not found"),
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
+		stdhttp.StatusBadRequest:   internalhttp.PlainError("invalid price line data"),
+		stdhttp.StatusNotFound:     internalhttp.PlainError("price line not found"),
 	},
 	OpBillingDeletePriceLine: {
-		stdhttp.StatusUnauthorized: billingAuthErr("authentication required"),
-		stdhttp.StatusForbidden:    billingPlainErr("insufficient permissions"),
-		stdhttp.StatusNotFound:     billingPlainErr("price line not found"),
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
+		stdhttp.StatusNotFound:     internalhttp.PlainError("price line not found"),
 	},
 	OpBillingListPricingPlans: {
-		stdhttp.StatusUnauthorized: billingAuthErr("authentication required"),
-		stdhttp.StatusForbidden:    billingPlainErr("insufficient permissions"),
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
 	},
 	OpBillingCreatePricingPlan: {
-		stdhttp.StatusUnauthorized: billingAuthErr("authentication required"),
-		stdhttp.StatusForbidden:    billingPlainErr("insufficient permissions"),
-		stdhttp.StatusBadRequest:   billingPlainErr("invalid pricing plan data"),
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
+		stdhttp.StatusBadRequest:   internalhttp.PlainError("invalid pricing plan data"),
 	},
 	OpBillingUpdatePricingPlan: {
-		stdhttp.StatusUnauthorized: billingAuthErr("authentication required"),
-		stdhttp.StatusForbidden:    billingPlainErr("insufficient permissions"),
-		stdhttp.StatusBadRequest:   billingPlainErr("invalid pricing plan data"),
-		stdhttp.StatusNotFound:     billingPlainErr("pricing plan not found"),
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
+		stdhttp.StatusBadRequest:   internalhttp.PlainError("invalid pricing plan data"),
+		stdhttp.StatusNotFound:     internalhttp.PlainError("pricing plan not found"),
 	},
 	OpBillingDeletePricingPlan: {
-		stdhttp.StatusUnauthorized: billingAuthErr("authentication required"),
-		stdhttp.StatusForbidden:    billingPlainErr("insufficient permissions"),
-		stdhttp.StatusNotFound:     billingPlainErr("pricing plan not found"),
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
+		stdhttp.StatusNotFound:     internalhttp.PlainError("pricing plan not found"),
 	},
 	OpBillingListPricingPlanPeriods: {
-		stdhttp.StatusUnauthorized: billingAuthErr("authentication required"),
-		stdhttp.StatusForbidden:    billingPlainErr("insufficient permissions"),
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
 	},
 	OpBillingCreatePricingPlanPeriod: {
-		stdhttp.StatusUnauthorized: billingAuthErr("authentication required"),
-		stdhttp.StatusForbidden:    billingPlainErr("insufficient permissions"),
-		stdhttp.StatusBadRequest:   billingPlainErr("invalid pricing plan period data"),
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
+		stdhttp.StatusBadRequest:   internalhttp.PlainError("invalid pricing plan period data"),
 	},
 	OpBillingGetPricingPlanPeriod: {
-		stdhttp.StatusUnauthorized: billingAuthErr("authentication required"),
-		stdhttp.StatusForbidden:    billingPlainErr("insufficient permissions"),
-		stdhttp.StatusNotFound:     billingPlainErr("pricing plan period not found"),
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
+		stdhttp.StatusNotFound:     internalhttp.PlainError("pricing plan period not found"),
 	},
 	OpBillingUpdatePricingPlanPeriod: {
-		stdhttp.StatusUnauthorized: billingAuthErr("authentication required"),
-		stdhttp.StatusForbidden:    billingPlainErr("insufficient permissions"),
-		stdhttp.StatusBadRequest:   billingPlainErr("invalid pricing plan period data"),
-		stdhttp.StatusNotFound:     billingPlainErr("pricing plan period not found"),
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
+		stdhttp.StatusBadRequest:   internalhttp.PlainError("invalid pricing plan period data"),
+		stdhttp.StatusNotFound:     internalhttp.PlainError("pricing plan period not found"),
 	},
 	OpBillingDeletePricingPlanPeriod: {
-		stdhttp.StatusUnauthorized: billingAuthErr("authentication required"),
-		stdhttp.StatusForbidden:    billingPlainErr("insufficient permissions"),
-		stdhttp.StatusNotFound:     billingPlainErr("pricing plan period not found"),
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
+		stdhttp.StatusNotFound:     internalhttp.PlainError("pricing plan period not found"),
 	},
 }
 
