@@ -22,6 +22,7 @@ const (
 	OpBillingGetUserDeletedCredits
 	OpBillingListPriceLines
 	OpBillingCreatePriceLine
+	OpBillingGetPriceLine
 	OpBillingUpdatePriceLine
 	OpBillingDeletePriceLine
 	OpBillingListPricingPlans
@@ -49,6 +50,7 @@ var billingOperationString = map[int]string{
 	OpBillingGetUserDeletedCredits:   "get user deleted credits",
 	OpBillingListPriceLines:          "list price lines",
 	OpBillingCreatePriceLine:         "create price line",
+	OpBillingGetPriceLine:            "get price line",
 	OpBillingUpdatePriceLine:         "update price line",
 	OpBillingDeletePriceLine:         "delete price line",
 	OpBillingListPricingPlans:        "list pricing plans",
@@ -112,6 +114,11 @@ var billingHTTPErrorMessages = map[int]map[int]internalhttp.ErrorFactoryError{
 		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
 		stdhttp.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
 		stdhttp.StatusBadRequest:   internalhttp.PlainError("invalid price line data"),
+	},
+	OpBillingGetPriceLine: {
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
+		stdhttp.StatusNotFound:     internalhttp.PlainError("price line not found"),
 	},
 	OpBillingUpdatePriceLine: {
 		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
@@ -561,6 +568,21 @@ func (b *BillingService) CreatePriceLine(ctx context.Context, req *PriceLineCrea
 	}
 
 	data, err := validateBillingJSON201(resp.StatusCode(), resp.JSON201, "create price line response did not contain data", OpBillingCreatePriceLine)
+	if err != nil {
+		return nil, err
+	}
+
+	return &PriceLine{PriceLineResponse: *data}, nil
+}
+
+// GetPriceLine retrieves a price line by ID.
+func (b *BillingService) GetPriceLine(ctx context.Context, priceLineID string) (*PriceLine, error) {
+	resp, err := b.client.GetApiBillingPriceLinesIdWithResponse(ctx, priceLineID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get price line: %w", err)
+	}
+
+	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingGetPriceLine)
 	if err != nil {
 		return nil, err
 	}
