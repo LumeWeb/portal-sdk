@@ -81,6 +81,17 @@ components:
       - data
       - total
       type: object
+    BalanceResponse:
+      additionalProperties: false
+      properties:
+        balance:
+          $ref: '#/components/schemas/Decimal'
+        user_id:
+          type: integer
+      required:
+      - user_id
+      - balance
+      type: object
     CleanupRequest:
       additionalProperties: false
       properties:
@@ -97,6 +108,146 @@ components:
       required:
       - records_deleted
       type: object
+    CreditCreateRequest:
+      additionalProperties: false
+      properties:
+        amount:
+          type: string
+        description:
+          type: string
+        direction:
+          type: string
+        reference_id:
+          type: string
+        reference_type:
+          type: string
+        transaction_type:
+          type: string
+        user_id:
+          type: integer
+      required:
+      - user_id
+      - amount
+      - transaction_type
+      - direction
+      type: object
+    CreditItem:
+      additionalProperties: false
+      properties:
+        amount:
+          $ref: '#/components/schemas/Decimal'
+        created_at:
+          format: date-time
+          type: string
+        created_by:
+          type: integer
+        deleted_at:
+          format: date-time
+          type: string
+        description:
+          type: string
+        direction:
+          type: string
+        id:
+          $ref: '#/components/schemas/UUID'
+        transaction_type:
+          type: string
+        updated_at:
+          format: date-time
+          type: string
+        user_id:
+          type: integer
+      required:
+      - id
+      - user_id
+      - amount
+      - transaction_type
+      - direction
+      - created_by
+      - created_at
+      - updated_at
+      type: object
+    CreditPurgeRequest:
+      additionalProperties: false
+      properties:
+        older_than:
+          type: string
+      required:
+      - older_than
+      type: object
+    CreditPurgeResponse:
+      additionalProperties: false
+      properties:
+        purged_count:
+          type: integer
+      required:
+      - purged_count
+      type: object
+    CreditResponse:
+      additionalProperties: false
+      properties:
+        amount:
+          $ref: '#/components/schemas/Decimal'
+        created_at:
+          format: date-time
+          type: string
+        created_by:
+          type: integer
+        deleted_at:
+          format: date-time
+          type: string
+        description:
+          type: string
+        direction:
+          type: string
+        id:
+          $ref: '#/components/schemas/UUID'
+        metadata:
+          type: object
+        reference_id:
+          type: string
+        reference_type:
+          type: string
+        transaction_type:
+          type: string
+        updated_at:
+          format: date-time
+          type: string
+        user_id:
+          type: integer
+      required:
+      - id
+      - user_id
+      - amount
+      - transaction_type
+      - direction
+      - created_by
+      - created_at
+      - updated_at
+      type: object
+    CreditsListResponse:
+      additionalProperties: false
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/CreditItem'
+          type: array
+      required:
+      - data
+      type: object
+    Decimal:
+      additionalProperties: false
+      type: object
+    DeletedCreditsListResponse:
+      additionalProperties: false
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/CreditItem'
+          type: array
+      required:
+      - data
+      type: object
     ErrorResponse:
       additionalProperties: false
       properties:
@@ -111,6 +262,287 @@ components:
         data:
           items:
             $ref: '#/components/schemas/QuotaPlanResponse'
+          type: array
+        total:
+          type: integer
+      required:
+      - data
+      - total
+      type: object
+    PriceLineCreateRequest:
+      additionalProperties: false
+      properties:
+        description:
+          type: string
+        is_active:
+          type: boolean
+        is_default:
+          type: boolean
+        name:
+          type: string
+      required:
+      - name
+      - description
+      - is_active
+      - is_default
+      type: object
+    PriceLineResponse:
+      additionalProperties: false
+      properties:
+        created_at:
+          format: date-time
+          type: string
+        description:
+          type: string
+        id:
+          type: integer
+        is_active:
+          type: boolean
+        is_default:
+          type: boolean
+        name:
+          type: string
+        updated_at:
+          format: date-time
+          type: string
+      required:
+      - id
+      - name
+      - description
+      - is_active
+      - is_default
+      - created_at
+      - updated_at
+      type: object
+    PriceLineUpdateRequest:
+      additionalProperties: false
+      properties:
+        description:
+          type: string
+        is_active:
+          type: boolean
+        is_default:
+          type: boolean
+        name:
+          type: string
+      required:
+      - name
+      - description
+      - is_active
+      - is_default
+      type: object
+    PriceLinesListResponse:
+      additionalProperties: false
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/PriceLineResponse'
+          type: array
+        total:
+          type: integer
+      required:
+      - data
+      - total
+      type: object
+    PricingPlanCreateRequest:
+      additionalProperties: false
+      properties:
+        currency:
+          type: string
+        description:
+          type: string
+        is_active:
+          type: boolean
+        is_public:
+          type: boolean
+        name:
+          type: string
+        pricing_periods:
+          items:
+            $ref: '#/components/schemas/PricingPlanPeriodDTO'
+          type: array
+      required:
+      - name
+      - description
+      - pricing_periods
+      - currency
+      - is_active
+      - is_public
+      type: object
+    PricingPlanItem:
+      additionalProperties: false
+      properties:
+        currency:
+          type: string
+        description:
+          type: string
+        id:
+          type: integer
+        is_active:
+          type: boolean
+        monthly_price:
+          type: number
+        name:
+          type: string
+        position:
+          type: integer
+        yearly_price:
+          type: number
+      required:
+      - id
+      - name
+      - description
+      - currency
+      - is_active
+      type: object
+    PricingPlanPeriodCreateRequest:
+      additionalProperties: false
+      properties:
+        cadence:
+          type: string
+        price_usd:
+          type: number
+        pricing_plan_id:
+          type: integer
+        quota_plan_id:
+          type: integer
+        rolling_days:
+          type: integer
+      required:
+      - pricing_plan_id
+      - cadence
+      - price_usd
+      - quota_plan_id
+      type: object
+    PricingPlanPeriodDTO:
+      additionalProperties: false
+      properties:
+        cadence:
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        id:
+          type: integer
+        is_active:
+          type: boolean
+        price_usd:
+          type: number
+        pricing_plan_id:
+          type: integer
+        quota_plan_id:
+          type: integer
+        rolling_days:
+          type: integer
+        updated_at:
+          format: date-time
+          type: string
+      required:
+      - id
+      - pricing_plan_id
+      - cadence
+      - price_usd
+      - quota_plan_id
+      - is_active
+      - created_at
+      - updated_at
+      type: object
+    PricingPlanPeriodUpdateRequest:
+      additionalProperties: false
+      properties:
+        cadence:
+          type: string
+        price_usd:
+          type: number
+        quota_plan_id:
+          type: integer
+        rolling_days:
+          type: integer
+      required:
+      - cadence
+      - price_usd
+      - quota_plan_id
+      type: object
+    PricingPlanPeriodsListResponse:
+      additionalProperties: false
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/PricingPlanPeriodDTO'
+          type: array
+        total:
+          type: integer
+      required:
+      - data
+      - total
+      type: object
+    PricingPlanResponse:
+      additionalProperties: false
+      properties:
+        created_at:
+          format: date-time
+          type: string
+        currency:
+          type: string
+        description:
+          type: string
+        id:
+          type: integer
+        is_active:
+          type: boolean
+        is_public:
+          type: boolean
+        name:
+          type: string
+        pricing_periods:
+          items:
+            $ref: '#/components/schemas/PricingPlanPeriodDTO'
+          type: array
+        updated_at:
+          format: date-time
+          type: string
+      required:
+      - id
+      - name
+      - description
+      - currency
+      - is_active
+      - is_public
+      - pricing_periods
+      - created_at
+      - updated_at
+      type: object
+    PricingPlanUpdateRequest:
+      additionalProperties: false
+      properties:
+        currency:
+          type: string
+        description:
+          type: string
+        is_active:
+          type: boolean
+        is_public:
+          type: boolean
+        name:
+          type: string
+        pricing_periods:
+          items:
+            $ref: '#/components/schemas/PricingPlanPeriodDTO'
+          type: array
+      required:
+      - name
+      - description
+      - pricing_periods
+      - currency
+      - is_active
+      - is_public
+      type: object
+    PricingPlansListResponse:
+      additionalProperties: false
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/PricingPlanItem'
           type: array
         total:
           type: integer
@@ -282,6 +714,12 @@ components:
       - current_usage
       - total_usage_bytes
       type: object
+    UUID:
+      items:
+        type: integer
+      maxItems: 16
+      minItems: 16
+      type: array
     Usage:
       additionalProperties: false
       properties:
@@ -434,6 +872,1408 @@ info:
   version: unknown
 openapi: 3.0.0
 paths:
+  /api/billing/credits:
+    get:
+      description: Retrieves all credits with filtering, sorting, and pagination support
+      parameters:
+      - description: Filter by direction contains
+        in: query
+        name: direction_contains
+        schema:
+          type: string
+      - description: Filter by direction endswith
+        in: query
+        name: direction_endswith
+        schema:
+          type: string
+      - description: Filter by direction eq
+        in: query
+        name: direction_eq
+        schema:
+          type: string
+      - description: Filter by direction ne
+        in: query
+        name: direction_ne
+        schema:
+          type: string
+      - description: Filter by direction startswith
+        in: query
+        name: direction_startswith
+        schema:
+          type: string
+      - description: Filter by direction contains
+        in: query
+        name: filters[direction][contains]
+        schema:
+          type: string
+      - description: Filter by direction endswith
+        in: query
+        name: filters[direction][endswith]
+        schema:
+          type: string
+      - description: Filter by direction eq
+        in: query
+        name: filters[direction][eq]
+        schema:
+          type: string
+      - description: Filter by direction ne
+        in: query
+        name: filters[direction][ne]
+        schema:
+          type: string
+      - description: Filter by direction startswith
+        in: query
+        name: filters[direction][startswith]
+        schema:
+          type: string
+      - description: Filter by transaction_type contains
+        in: query
+        name: filters[transaction_type][contains]
+        schema:
+          type: string
+      - description: Filter by transaction_type endswith
+        in: query
+        name: filters[transaction_type][endswith]
+        schema:
+          type: string
+      - description: Filter by transaction_type eq
+        in: query
+        name: filters[transaction_type][eq]
+        schema:
+          type: string
+      - description: Filter by transaction_type ne
+        in: query
+        name: filters[transaction_type][ne]
+        schema:
+          type: string
+      - description: Filter by transaction_type startswith
+        in: query
+        name: filters[transaction_type][startswith]
+        schema:
+          type: string
+      - description: Filter by user_id between
+        in: query
+        name: filters[user_id][between]
+        schema:
+          type: string
+      - description: Filter by user_id eq
+        in: query
+        name: filters[user_id][eq]
+        schema:
+          type: string
+      - description: Filter by user_id gt
+        in: query
+        name: filters[user_id][gt]
+        schema:
+          type: string
+      - description: Filter by user_id gte
+        in: query
+        name: filters[user_id][gte]
+        schema:
+          type: string
+      - description: Filter by user_id lt
+        in: query
+        name: filters[user_id][lt]
+        schema:
+          type: string
+      - description: Filter by user_id lte
+        in: query
+        name: filters[user_id][lte]
+        schema:
+          type: string
+      - description: Filter by user_id ne
+        in: query
+        name: filters[user_id][ne]
+        schema:
+          type: string
+      - description: Filter by transaction_type contains
+        in: query
+        name: transaction_type_contains
+        schema:
+          type: string
+      - description: Filter by transaction_type endswith
+        in: query
+        name: transaction_type_endswith
+        schema:
+          type: string
+      - description: Filter by transaction_type eq
+        in: query
+        name: transaction_type_eq
+        schema:
+          type: string
+      - description: Filter by transaction_type ne
+        in: query
+        name: transaction_type_ne
+        schema:
+          type: string
+      - description: Filter by transaction_type startswith
+        in: query
+        name: transaction_type_startswith
+        schema:
+          type: string
+      - description: Filter by user_id eq
+        in: query
+        name: user_id_eq
+        schema:
+          type: string
+      - description: Filter by user_id gt
+        in: query
+        name: user_id_gt
+        schema:
+          type: string
+      - description: Filter by user_id gte
+        in: query
+        name: user_id_gte
+        schema:
+          type: string
+      - description: Filter by user_id lt
+        in: query
+        name: user_id_lt
+        schema:
+          type: string
+      - description: Filter by user_id lte
+        in: query
+        name: user_id_lte
+        schema:
+          type: string
+      - description: Filter by user_id ne
+        in: query
+        name: user_id_ne
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreditsListResponse'
+          description: Credits retrieved successfully
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Authentication required
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Insufficient permissions
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Server error
+      summary: List Credits
+      tags:
+      - Billing Admin
+    post:
+      description: Creates a new credit entry. Returns 201 for new credits or 200
+        if credit already exists (idempotent via reference_id)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreditCreateRequest'
+        description: Credit creation request
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreditResponse'
+          description: Credit already exists (idempotent)
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreditResponse'
+          description: Credit created successfully
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Authentication required
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Insufficient permissions
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Server error
+      summary: Create Credit
+      tags:
+      - Billing Admin
+  /api/billing/credits/{id}:
+    delete:
+      description: Soft deletes a credit entry
+      parameters:
+      - description: Credit ID
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: Credit deleted successfully
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Authentication required
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Insufficient permissions
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Resource not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Server error
+      summary: Delete Credit
+      tags:
+      - Billing Admin
+    get:
+      description: Retrieves a credit by ID
+      parameters:
+      - description: Credit ID
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreditResponse'
+          description: Credit retrieved successfully
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Authentication required
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Insufficient permissions
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Resource not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Server error
+      summary: Get Credit
+      tags:
+      - Billing Admin
+  /api/billing/credits/{id}/restore:
+    post:
+      description: Restores a soft-deleted credit
+      parameters:
+      - description: Credit ID
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreditResponse'
+          description: Credit restored successfully
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Authentication required
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Insufficient permissions
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Resource not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Server error
+      summary: Restore Credit
+      tags:
+      - Billing Admin
+  /api/billing/credits/purge:
+    post:
+      description: Permanently removes soft-deleted credits older than specified duration
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreditPurgeRequest'
+        description: Purge request with duration
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreditPurgeResponse'
+          description: Credits purged successfully
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Authentication required
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Insufficient permissions
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Server error
+      summary: Purge Credits
+      tags:
+      - Billing Admin
+  /api/billing/plans/{id}/sync:
+    post:
+      description: Triggers immediate synchronization of pricing plan with payment
+        gateway
+      parameters:
+      - description: Plan ID
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Sync task queued
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Sync Pricing Plan to Gateway
+      tags:
+      - Billing Admin
+  /api/billing/price-lines:
+    get:
+      description: Retrieves all price lines with filtering, sorting, and pagination
+        support
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriceLinesListResponse'
+          description: ""
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: List Price Lines
+      tags:
+      - Billing Admin
+    post:
+      description: Creates a new price line
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PriceLineCreateRequest'
+        description: Price line creation request
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriceLineResponse'
+          description: ""
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Create Price Line
+      tags:
+      - Billing Admin
+  /api/billing/price-lines/{id}:
+    delete:
+      parameters:
+      - description: Price Line ID
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: ""
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Delete Price Line
+      tags:
+      - Billing Admin
+    put:
+      parameters:
+      - description: Price Line ID
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PriceLineUpdateRequest'
+        description: Price line update request
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriceLineResponse'
+          description: ""
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Update Price Line
+      tags:
+      - Billing Admin
+  /api/billing/pricing-plan-periods:
+    get:
+      description: Retrieves all pricing plan periods with filtering, sorting, and
+        pagination support
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PricingPlanPeriodsListResponse'
+          description: ""
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: List Pricing Plan Periods
+      tags:
+      - Billing Admin
+    post:
+      description: Creates a new pricing plan period with billing cadence information
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PricingPlanPeriodCreateRequest'
+        description: Pricing plan period creation request
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PricingPlanPeriodDTO'
+          description: ""
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Create Pricing Plan Period
+      tags:
+      - Billing Admin
+  /api/billing/pricing-plan-periods/{id}:
+    delete:
+      description: Deletes a pricing plan period (soft delete)
+      parameters:
+      - description: Pricing Plan Period ID
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: ""
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Delete Pricing Plan Period
+      tags:
+      - Billing Admin
+    get:
+      description: Retrieves a specific pricing plan period by ID
+      parameters:
+      - description: Pricing Plan Period ID
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PricingPlanPeriodDTO'
+          description: ""
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Get Pricing Plan Period
+      tags:
+      - Billing Admin
+    put:
+      description: Updates an existing pricing plan period
+      parameters:
+      - description: Pricing Plan Period ID
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PricingPlanPeriodUpdateRequest'
+        description: Pricing plan period update request
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PricingPlanPeriodDTO'
+          description: ""
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Update Pricing Plan Period
+      tags:
+      - Billing Admin
+  /api/billing/pricing-plans:
+    get:
+      description: Retrieves all pricing plans with filtering, sorting, and pagination
+        support
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PricingPlansListResponse'
+          description: ""
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: List Pricing Plans
+      tags:
+      - Billing Admin
+    post:
+      description: Creates a new pricing plan and queues gateway sync
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PricingPlanCreateRequest'
+        description: Pricing plan creation request
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PricingPlanResponse'
+          description: ""
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Create Pricing Plan
+      tags:
+      - Billing Admin
+  /api/billing/pricing-plans/{id}:
+    delete:
+      parameters:
+      - description: Pricing Plan ID
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: ""
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Delete Pricing Plan
+      tags:
+      - Billing Admin
+    put:
+      parameters:
+      - description: Pricing Plan ID
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PricingPlanUpdateRequest'
+        description: Pricing plan update request
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PricingPlanResponse'
+          description: ""
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Update Pricing Plan
+      tags:
+      - Billing Admin
+  /api/billing/users/{userId}/balance:
+    get:
+      description: Retrieves the current balance for a user
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BalanceResponse'
+          description: Balance retrieved successfully
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Authentication required
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Insufficient permissions
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Resource not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Server error
+      summary: Get User Balance
+      tags:
+      - Billing Admin
+  /api/billing/users/{userId}/deleted-credits:
+    get:
+      description: Retrieves soft-deleted credits for a user
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        schema:
+          type: string
+      - description: Filter by direction contains
+        in: query
+        name: direction_contains
+        schema:
+          type: string
+      - description: Filter by direction endswith
+        in: query
+        name: direction_endswith
+        schema:
+          type: string
+      - description: Filter by direction eq
+        in: query
+        name: direction_eq
+        schema:
+          type: string
+      - description: Filter by direction ne
+        in: query
+        name: direction_ne
+        schema:
+          type: string
+      - description: Filter by direction startswith
+        in: query
+        name: direction_startswith
+        schema:
+          type: string
+      - description: Filter by direction contains
+        in: query
+        name: filters[direction][contains]
+        schema:
+          type: string
+      - description: Filter by direction endswith
+        in: query
+        name: filters[direction][endswith]
+        schema:
+          type: string
+      - description: Filter by direction eq
+        in: query
+        name: filters[direction][eq]
+        schema:
+          type: string
+      - description: Filter by direction ne
+        in: query
+        name: filters[direction][ne]
+        schema:
+          type: string
+      - description: Filter by direction startswith
+        in: query
+        name: filters[direction][startswith]
+        schema:
+          type: string
+      - description: Filter by transaction_type contains
+        in: query
+        name: filters[transaction_type][contains]
+        schema:
+          type: string
+      - description: Filter by transaction_type endswith
+        in: query
+        name: filters[transaction_type][endswith]
+        schema:
+          type: string
+      - description: Filter by transaction_type eq
+        in: query
+        name: filters[transaction_type][eq]
+        schema:
+          type: string
+      - description: Filter by transaction_type ne
+        in: query
+        name: filters[transaction_type][ne]
+        schema:
+          type: string
+      - description: Filter by transaction_type startswith
+        in: query
+        name: filters[transaction_type][startswith]
+        schema:
+          type: string
+      - description: Filter by user_id between
+        in: query
+        name: filters[user_id][between]
+        schema:
+          type: string
+      - description: Filter by user_id eq
+        in: query
+        name: filters[user_id][eq]
+        schema:
+          type: string
+      - description: Filter by user_id gt
+        in: query
+        name: filters[user_id][gt]
+        schema:
+          type: string
+      - description: Filter by user_id gte
+        in: query
+        name: filters[user_id][gte]
+        schema:
+          type: string
+      - description: Filter by user_id lt
+        in: query
+        name: filters[user_id][lt]
+        schema:
+          type: string
+      - description: Filter by user_id lte
+        in: query
+        name: filters[user_id][lte]
+        schema:
+          type: string
+      - description: Filter by user_id ne
+        in: query
+        name: filters[user_id][ne]
+        schema:
+          type: string
+      - description: Filter by transaction_type contains
+        in: query
+        name: transaction_type_contains
+        schema:
+          type: string
+      - description: Filter by transaction_type endswith
+        in: query
+        name: transaction_type_endswith
+        schema:
+          type: string
+      - description: Filter by transaction_type eq
+        in: query
+        name: transaction_type_eq
+        schema:
+          type: string
+      - description: Filter by transaction_type ne
+        in: query
+        name: transaction_type_ne
+        schema:
+          type: string
+      - description: Filter by transaction_type startswith
+        in: query
+        name: transaction_type_startswith
+        schema:
+          type: string
+      - description: Filter by user_id eq
+        in: query
+        name: user_id_eq
+        schema:
+          type: string
+      - description: Filter by user_id gt
+        in: query
+        name: user_id_gt
+        schema:
+          type: string
+      - description: Filter by user_id gte
+        in: query
+        name: user_id_gte
+        schema:
+          type: string
+      - description: Filter by user_id lt
+        in: query
+        name: user_id_lt
+        schema:
+          type: string
+      - description: Filter by user_id lte
+        in: query
+        name: user_id_lte
+        schema:
+          type: string
+      - description: Filter by user_id ne
+        in: query
+        name: user_id_ne
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeletedCreditsListResponse'
+          description: Deleted credits retrieved successfully
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Authentication required
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Insufficient permissions
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Server error
+      summary: List Deleted Credits
+      tags:
+      - Billing Admin
   /api/ipfs/websites/{id}/block:
     post:
       description: |-

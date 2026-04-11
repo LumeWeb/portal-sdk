@@ -53,99 +53,75 @@ var quotaOperationString = map[int]string{
 	OpQuotaResetUserPlan:    "reset user quota plan",
 }
 
-// QuotaOperationErrorFactory is a helper for creating errors with optional ErrUnauthorized wrapping.
-type QuotaOperationErrorFactory struct {
-	wrapErr bool
-	message string
-}
-
-// Error creates the actual error.
-func (ef QuotaOperationErrorFactory) Error() error {
-	if ef.wrapErr {
-		return fmt.Errorf("%w: %s", internalhttp.ErrUnauthorized, ef.message)
-	}
-	return fmt.Errorf("%s", ef.message)
-}
-
-// quotaAuthErr creates an error factory that wraps with ErrUnauthorized.
-func quotaAuthErr(msg string) QuotaOperationErrorFactory {
-	return QuotaOperationErrorFactory{wrapErr: true, message: msg}
-}
-
-// quotaPlainErr creates an error factory without wrapping.
-func quotaPlainErr(msg string) QuotaOperationErrorFactory {
-	return QuotaOperationErrorFactory{wrapErr: false, message: msg}
-}
-
 // httpErrorMessages maps quota operation IDs to their custom status code error messages.
-var quotaHTTPErrorMessages = map[int]map[int]QuotaOperationErrorFactory{
+var quotaHTTPErrorMessages = map[int]map[int]internalhttp.ErrorFactoryError{
 	OpQuotaListPlans: {
-		stdhttp.StatusUnauthorized: quotaAuthErr("authentication required"),
-		stdhttp.StatusBadRequest:   quotaPlainErr("invalid request parameters"),
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusBadRequest:   internalhttp.PlainError("invalid request parameters"),
 	},
 	OpQuotaCreatePlan: {
-		stdhttp.StatusUnauthorized: quotaAuthErr("authentication required"),
-		stdhttp.StatusBadRequest:   quotaPlainErr("invalid plan data"),
-		stdhttp.StatusConflict:    quotaPlainErr("plan with this name already exists"),
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusBadRequest:   internalhttp.PlainError("invalid plan data"),
+		stdhttp.StatusConflict:    internalhttp.PlainError("plan with this name already exists"),
 	},
 	OpQuotaGetPlan: {
-		stdhttp.StatusUnauthorized: quotaAuthErr("authentication required"),
-		stdhttp.StatusNotFound:     quotaPlainErr("plan not found"),
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusNotFound:     internalhttp.PlainError("plan not found"),
 	},
 	OpQuotaUpdatePlan: {
-		stdhttp.StatusUnauthorized: quotaAuthErr("authentication required"),
-		stdhttp.StatusBadRequest:   quotaPlainErr("invalid plan data"),
-		stdhttp.StatusNotFound:     quotaPlainErr("plan not found"),
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusBadRequest:   internalhttp.PlainError("invalid plan data"),
+		stdhttp.StatusNotFound:     internalhttp.PlainError("plan not found"),
 	},
 	OpQuotaDeletePlan: {
-		stdhttp.StatusUnauthorized: quotaAuthErr("authentication required"),
-		stdhttp.StatusNotFound:     quotaPlainErr("plan not found"),
-		stdhttp.StatusConflict:     quotaPlainErr("cannot delete plan in use"),
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusNotFound:     internalhttp.PlainError("plan not found"),
+		stdhttp.StatusConflict:     internalhttp.PlainError("cannot delete plan in use"),
 	},
 	OpQuotaSetDefaultPlan: {
-		stdhttp.StatusUnauthorized: quotaAuthErr("authentication required"),
-		stdhttp.StatusNotFound:     quotaPlainErr("plan not found"),
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusNotFound:     internalhttp.PlainError("plan not found"),
 	},
 	OpQuotaListAllowances: {
-		stdhttp.StatusUnauthorized: quotaAuthErr("authentication required"),
-		stdhttp.StatusBadRequest:   quotaPlainErr("invalid request parameters"),
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusBadRequest:   internalhttp.PlainError("invalid request parameters"),
 	},
 	OpQuotaCreateAllowance: {
-		stdhttp.StatusUnauthorized: quotaAuthErr("authentication required"),
-		stdhttp.StatusBadRequest:   quotaPlainErr("invalid allowance data"),
-		stdhttp.StatusNotFound:     quotaPlainErr("user not found"),
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusBadRequest:   internalhttp.PlainError("invalid allowance data"),
+		stdhttp.StatusNotFound:     internalhttp.PlainError("user not found"),
 	},
 	OpQuotaUpdateAllowance: {
-		stdhttp.StatusUnauthorized: quotaAuthErr("authentication required"),
-		stdhttp.StatusBadRequest:   quotaPlainErr("invalid allowance data"),
-		stdhttp.StatusNotFound:     quotaPlainErr("allowance not found"),
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusBadRequest:   internalhttp.PlainError("invalid allowance data"),
+		stdhttp.StatusNotFound:     internalhttp.PlainError("allowance not found"),
 	},
 	OpQuotaDeleteAllowance: {
-		stdhttp.StatusUnauthorized: quotaAuthErr("authentication required"),
-		stdhttp.StatusNotFound:     quotaPlainErr("allowance not found"),
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusNotFound:     internalhttp.PlainError("allowance not found"),
 	},
 	OpQuotaGetStats: {
-		stdhttp.StatusUnauthorized: quotaAuthErr("authentication required"),
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
 	},
 	OpQuotaReconcile: {
-		stdhttp.StatusUnauthorized: quotaAuthErr("authentication required"),
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
 	},
 	OpQuotaCleanup: {
-		stdhttp.StatusUnauthorized: quotaAuthErr("authentication required"),
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
 	},
 	OpQuotaListUserConfigs: {
-		stdhttp.StatusUnauthorized: quotaAuthErr("authentication required"),
-		stdhttp.StatusBadRequest:   quotaPlainErr("invalid request parameters"),
-		stdhttp.StatusNotFound:     quotaPlainErr("invalid endpoint"),
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusBadRequest:   internalhttp.PlainError("invalid request parameters"),
+		stdhttp.StatusNotFound:     internalhttp.PlainError("invalid endpoint"),
 	},
 	OpQuotaUpdateUserConfig: {
-		stdhttp.StatusUnauthorized: quotaAuthErr("authentication required"),
-		stdhttp.StatusBadRequest:   quotaPlainErr("invalid user configuration data"),
-		stdhttp.StatusNotFound:     quotaPlainErr("user not found"),
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusBadRequest:   internalhttp.PlainError("invalid user configuration data"),
+		stdhttp.StatusNotFound:     internalhttp.PlainError("user not found"),
 	},
 	OpQuotaResetUserPlan: {
-		stdhttp.StatusUnauthorized: quotaAuthErr("authentication required"),
-		stdhttp.StatusNotFound:     quotaPlainErr("user not found"),
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusNotFound:     internalhttp.PlainError("user not found"),
 	},
 }
 
@@ -322,7 +298,7 @@ type QuotaLimits struct {
 func (q *QuotaService) ListPlans(ctx context.Context) ([]*QuotaPlan, int, error) {
 	resp, err := q.client.GetApiQuotaPlansWithResponse(ctx)
 	if err != nil {
-		return nil, 0, fmt.Errorf("failed to send list plans request: %w", err)
+		return nil, 0, fmt.Errorf("failed to list plans: %w", err)
 	}
 
 	if err := handleQuotaResponse(resp.StatusCode(), resp.Body, OpQuotaListPlans, []int{stdhttp.StatusOK}); err != nil {
@@ -360,7 +336,7 @@ func (q *QuotaService) CreatePlan(ctx context.Context, plan *QuotaPlan) (*QuotaP
 
 	resp, err := q.client.PostApiQuotaPlansWithResponse(ctx, reqBody)
 	if err != nil {
-		return nil, fmt.Errorf("failed to send create plan request: %w", err)
+		return nil, fmt.Errorf("failed to create plan: %w", err)
 	}
 
 	data, err := validateQuotaJSON201(resp.StatusCode(), resp.JSON201, "create plan response did not contain data", OpQuotaCreatePlan)
@@ -375,7 +351,7 @@ func (q *QuotaService) CreatePlan(ctx context.Context, plan *QuotaPlan) (*QuotaP
 func (q *QuotaService) GetPlan(ctx context.Context, planID string) (*QuotaPlan, error) {
 	resp, err := q.client.GetApiQuotaPlansPlanIDWithResponse(ctx, planID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to send get plan request: %w", err)
+		return nil, fmt.Errorf("failed to get plan: %w", err)
 	}
 
 	data, err := validateQuotaJSON200(resp.StatusCode(), resp.JSON200, OpQuotaGetPlan)
@@ -406,7 +382,7 @@ func (q *QuotaService) UpdatePlan(ctx context.Context, planID string, plan *Quot
 
 	resp, err := q.client.PutApiQuotaPlansPlanIDWithResponse(ctx, planID, reqBody)
 	if err != nil {
-		return nil, fmt.Errorf("failed to send update plan request: %w", err)
+		return nil, fmt.Errorf("failed to update plan: %w", err)
 	}
 
 	data, err := validateQuotaJSON200(resp.StatusCode(), resp.JSON200, OpQuotaUpdatePlan)
@@ -421,7 +397,7 @@ func (q *QuotaService) UpdatePlan(ctx context.Context, planID string, plan *Quot
 func (q *QuotaService) DeletePlan(ctx context.Context, planID string) error {
 	resp, err := q.client.DeleteApiQuotaPlansPlanIDWithResponse(ctx, planID)
 	if err != nil {
-		return fmt.Errorf("failed to send delete plan request: %w", err)
+		return fmt.Errorf("failed to delete plan: %w", err)
 	}
 
 	return handleQuotaResponse(resp.StatusCode(), resp.Body, OpQuotaDeletePlan, []int{stdhttp.StatusNoContent})
@@ -431,7 +407,7 @@ func (q *QuotaService) DeletePlan(ctx context.Context, planID string) error {
 func (q *QuotaService) SetDefaultPlan(ctx context.Context, planID string) error {
 	resp, err := q.client.PostApiQuotaPlansPlanIDDefaultWithResponse(ctx, planID)
 	if err != nil {
-		return fmt.Errorf("failed to send set default plan request: %w", err)
+		return fmt.Errorf("failed to set default plan: %w", err)
 	}
 
 	return handleQuotaResponse(resp.StatusCode(), resp.Body, OpQuotaSetDefaultPlan, []int{stdhttp.StatusNoContent})
@@ -441,7 +417,7 @@ func (q *QuotaService) SetDefaultPlan(ctx context.Context, planID string) error 
 func (q *QuotaService) ListAllowances(ctx context.Context) ([]*QuotaAllowance, int, error) {
 	resp, err := q.client.GetApiQuotaAllowancesWithResponse(ctx)
 	if err != nil {
-		return nil, 0, fmt.Errorf("failed to send list allowances request: %w", err)
+		return nil, 0, fmt.Errorf("failed to list allowances: %w", err)
 	}
 
 	if err := handleQuotaResponse(resp.StatusCode(), resp.Body, OpQuotaListAllowances, []int{stdhttp.StatusOK}); err != nil {
@@ -473,7 +449,7 @@ func (q *QuotaService) CreateAllowance(ctx context.Context, userID int, source, 
 
 	resp, err := q.client.PostApiQuotaAllowancesWithResponse(ctx, reqBody)
 	if err != nil {
-		return nil, fmt.Errorf("failed to send create allowance request: %w", err)
+		return nil, fmt.Errorf("failed to create allowance: %w", err)
 	}
 
 	data, err := validateQuotaJSON201(resp.StatusCode(), resp.JSON201, "create allowance response did not contain data", OpQuotaCreateAllowance)
@@ -498,7 +474,7 @@ func (q *QuotaService) UpdateAllowance(ctx context.Context, grantID string, user
 
 	resp, err := q.client.PutApiQuotaAllowancesGrantIDWithResponse(ctx, grantID, reqBody)
 	if err != nil {
-		return nil, fmt.Errorf("failed to send update allowance request: %w", err)
+		return nil, fmt.Errorf("failed to update allowance: %w", err)
 	}
 
 	data, err := validateQuotaJSON200(resp.StatusCode(), resp.JSON200, OpQuotaUpdateAllowance)
@@ -513,7 +489,7 @@ func (q *QuotaService) UpdateAllowance(ctx context.Context, grantID string, user
 func (q *QuotaService) DeleteAllowance(ctx context.Context, grantID string) error {
 	resp, err := q.client.DeleteApiQuotaAllowancesGrantIDWithResponse(ctx, grantID)
 	if err != nil {
-		return fmt.Errorf("failed to send delete allowance request: %w", err)
+		return fmt.Errorf("failed to delete allowance: %w", err)
 	}
 
 	return handleQuotaResponse(resp.StatusCode(), resp.Body, OpQuotaDeleteAllowance, []int{stdhttp.StatusNoContent})
@@ -523,7 +499,7 @@ func (q *QuotaService) DeleteAllowance(ctx context.Context, grantID string) erro
 func (q *QuotaService) GetStats(ctx context.Context) (*SystemStats, error) {
 	resp, err := q.client.GetApiQuotaSystemStatsWithResponse(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to send get stats request: %w", err)
+		return nil, fmt.Errorf("failed to get stats: %w", err)
 	}
 
 	if err := handleQuotaResponse(resp.StatusCode(), resp.Body, OpQuotaGetStats, []int{stdhttp.StatusOK}); err != nil {
@@ -544,7 +520,7 @@ func (q *QuotaService) Reconcile(ctx context.Context, userID *int) (string, int,
 
 	resp, err := q.client.PostApiQuotaSystemReconcileWithResponse(ctx, reqBody)
 	if err != nil {
-		return "", 0, fmt.Errorf("failed to send reconcile request: %w", err)
+		return "", 0, fmt.Errorf("failed to reconcile: %w", err)
 	}
 
 	if err := handleQuotaResponse(resp.StatusCode(), resp.Body, OpQuotaReconcile, []int{stdhttp.StatusOK}); err != nil {
@@ -564,7 +540,7 @@ func (q *QuotaService) Cleanup(ctx context.Context, retentionDays int) (int, err
 
 	resp, err := q.client.PostApiQuotaSystemCleanupWithResponse(ctx, reqBody)
 	if err != nil {
-		return 0, fmt.Errorf("failed to send cleanup request: %w", err)
+		return 0, fmt.Errorf("failed to cleanup: %w", err)
 	}
 
 	if err := handleQuotaResponse(resp.StatusCode(), resp.Body, OpQuotaCleanup, []int{stdhttp.StatusOK}); err != nil {
@@ -582,7 +558,7 @@ func (q *QuotaService) Cleanup(ctx context.Context, retentionDays int) (int, err
 func (q *QuotaService) ListUserConfigs(ctx context.Context) ([]*UserQuotaConfig, int, error) {
 	resp, err := q.client.GetApiQuotaUserConfigsWithResponse(ctx)
 	if err != nil {
-		return nil, 0, fmt.Errorf("failed to send list user configs request: %w", err)
+		return nil, 0, fmt.Errorf("failed to list user configs: %w", err)
 	}
 
 	if err := handleQuotaResponse(resp.StatusCode(), resp.Body, OpQuotaListUserConfigs, []int{stdhttp.StatusOK}); err != nil {
@@ -639,7 +615,7 @@ func (q *QuotaService) UpdateUserConfig(ctx context.Context, userID int, config 
 
 	resp, err := q.client.PutApiQuotaUserConfigsUserIDWithResponse(ctx, fmt.Sprintf("%d", userID), reqBody)
 	if err != nil {
-		return nil, fmt.Errorf("failed to send update user config request: %w", err)
+		return nil, fmt.Errorf("failed to update user config: %w", err)
 	}
 
 	data, err := validateQuotaJSON200(resp.StatusCode(), resp.JSON200, OpQuotaUpdateUserConfig)
@@ -654,7 +630,7 @@ func (q *QuotaService) UpdateUserConfig(ctx context.Context, userID int, config 
 func (q *QuotaService) ResetUserPlan(ctx context.Context, userID int) error {
 	resp, err := q.client.DeleteApiQuotaUserConfigsUserIDPlanWithResponse(ctx, fmt.Sprintf("%d", userID))
 	if err != nil {
-		return fmt.Errorf("failed to send reset user plan request: %w", err)
+		return fmt.Errorf("failed to reset user plan: %w", err)
 	}
 
 	return handleQuotaResponse(resp.StatusCode(), resp.Body, OpQuotaResetUserPlan, []int{stdhttp.StatusNoContent})

@@ -54,7 +54,7 @@ var (
 	ErrOperationTimeout = errors.New("operation timed out")
 
 	// ErrUnauthorized is returned when authentication fails (e.g., invalid JWT token).
-	ErrUnauthorized = errors.New("unauthorized")
+	ErrUnauthorized = internalhttp.ErrUnauthorized
 
 	// InsufficientQuotaError is returned when a requested operation would exceed available quota.
 	InsufficientQuotaError = errors.New("insufficient quota")
@@ -92,6 +92,18 @@ const (
 	OpGetPermissions
 	OpGetQuota
 	OpGetQuotaHistory
+	OpGetBalance
+	OpListCredits
+	OpGetCheckoutUI
+	OpGetManagementCapabilities
+	OpGetSubscriptionStatus
+	OpManageBilling
+	OpCancelSubscription
+	OpChangePlan
+	OpHandleWebhook
+	OpListBillingGateways
+	OpGetGatewayLogo
+	OpListPricingPlans
 )
 
 const defaultOperationName = "operation"
@@ -123,123 +135,168 @@ var operationString = map[int]string{
 	OpGetPermissions: "get account permissions",
 	OpGetQuota:      "get quota status",
 	OpGetQuotaHistory: "get quota history",
-}
-
-// errorFactory is a helper for creating errors with optional ErrUnauthorized wrapping.
-type errorFactory struct {
-	wrapErr bool
-	message string
-}
-
-// Error creates the actual error.
-func (ef errorFactory) Error() error {
-	if ef.wrapErr {
-		return fmt.Errorf("%w: %s", ErrUnauthorized, ef.message)
-	}
-	return fmt.Errorf("%s", ef.message)
-}
-
-// authErr creates an error factory that wraps with ErrUnauthorized.
-func authErr(msg string) errorFactory {
-	return errorFactory{wrapErr: true, message: msg}
-}
-
-// plainErr creates an error factory without wrapping.
-func plainErr(msg string) errorFactory {
-	return errorFactory{wrapErr: false, message: msg}
+	OpGetBalance:             "get billing balance",
+	OpListCredits:            "list user credits",
+	OpGetCheckoutUI:          "get checkout UI",
+	OpGetManagementCapabilities: "get management capabilities",
+	OpGetSubscriptionStatus:   "get subscription status",
+	OpManageBilling:           "manage billing",
+	OpCancelSubscription:      "cancel subscription",
+	OpChangePlan:              "change subscription plan",
+	OpHandleWebhook:           "handle billing webhook",
+	OpListBillingGateways:     "list billing gateways",
+	OpGetGatewayLogo:          "get gateway logo",
+	OpListPricingPlans:        "list pricing plans",
 }
 
 // httpErrorMessages maps operation IDs to their custom status code error messages.
 // This provides a centralized, DRY way to handle HTTP error responses.
-var httpErrorMessages = map[int]map[int]errorFactory{
+var httpErrorMessages = map[int]map[int]internalhttp.ErrorFactoryError{
 	OpLogin: {
-		http.StatusUnauthorized: authErr("invalid login credentials"),
+		http.StatusUnauthorized: internalhttp.AuthError("invalid login credentials"),
 	},
 	OpOTPValidation: {
-		http.StatusBadRequest:   plainErr("invalid OTP code"),
-		http.StatusUnauthorized: authErr("invalid or expired 2FA session"),
+		http.StatusBadRequest:   internalhttp.PlainError("invalid OTP code"),
+		http.StatusUnauthorized: internalhttp.AuthError("invalid or expired 2FA session"),
 	},
 	OpPing: {
-		http.StatusUnauthorized: authErr("invalid JWT token"),
+		http.StatusUnauthorized: internalhttp.AuthError("invalid JWT token"),
 	},
 	OpOTPGeneration: {
-		http.StatusUnauthorized: authErr("authentication required"),
+		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
 	},
 	OpOTPVerification: {
-		http.StatusUnauthorized: authErr("authentication required"),
-		http.StatusBadRequest:   plainErr("invalid OTP code"),
+		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		http.StatusBadRequest:   internalhttp.PlainError("invalid OTP code"),
 	},
 	OpOTPDisable: {
-		http.StatusUnauthorized: authErr("authentication required or invalid password"),
+		http.StatusUnauthorized: internalhttp.AuthError("authentication required or invalid password"),
 	},
 	OpAPIKeyLogin: {
-		http.StatusUnauthorized: authErr("invalid API key"),
-		http.StatusForbidden:    plainErr("account is pending deletion"),
+		http.StatusUnauthorized: internalhttp.AuthError("invalid API key"),
+		http.StatusForbidden:    internalhttp.PlainError("account is pending deletion"),
 	},
 	OpRegistration: {
-		http.StatusConflict: plainErr("user already exists with this email"),
+		http.StatusConflict: internalhttp.PlainError("user already exists with this email"),
 	},
 	OpEmailVerification: {
-		http.StatusBadRequest: plainErr("invalid verification token or email"),
-		http.StatusNotFound:   plainErr("user not found"),
+		http.StatusBadRequest: internalhttp.PlainError("invalid verification token or email"),
+		http.StatusNotFound:   internalhttp.PlainError("user not found"),
 	},
 	OpResendEmailVerification: {
-		http.StatusBadRequest: plainErr("invalid email address"),
-		http.StatusNotFound:   plainErr("user not found"),
+		http.StatusBadRequest: internalhttp.PlainError("invalid email address"),
+		http.StatusNotFound:   internalhttp.PlainError("user not found"),
 	},
 	OpDeleteAccount: {
-		http.StatusUnauthorized: authErr("authentication required"),
-		http.StatusBadRequest:   plainErr("cannot delete account"),
-		http.StatusNotFound:     plainErr("account not found"),
+		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		http.StatusBadRequest:   internalhttp.PlainError("cannot delete account"),
+		http.StatusNotFound:     internalhttp.PlainError("account not found"),
 	},
 	OpPasswordResetRequest: {
-		http.StatusBadRequest: plainErr("invalid email address"),
-		http.StatusNotFound:   plainErr("user not found"),
+		http.StatusBadRequest: internalhttp.PlainError("invalid email address"),
+		http.StatusNotFound:   internalhttp.PlainError("user not found"),
 	},
 	OpPasswordResetConfirm: {
-		http.StatusBadRequest: plainErr("invalid or expired reset token"),
-		http.StatusNotFound:   plainErr("user not found"),
+		http.StatusBadRequest: internalhttp.PlainError("invalid or expired reset token"),
+		http.StatusNotFound:   internalhttp.PlainError("user not found"),
 	},
 	OpPasswordUpdate: {
-		http.StatusUnauthorized: authErr("authentication required"),
-		http.StatusBadRequest:   plainErr("invalid password"),
-		http.StatusNotFound:     plainErr("user not found"),
+		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		http.StatusBadRequest:   internalhttp.PlainError("invalid password"),
+		http.StatusNotFound:     internalhttp.PlainError("user not found"),
 	},
 	OpGetAccount: {
-		http.StatusUnauthorized: authErr("authentication required"),
-		http.StatusNotFound:     plainErr("account not found"),
+		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		http.StatusNotFound:     internalhttp.PlainError("account not found"),
 	},
 	OpUpdateProfile: {
-		http.StatusUnauthorized: authErr("authentication required"),
-		http.StatusBadRequest:   plainErr("invalid profile data"),
-		http.StatusNotFound:     plainErr("user not found"),
+		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		http.StatusBadRequest:   internalhttp.PlainError("invalid profile data"),
+		http.StatusNotFound:     internalhttp.PlainError("user not found"),
 	},
 	OpGetAvatar: {
-		http.StatusBadRequest:   plainErr("bad request"),
-		http.StatusNotFound:     plainErr("avatar not found"),
+		http.StatusBadRequest:   internalhttp.PlainError("bad request"),
+		http.StatusNotFound:     internalhttp.PlainError("avatar not found"),
 	},
 	OpUploadAvatar: {
-		http.StatusBadRequest:plainErr("bad request"),
-		http.StatusNotFound:    plainErr("not found"),
+		http.StatusBadRequest:internalhttp.PlainError("bad request"),
+		http.StatusNotFound:    internalhttp.PlainError("not found"),
 	},
 	OpUpdateEmail: {
-		http.StatusUnauthorized: authErr("authentication required"),
-		http.StatusBadRequest: plainErr("invalid email or password"),
-		http.StatusNotFound:   plainErr("user not found"),
+		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		http.StatusBadRequest: internalhttp.PlainError("invalid email or password"),
+		http.StatusNotFound:   internalhttp.PlainError("user not found"),
 	},
 	OpGetPermissions: {
-		http.StatusBadRequest:  plainErr("bad request"),
-		http.StatusNotFound:     plainErr("permissions not found"),
+		http.StatusBadRequest:  internalhttp.PlainError("bad request"),
+		http.StatusNotFound:     internalhttp.PlainError("permissions not found"),
 	},
 	OpGetQuota: {
-		http.StatusUnauthorized: authErr("authentication required"),
-		http.StatusBadRequest:   plainErr("bad request"),
-		http.StatusNotFound:     plainErr("quota not found"),
+		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		http.StatusBadRequest:   internalhttp.PlainError("bad request"),
+		http.StatusNotFound:     internalhttp.PlainError("quota not found"),
 	},
 	OpGetQuotaHistory: {
-		http.StatusUnauthorized: authErr("authentication required"),
-		http.StatusBadRequest:   plainErr("invalid date parameters"),
-		http.StatusNotFound:     plainErr("quota history not found"),
+		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		http.StatusBadRequest:   internalhttp.PlainError("invalid date parameters"),
+		http.StatusNotFound:     internalhttp.PlainError("quota history not found"),
+	},
+	OpGetBalance: {
+		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		http.StatusNotFound:     internalhttp.PlainError("balance not found"),
+	},
+	OpListCredits: {
+		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		http.StatusBadRequest:   internalhttp.PlainError("invalid request parameters"),
+	},
+	OpGetCheckoutUI: {
+		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		http.StatusBadRequest:   internalhttp.PlainError("invalid plan ID"),
+		http.StatusNotFound:     internalhttp.PlainError("checkout UI not found"),
+	},
+	OpGetManagementCapabilities: {
+		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		http.StatusNotFound:     internalhttp.PlainError("management capabilities not found"),
+	},
+	OpGetSubscriptionStatus: {
+		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		http.StatusNotFound:     internalhttp.PlainError("subscription status not found"),
+	},
+	OpManageBilling: {
+		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		http.StatusBadRequest:   internalhttp.PlainError("invalid request"),
+		http.StatusNotFound:     internalhttp.PlainError("resource not found"),
+	},
+	OpCancelSubscription: {
+		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		http.StatusBadRequest:   internalhttp.PlainError("cannot cancel subscription"),
+		http.StatusNotFound:     internalhttp.PlainError("no active subscription"),
+	},
+	OpChangePlan: {
+		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		http.StatusBadRequest:   internalhttp.PlainError("cannot change plan"),
+		http.StatusNotFound:     internalhttp.PlainError("plan not found"),
+	},
+	OpHandleWebhook: {
+		http.StatusBadRequest: internalhttp.PlainError("invalid webhook data"),
+	},
+	OpListBillingGateways: {
+		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		http.StatusInternalServerError: internalhttp.PlainError("gateway registry not initialized"),
+	},
+	OpGetGatewayLogo: {
+		http.StatusBadRequest:     internalhttp.PlainError("bad request"),
+		http.StatusUnauthorized:   internalhttp.AuthError("authentication required"),
+		http.StatusForbidden:      internalhttp.PlainError("insufficient permissions"),
+		http.StatusNotFound:       internalhttp.PlainError("gateway logo not found"),
+		http.StatusInternalServerError: internalhttp.PlainError("internal server error"),
+	},
+	OpListPricingPlans: {
+		http.StatusBadRequest:     internalhttp.PlainError("failed to get pricing plans"),
+		http.StatusUnauthorized:   internalhttp.AuthError("authentication required"),
+		http.StatusForbidden:      internalhttp.PlainError("insufficient permissions"),
+		http.StatusNotFound:       internalhttp.PlainError("not found"),
+		http.StatusInternalServerError: internalhttp.PlainError("internal server error"),
 	},
 }
 
@@ -315,6 +372,66 @@ type UsagePoint struct {
 // Embeds the generated client.QuotaHistoryResponse to reuse all fields.
 type QuotaHistory struct {
 	client.QuotaHistoryResponse
+}
+
+// Balance represents the user's billing balance.
+// Embeds the generated client.BalanceResponse to reuse all fields.
+type Balance struct {
+	client.BalanceResponse
+}
+
+// Credit represents a user credit.
+// Embeds the generated client.UserCreditItem to reuse all fields.
+type Credit struct {
+	client.UserCreditItem
+}
+
+// CheckoutUI represents the checkout UI configuration.
+// Embeds the generated client.CheckoutUIResponse to reuse all fields.
+type CheckoutUI struct {
+	client.CheckoutUIResponse
+}
+
+// ManagementCapabilities represents the billing management capabilities.
+// Embeds the generated client.ManagementCapabilitiesResponse to reuse all fields.
+type ManagementCapabilities struct {
+	client.ManagementCapabilitiesResponse
+}
+
+// SubscriptionStatus represents the user's subscription status.
+// Embeds the generated client.SubscriptionStatusResponse to reuse all fields.
+type SubscriptionStatus struct {
+	client.SubscriptionStatusResponse
+}
+
+// ManagementRequest represents a billing management operation request.
+type ManagementRequest struct {
+	Operation string
+}
+
+// Gateway represents a payment gateway.
+// Embeds the generated client.GatewayPublicInfo to reuse all fields.
+type Gateway struct {
+	client.GatewayPublicInfo
+}
+
+// GatewayLogo represents a gateway logo image with content type.
+type GatewayLogo struct {
+	Data        []byte
+	ContentType string // e.g., "image/svg+xml", "image/png", "image/jpeg"
+}
+
+// PricingPlanPublic represents a publicly visible pricing plan.
+// Embeds the generated client.PublicPricingPlanResponse to reuse all fields.
+type PricingPlanPublic struct {
+	client.PublicPricingPlanResponse
+}
+
+
+// ManagementResult represents the result of a management operation.
+// Embeds the generated client.ManagementResultResponse to reuse all fields.
+type ManagementResult struct {
+	client.ManagementResultResponse
 }
 
 // Filter is a filter for listing operations (legacy, use ListOptions instead).
@@ -594,6 +711,45 @@ type AccountAPI interface {
 	// startDate and endDate should be in RFC3339 format.
 	// usageType should be "upload", "download", or "storage".
 	GetQuotaHistory(ctx context.Context, startDate, endDate, usageType string) (*QuotaHistory, error)
+
+	// Billing Management
+	// GetBalance retrieves the user's billing balance information.
+	GetBalance(ctx context.Context) (*Balance, error)
+
+	// ListCredits retrieves a list of credits for the authenticated user.
+	ListCredits(ctx context.Context) ([]*Credit, error)
+
+	// GetCheckoutUI retrieves the checkout UI configuration for a specific plan.
+	GetCheckoutUI(ctx context.Context, planID string) (*CheckoutUI, error)
+
+	// GetManagementCapabilities retrieves the billing management capabilities for the user.
+	GetManagementCapabilities(ctx context.Context) (*ManagementCapabilities, error)
+
+	// GetSubscriptionStatus retrieves the user's current subscription status.
+	GetSubscriptionStatus(ctx context.Context) (*SubscriptionStatus, error)
+
+	// ManageBilling performs a billing management operation.
+	ManageBilling(ctx context.Context, request ManagementRequest) (*ManagementResult, error)
+
+	// CancelSubscription cancels the user's subscription.
+	CancelSubscription(ctx context.Context) (*ManagementResult, error)
+
+	// ChangePlan changes the user's subscription plan.
+	ChangePlan(ctx context.Context, planID string) (*ManagementResult, error)
+
+	// HandleWebhook handles a webhook event from a billing gateway.
+	HandleWebhook(ctx context.Context, gatewayType string, webhookData map[string]interface{}) error
+
+	// Billing Discovery
+	// ListBillingGateways lists available payment gateways.
+	ListBillingGateways(ctx context.Context) ([]*Gateway, error)
+
+	// GetGatewayLogo retrieves the logo image for a payment gateway.
+	// Returns raw image bytes and the content type (e.g., "image/svg+xml", "image/png").
+	GetGatewayLogo(ctx context.Context, gatewayID string) (*GatewayLogo, error)
+
+	// ListPricingPlans lists available pricing plans with their periods.
+	ListPricingPlans(ctx context.Context) ([]*PricingPlanPublic, int, error)
 }
 
 // Client implements AccountAPI using the generated OpenAPI client.
@@ -1460,3 +1616,242 @@ func CreateDownloadPercentLimitedRateLimiter(client AccountAPI, thresholdPercent
 		return float64(quota.Download.Percentage) < thresholdPercent, nil
 	}
 }
+
+// GetBalance retrieves the user's billing balance information.
+func (c *Client) GetBalance(ctx context.Context) (*Balance, error) {
+	resp, err := c.client.GetApiAccountBillingBalanceWithResponse(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get billing balance: %w", err)
+	}
+
+	if err := handleResponse(resp.StatusCode(), resp.Body, OpGetBalance, []int{http.StatusOK}); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, fmt.Errorf("get balance response did not contain data")
+	}
+
+	return &Balance{BalanceResponse: *resp.JSON200}, nil
+}
+
+// ListCredits retrieves a list of credits for the authenticated user.
+func (c *Client) ListCredits(ctx context.Context) ([]*Credit, error) {
+	resp, err := c.client.GetApiAccountBillingCreditsWithResponse(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list credits: %w", err)
+	}
+
+	if err := handleResponse(resp.StatusCode(), resp.Body, OpListCredits, []int{http.StatusOK}); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, fmt.Errorf("list credits response did not contain data")
+	}
+
+	credits := lo.Map(resp.JSON200.Data, func(credit client.UserCreditItem, _ int) *Credit {
+		return &Credit{UserCreditItem: credit}
+	})
+
+	return credits, nil
+}
+
+// GetCheckoutUI retrieves the checkout UI configuration for a specific plan.
+func (c *Client) GetCheckoutUI(ctx context.Context, planID string) (*CheckoutUI, error) {
+	resp, err := c.client.GetApiAccountBillingCheckoutUiPlanIdWithResponse(ctx, planID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get checkout UI: %w", err)
+	}
+
+	if err := handleResponse(resp.StatusCode(), resp.Body, OpGetCheckoutUI, []int{http.StatusOK}); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, fmt.Errorf("get checkout UI response did not contain data")
+	}
+
+	return &CheckoutUI{CheckoutUIResponse: *resp.JSON200}, nil
+}
+
+// GetManagementCapabilities retrieves the billing management capabilities for the user.
+func (c *Client) GetManagementCapabilities(ctx context.Context) (*ManagementCapabilities, error) {
+	resp, err := c.client.GetApiAccountBillingManagementCapabilitiesWithResponse(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get management capabilities: %w", err)
+	}
+
+	if err := handleResponse(resp.StatusCode(), resp.Body, OpGetManagementCapabilities, []int{http.StatusOK}); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, fmt.Errorf("get management capabilities response did not contain data")
+	}
+
+	return &ManagementCapabilities{ManagementCapabilitiesResponse: *resp.JSON200}, nil
+}
+
+// GetSubscriptionStatus retrieves the user's current subscription status.
+func (c *Client) GetSubscriptionStatus(ctx context.Context) (*SubscriptionStatus, error) {
+	resp, err := c.client.GetApiAccountBillingSubscriptionWithResponse(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get subscription status: %w", err)
+	}
+
+	if err := handleResponse(resp.StatusCode(), resp.Body, OpGetSubscriptionStatus, []int{http.StatusOK}); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, fmt.Errorf("get subscription status response did not contain data")
+	}
+
+	return &SubscriptionStatus{SubscriptionStatusResponse: *resp.JSON200}, nil
+}
+
+// ManageBilling performs a billing management operation.
+func (c *Client) ManageBilling(ctx context.Context, request ManagementRequest) (*ManagementResult, error) {
+	reqBody := client.ManagementRequest{
+		Operation: request.Operation,
+	}
+
+	resp, err := c.client.PostApiAccountBillingManagementWithResponse(ctx, reqBody)
+	if err != nil {
+		return nil, fmt.Errorf("failed to manage billing: %w", err)
+	}
+
+	if err := handleResponse(resp.StatusCode(), resp.Body, OpManageBilling, []int{http.StatusOK}); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, fmt.Errorf("manage billing response did not contain data")
+	}
+
+	return &ManagementResult{ManagementResultResponse: *resp.JSON200}, nil
+}
+
+// CancelSubscription cancels the user's subscription.
+func (c *Client) CancelSubscription(ctx context.Context) (*ManagementResult, error) {
+	resp, err := c.client.PostApiAccountBillingCancelWithResponse(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to cancel subscription: %w", err)
+	}
+
+	if err := handleResponse(resp.StatusCode(), resp.Body, OpCancelSubscription, []int{http.StatusOK}); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, fmt.Errorf("cancel subscription response did not contain data")
+	}
+
+	return &ManagementResult{ManagementResultResponse: *resp.JSON200}, nil
+}
+
+// ChangePlan changes the user's subscription plan.
+// This is a simplified implementation - the actual plan ID would need to be sent
+// via request editors or the endpoint may require a different approach.
+func (c *Client) ChangePlan(ctx context.Context, planID string) (*ManagementResult, error) {
+	resp, err := c.client.PostApiAccountBillingChangePlanWithResponse(ctx,
+		func(ctx context.Context, req *http.Request) error {
+			q := req.URL.Query()
+			q.Set("planId", planID)
+			req.URL.RawQuery = q.Encode()
+			return nil
+		},
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to change subscription plan: %w", err)
+	}
+
+	if err := handleResponse(resp.StatusCode(), resp.Body, OpChangePlan, []int{http.StatusOK}); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, fmt.Errorf("change plan response did not contain data")
+	}
+
+	return &ManagementResult{ManagementResultResponse: *resp.JSON200}, nil
+}
+
+// HandleWebhook handles a webhook event from a billing gateway.
+func (c *Client) HandleWebhook(ctx context.Context, gatewayType string, webhookData map[string]interface{}) error {
+	resp, err := c.client.PostApiAccountBillingWebhooksGatewayTypeWithResponse(ctx, gatewayType, webhookData)
+	if err != nil {
+		return fmt.Errorf("failed to handle webhook: %w", err)
+	}
+
+	if err := handleResponse(resp.StatusCode(), resp.Body, OpHandleWebhook, []int{http.StatusOK}); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ListBillingGateways lists available payment gateways.
+func (c *Client) ListBillingGateways(ctx context.Context) ([]*Gateway, error) {
+	resp, err := c.client.GetApiBillingGatewaysWithResponse(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list billing gateways: %w", err)
+	}
+
+	if err := handleResponse(resp.StatusCode(), resp.Body, OpListBillingGateways, []int{http.StatusOK}); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, fmt.Errorf("list billing gateways response did not contain data")
+	}
+
+	gateways := lo.Map(*resp.JSON200, func(gateway client.GatewayPublicInfo, _ int) *Gateway {
+		return &Gateway{GatewayPublicInfo: gateway}
+	})
+
+	return gateways, nil
+}
+
+// GetGatewayLogo retrieves the logo image for a gateway.
+// Returns raw image bytes and the content type (e.g., "image/svg+xml", "image/png").
+func (c *Client) GetGatewayLogo(ctx context.Context, gatewayID string) (*GatewayLogo, error) {
+	resp, err := c.client.GetApiBillingGatewaysIdLogoWithResponse(ctx, gatewayID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get gateway logo: %w", err)
+	}
+
+	if resp.StatusCode() != http.StatusOK {
+		return nil, handleResponse(resp.StatusCode(), resp.Body, OpGetGatewayLogo, []int{http.StatusOK})
+	}
+
+	contentType := resp.HTTPResponse.Header.Get("Content-Type")
+	return &GatewayLogo{
+		Data:        resp.Body,
+		ContentType: contentType,
+	}, nil
+}
+
+// ListPricingPlans lists available pricing plans with their periods.
+func (c *Client) ListPricingPlans(ctx context.Context) ([]*PricingPlanPublic, int, error) {
+	resp, err := c.client.GetApiBillingPlansWithResponse(ctx)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to list pricing plans: %w", err)
+	}
+
+	if err := handleResponse(resp.StatusCode(), resp.Body, OpListPricingPlans, []int{http.StatusOK}); err != nil {
+		return nil, 0, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, 0, fmt.Errorf("list pricing plans response did not contain data")
+	}
+
+	plans := lo.Map(resp.JSON200.Data, func(plan client.PublicPricingPlanResponse, _ int) *PricingPlanPublic {
+		return &PricingPlanPublic{PublicPricingPlanResponse: plan}
+	})
+
+	return plans, resp.JSON200.Total, nil
+}
+

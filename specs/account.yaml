@@ -1,5 +1,16 @@
 components:
   schemas:
+    APIEndpointInfoResponse:
+      additionalProperties: false
+      properties:
+        method:
+          type: string
+        path:
+          type: string
+      required:
+      - method
+      - path
+      type: object
     APIKeyCreateRequest:
       additionalProperties: false
       properties:
@@ -125,9 +136,56 @@ components:
       - permissions
       - model
       type: object
+    BalanceResponse:
+      additionalProperties: false
+      properties:
+        balance:
+          $ref: '#/components/schemas/Decimal'
+        user_id:
+          type: integer
+      required:
+      - user_id
+      - balance
+      type: object
     BinaryUUID:
       format: uuid
       type: string
+    CheckoutUIFragment:
+      additionalProperties: false
+      properties:
+        css:
+          type: string
+        html:
+          type: string
+        link:
+          type: string
+        metadata:
+          type: object
+        script:
+          type: string
+        type:
+          type: string
+      required:
+      - type
+      type: object
+    CheckoutUIResponse:
+      additionalProperties: false
+      properties:
+        expires_at:
+          format: date-time
+          type: string
+        fragments:
+          items:
+            $ref: '#/components/schemas/CheckoutUIFragment'
+          type: array
+        metadata:
+          type: object
+        session_id:
+          type: string
+      required:
+      - fragments
+      - expires_at
+      type: object
     CreateAPIKeyResponse:
       additionalProperties: false
       properties:
@@ -141,6 +199,9 @@ components:
       - token
       - uuid
       - name
+      type: object
+    Decimal:
+      additionalProperties: false
       type: object
     Error:
       additionalProperties: false
@@ -163,6 +224,30 @@ components:
           type: string
       required:
       - error
+      type: object
+    GatewayListResponse:
+      items:
+        $ref: '#/components/schemas/GatewayPublicInfo'
+      type: array
+    GatewayPublicInfo:
+      additionalProperties: false
+      properties:
+        description:
+          type: string
+        id:
+          type: string
+        is_active:
+          type: boolean
+        logo_url:
+          type: string
+        name:
+          type: string
+      required:
+      - id
+      - name
+      - description
+      - logo_url
+      - is_active
       type: object
     LoginRequest:
       additionalProperties: false
@@ -187,6 +272,49 @@ components:
           type: string
       required:
       - token
+      type: object
+    ManagementCapabilitiesResponse:
+      additionalProperties: false
+      properties:
+        management_mode:
+          type: string
+        operations:
+          additionalProperties:
+            type: boolean
+          type: object
+      required:
+      - management_mode
+      - operations
+      type: object
+    ManagementRequest:
+      additionalProperties: false
+      properties:
+        operation:
+          type: string
+      required:
+      - operation
+      type: object
+    ManagementResultResponse:
+      additionalProperties: false
+      properties:
+        action:
+          type: string
+        api_endpoint:
+          $ref: '#/components/schemas/APIEndpointInfoResponse'
+        confirmation_message:
+          type: string
+        effective_time:
+          format: date-time
+          type: string
+        error_message:
+          type: string
+        requires_confirmation:
+          type: boolean
+        url:
+          type: string
+      required:
+      - action
+      - requires_confirmation
       type: object
     OTPDisableRequest:
       additionalProperties: false
@@ -420,6 +548,82 @@ components:
       - ping
       - token
       type: object
+    PricingPlanPeriodDTO:
+      additionalProperties: false
+      properties:
+        cadence:
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        id:
+          type: integer
+        is_active:
+          type: boolean
+        price_usd:
+          type: number
+        pricing_plan_id:
+          type: integer
+        quota_plan_id:
+          type: integer
+        rolling_days:
+          type: integer
+        updated_at:
+          format: date-time
+          type: string
+      required:
+      - id
+      - pricing_plan_id
+      - cadence
+      - price_usd
+      - quota_plan_id
+      - is_active
+      - created_at
+      - updated_at
+      type: object
+    PublicPricingPlanResponse:
+      additionalProperties: false
+      properties:
+        created_at:
+          format: date-time
+          type: string
+        currency:
+          type: string
+        description:
+          type: string
+        id:
+          type: integer
+        name:
+          type: string
+        pricing_periods:
+          items:
+            $ref: '#/components/schemas/PricingPlanPeriodDTO'
+          type: array
+        updated_at:
+          format: date-time
+          type: string
+      required:
+      - id
+      - name
+      - description
+      - currency
+      - pricing_periods
+      - created_at
+      - updated_at
+      type: object
+    PublicPricingPlansListResponse:
+      additionalProperties: false
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/PublicPricingPlanResponse'
+          type: array
+        total:
+          type: integer
+      required:
+      - data
+      - total
+      type: object
     QuotaHistoryResponse:
       additionalProperties: false
       properties:
@@ -493,6 +697,30 @@ components:
       required:
       - email
       type: object
+    SubscriptionStatusResponse:
+      additionalProperties: false
+      properties:
+        created_at:
+          format: date-time
+          type: string
+        gateway_type:
+          type: string
+        is_subscribed:
+          type: boolean
+        pricing_plan_period_id:
+          type: integer
+        updated_at:
+          format: date-time
+          type: string
+      required:
+      - is_subscribed
+      type: object
+    UUID:
+      items:
+        type: integer
+      maxItems: 16
+      minItems: 16
+      type: array
     UpdateEmailRequest:
       additionalProperties: false
       properties:
@@ -541,6 +769,39 @@ components:
       required:
       - date
       - bytes
+      type: object
+    UserCreditItem:
+      additionalProperties: false
+      properties:
+        amount:
+          $ref: '#/components/schemas/Decimal'
+        created_at:
+          format: date-time
+          type: string
+        description:
+          type: string
+        direction:
+          type: string
+        id:
+          $ref: '#/components/schemas/UUID'
+        transaction_type:
+          type: string
+      required:
+      - id
+      - amount
+      - transaction_type
+      - direction
+      - created_at
+      type: object
+    UserCreditsListResponse:
+      additionalProperties: false
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/UserCreditItem'
+          type: array
+      required:
+      - data
       type: object
     VerifyEmailRequest:
       additionalProperties: false
@@ -756,6 +1017,489 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Internal server error
       summary: Upload Avatar
+  /api/account/billing/balance:
+    get:
+      description: Returns the authenticated user's current credit balance. Positive
+        balance indicates available credits, negative balance indicates outstanding
+        dues.
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BalanceResponse'
+          description: Balance retrieved successfully
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Authentication required
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Failed to retrieve balance
+      summary: Get Current User's Credit Balance
+      tags:
+      - Billing
+  /api/account/billing/cancel:
+    post:
+      description: Executes the cancel operation on the current subscription. Validates
+        that the gateway supports cancellation and returns the appropriate action
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagementResultResponse'
+          description: Cancel operation details retrieved successfully
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Cancellation is not supported by this gateway
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Authentication required
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: No active subscription found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Failed to process cancel operation
+      summary: Cancel subscription
+      tags:
+      - Billing
+  /api/account/billing/change-plan:
+    post:
+      description: Executes the change plan operation on the current subscription.
+        Validates that the gateway supports plan changes and returns the appropriate
+        action
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagementResultResponse'
+          description: Change plan operation details retrieved successfully
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Plan change is not supported by this gateway
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Authentication required
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: No active subscription found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Failed to process change plan operation
+      summary: Change subscription plan
+      tags:
+      - Billing
+  /api/account/billing/checkout/ui/{planId}:
+    get:
+      description: Returns platform-agnostic UI fragments for checkout. Response format
+        varies by gateway but always contains fragments of type link, html, script,
+        iframe, modal, button, or form
+      parameters:
+      - description: Plan ID
+        in: path
+        name: planId
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckoutUIResponse'
+          description: Checkout UI fragments retrieved
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid request or plan not available
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: User already has an active subscription
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Failed to get checkout UI
+      summary: Get Checkout UI Fragments
+      tags:
+      - Billing
+  /api/account/billing/credits:
+    get:
+      description: Returns the authenticated user's credit transaction history with
+        support for filtering by transaction type, direction, and date range. Results
+        are paginated.
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserCreditsListResponse'
+          description: Credits retrieved successfully
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Authentication required
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Failed to retrieve credit history
+      summary: Get Current User's Credit History
+      tags:
+      - Billing
+  /api/account/billing/management:
+    post:
+      description: Returns the action and configuration for a specific management
+        operation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ManagementRequest'
+        description: Operation to perform
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagementResultResponse'
+          description: Management operation details retrieved successfully
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Authentication required
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: No active subscription found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Failed to get management operation details
+      summary: Get subscription management operation details
+      tags:
+      - Billing
+  /api/account/billing/management/capabilities:
+    get:
+      description: Returns the subscription management capabilities for the current
+        user's gateway
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagementCapabilitiesResponse'
+          description: Management capabilities retrieved successfully
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Authentication required
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: No active subscription found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Failed to retrieve management capabilities
+      summary: Get subscription management capabilities
+      tags:
+      - Billing
+  /api/account/billing/subscription:
+    get:
+      description: Returns the subscription status for the authenticated user
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionStatusResponse'
+          description: Subscription status retrieved successfully
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Authentication required
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Failed to check subscription status
+      summary: Get subscription status
+      tags:
+      - Billing
+  /api/account/billing/subscription/events:
+    get:
+      description: Establishes a Server-Sent Events (SSE) connection for real-time
+        subscription updates including payment completions, subscription activations,
+        and plan changes
+      responses:
+        "200":
+          description: SSE connection established
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Authentication required
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Failed to establish SSE connection
+      summary: Subscribe to subscription events via SSE
+      tags:
+      - Billing
+  /api/account/billing/webhooks/{gatewayType}:
+    post:
+      description: Handles incoming webhooks from payment gateways such as Stripe,
+        PayPal, etc.
+      parameters:
+      - description: Type of payment gateway (e.g., stripe, paypal)
+        in: path
+        name: gatewayType
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+        description: Raw webhook payload from the payment gateway
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Success
+        "204":
+          description: Webhook processed successfully
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid gateway type, missing signature header, or webhook
+            processing failed
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Gateway not found
+        "413":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Payload too large
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Process payment gateway webhook
+      tags:
+      - Billing
   /api/account/keys:
     get:
       description: Retrieves a list of API keys for the authenticated user.
@@ -1648,6 +2392,139 @@ paths:
                 $ref: '#/components/schemas/Error'
           description: A database operation failed.
       summary: Register a new account
+  /api/billing/gateways:
+    get:
+      description: Returns list of available payment gateways with metadata
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GatewayListResponse'
+          description: Gateways retrieved
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Gateway registry not initialized
+      summary: List Available Payment Gateways
+      tags:
+      - Billing
+  /api/billing/gateways/{id}/logo:
+    get:
+      description: Returns embedded logo image for payment gateway
+      parameters:
+      - description: Gateway identifier
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Gateway logo retrieved
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Gateway logo not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Get Gateway Logo
+      tags:
+      - Billing
+  /api/billing/plans:
+    get:
+      description: Returns pricing plans with their periods for user's effective price
+        line
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicPricingPlansListResponse'
+          description: Pricing plans retrieved
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Failed to get pricing plans
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: List Pricing Plans
+      tags:
+      - Billing
   /api/operations:
     get:
       description: Retrieve a list of operations, with filtering, searching, and pagination
