@@ -38,6 +38,136 @@ func (_m *MockAccountAPI) EXPECT() *MockAccountAPI_Expecter {
 	return &MockAccountAPI_Expecter{mock: &_m.Mock}
 }
 
+// CancelSubscription provides a mock function for the type MockAccountAPI
+func (_mock *MockAccountAPI) CancelSubscription(ctx context.Context) (*account.ManagementResult, error) {
+	ret := _mock.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CancelSubscription")
+	}
+
+	var r0 *account.ManagementResult
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context) (*account.ManagementResult, error)); ok {
+		return returnFunc(ctx)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context) *account.ManagementResult); ok {
+		r0 = returnFunc(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*account.ManagementResult)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = returnFunc(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockAccountAPI_CancelSubscription_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CancelSubscription'
+type MockAccountAPI_CancelSubscription_Call struct {
+	*mock.Call
+}
+
+// CancelSubscription is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockAccountAPI_Expecter) CancelSubscription(ctx interface{}) *MockAccountAPI_CancelSubscription_Call {
+	return &MockAccountAPI_CancelSubscription_Call{Call: _e.mock.On("CancelSubscription", ctx)}
+}
+
+func (_c *MockAccountAPI_CancelSubscription_Call) Run(run func(ctx context.Context)) *MockAccountAPI_CancelSubscription_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockAccountAPI_CancelSubscription_Call) Return(managementResult *account.ManagementResult, err error) *MockAccountAPI_CancelSubscription_Call {
+	_c.Call.Return(managementResult, err)
+	return _c
+}
+
+func (_c *MockAccountAPI_CancelSubscription_Call) RunAndReturn(run func(ctx context.Context) (*account.ManagementResult, error)) *MockAccountAPI_CancelSubscription_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ChangePlan provides a mock function for the type MockAccountAPI
+func (_mock *MockAccountAPI) ChangePlan(ctx context.Context, planID string) (*account.ManagementResult, error) {
+	ret := _mock.Called(ctx, planID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ChangePlan")
+	}
+
+	var r0 *account.ManagementResult
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (*account.ManagementResult, error)); ok {
+		return returnFunc(ctx, planID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) *account.ManagementResult); ok {
+		r0 = returnFunc(ctx, planID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*account.ManagementResult)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = returnFunc(ctx, planID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockAccountAPI_ChangePlan_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ChangePlan'
+type MockAccountAPI_ChangePlan_Call struct {
+	*mock.Call
+}
+
+// ChangePlan is a helper method to define mock.On call
+//   - ctx context.Context
+//   - planID string
+func (_e *MockAccountAPI_Expecter) ChangePlan(ctx interface{}, planID interface{}) *MockAccountAPI_ChangePlan_Call {
+	return &MockAccountAPI_ChangePlan_Call{Call: _e.mock.On("ChangePlan", ctx, planID)}
+}
+
+func (_c *MockAccountAPI_ChangePlan_Call) Run(run func(ctx context.Context, planID string)) *MockAccountAPI_ChangePlan_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockAccountAPI_ChangePlan_Call) Return(managementResult *account.ManagementResult, err error) *MockAccountAPI_ChangePlan_Call {
+	_c.Call.Return(managementResult, err)
+	return _c
+}
+
+func (_c *MockAccountAPI_ChangePlan_Call) RunAndReturn(run func(ctx context.Context, planID string) (*account.ManagementResult, error)) *MockAccountAPI_ChangePlan_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // ConfirmPasswordReset provides a mock function for the type MockAccountAPI
 func (_mock *MockAccountAPI) ConfirmPasswordReset(ctx context.Context, email string, token string, newPassword string) error {
 	ret := _mock.Called(ctx, email, token, newPassword)
@@ -524,6 +654,198 @@ func (_c *MockAccountAPI_GetAvatar_Call) RunAndReturn(run func(ctx context.Conte
 	return _c
 }
 
+// GetBalance provides a mock function for the type MockAccountAPI
+func (_mock *MockAccountAPI) GetBalance(ctx context.Context) (*account.Balance, error) {
+	ret := _mock.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetBalance")
+	}
+
+	var r0 *account.Balance
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context) (*account.Balance, error)); ok {
+		return returnFunc(ctx)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context) *account.Balance); ok {
+		r0 = returnFunc(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*account.Balance)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = returnFunc(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockAccountAPI_GetBalance_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetBalance'
+type MockAccountAPI_GetBalance_Call struct {
+	*mock.Call
+}
+
+// GetBalance is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockAccountAPI_Expecter) GetBalance(ctx interface{}) *MockAccountAPI_GetBalance_Call {
+	return &MockAccountAPI_GetBalance_Call{Call: _e.mock.On("GetBalance", ctx)}
+}
+
+func (_c *MockAccountAPI_GetBalance_Call) Run(run func(ctx context.Context)) *MockAccountAPI_GetBalance_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockAccountAPI_GetBalance_Call) Return(balance *account.Balance, err error) *MockAccountAPI_GetBalance_Call {
+	_c.Call.Return(balance, err)
+	return _c
+}
+
+func (_c *MockAccountAPI_GetBalance_Call) RunAndReturn(run func(ctx context.Context) (*account.Balance, error)) *MockAccountAPI_GetBalance_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetCheckoutUI provides a mock function for the type MockAccountAPI
+func (_mock *MockAccountAPI) GetCheckoutUI(ctx context.Context, planID string) (*account.CheckoutUI, error) {
+	ret := _mock.Called(ctx, planID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetCheckoutUI")
+	}
+
+	var r0 *account.CheckoutUI
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (*account.CheckoutUI, error)); ok {
+		return returnFunc(ctx, planID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) *account.CheckoutUI); ok {
+		r0 = returnFunc(ctx, planID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*account.CheckoutUI)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = returnFunc(ctx, planID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockAccountAPI_GetCheckoutUI_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetCheckoutUI'
+type MockAccountAPI_GetCheckoutUI_Call struct {
+	*mock.Call
+}
+
+// GetCheckoutUI is a helper method to define mock.On call
+//   - ctx context.Context
+//   - planID string
+func (_e *MockAccountAPI_Expecter) GetCheckoutUI(ctx interface{}, planID interface{}) *MockAccountAPI_GetCheckoutUI_Call {
+	return &MockAccountAPI_GetCheckoutUI_Call{Call: _e.mock.On("GetCheckoutUI", ctx, planID)}
+}
+
+func (_c *MockAccountAPI_GetCheckoutUI_Call) Run(run func(ctx context.Context, planID string)) *MockAccountAPI_GetCheckoutUI_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockAccountAPI_GetCheckoutUI_Call) Return(checkoutUI *account.CheckoutUI, err error) *MockAccountAPI_GetCheckoutUI_Call {
+	_c.Call.Return(checkoutUI, err)
+	return _c
+}
+
+func (_c *MockAccountAPI_GetCheckoutUI_Call) RunAndReturn(run func(ctx context.Context, planID string) (*account.CheckoutUI, error)) *MockAccountAPI_GetCheckoutUI_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetManagementCapabilities provides a mock function for the type MockAccountAPI
+func (_mock *MockAccountAPI) GetManagementCapabilities(ctx context.Context) (*account.ManagementCapabilities, error) {
+	ret := _mock.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetManagementCapabilities")
+	}
+
+	var r0 *account.ManagementCapabilities
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context) (*account.ManagementCapabilities, error)); ok {
+		return returnFunc(ctx)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context) *account.ManagementCapabilities); ok {
+		r0 = returnFunc(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*account.ManagementCapabilities)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = returnFunc(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockAccountAPI_GetManagementCapabilities_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetManagementCapabilities'
+type MockAccountAPI_GetManagementCapabilities_Call struct {
+	*mock.Call
+}
+
+// GetManagementCapabilities is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockAccountAPI_Expecter) GetManagementCapabilities(ctx interface{}) *MockAccountAPI_GetManagementCapabilities_Call {
+	return &MockAccountAPI_GetManagementCapabilities_Call{Call: _e.mock.On("GetManagementCapabilities", ctx)}
+}
+
+func (_c *MockAccountAPI_GetManagementCapabilities_Call) Run(run func(ctx context.Context)) *MockAccountAPI_GetManagementCapabilities_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockAccountAPI_GetManagementCapabilities_Call) Return(managementCapabilities *account.ManagementCapabilities, err error) *MockAccountAPI_GetManagementCapabilities_Call {
+	_c.Call.Return(managementCapabilities, err)
+	return _c
+}
+
+func (_c *MockAccountAPI_GetManagementCapabilities_Call) RunAndReturn(run func(ctx context.Context) (*account.ManagementCapabilities, error)) *MockAccountAPI_GetManagementCapabilities_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetOperation provides a mock function for the type MockAccountAPI
 func (_mock *MockAccountAPI) GetOperation(ctx context.Context, id int64) (*account.Operation, error) {
 	ret := _mock.Called(ctx, id)
@@ -858,6 +1180,131 @@ func (_c *MockAccountAPI_GetQuotaHistory_Call) RunAndReturn(run func(ctx context
 	return _c
 }
 
+// GetSubscriptionStatus provides a mock function for the type MockAccountAPI
+func (_mock *MockAccountAPI) GetSubscriptionStatus(ctx context.Context) (*account.SubscriptionStatus, error) {
+	ret := _mock.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetSubscriptionStatus")
+	}
+
+	var r0 *account.SubscriptionStatus
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context) (*account.SubscriptionStatus, error)); ok {
+		return returnFunc(ctx)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context) *account.SubscriptionStatus); ok {
+		r0 = returnFunc(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*account.SubscriptionStatus)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = returnFunc(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockAccountAPI_GetSubscriptionStatus_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetSubscriptionStatus'
+type MockAccountAPI_GetSubscriptionStatus_Call struct {
+	*mock.Call
+}
+
+// GetSubscriptionStatus is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockAccountAPI_Expecter) GetSubscriptionStatus(ctx interface{}) *MockAccountAPI_GetSubscriptionStatus_Call {
+	return &MockAccountAPI_GetSubscriptionStatus_Call{Call: _e.mock.On("GetSubscriptionStatus", ctx)}
+}
+
+func (_c *MockAccountAPI_GetSubscriptionStatus_Call) Run(run func(ctx context.Context)) *MockAccountAPI_GetSubscriptionStatus_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockAccountAPI_GetSubscriptionStatus_Call) Return(subscriptionStatus *account.SubscriptionStatus, err error) *MockAccountAPI_GetSubscriptionStatus_Call {
+	_c.Call.Return(subscriptionStatus, err)
+	return _c
+}
+
+func (_c *MockAccountAPI_GetSubscriptionStatus_Call) RunAndReturn(run func(ctx context.Context) (*account.SubscriptionStatus, error)) *MockAccountAPI_GetSubscriptionStatus_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// HandleWebhook provides a mock function for the type MockAccountAPI
+func (_mock *MockAccountAPI) HandleWebhook(ctx context.Context, gatewayType string, webhookData map[string]interface{}) error {
+	ret := _mock.Called(ctx, gatewayType, webhookData)
+
+	if len(ret) == 0 {
+		panic("no return value specified for HandleWebhook")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, map[string]interface{}) error); ok {
+		r0 = returnFunc(ctx, gatewayType, webhookData)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockAccountAPI_HandleWebhook_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'HandleWebhook'
+type MockAccountAPI_HandleWebhook_Call struct {
+	*mock.Call
+}
+
+// HandleWebhook is a helper method to define mock.On call
+//   - ctx context.Context
+//   - gatewayType string
+//   - webhookData map[string]interface{}
+func (_e *MockAccountAPI_Expecter) HandleWebhook(ctx interface{}, gatewayType interface{}, webhookData interface{}) *MockAccountAPI_HandleWebhook_Call {
+	return &MockAccountAPI_HandleWebhook_Call{Call: _e.mock.On("HandleWebhook", ctx, gatewayType, webhookData)}
+}
+
+func (_c *MockAccountAPI_HandleWebhook_Call) Run(run func(ctx context.Context, gatewayType string, webhookData map[string]interface{})) *MockAccountAPI_HandleWebhook_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 map[string]interface{}
+		if args[2] != nil {
+			arg2 = args[2].(map[string]interface{})
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockAccountAPI_HandleWebhook_Call) Return(err error) *MockAccountAPI_HandleWebhook_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockAccountAPI_HandleWebhook_Call) RunAndReturn(run func(ctx context.Context, gatewayType string, webhookData map[string]interface{}) error) *MockAccountAPI_HandleWebhook_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // ListAPIKeys provides a mock function for the type MockAccountAPI
 func (_mock *MockAccountAPI) ListAPIKeys(ctx context.Context, opts ...account.ListOption) ([]*account.APIKey, error) {
 	// account.ListOption
@@ -935,6 +1382,68 @@ func (_c *MockAccountAPI_ListAPIKeys_Call) Return(aPIKeys []*account.APIKey, err
 }
 
 func (_c *MockAccountAPI_ListAPIKeys_Call) RunAndReturn(run func(ctx context.Context, opts ...account.ListOption) ([]*account.APIKey, error)) *MockAccountAPI_ListAPIKeys_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ListCredits provides a mock function for the type MockAccountAPI
+func (_mock *MockAccountAPI) ListCredits(ctx context.Context) ([]*account.Credit, error) {
+	ret := _mock.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListCredits")
+	}
+
+	var r0 []*account.Credit
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context) ([]*account.Credit, error)); ok {
+		return returnFunc(ctx)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context) []*account.Credit); ok {
+		r0 = returnFunc(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*account.Credit)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = returnFunc(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockAccountAPI_ListCredits_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListCredits'
+type MockAccountAPI_ListCredits_Call struct {
+	*mock.Call
+}
+
+// ListCredits is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockAccountAPI_Expecter) ListCredits(ctx interface{}) *MockAccountAPI_ListCredits_Call {
+	return &MockAccountAPI_ListCredits_Call{Call: _e.mock.On("ListCredits", ctx)}
+}
+
+func (_c *MockAccountAPI_ListCredits_Call) Run(run func(ctx context.Context)) *MockAccountAPI_ListCredits_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockAccountAPI_ListCredits_Call) Return(credits []*account.Credit, err error) *MockAccountAPI_ListCredits_Call {
+	_c.Call.Return(credits, err)
+	return _c
+}
+
+func (_c *MockAccountAPI_ListCredits_Call) RunAndReturn(run func(ctx context.Context) ([]*account.Credit, error)) *MockAccountAPI_ListCredits_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -1156,6 +1665,74 @@ func (_c *MockAccountAPI_LoginWithAPIKey_Call) Return(s string, err error) *Mock
 }
 
 func (_c *MockAccountAPI_LoginWithAPIKey_Call) RunAndReturn(run func(ctx context.Context, apiKey string) (string, error)) *MockAccountAPI_LoginWithAPIKey_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ManageBilling provides a mock function for the type MockAccountAPI
+func (_mock *MockAccountAPI) ManageBilling(ctx context.Context, request account.ManagementRequest) (*account.ManagementResult, error) {
+	ret := _mock.Called(ctx, request)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ManageBilling")
+	}
+
+	var r0 *account.ManagementResult
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, account.ManagementRequest) (*account.ManagementResult, error)); ok {
+		return returnFunc(ctx, request)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, account.ManagementRequest) *account.ManagementResult); ok {
+		r0 = returnFunc(ctx, request)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*account.ManagementResult)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, account.ManagementRequest) error); ok {
+		r1 = returnFunc(ctx, request)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockAccountAPI_ManageBilling_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ManageBilling'
+type MockAccountAPI_ManageBilling_Call struct {
+	*mock.Call
+}
+
+// ManageBilling is a helper method to define mock.On call
+//   - ctx context.Context
+//   - request account.ManagementRequest
+func (_e *MockAccountAPI_Expecter) ManageBilling(ctx interface{}, request interface{}) *MockAccountAPI_ManageBilling_Call {
+	return &MockAccountAPI_ManageBilling_Call{Call: _e.mock.On("ManageBilling", ctx, request)}
+}
+
+func (_c *MockAccountAPI_ManageBilling_Call) Run(run func(ctx context.Context, request account.ManagementRequest)) *MockAccountAPI_ManageBilling_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 account.ManagementRequest
+		if args[1] != nil {
+			arg1 = args[1].(account.ManagementRequest)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockAccountAPI_ManageBilling_Call) Return(managementResult *account.ManagementResult, err error) *MockAccountAPI_ManageBilling_Call {
+	_c.Call.Return(managementResult, err)
+	return _c
+}
+
+func (_c *MockAccountAPI_ManageBilling_Call) RunAndReturn(run func(ctx context.Context, request account.ManagementRequest) (*account.ManagementResult, error)) *MockAccountAPI_ManageBilling_Call {
 	_c.Call.Return(run)
 	return _c
 }

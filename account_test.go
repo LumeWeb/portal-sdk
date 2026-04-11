@@ -22,6 +22,11 @@ import (
 	"gorm.io/datatypes"
 )
 
+// stringPtr returns a pointer to the given string.
+func stringPtr(s string) *string {
+	return &s
+}
+
 func TestLogin(t *testing.T) {
 	tests := []struct {
 		name        string
@@ -4129,6 +4134,692 @@ func TestCreateDownloadRateLimiter(t *testing.T) {
 
 			if !tt.wantErr && allowed != tt.wantAllowed {
 				t.Errorf("AllowDownload() allowed = %v, want %v, requestedSize %d", allowed, tt.wantAllowed, tt.requestedSize)
+			}
+		})
+	}
+}
+
+// === Billing Service Tests ===
+
+func TestManageBilling(t *testing.T) {
+	tests := []struct {
+		name       string
+		request    ManagementRequest
+		jwt        string
+		statusCode int
+		response   interface{}
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name: "successful billing management",
+			request: ManagementRequest{
+				Operation: "activate",
+			},
+			jwt:        "test-jwt-token",
+			statusCode: http.StatusOK,
+			response: client.ManagementResultResponse{
+				Action:              "activate",
+				ConfirmationMessage: stringPtr("Billing activated successfully"),
+			},
+			wantErr: false,
+		},
+		{
+			name: "unauthorized - missing JWT",
+			request: ManagementRequest{
+				Operation: "activate",
+			},
+			jwt:        "",
+			statusCode: http.StatusUnauthorized,
+			response:   client.ErrorResponse{Error: "unauthorized"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorIs(t, err, ErrUnauthorized)
+			},
+		},
+		{
+			name: "invalid operation",
+			request: ManagementRequest{
+				Operation: "invalid-operation",
+			},
+			jwt:        "test-jwt-token",
+			statusCode: http.StatusBadRequest,
+			response:   client.ErrorResponse{Error: "invalid request"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "invalid request")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "POST" {
+					t.Errorf("expected POST request, got %s", r.Method)
+				}
+
+				if r.URL.Path != "/api/account/billing/management" {
+					t.Errorf("expected /api/account/billing/management path, got %s", r.URL.Path)
+				}
+
+				// Verify Authorization header
+				authHeader := r.Header.Get("Authorization")
+				if tt.jwt != "" {
+					require.Equal(t, "Bearer "+tt.jwt, authHeader)
+				}
+
+				// Verify request body
+				var reqBody client.ManagementRequest
+				require.NoError(t, json.NewDecoder(r.Body).Decode(&reqBody))
+				require.Equal(t, tt.request.Operation, reqBody.Operation)
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				require.NoError(t, json.NewEncoder(w).Encode(tt.response))
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithEndpoint(server.URL), WithJWT(tt.jwt))
+			result, err := acc.ManageBilling(context.Background(), tt.request)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ManageBilling() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.NotNil(t, result)
+				require.Equal(t, "activate", result.Action)
+				require.NotNil(t, result.ConfirmationMessage)
+				require.Equal(t, "Billing activated successfully", *result.ConfirmationMessage)
+			}
+		})
+	}
+}
+
+func TestCancelSubscription(t *testing.T) {
+	tests := []struct {
+		name       string
+		jwt        string
+		statusCode int
+		response   interface{}
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:       "successful subscription cancellation",
+			jwt:        "test-jwt-token",
+			statusCode: http.StatusOK,
+			response: client.ManagementResultResponse{
+				Action:              "cancel",
+				ConfirmationMessage: stringPtr("Subscription cancelled successfully"),
+			},
+			wantErr: false,
+		},
+		{
+			name:       "unauthorized - missing JWT",
+			jwt:        "",
+			statusCode: http.StatusUnauthorized,
+			response:   client.ErrorResponse{Error: "unauthorized"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorIs(t, err, ErrUnauthorized)
+			},
+		},
+		{
+			name:       "no active subscription",
+			jwt:        "test-jwt-token",
+			statusCode: http.StatusNotFound,
+			response:   client.ErrorResponse{Error: "no active subscription"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "no active subscription")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "POST" {
+					t.Errorf("expected POST request, got %s", r.Method)
+				}
+
+				if r.URL.Path != "/api/account/billing/cancel" {
+					t.Errorf("expected /api/account/billing/cancel path, got %s", r.URL.Path)
+				}
+
+				// Verify Authorization header
+				authHeader := r.Header.Get("Authorization")
+				if tt.jwt != "" {
+					require.Equal(t, "Bearer "+tt.jwt, authHeader)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				require.NoError(t, json.NewEncoder(w).Encode(tt.response))
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithEndpoint(server.URL), WithJWT(tt.jwt))
+			result, err := acc.CancelSubscription(context.Background())
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("CancelSubscription() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.NotNil(t, result)
+				require.Equal(t, "cancel", result.Action)
+				require.NotNil(t, result.ConfirmationMessage)
+				require.Equal(t, "Subscription cancelled successfully", *result.ConfirmationMessage)
+			}
+		})
+	}
+}
+
+func TestChangePlan(t *testing.T) {
+	tests := []struct {
+		name       string
+		planID     string
+		jwt        string
+		statusCode int
+		response   interface{}
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:       "successful plan change",
+			planID:     "premium-plan-123",
+			jwt:        "test-jwt-token",
+			statusCode: http.StatusOK,
+			response: client.ManagementResultResponse{
+				Action:              "change_plan",
+				ConfirmationMessage: stringPtr("Plan changed successfully"),
+			},
+			wantErr: false,
+		},
+		{
+			name:       "unauthorized - missing JWT",
+			planID:     "premium-plan-123",
+			jwt:        "",
+			statusCode: http.StatusUnauthorized,
+			response:   client.ErrorResponse{Error: "unauthorized"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorIs(t, err, ErrUnauthorized)
+			},
+		},
+		{
+			name:       "plan not found",
+			planID:     "nonexistent-plan",
+			jwt:        "test-jwt-token",
+			statusCode: http.StatusNotFound,
+			response:   client.ErrorResponse{Error: "plan not found"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "plan not found")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "POST" {
+					t.Errorf("expected POST request, got %s", r.Method)
+				}
+
+				if r.URL.Path != "/api/account/billing/change-plan" {
+					t.Errorf("expected /api/account/billing/change-plan path, got %s", r.URL.Path)
+				}
+
+				// Verify Authorization header
+				authHeader := r.Header.Get("Authorization")
+				if tt.jwt != "" {
+					require.Equal(t, "Bearer "+tt.jwt, authHeader)
+				}
+
+				// Verify planID query parameter
+				planID := r.URL.Query().Get("planId")
+				require.Equal(t, tt.planID, planID)
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				require.NoError(t, json.NewEncoder(w).Encode(tt.response))
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithEndpoint(server.URL), WithJWT(tt.jwt))
+			result, err := acc.ChangePlan(context.Background(), tt.planID)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ChangePlan() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.NotNil(t, result)
+				require.Equal(t, "change_plan", result.Action)
+				require.NotNil(t, result.ConfirmationMessage)
+				require.Equal(t, "Plan changed successfully", *result.ConfirmationMessage)
+			}
+		})
+	}
+}
+
+func TestHandleWebhook(t *testing.T) {
+	tests := []struct {
+		name        string
+		gatewayType string
+		webhookData map[string]interface{}
+		statusCode  int
+		response    interface{}
+		wantErr     bool
+		errCheck    func(*testing.T, error)
+	}{
+		{
+			name:        "successful webhook handling",
+			gatewayType: "stripe",
+			webhookData: map[string]interface{}{
+				"id":     "evt_1234567890",
+				"type":   "payment_intent.succeeded",
+				"amount": 5000,
+			},
+			statusCode: http.StatusOK,
+			response:   client.ErrorResponse{Error: ""}, // Empty error means success
+			wantErr:    false,
+		},
+		{
+			name:        "invalid webhook data",
+			gatewayType: "stripe",
+			webhookData: map[string]interface{}{
+				"invalid": "data",
+			},
+			statusCode: http.StatusBadRequest,
+			response:   client.ErrorResponse{Error: "invalid webhook data"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "invalid webhook data")
+			},
+		},
+		{
+			name:        "paypal webhook",
+			gatewayType: "paypal",
+			webhookData: map[string]interface{}{
+				"id":         "WH-ABC123",
+				"event_type": "PAYMENT.CAPTURE.COMPLETED",
+			},
+			statusCode: http.StatusOK,
+			response:   client.ErrorResponse{Error: ""},
+			wantErr:    false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "POST" {
+					t.Errorf("expected POST request, got %s", r.Method)
+				}
+
+				expectedPath := "/api/account/billing/webhooks/" + tt.gatewayType
+				if r.URL.Path != expectedPath {
+					t.Errorf("expected %s path, got %s", expectedPath, r.URL.Path)
+				}
+
+				// Verify request body
+				var reqBody map[string]interface{}
+				require.NoError(t, json.NewDecoder(r.Body).Decode(&reqBody))
+				for k, v := range tt.webhookData {
+					// Compare values, handling numeric type differences
+					if strVal, ok := v.(string); ok {
+						require.Equal(t, strVal, reqBody[k])
+					} else if numVal, ok := v.(int); ok {
+						// JSON numbers are decoded as float64
+						require.Equal(t, float64(numVal), reqBody[k])
+					} else {
+						require.Equal(t, v, reqBody[k])
+					}
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				w.Write([]byte("{}")) // Return empty JSON object for success
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithEndpoint(server.URL))
+			err := acc.HandleWebhook(context.Background(), tt.gatewayType, tt.webhookData)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("HandleWebhook() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+		})
+	}
+}
+
+func TestListBillingGateways(t *testing.T) {
+	tests := []struct {
+		name       string
+		statusCode int
+		response   interface{}
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:       "successful list billing gateways",
+			statusCode: http.StatusOK,
+			response: []client.GatewayPublicInfo{
+				{
+					Id:          "stripe",
+					Name:        "Stripe",
+					Description: "Credit card payments via Stripe",
+					IsActive:    true,
+					LogoUrl:     "/logos/stripe.svg",
+				},
+				{
+					Id:          "paypal",
+					Name:        "PayPal",
+					Description: "PayPal checkout",
+					IsActive:    true,
+					LogoUrl:     "/logos/paypal.svg",
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name:       "unauthorized - missing JWT",
+			statusCode: http.StatusUnauthorized,
+			response:   client.ErrorResponse{Error: "unauthorized"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorIs(t, err, ErrUnauthorized)
+			},
+		},
+		{
+			name:       "service not initialized",
+			statusCode: http.StatusInternalServerError,
+			response:   client.ErrorResponse{Error: "gateway registry not initialized"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "gateway registry not initialized")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "GET" {
+					t.Errorf("expected GET request, got %s", r.Method)
+				}
+
+				if r.URL.Path != "/api/billing/gateways" {
+					t.Errorf("expected /api/billing/gateways path, got %s", r.URL.Path)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				require.NoError(t, json.NewEncoder(w).Encode(tt.response))
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithEndpoint(server.URL), WithJWT("test-jwt-token"))
+			gateways, err := acc.ListBillingGateways(context.Background())
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ListBillingGateways() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.NotNil(t, gateways)
+				require.Len(t, gateways, 2)
+				require.Equal(t, "stripe", gateways[0].Id)
+				require.Equal(t, "Stripe", gateways[0].Name)
+				require.True(t, gateways[0].IsActive)
+			}
+		})
+	}
+}
+
+func TestGetGatewayLogo(t *testing.T) {
+	tests := []struct {
+		name        string
+		gatewayID   string
+		statusCode  int
+		contentType string
+		response    []byte
+		wantErr     bool
+		errCheck    func(*testing.T, error)
+	}{
+		{
+			name:        "successful get SVG logo",
+			gatewayID:   "stripe",
+			statusCode:  http.StatusOK,
+			contentType: "image/svg+xml",
+			response:    []byte("<svg xmlns=\"http://www.w3.org/2000/svg\"><rect width=\"100\" height=\"100\"/></svg>"),
+			wantErr:     false,
+		},
+		{
+			name:        "successful get PNG logo",
+			gatewayID:   "paypal",
+			statusCode:  http.StatusOK,
+			contentType: "image/png",
+			response:    []byte{0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}, // PNG header
+			wantErr:     false,
+		},
+		{
+			name:        "unauthorized",
+			gatewayID:   "stripe",
+			statusCode:  http.StatusUnauthorized,
+			contentType: "application/json",
+			response:    []byte(`{"error":"unauthorized"}`),
+			wantErr:     true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorIs(t, err, ErrUnauthorized)
+			},
+		},
+		{
+			name:        "forbidden",
+			gatewayID:   "stripe",
+			statusCode:  http.StatusForbidden,
+			contentType: "application/json",
+			response:    []byte(`{"error":"insufficient permissions"}`),
+			wantErr:     true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "insufficient permissions")
+			},
+		},
+		{
+			name:        "logo not found",
+			gatewayID:   "nonexistent",
+			statusCode:  http.StatusNotFound,
+			contentType: "application/json",
+			response:    []byte(`{"error":"gateway logo not found"}`),
+			wantErr:     true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "gateway logo not found")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "GET" {
+					t.Errorf("expected GET request, got %s", r.Method)
+				}
+
+				expectedPath := "/api/billing/gateways/" + tt.gatewayID + "/logo"
+				if r.URL.Path != expectedPath {
+					t.Errorf("expected %s path, got %s", expectedPath, r.URL.Path)
+				}
+
+				w.Header().Set("Content-Type", tt.contentType)
+				w.WriteHeader(tt.statusCode)
+				w.Write(tt.response)
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithEndpoint(server.URL), WithJWT("test-jwt-token"))
+			logo, err := acc.GetGatewayLogo(context.Background(), tt.gatewayID)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetGatewayLogo() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.NotNil(t, logo)
+				require.NotNil(t, logo.Data)
+				require.Equal(t, tt.contentType, logo.ContentType)
+				require.Equal(t, tt.response, logo.Data)
+			}
+		})
+	}
+}
+
+func TestListPricingPlans(t *testing.T) {
+	tests := []struct {
+		name       string
+		statusCode int
+		response   interface{}
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:       "successful list pricing plans",
+			statusCode: http.StatusOK,
+			response: client.PublicPricingPlansListResponse{
+				Data: []client.PublicPricingPlanResponse{
+					{
+						Id:          1,
+						Name:        "Basic",
+						Description: "Basic plan",
+						Currency:    "USD",
+						PricingPeriods: []client.PricingPlanPeriodDTO{
+							{
+								Id:          1,
+								Cadence:     "monthly",
+								PriceUsd:    9.99,
+								QuotaPlanId: 1,
+							},
+						},
+					},
+					{
+						Id:          2,
+						Name:        "Premium",
+						Description: "Premium plan",
+						Currency:    "USD",
+						PricingPeriods: []client.PricingPlanPeriodDTO{
+							{
+								Id:          2,
+								Cadence:     "monthly",
+								PriceUsd:    29.99,
+								QuotaPlanId: 2,
+							},
+						},
+					},
+				},
+				Total: 2,
+			},
+			wantErr: false,
+		},
+		{
+			name:       "unauthorized",
+			statusCode: http.StatusUnauthorized,
+			response:   client.ErrorResponse{Error: "unauthorized"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorIs(t, err, ErrUnauthorized)
+			},
+		},
+		{
+			name:       "forbidden",
+			statusCode: http.StatusForbidden,
+			response:   client.ErrorResponse{Error: "insufficient permissions"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "insufficient permissions")
+			},
+		},
+		{
+			name:       "not found",
+			statusCode: http.StatusNotFound,
+			response:   client.ErrorResponse{Error: "not found"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "not found")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "GET" {
+					t.Errorf("expected GET request, got %s", r.Method)
+				}
+
+				if r.URL.Path != "/api/billing/plans" {
+					t.Errorf("expected /api/billing/plans path, got %s", r.URL.Path)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				require.NoError(t, json.NewEncoder(w).Encode(tt.response))
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithEndpoint(server.URL), WithJWT("test-jwt-token"))
+			plans, total, err := acc.ListPricingPlans(context.Background())
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ListPricingPlans() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.NotNil(t, plans)
+				require.Len(t, plans, 2)
+				require.Equal(t, 2, total)
+				require.Equal(t, "Basic", plans[0].Name)
+				require.Equal(t, "USD", plans[0].Currency)
+				require.Len(t, plans[0].PricingPeriods, 1)
+				require.Equal(t, "monthly", plans[0].PricingPeriods[0].Cadence)
 			}
 		})
 	}

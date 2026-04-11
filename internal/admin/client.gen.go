@@ -49,6 +49,12 @@ type AllowanceListResponse struct {
 	Total int                      `json:"total"`
 }
 
+// BalanceResponse defines model for BalanceResponse.
+type BalanceResponse struct {
+	Balance Decimal `json:"balance"`
+	UserId  int     `json:"user_id"`
+}
+
 // CleanupRequest defines model for CleanupRequest.
 type CleanupRequest struct {
 	RetentionDays int `json:"retention_days"`
@@ -57,6 +63,71 @@ type CleanupRequest struct {
 // CleanupResponse defines model for CleanupResponse.
 type CleanupResponse struct {
 	RecordsDeleted int `json:"records_deleted"`
+}
+
+// CreditCreateRequest defines model for CreditCreateRequest.
+type CreditCreateRequest struct {
+	Amount          string  `json:"amount"`
+	Description     *string `json:"description,omitempty"`
+	Direction       string  `json:"direction"`
+	ReferenceId     *string `json:"reference_id,omitempty"`
+	ReferenceType   *string `json:"reference_type,omitempty"`
+	TransactionType string  `json:"transaction_type"`
+	UserId          int     `json:"user_id"`
+}
+
+// CreditItem defines model for CreditItem.
+type CreditItem struct {
+	Amount          Decimal    `json:"amount"`
+	CreatedAt       time.Time  `json:"created_at"`
+	CreatedBy       int        `json:"created_by"`
+	DeletedAt       *time.Time `json:"deleted_at,omitempty"`
+	Description     *string    `json:"description,omitempty"`
+	Direction       string     `json:"direction"`
+	Id              UUID       `json:"id"`
+	TransactionType string     `json:"transaction_type"`
+	UpdatedAt       time.Time  `json:"updated_at"`
+	UserId          int        `json:"user_id"`
+}
+
+// CreditPurgeRequest defines model for CreditPurgeRequest.
+type CreditPurgeRequest struct {
+	OlderThan string `json:"older_than"`
+}
+
+// CreditPurgeResponse defines model for CreditPurgeResponse.
+type CreditPurgeResponse struct {
+	PurgedCount int `json:"purged_count"`
+}
+
+// CreditResponse defines model for CreditResponse.
+type CreditResponse struct {
+	Amount          Decimal                 `json:"amount"`
+	CreatedAt       time.Time               `json:"created_at"`
+	CreatedBy       int                     `json:"created_by"`
+	DeletedAt       *time.Time              `json:"deleted_at,omitempty"`
+	Description     *string                 `json:"description,omitempty"`
+	Direction       string                  `json:"direction"`
+	Id              UUID                    `json:"id"`
+	Metadata        *map[string]interface{} `json:"metadata,omitempty"`
+	ReferenceId     *string                 `json:"reference_id,omitempty"`
+	ReferenceType   *string                 `json:"reference_type,omitempty"`
+	TransactionType string                  `json:"transaction_type"`
+	UpdatedAt       time.Time               `json:"updated_at"`
+	UserId          int                     `json:"user_id"`
+}
+
+// CreditsListResponse defines model for CreditsListResponse.
+type CreditsListResponse struct {
+	Data []CreditItem `json:"data"`
+}
+
+// Decimal defines model for Decimal.
+type Decimal = map[string]interface{}
+
+// DeletedCreditsListResponse defines model for DeletedCreditsListResponse.
+type DeletedCreditsListResponse struct {
+	Data []CreditItem `json:"data"`
 }
 
 // ErrorResponse defines model for ErrorResponse.
@@ -68,6 +139,126 @@ type ErrorResponse struct {
 type PlanListResponse struct {
 	Data  []QuotaPlanResponse `json:"data"`
 	Total int                 `json:"total"`
+}
+
+// PriceLineCreateRequest defines model for PriceLineCreateRequest.
+type PriceLineCreateRequest struct {
+	Description string `json:"description"`
+	IsActive    bool   `json:"is_active"`
+	IsDefault   bool   `json:"is_default"`
+	Name        string `json:"name"`
+}
+
+// PriceLineResponse defines model for PriceLineResponse.
+type PriceLineResponse struct {
+	CreatedAt   time.Time `json:"created_at"`
+	Description string    `json:"description"`
+	Id          int       `json:"id"`
+	IsActive    bool      `json:"is_active"`
+	IsDefault   bool      `json:"is_default"`
+	Name        string    `json:"name"`
+	UpdatedAt   time.Time `json:"updated_at"`
+}
+
+// PriceLineUpdateRequest defines model for PriceLineUpdateRequest.
+type PriceLineUpdateRequest struct {
+	Description string `json:"description"`
+	IsActive    bool   `json:"is_active"`
+	IsDefault   bool   `json:"is_default"`
+	Name        string `json:"name"`
+}
+
+// PriceLinesListResponse defines model for PriceLinesListResponse.
+type PriceLinesListResponse struct {
+	Data  []PriceLineResponse `json:"data"`
+	Total int                 `json:"total"`
+}
+
+// PricingPlanCreateRequest defines model for PricingPlanCreateRequest.
+type PricingPlanCreateRequest struct {
+	Currency       string                 `json:"currency"`
+	Description    string                 `json:"description"`
+	IsActive       bool                   `json:"is_active"`
+	IsPublic       bool                   `json:"is_public"`
+	Name           string                 `json:"name"`
+	PricingPeriods []PricingPlanPeriodDTO `json:"pricing_periods"`
+}
+
+// PricingPlanItem defines model for PricingPlanItem.
+type PricingPlanItem struct {
+	Currency     string   `json:"currency"`
+	Description  string   `json:"description"`
+	Id           int      `json:"id"`
+	IsActive     bool     `json:"is_active"`
+	MonthlyPrice *float32 `json:"monthly_price,omitempty"`
+	Name         string   `json:"name"`
+	Position     *int     `json:"position,omitempty"`
+	YearlyPrice  *float32 `json:"yearly_price,omitempty"`
+}
+
+// PricingPlanPeriodCreateRequest defines model for PricingPlanPeriodCreateRequest.
+type PricingPlanPeriodCreateRequest struct {
+	Cadence       string  `json:"cadence"`
+	PriceUsd      float32 `json:"price_usd"`
+	PricingPlanId int     `json:"pricing_plan_id"`
+	QuotaPlanId   int     `json:"quota_plan_id"`
+	RollingDays   *int    `json:"rolling_days,omitempty"`
+}
+
+// PricingPlanPeriodDTO defines model for PricingPlanPeriodDTO.
+type PricingPlanPeriodDTO struct {
+	Cadence       string    `json:"cadence"`
+	CreatedAt     time.Time `json:"created_at"`
+	Id            int       `json:"id"`
+	IsActive      bool      `json:"is_active"`
+	PriceUsd      float32   `json:"price_usd"`
+	PricingPlanId int       `json:"pricing_plan_id"`
+	QuotaPlanId   int       `json:"quota_plan_id"`
+	RollingDays   *int      `json:"rolling_days,omitempty"`
+	UpdatedAt     time.Time `json:"updated_at"`
+}
+
+// PricingPlanPeriodUpdateRequest defines model for PricingPlanPeriodUpdateRequest.
+type PricingPlanPeriodUpdateRequest struct {
+	Cadence     string  `json:"cadence"`
+	PriceUsd    float32 `json:"price_usd"`
+	QuotaPlanId int     `json:"quota_plan_id"`
+	RollingDays *int    `json:"rolling_days,omitempty"`
+}
+
+// PricingPlanPeriodsListResponse defines model for PricingPlanPeriodsListResponse.
+type PricingPlanPeriodsListResponse struct {
+	Data  []PricingPlanPeriodDTO `json:"data"`
+	Total int                    `json:"total"`
+}
+
+// PricingPlanResponse defines model for PricingPlanResponse.
+type PricingPlanResponse struct {
+	CreatedAt      time.Time              `json:"created_at"`
+	Currency       string                 `json:"currency"`
+	Description    string                 `json:"description"`
+	Id             int                    `json:"id"`
+	IsActive       bool                   `json:"is_active"`
+	IsPublic       bool                   `json:"is_public"`
+	Name           string                 `json:"name"`
+	PricingPeriods []PricingPlanPeriodDTO `json:"pricing_periods"`
+	UpdatedAt      time.Time              `json:"updated_at"`
+}
+
+// PricingPlanUpdateRequest defines model for PricingPlanUpdateRequest.
+type PricingPlanUpdateRequest struct {
+	Currency       string                 `json:"currency"`
+	Description    string                 `json:"description"`
+	IsActive       bool                   `json:"is_active"`
+	IsPublic       bool                   `json:"is_public"`
+	Name           string                 `json:"name"`
+	PricingPeriods []PricingPlanPeriodDTO `json:"pricing_periods"`
+}
+
+// PricingPlansListResponse defines model for PricingPlansListResponse.
+type PricingPlansListResponse struct {
+	Data  []PricingPlanItem `json:"data"`
+	Total int               `json:"total"`
 }
 
 // QuotaPlanRequest defines model for QuotaPlanRequest.
@@ -139,6 +330,9 @@ type SystemStatsResponse struct {
 	TotalUsers        int   `json:"total_users"`
 }
 
+// UUID defines model for UUID.
+type UUID = []int
+
 // Usage defines model for Usage.
 type Usage struct {
 	DownloadBytes int `json:"download_bytes"`
@@ -205,6 +399,234 @@ type WebsiteResponse struct {
 	ValidationExpiresAt *time.Time     `json:"validation_expires_at,omitempty"`
 	ValidationToken     string         `json:"validation_token"`
 }
+
+// GetApiBillingCreditsParams defines parameters for GetApiBillingCredits.
+type GetApiBillingCreditsParams struct {
+	// DirectionContains Filter by direction contains
+	DirectionContains *string `form:"direction_contains,omitempty" json:"direction_contains,omitempty"`
+
+	// DirectionEndswith Filter by direction endswith
+	DirectionEndswith *string `form:"direction_endswith,omitempty" json:"direction_endswith,omitempty"`
+
+	// DirectionEq Filter by direction eq
+	DirectionEq *string `form:"direction_eq,omitempty" json:"direction_eq,omitempty"`
+
+	// DirectionNe Filter by direction ne
+	DirectionNe *string `form:"direction_ne,omitempty" json:"direction_ne,omitempty"`
+
+	// DirectionStartswith Filter by direction startswith
+	DirectionStartswith *string `form:"direction_startswith,omitempty" json:"direction_startswith,omitempty"`
+
+	// FiltersDirectionContains Filter by direction contains
+	FiltersDirectionContains *string `form:"filters[direction][contains],omitempty" json:"filters[direction][contains],omitempty"`
+
+	// FiltersDirectionEndswith Filter by direction endswith
+	FiltersDirectionEndswith *string `form:"filters[direction][endswith],omitempty" json:"filters[direction][endswith],omitempty"`
+
+	// FiltersDirectionEq Filter by direction eq
+	FiltersDirectionEq *string `form:"filters[direction][eq],omitempty" json:"filters[direction][eq],omitempty"`
+
+	// FiltersDirectionNe Filter by direction ne
+	FiltersDirectionNe *string `form:"filters[direction][ne],omitempty" json:"filters[direction][ne],omitempty"`
+
+	// FiltersDirectionStartswith Filter by direction startswith
+	FiltersDirectionStartswith *string `form:"filters[direction][startswith],omitempty" json:"filters[direction][startswith],omitempty"`
+
+	// FiltersTransactionTypeContains Filter by transaction_type contains
+	FiltersTransactionTypeContains *string `form:"filters[transaction_type][contains],omitempty" json:"filters[transaction_type][contains],omitempty"`
+
+	// FiltersTransactionTypeEndswith Filter by transaction_type endswith
+	FiltersTransactionTypeEndswith *string `form:"filters[transaction_type][endswith],omitempty" json:"filters[transaction_type][endswith],omitempty"`
+
+	// FiltersTransactionTypeEq Filter by transaction_type eq
+	FiltersTransactionTypeEq *string `form:"filters[transaction_type][eq],omitempty" json:"filters[transaction_type][eq],omitempty"`
+
+	// FiltersTransactionTypeNe Filter by transaction_type ne
+	FiltersTransactionTypeNe *string `form:"filters[transaction_type][ne],omitempty" json:"filters[transaction_type][ne],omitempty"`
+
+	// FiltersTransactionTypeStartswith Filter by transaction_type startswith
+	FiltersTransactionTypeStartswith *string `form:"filters[transaction_type][startswith],omitempty" json:"filters[transaction_type][startswith],omitempty"`
+
+	// FiltersUserIdBetween Filter by user_id between
+	FiltersUserIdBetween *string `form:"filters[user_id][between],omitempty" json:"filters[user_id][between],omitempty"`
+
+	// FiltersUserIdEq Filter by user_id eq
+	FiltersUserIdEq *string `form:"filters[user_id][eq],omitempty" json:"filters[user_id][eq],omitempty"`
+
+	// FiltersUserIdGt Filter by user_id gt
+	FiltersUserIdGt *string `form:"filters[user_id][gt],omitempty" json:"filters[user_id][gt],omitempty"`
+
+	// FiltersUserIdGte Filter by user_id gte
+	FiltersUserIdGte *string `form:"filters[user_id][gte],omitempty" json:"filters[user_id][gte],omitempty"`
+
+	// FiltersUserIdLt Filter by user_id lt
+	FiltersUserIdLt *string `form:"filters[user_id][lt],omitempty" json:"filters[user_id][lt],omitempty"`
+
+	// FiltersUserIdLte Filter by user_id lte
+	FiltersUserIdLte *string `form:"filters[user_id][lte],omitempty" json:"filters[user_id][lte],omitempty"`
+
+	// FiltersUserIdNe Filter by user_id ne
+	FiltersUserIdNe *string `form:"filters[user_id][ne],omitempty" json:"filters[user_id][ne],omitempty"`
+
+	// TransactionTypeContains Filter by transaction_type contains
+	TransactionTypeContains *string `form:"transaction_type_contains,omitempty" json:"transaction_type_contains,omitempty"`
+
+	// TransactionTypeEndswith Filter by transaction_type endswith
+	TransactionTypeEndswith *string `form:"transaction_type_endswith,omitempty" json:"transaction_type_endswith,omitempty"`
+
+	// TransactionTypeEq Filter by transaction_type eq
+	TransactionTypeEq *string `form:"transaction_type_eq,omitempty" json:"transaction_type_eq,omitempty"`
+
+	// TransactionTypeNe Filter by transaction_type ne
+	TransactionTypeNe *string `form:"transaction_type_ne,omitempty" json:"transaction_type_ne,omitempty"`
+
+	// TransactionTypeStartswith Filter by transaction_type startswith
+	TransactionTypeStartswith *string `form:"transaction_type_startswith,omitempty" json:"transaction_type_startswith,omitempty"`
+
+	// UserIdEq Filter by user_id eq
+	UserIdEq *string `form:"user_id_eq,omitempty" json:"user_id_eq,omitempty"`
+
+	// UserIdGt Filter by user_id gt
+	UserIdGt *string `form:"user_id_gt,omitempty" json:"user_id_gt,omitempty"`
+
+	// UserIdGte Filter by user_id gte
+	UserIdGte *string `form:"user_id_gte,omitempty" json:"user_id_gte,omitempty"`
+
+	// UserIdLt Filter by user_id lt
+	UserIdLt *string `form:"user_id_lt,omitempty" json:"user_id_lt,omitempty"`
+
+	// UserIdLte Filter by user_id lte
+	UserIdLte *string `form:"user_id_lte,omitempty" json:"user_id_lte,omitempty"`
+
+	// UserIdNe Filter by user_id ne
+	UserIdNe *string `form:"user_id_ne,omitempty" json:"user_id_ne,omitempty"`
+}
+
+// GetApiBillingUsersUserIdDeletedCreditsParams defines parameters for GetApiBillingUsersUserIdDeletedCredits.
+type GetApiBillingUsersUserIdDeletedCreditsParams struct {
+	// DirectionContains Filter by direction contains
+	DirectionContains *string `form:"direction_contains,omitempty" json:"direction_contains,omitempty"`
+
+	// DirectionEndswith Filter by direction endswith
+	DirectionEndswith *string `form:"direction_endswith,omitempty" json:"direction_endswith,omitempty"`
+
+	// DirectionEq Filter by direction eq
+	DirectionEq *string `form:"direction_eq,omitempty" json:"direction_eq,omitempty"`
+
+	// DirectionNe Filter by direction ne
+	DirectionNe *string `form:"direction_ne,omitempty" json:"direction_ne,omitempty"`
+
+	// DirectionStartswith Filter by direction startswith
+	DirectionStartswith *string `form:"direction_startswith,omitempty" json:"direction_startswith,omitempty"`
+
+	// FiltersDirectionContains Filter by direction contains
+	FiltersDirectionContains *string `form:"filters[direction][contains],omitempty" json:"filters[direction][contains],omitempty"`
+
+	// FiltersDirectionEndswith Filter by direction endswith
+	FiltersDirectionEndswith *string `form:"filters[direction][endswith],omitempty" json:"filters[direction][endswith],omitempty"`
+
+	// FiltersDirectionEq Filter by direction eq
+	FiltersDirectionEq *string `form:"filters[direction][eq],omitempty" json:"filters[direction][eq],omitempty"`
+
+	// FiltersDirectionNe Filter by direction ne
+	FiltersDirectionNe *string `form:"filters[direction][ne],omitempty" json:"filters[direction][ne],omitempty"`
+
+	// FiltersDirectionStartswith Filter by direction startswith
+	FiltersDirectionStartswith *string `form:"filters[direction][startswith],omitempty" json:"filters[direction][startswith],omitempty"`
+
+	// FiltersTransactionTypeContains Filter by transaction_type contains
+	FiltersTransactionTypeContains *string `form:"filters[transaction_type][contains],omitempty" json:"filters[transaction_type][contains],omitempty"`
+
+	// FiltersTransactionTypeEndswith Filter by transaction_type endswith
+	FiltersTransactionTypeEndswith *string `form:"filters[transaction_type][endswith],omitempty" json:"filters[transaction_type][endswith],omitempty"`
+
+	// FiltersTransactionTypeEq Filter by transaction_type eq
+	FiltersTransactionTypeEq *string `form:"filters[transaction_type][eq],omitempty" json:"filters[transaction_type][eq],omitempty"`
+
+	// FiltersTransactionTypeNe Filter by transaction_type ne
+	FiltersTransactionTypeNe *string `form:"filters[transaction_type][ne],omitempty" json:"filters[transaction_type][ne],omitempty"`
+
+	// FiltersTransactionTypeStartswith Filter by transaction_type startswith
+	FiltersTransactionTypeStartswith *string `form:"filters[transaction_type][startswith],omitempty" json:"filters[transaction_type][startswith],omitempty"`
+
+	// FiltersUserIdBetween Filter by user_id between
+	FiltersUserIdBetween *string `form:"filters[user_id][between],omitempty" json:"filters[user_id][between],omitempty"`
+
+	// FiltersUserIdEq Filter by user_id eq
+	FiltersUserIdEq *string `form:"filters[user_id][eq],omitempty" json:"filters[user_id][eq],omitempty"`
+
+	// FiltersUserIdGt Filter by user_id gt
+	FiltersUserIdGt *string `form:"filters[user_id][gt],omitempty" json:"filters[user_id][gt],omitempty"`
+
+	// FiltersUserIdGte Filter by user_id gte
+	FiltersUserIdGte *string `form:"filters[user_id][gte],omitempty" json:"filters[user_id][gte],omitempty"`
+
+	// FiltersUserIdLt Filter by user_id lt
+	FiltersUserIdLt *string `form:"filters[user_id][lt],omitempty" json:"filters[user_id][lt],omitempty"`
+
+	// FiltersUserIdLte Filter by user_id lte
+	FiltersUserIdLte *string `form:"filters[user_id][lte],omitempty" json:"filters[user_id][lte],omitempty"`
+
+	// FiltersUserIdNe Filter by user_id ne
+	FiltersUserIdNe *string `form:"filters[user_id][ne],omitempty" json:"filters[user_id][ne],omitempty"`
+
+	// TransactionTypeContains Filter by transaction_type contains
+	TransactionTypeContains *string `form:"transaction_type_contains,omitempty" json:"transaction_type_contains,omitempty"`
+
+	// TransactionTypeEndswith Filter by transaction_type endswith
+	TransactionTypeEndswith *string `form:"transaction_type_endswith,omitempty" json:"transaction_type_endswith,omitempty"`
+
+	// TransactionTypeEq Filter by transaction_type eq
+	TransactionTypeEq *string `form:"transaction_type_eq,omitempty" json:"transaction_type_eq,omitempty"`
+
+	// TransactionTypeNe Filter by transaction_type ne
+	TransactionTypeNe *string `form:"transaction_type_ne,omitempty" json:"transaction_type_ne,omitempty"`
+
+	// TransactionTypeStartswith Filter by transaction_type startswith
+	TransactionTypeStartswith *string `form:"transaction_type_startswith,omitempty" json:"transaction_type_startswith,omitempty"`
+
+	// UserIdEq Filter by user_id eq
+	UserIdEq *string `form:"user_id_eq,omitempty" json:"user_id_eq,omitempty"`
+
+	// UserIdGt Filter by user_id gt
+	UserIdGt *string `form:"user_id_gt,omitempty" json:"user_id_gt,omitempty"`
+
+	// UserIdGte Filter by user_id gte
+	UserIdGte *string `form:"user_id_gte,omitempty" json:"user_id_gte,omitempty"`
+
+	// UserIdLt Filter by user_id lt
+	UserIdLt *string `form:"user_id_lt,omitempty" json:"user_id_lt,omitempty"`
+
+	// UserIdLte Filter by user_id lte
+	UserIdLte *string `form:"user_id_lte,omitempty" json:"user_id_lte,omitempty"`
+
+	// UserIdNe Filter by user_id ne
+	UserIdNe *string `form:"user_id_ne,omitempty" json:"user_id_ne,omitempty"`
+}
+
+// PostApiBillingCreditsJSONRequestBody defines body for PostApiBillingCredits for application/json ContentType.
+type PostApiBillingCreditsJSONRequestBody = CreditCreateRequest
+
+// PostApiBillingCreditsPurgeJSONRequestBody defines body for PostApiBillingCreditsPurge for application/json ContentType.
+type PostApiBillingCreditsPurgeJSONRequestBody = CreditPurgeRequest
+
+// PostApiBillingPriceLinesJSONRequestBody defines body for PostApiBillingPriceLines for application/json ContentType.
+type PostApiBillingPriceLinesJSONRequestBody = PriceLineCreateRequest
+
+// PutApiBillingPriceLinesIdJSONRequestBody defines body for PutApiBillingPriceLinesId for application/json ContentType.
+type PutApiBillingPriceLinesIdJSONRequestBody = PriceLineUpdateRequest
+
+// PostApiBillingPricingPlanPeriodsJSONRequestBody defines body for PostApiBillingPricingPlanPeriods for application/json ContentType.
+type PostApiBillingPricingPlanPeriodsJSONRequestBody = PricingPlanPeriodCreateRequest
+
+// PutApiBillingPricingPlanPeriodsIdJSONRequestBody defines body for PutApiBillingPricingPlanPeriodsId for application/json ContentType.
+type PutApiBillingPricingPlanPeriodsIdJSONRequestBody = PricingPlanPeriodUpdateRequest
+
+// PostApiBillingPricingPlansJSONRequestBody defines body for PostApiBillingPricingPlans for application/json ContentType.
+type PostApiBillingPricingPlansJSONRequestBody = PricingPlanCreateRequest
+
+// PutApiBillingPricingPlansIdJSONRequestBody defines body for PutApiBillingPricingPlansId for application/json ContentType.
+type PutApiBillingPricingPlansIdJSONRequestBody = PricingPlanUpdateRequest
 
 // PostApiQuotaAllowancesJSONRequestBody defines body for PostApiQuotaAllowances for application/json ContentType.
 type PostApiQuotaAllowancesJSONRequestBody = AllowanceGrantRequest
@@ -300,6 +722,88 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
+	// GetApiBillingCredits request
+	GetApiBillingCredits(ctx context.Context, params *GetApiBillingCreditsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiBillingCreditsWithBody request with any body
+	PostApiBillingCreditsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PostApiBillingCredits(ctx context.Context, body PostApiBillingCreditsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiBillingCreditsPurgeWithBody request with any body
+	PostApiBillingCreditsPurgeWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PostApiBillingCreditsPurge(ctx context.Context, body PostApiBillingCreditsPurgeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteApiBillingCreditsId request
+	DeleteApiBillingCreditsId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiBillingCreditsId request
+	GetApiBillingCreditsId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiBillingCreditsIdRestore request
+	PostApiBillingCreditsIdRestore(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiBillingPlansIdSync request
+	PostApiBillingPlansIdSync(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiBillingPriceLines request
+	GetApiBillingPriceLines(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiBillingPriceLinesWithBody request with any body
+	PostApiBillingPriceLinesWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PostApiBillingPriceLines(ctx context.Context, body PostApiBillingPriceLinesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteApiBillingPriceLinesId request
+	DeleteApiBillingPriceLinesId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PutApiBillingPriceLinesIdWithBody request with any body
+	PutApiBillingPriceLinesIdWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PutApiBillingPriceLinesId(ctx context.Context, id string, body PutApiBillingPriceLinesIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiBillingPricingPlanPeriods request
+	GetApiBillingPricingPlanPeriods(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiBillingPricingPlanPeriodsWithBody request with any body
+	PostApiBillingPricingPlanPeriodsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PostApiBillingPricingPlanPeriods(ctx context.Context, body PostApiBillingPricingPlanPeriodsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteApiBillingPricingPlanPeriodsId request
+	DeleteApiBillingPricingPlanPeriodsId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiBillingPricingPlanPeriodsId request
+	GetApiBillingPricingPlanPeriodsId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PutApiBillingPricingPlanPeriodsIdWithBody request with any body
+	PutApiBillingPricingPlanPeriodsIdWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PutApiBillingPricingPlanPeriodsId(ctx context.Context, id string, body PutApiBillingPricingPlanPeriodsIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiBillingPricingPlans request
+	GetApiBillingPricingPlans(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiBillingPricingPlansWithBody request with any body
+	PostApiBillingPricingPlansWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PostApiBillingPricingPlans(ctx context.Context, body PostApiBillingPricingPlansJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteApiBillingPricingPlansId request
+	DeleteApiBillingPricingPlansId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PutApiBillingPricingPlansIdWithBody request with any body
+	PutApiBillingPricingPlansIdWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PutApiBillingPricingPlansId(ctx context.Context, id string, body PutApiBillingPricingPlansIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiBillingUsersUserIdBalance request
+	GetApiBillingUsersUserIdBalance(ctx context.Context, userId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiBillingUsersUserIdDeletedCredits request
+	GetApiBillingUsersUserIdDeletedCredits(ctx context.Context, userId string, params *GetApiBillingUsersUserIdDeletedCreditsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// PostApiIpfsWebsitesIdBlock request
 	PostApiIpfsWebsitesIdBlock(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -367,6 +871,366 @@ type ClientInterface interface {
 
 	// DeleteApiQuotaUserConfigsUserIDPlan request
 	DeleteApiQuotaUserConfigsUserIDPlan(ctx context.Context, userID string, reqEditors ...RequestEditorFn) (*http.Response, error)
+}
+
+func (c *Client) GetApiBillingCredits(ctx context.Context, params *GetApiBillingCreditsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiBillingCreditsRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiBillingCreditsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiBillingCreditsRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiBillingCredits(ctx context.Context, body PostApiBillingCreditsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiBillingCreditsRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiBillingCreditsPurgeWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiBillingCreditsPurgeRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiBillingCreditsPurge(ctx context.Context, body PostApiBillingCreditsPurgeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiBillingCreditsPurgeRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteApiBillingCreditsId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteApiBillingCreditsIdRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetApiBillingCreditsId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiBillingCreditsIdRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiBillingCreditsIdRestore(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiBillingCreditsIdRestoreRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiBillingPlansIdSync(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiBillingPlansIdSyncRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetApiBillingPriceLines(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiBillingPriceLinesRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiBillingPriceLinesWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiBillingPriceLinesRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiBillingPriceLines(ctx context.Context, body PostApiBillingPriceLinesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiBillingPriceLinesRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteApiBillingPriceLinesId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteApiBillingPriceLinesIdRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutApiBillingPriceLinesIdWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutApiBillingPriceLinesIdRequestWithBody(c.Server, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutApiBillingPriceLinesId(ctx context.Context, id string, body PutApiBillingPriceLinesIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutApiBillingPriceLinesIdRequest(c.Server, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetApiBillingPricingPlanPeriods(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiBillingPricingPlanPeriodsRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiBillingPricingPlanPeriodsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiBillingPricingPlanPeriodsRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiBillingPricingPlanPeriods(ctx context.Context, body PostApiBillingPricingPlanPeriodsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiBillingPricingPlanPeriodsRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteApiBillingPricingPlanPeriodsId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteApiBillingPricingPlanPeriodsIdRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetApiBillingPricingPlanPeriodsId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiBillingPricingPlanPeriodsIdRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutApiBillingPricingPlanPeriodsIdWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutApiBillingPricingPlanPeriodsIdRequestWithBody(c.Server, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutApiBillingPricingPlanPeriodsId(ctx context.Context, id string, body PutApiBillingPricingPlanPeriodsIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutApiBillingPricingPlanPeriodsIdRequest(c.Server, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetApiBillingPricingPlans(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiBillingPricingPlansRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiBillingPricingPlansWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiBillingPricingPlansRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiBillingPricingPlans(ctx context.Context, body PostApiBillingPricingPlansJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiBillingPricingPlansRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteApiBillingPricingPlansId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteApiBillingPricingPlansIdRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutApiBillingPricingPlansIdWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutApiBillingPricingPlansIdRequestWithBody(c.Server, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutApiBillingPricingPlansId(ctx context.Context, id string, body PutApiBillingPricingPlansIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutApiBillingPricingPlansIdRequest(c.Server, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetApiBillingUsersUserIdBalance(ctx context.Context, userId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiBillingUsersUserIdBalanceRequest(c.Server, userId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetApiBillingUsersUserIdDeletedCredits(ctx context.Context, userId string, params *GetApiBillingUsersUserIdDeletedCreditsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiBillingUsersUserIdDeletedCreditsRequest(c.Server, userId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
 }
 
 func (c *Client) PostApiIpfsWebsitesIdBlock(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -667,6 +1531,1863 @@ func (c *Client) DeleteApiQuotaUserConfigsUserIDPlan(ctx context.Context, userID
 		return nil, err
 	}
 	return c.Client.Do(req)
+}
+
+// NewGetApiBillingCreditsRequest generates requests for GetApiBillingCredits
+func NewGetApiBillingCreditsRequest(server string, params *GetApiBillingCreditsParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/billing/credits")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.DirectionContains != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "direction_contains", runtime.ParamLocationQuery, *params.DirectionContains); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.DirectionEndswith != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "direction_endswith", runtime.ParamLocationQuery, *params.DirectionEndswith); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.DirectionEq != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "direction_eq", runtime.ParamLocationQuery, *params.DirectionEq); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.DirectionNe != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "direction_ne", runtime.ParamLocationQuery, *params.DirectionNe); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.DirectionStartswith != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "direction_startswith", runtime.ParamLocationQuery, *params.DirectionStartswith); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersDirectionContains != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[direction][contains]", runtime.ParamLocationQuery, *params.FiltersDirectionContains); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersDirectionEndswith != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[direction][endswith]", runtime.ParamLocationQuery, *params.FiltersDirectionEndswith); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersDirectionEq != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[direction][eq]", runtime.ParamLocationQuery, *params.FiltersDirectionEq); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersDirectionNe != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[direction][ne]", runtime.ParamLocationQuery, *params.FiltersDirectionNe); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersDirectionStartswith != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[direction][startswith]", runtime.ParamLocationQuery, *params.FiltersDirectionStartswith); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersTransactionTypeContains != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[transaction_type][contains]", runtime.ParamLocationQuery, *params.FiltersTransactionTypeContains); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersTransactionTypeEndswith != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[transaction_type][endswith]", runtime.ParamLocationQuery, *params.FiltersTransactionTypeEndswith); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersTransactionTypeEq != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[transaction_type][eq]", runtime.ParamLocationQuery, *params.FiltersTransactionTypeEq); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersTransactionTypeNe != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[transaction_type][ne]", runtime.ParamLocationQuery, *params.FiltersTransactionTypeNe); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersTransactionTypeStartswith != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[transaction_type][startswith]", runtime.ParamLocationQuery, *params.FiltersTransactionTypeStartswith); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersUserIdBetween != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[user_id][between]", runtime.ParamLocationQuery, *params.FiltersUserIdBetween); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersUserIdEq != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[user_id][eq]", runtime.ParamLocationQuery, *params.FiltersUserIdEq); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersUserIdGt != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[user_id][gt]", runtime.ParamLocationQuery, *params.FiltersUserIdGt); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersUserIdGte != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[user_id][gte]", runtime.ParamLocationQuery, *params.FiltersUserIdGte); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersUserIdLt != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[user_id][lt]", runtime.ParamLocationQuery, *params.FiltersUserIdLt); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersUserIdLte != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[user_id][lte]", runtime.ParamLocationQuery, *params.FiltersUserIdLte); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersUserIdNe != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[user_id][ne]", runtime.ParamLocationQuery, *params.FiltersUserIdNe); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.TransactionTypeContains != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "transaction_type_contains", runtime.ParamLocationQuery, *params.TransactionTypeContains); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.TransactionTypeEndswith != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "transaction_type_endswith", runtime.ParamLocationQuery, *params.TransactionTypeEndswith); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.TransactionTypeEq != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "transaction_type_eq", runtime.ParamLocationQuery, *params.TransactionTypeEq); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.TransactionTypeNe != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "transaction_type_ne", runtime.ParamLocationQuery, *params.TransactionTypeNe); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.TransactionTypeStartswith != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "transaction_type_startswith", runtime.ParamLocationQuery, *params.TransactionTypeStartswith); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.UserIdEq != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "user_id_eq", runtime.ParamLocationQuery, *params.UserIdEq); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.UserIdGt != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "user_id_gt", runtime.ParamLocationQuery, *params.UserIdGt); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.UserIdGte != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "user_id_gte", runtime.ParamLocationQuery, *params.UserIdGte); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.UserIdLt != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "user_id_lt", runtime.ParamLocationQuery, *params.UserIdLt); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.UserIdLte != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "user_id_lte", runtime.ParamLocationQuery, *params.UserIdLte); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.UserIdNe != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "user_id_ne", runtime.ParamLocationQuery, *params.UserIdNe); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPostApiBillingCreditsRequest calls the generic PostApiBillingCredits builder with application/json body
+func NewPostApiBillingCreditsRequest(server string, body PostApiBillingCreditsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostApiBillingCreditsRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPostApiBillingCreditsRequestWithBody generates requests for PostApiBillingCredits with any type of body
+func NewPostApiBillingCreditsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/billing/credits")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPostApiBillingCreditsPurgeRequest calls the generic PostApiBillingCreditsPurge builder with application/json body
+func NewPostApiBillingCreditsPurgeRequest(server string, body PostApiBillingCreditsPurgeJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostApiBillingCreditsPurgeRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPostApiBillingCreditsPurgeRequestWithBody generates requests for PostApiBillingCreditsPurge with any type of body
+func NewPostApiBillingCreditsPurgeRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/billing/credits/purge")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteApiBillingCreditsIdRequest generates requests for DeleteApiBillingCreditsId
+func NewDeleteApiBillingCreditsIdRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/billing/credits/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetApiBillingCreditsIdRequest generates requests for GetApiBillingCreditsId
+func NewGetApiBillingCreditsIdRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/billing/credits/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPostApiBillingCreditsIdRestoreRequest generates requests for PostApiBillingCreditsIdRestore
+func NewPostApiBillingCreditsIdRestoreRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/billing/credits/%s/restore", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPostApiBillingPlansIdSyncRequest generates requests for PostApiBillingPlansIdSync
+func NewPostApiBillingPlansIdSyncRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/billing/plans/%s/sync", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetApiBillingPriceLinesRequest generates requests for GetApiBillingPriceLines
+func NewGetApiBillingPriceLinesRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/billing/price-lines")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPostApiBillingPriceLinesRequest calls the generic PostApiBillingPriceLines builder with application/json body
+func NewPostApiBillingPriceLinesRequest(server string, body PostApiBillingPriceLinesJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostApiBillingPriceLinesRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPostApiBillingPriceLinesRequestWithBody generates requests for PostApiBillingPriceLines with any type of body
+func NewPostApiBillingPriceLinesRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/billing/price-lines")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteApiBillingPriceLinesIdRequest generates requests for DeleteApiBillingPriceLinesId
+func NewDeleteApiBillingPriceLinesIdRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/billing/price-lines/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPutApiBillingPriceLinesIdRequest calls the generic PutApiBillingPriceLinesId builder with application/json body
+func NewPutApiBillingPriceLinesIdRequest(server string, id string, body PutApiBillingPriceLinesIdJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPutApiBillingPriceLinesIdRequestWithBody(server, id, "application/json", bodyReader)
+}
+
+// NewPutApiBillingPriceLinesIdRequestWithBody generates requests for PutApiBillingPriceLinesId with any type of body
+func NewPutApiBillingPriceLinesIdRequestWithBody(server string, id string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/billing/price-lines/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetApiBillingPricingPlanPeriodsRequest generates requests for GetApiBillingPricingPlanPeriods
+func NewGetApiBillingPricingPlanPeriodsRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/billing/pricing-plan-periods")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPostApiBillingPricingPlanPeriodsRequest calls the generic PostApiBillingPricingPlanPeriods builder with application/json body
+func NewPostApiBillingPricingPlanPeriodsRequest(server string, body PostApiBillingPricingPlanPeriodsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostApiBillingPricingPlanPeriodsRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPostApiBillingPricingPlanPeriodsRequestWithBody generates requests for PostApiBillingPricingPlanPeriods with any type of body
+func NewPostApiBillingPricingPlanPeriodsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/billing/pricing-plan-periods")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteApiBillingPricingPlanPeriodsIdRequest generates requests for DeleteApiBillingPricingPlanPeriodsId
+func NewDeleteApiBillingPricingPlanPeriodsIdRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/billing/pricing-plan-periods/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetApiBillingPricingPlanPeriodsIdRequest generates requests for GetApiBillingPricingPlanPeriodsId
+func NewGetApiBillingPricingPlanPeriodsIdRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/billing/pricing-plan-periods/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPutApiBillingPricingPlanPeriodsIdRequest calls the generic PutApiBillingPricingPlanPeriodsId builder with application/json body
+func NewPutApiBillingPricingPlanPeriodsIdRequest(server string, id string, body PutApiBillingPricingPlanPeriodsIdJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPutApiBillingPricingPlanPeriodsIdRequestWithBody(server, id, "application/json", bodyReader)
+}
+
+// NewPutApiBillingPricingPlanPeriodsIdRequestWithBody generates requests for PutApiBillingPricingPlanPeriodsId with any type of body
+func NewPutApiBillingPricingPlanPeriodsIdRequestWithBody(server string, id string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/billing/pricing-plan-periods/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetApiBillingPricingPlansRequest generates requests for GetApiBillingPricingPlans
+func NewGetApiBillingPricingPlansRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/billing/pricing-plans")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPostApiBillingPricingPlansRequest calls the generic PostApiBillingPricingPlans builder with application/json body
+func NewPostApiBillingPricingPlansRequest(server string, body PostApiBillingPricingPlansJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostApiBillingPricingPlansRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPostApiBillingPricingPlansRequestWithBody generates requests for PostApiBillingPricingPlans with any type of body
+func NewPostApiBillingPricingPlansRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/billing/pricing-plans")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteApiBillingPricingPlansIdRequest generates requests for DeleteApiBillingPricingPlansId
+func NewDeleteApiBillingPricingPlansIdRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/billing/pricing-plans/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPutApiBillingPricingPlansIdRequest calls the generic PutApiBillingPricingPlansId builder with application/json body
+func NewPutApiBillingPricingPlansIdRequest(server string, id string, body PutApiBillingPricingPlansIdJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPutApiBillingPricingPlansIdRequestWithBody(server, id, "application/json", bodyReader)
+}
+
+// NewPutApiBillingPricingPlansIdRequestWithBody generates requests for PutApiBillingPricingPlansId with any type of body
+func NewPutApiBillingPricingPlansIdRequestWithBody(server string, id string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/billing/pricing-plans/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetApiBillingUsersUserIdBalanceRequest generates requests for GetApiBillingUsersUserIdBalance
+func NewGetApiBillingUsersUserIdBalanceRequest(server string, userId string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "userId", runtime.ParamLocationPath, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/billing/users/%s/balance", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetApiBillingUsersUserIdDeletedCreditsRequest generates requests for GetApiBillingUsersUserIdDeletedCredits
+func NewGetApiBillingUsersUserIdDeletedCreditsRequest(server string, userId string, params *GetApiBillingUsersUserIdDeletedCreditsParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "userId", runtime.ParamLocationPath, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/billing/users/%s/deleted-credits", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.DirectionContains != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "direction_contains", runtime.ParamLocationQuery, *params.DirectionContains); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.DirectionEndswith != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "direction_endswith", runtime.ParamLocationQuery, *params.DirectionEndswith); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.DirectionEq != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "direction_eq", runtime.ParamLocationQuery, *params.DirectionEq); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.DirectionNe != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "direction_ne", runtime.ParamLocationQuery, *params.DirectionNe); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.DirectionStartswith != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "direction_startswith", runtime.ParamLocationQuery, *params.DirectionStartswith); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersDirectionContains != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[direction][contains]", runtime.ParamLocationQuery, *params.FiltersDirectionContains); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersDirectionEndswith != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[direction][endswith]", runtime.ParamLocationQuery, *params.FiltersDirectionEndswith); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersDirectionEq != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[direction][eq]", runtime.ParamLocationQuery, *params.FiltersDirectionEq); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersDirectionNe != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[direction][ne]", runtime.ParamLocationQuery, *params.FiltersDirectionNe); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersDirectionStartswith != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[direction][startswith]", runtime.ParamLocationQuery, *params.FiltersDirectionStartswith); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersTransactionTypeContains != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[transaction_type][contains]", runtime.ParamLocationQuery, *params.FiltersTransactionTypeContains); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersTransactionTypeEndswith != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[transaction_type][endswith]", runtime.ParamLocationQuery, *params.FiltersTransactionTypeEndswith); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersTransactionTypeEq != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[transaction_type][eq]", runtime.ParamLocationQuery, *params.FiltersTransactionTypeEq); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersTransactionTypeNe != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[transaction_type][ne]", runtime.ParamLocationQuery, *params.FiltersTransactionTypeNe); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersTransactionTypeStartswith != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[transaction_type][startswith]", runtime.ParamLocationQuery, *params.FiltersTransactionTypeStartswith); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersUserIdBetween != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[user_id][between]", runtime.ParamLocationQuery, *params.FiltersUserIdBetween); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersUserIdEq != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[user_id][eq]", runtime.ParamLocationQuery, *params.FiltersUserIdEq); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersUserIdGt != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[user_id][gt]", runtime.ParamLocationQuery, *params.FiltersUserIdGt); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersUserIdGte != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[user_id][gte]", runtime.ParamLocationQuery, *params.FiltersUserIdGte); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersUserIdLt != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[user_id][lt]", runtime.ParamLocationQuery, *params.FiltersUserIdLt); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersUserIdLte != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[user_id][lte]", runtime.ParamLocationQuery, *params.FiltersUserIdLte); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersUserIdNe != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[user_id][ne]", runtime.ParamLocationQuery, *params.FiltersUserIdNe); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.TransactionTypeContains != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "transaction_type_contains", runtime.ParamLocationQuery, *params.TransactionTypeContains); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.TransactionTypeEndswith != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "transaction_type_endswith", runtime.ParamLocationQuery, *params.TransactionTypeEndswith); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.TransactionTypeEq != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "transaction_type_eq", runtime.ParamLocationQuery, *params.TransactionTypeEq); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.TransactionTypeNe != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "transaction_type_ne", runtime.ParamLocationQuery, *params.TransactionTypeNe); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.TransactionTypeStartswith != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "transaction_type_startswith", runtime.ParamLocationQuery, *params.TransactionTypeStartswith); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.UserIdEq != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "user_id_eq", runtime.ParamLocationQuery, *params.UserIdEq); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.UserIdGt != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "user_id_gt", runtime.ParamLocationQuery, *params.UserIdGt); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.UserIdGte != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "user_id_gte", runtime.ParamLocationQuery, *params.UserIdGte); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.UserIdLt != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "user_id_lt", runtime.ParamLocationQuery, *params.UserIdLt); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.UserIdLte != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "user_id_lte", runtime.ParamLocationQuery, *params.UserIdLte); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.UserIdNe != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "user_id_ne", runtime.ParamLocationQuery, *params.UserIdNe); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
 }
 
 // NewPostApiIpfsWebsitesIdBlockRequest generates requests for PostApiIpfsWebsitesIdBlock
@@ -1359,6 +4080,88 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
+	// GetApiBillingCreditsWithResponse request
+	GetApiBillingCreditsWithResponse(ctx context.Context, params *GetApiBillingCreditsParams, reqEditors ...RequestEditorFn) (*GetApiBillingCreditsResponse, error)
+
+	// PostApiBillingCreditsWithBodyWithResponse request with any body
+	PostApiBillingCreditsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiBillingCreditsResponse, error)
+
+	PostApiBillingCreditsWithResponse(ctx context.Context, body PostApiBillingCreditsJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiBillingCreditsResponse, error)
+
+	// PostApiBillingCreditsPurgeWithBodyWithResponse request with any body
+	PostApiBillingCreditsPurgeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiBillingCreditsPurgeResponse, error)
+
+	PostApiBillingCreditsPurgeWithResponse(ctx context.Context, body PostApiBillingCreditsPurgeJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiBillingCreditsPurgeResponse, error)
+
+	// DeleteApiBillingCreditsIdWithResponse request
+	DeleteApiBillingCreditsIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteApiBillingCreditsIdResponse, error)
+
+	// GetApiBillingCreditsIdWithResponse request
+	GetApiBillingCreditsIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiBillingCreditsIdResponse, error)
+
+	// PostApiBillingCreditsIdRestoreWithResponse request
+	PostApiBillingCreditsIdRestoreWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*PostApiBillingCreditsIdRestoreResponse, error)
+
+	// PostApiBillingPlansIdSyncWithResponse request
+	PostApiBillingPlansIdSyncWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*PostApiBillingPlansIdSyncResponse, error)
+
+	// GetApiBillingPriceLinesWithResponse request
+	GetApiBillingPriceLinesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiBillingPriceLinesResponse, error)
+
+	// PostApiBillingPriceLinesWithBodyWithResponse request with any body
+	PostApiBillingPriceLinesWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiBillingPriceLinesResponse, error)
+
+	PostApiBillingPriceLinesWithResponse(ctx context.Context, body PostApiBillingPriceLinesJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiBillingPriceLinesResponse, error)
+
+	// DeleteApiBillingPriceLinesIdWithResponse request
+	DeleteApiBillingPriceLinesIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteApiBillingPriceLinesIdResponse, error)
+
+	// PutApiBillingPriceLinesIdWithBodyWithResponse request with any body
+	PutApiBillingPriceLinesIdWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutApiBillingPriceLinesIdResponse, error)
+
+	PutApiBillingPriceLinesIdWithResponse(ctx context.Context, id string, body PutApiBillingPriceLinesIdJSONRequestBody, reqEditors ...RequestEditorFn) (*PutApiBillingPriceLinesIdResponse, error)
+
+	// GetApiBillingPricingPlanPeriodsWithResponse request
+	GetApiBillingPricingPlanPeriodsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiBillingPricingPlanPeriodsResponse, error)
+
+	// PostApiBillingPricingPlanPeriodsWithBodyWithResponse request with any body
+	PostApiBillingPricingPlanPeriodsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiBillingPricingPlanPeriodsResponse, error)
+
+	PostApiBillingPricingPlanPeriodsWithResponse(ctx context.Context, body PostApiBillingPricingPlanPeriodsJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiBillingPricingPlanPeriodsResponse, error)
+
+	// DeleteApiBillingPricingPlanPeriodsIdWithResponse request
+	DeleteApiBillingPricingPlanPeriodsIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteApiBillingPricingPlanPeriodsIdResponse, error)
+
+	// GetApiBillingPricingPlanPeriodsIdWithResponse request
+	GetApiBillingPricingPlanPeriodsIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiBillingPricingPlanPeriodsIdResponse, error)
+
+	// PutApiBillingPricingPlanPeriodsIdWithBodyWithResponse request with any body
+	PutApiBillingPricingPlanPeriodsIdWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutApiBillingPricingPlanPeriodsIdResponse, error)
+
+	PutApiBillingPricingPlanPeriodsIdWithResponse(ctx context.Context, id string, body PutApiBillingPricingPlanPeriodsIdJSONRequestBody, reqEditors ...RequestEditorFn) (*PutApiBillingPricingPlanPeriodsIdResponse, error)
+
+	// GetApiBillingPricingPlansWithResponse request
+	GetApiBillingPricingPlansWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiBillingPricingPlansResponse, error)
+
+	// PostApiBillingPricingPlansWithBodyWithResponse request with any body
+	PostApiBillingPricingPlansWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiBillingPricingPlansResponse, error)
+
+	PostApiBillingPricingPlansWithResponse(ctx context.Context, body PostApiBillingPricingPlansJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiBillingPricingPlansResponse, error)
+
+	// DeleteApiBillingPricingPlansIdWithResponse request
+	DeleteApiBillingPricingPlansIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteApiBillingPricingPlansIdResponse, error)
+
+	// PutApiBillingPricingPlansIdWithBodyWithResponse request with any body
+	PutApiBillingPricingPlansIdWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutApiBillingPricingPlansIdResponse, error)
+
+	PutApiBillingPricingPlansIdWithResponse(ctx context.Context, id string, body PutApiBillingPricingPlansIdJSONRequestBody, reqEditors ...RequestEditorFn) (*PutApiBillingPricingPlansIdResponse, error)
+
+	// GetApiBillingUsersUserIdBalanceWithResponse request
+	GetApiBillingUsersUserIdBalanceWithResponse(ctx context.Context, userId string, reqEditors ...RequestEditorFn) (*GetApiBillingUsersUserIdBalanceResponse, error)
+
+	// GetApiBillingUsersUserIdDeletedCreditsWithResponse request
+	GetApiBillingUsersUserIdDeletedCreditsWithResponse(ctx context.Context, userId string, params *GetApiBillingUsersUserIdDeletedCreditsParams, reqEditors ...RequestEditorFn) (*GetApiBillingUsersUserIdDeletedCreditsResponse, error)
+
 	// PostApiIpfsWebsitesIdBlockWithResponse request
 	PostApiIpfsWebsitesIdBlockWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*PostApiIpfsWebsitesIdBlockResponse, error)
 
@@ -1426,6 +4229,596 @@ type ClientWithResponsesInterface interface {
 
 	// DeleteApiQuotaUserConfigsUserIDPlanWithResponse request
 	DeleteApiQuotaUserConfigsUserIDPlanWithResponse(ctx context.Context, userID string, reqEditors ...RequestEditorFn) (*DeleteApiQuotaUserConfigsUserIDPlanResponse, error)
+}
+
+type GetApiBillingCreditsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *CreditsListResponse
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiBillingCreditsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiBillingCreditsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PostApiBillingCreditsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *CreditResponse
+	JSON201      *CreditResponse
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiBillingCreditsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiBillingCreditsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PostApiBillingCreditsPurgeResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *CreditPurgeResponse
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiBillingCreditsPurgeResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiBillingCreditsPurgeResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteApiBillingCreditsIdResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteApiBillingCreditsIdResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteApiBillingCreditsIdResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetApiBillingCreditsIdResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *CreditResponse
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiBillingCreditsIdResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiBillingCreditsIdResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PostApiBillingCreditsIdRestoreResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *CreditResponse
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiBillingCreditsIdRestoreResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiBillingCreditsIdRestoreResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PostApiBillingPlansIdSyncResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiBillingPlansIdSyncResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiBillingPlansIdSyncResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetApiBillingPriceLinesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *PriceLinesListResponse
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiBillingPriceLinesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiBillingPriceLinesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PostApiBillingPriceLinesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *PriceLineResponse
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiBillingPriceLinesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiBillingPriceLinesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteApiBillingPriceLinesIdResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteApiBillingPriceLinesIdResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteApiBillingPriceLinesIdResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PutApiBillingPriceLinesIdResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *PriceLineResponse
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PutApiBillingPriceLinesIdResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PutApiBillingPriceLinesIdResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetApiBillingPricingPlanPeriodsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *PricingPlanPeriodsListResponse
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiBillingPricingPlanPeriodsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiBillingPricingPlanPeriodsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PostApiBillingPricingPlanPeriodsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *PricingPlanPeriodDTO
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiBillingPricingPlanPeriodsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiBillingPricingPlanPeriodsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteApiBillingPricingPlanPeriodsIdResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteApiBillingPricingPlanPeriodsIdResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteApiBillingPricingPlanPeriodsIdResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetApiBillingPricingPlanPeriodsIdResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *PricingPlanPeriodDTO
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiBillingPricingPlanPeriodsIdResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiBillingPricingPlanPeriodsIdResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PutApiBillingPricingPlanPeriodsIdResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *PricingPlanPeriodDTO
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PutApiBillingPricingPlanPeriodsIdResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PutApiBillingPricingPlanPeriodsIdResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetApiBillingPricingPlansResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *PricingPlansListResponse
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiBillingPricingPlansResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiBillingPricingPlansResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PostApiBillingPricingPlansResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *PricingPlanResponse
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiBillingPricingPlansResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiBillingPricingPlansResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteApiBillingPricingPlansIdResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteApiBillingPricingPlansIdResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteApiBillingPricingPlansIdResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PutApiBillingPricingPlansIdResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *PricingPlanResponse
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PutApiBillingPricingPlansIdResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PutApiBillingPricingPlansIdResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetApiBillingUsersUserIdBalanceResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *BalanceResponse
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiBillingUsersUserIdBalanceResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiBillingUsersUserIdBalanceResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetApiBillingUsersUserIdDeletedCreditsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *DeletedCreditsListResponse
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiBillingUsersUserIdDeletedCreditsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiBillingUsersUserIdDeletedCreditsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
 }
 
 type PostApiIpfsWebsitesIdBlockResponse struct {
@@ -1880,6 +5273,268 @@ func (r DeleteApiQuotaUserConfigsUserIDPlanResponse) StatusCode() int {
 	return 0
 }
 
+// GetApiBillingCreditsWithResponse request returning *GetApiBillingCreditsResponse
+func (c *ClientWithResponses) GetApiBillingCreditsWithResponse(ctx context.Context, params *GetApiBillingCreditsParams, reqEditors ...RequestEditorFn) (*GetApiBillingCreditsResponse, error) {
+	rsp, err := c.GetApiBillingCredits(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiBillingCreditsResponse(rsp)
+}
+
+// PostApiBillingCreditsWithBodyWithResponse request with arbitrary body returning *PostApiBillingCreditsResponse
+func (c *ClientWithResponses) PostApiBillingCreditsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiBillingCreditsResponse, error) {
+	rsp, err := c.PostApiBillingCreditsWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiBillingCreditsResponse(rsp)
+}
+
+func (c *ClientWithResponses) PostApiBillingCreditsWithResponse(ctx context.Context, body PostApiBillingCreditsJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiBillingCreditsResponse, error) {
+	rsp, err := c.PostApiBillingCredits(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiBillingCreditsResponse(rsp)
+}
+
+// PostApiBillingCreditsPurgeWithBodyWithResponse request with arbitrary body returning *PostApiBillingCreditsPurgeResponse
+func (c *ClientWithResponses) PostApiBillingCreditsPurgeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiBillingCreditsPurgeResponse, error) {
+	rsp, err := c.PostApiBillingCreditsPurgeWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiBillingCreditsPurgeResponse(rsp)
+}
+
+func (c *ClientWithResponses) PostApiBillingCreditsPurgeWithResponse(ctx context.Context, body PostApiBillingCreditsPurgeJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiBillingCreditsPurgeResponse, error) {
+	rsp, err := c.PostApiBillingCreditsPurge(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiBillingCreditsPurgeResponse(rsp)
+}
+
+// DeleteApiBillingCreditsIdWithResponse request returning *DeleteApiBillingCreditsIdResponse
+func (c *ClientWithResponses) DeleteApiBillingCreditsIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteApiBillingCreditsIdResponse, error) {
+	rsp, err := c.DeleteApiBillingCreditsId(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteApiBillingCreditsIdResponse(rsp)
+}
+
+// GetApiBillingCreditsIdWithResponse request returning *GetApiBillingCreditsIdResponse
+func (c *ClientWithResponses) GetApiBillingCreditsIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiBillingCreditsIdResponse, error) {
+	rsp, err := c.GetApiBillingCreditsId(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiBillingCreditsIdResponse(rsp)
+}
+
+// PostApiBillingCreditsIdRestoreWithResponse request returning *PostApiBillingCreditsIdRestoreResponse
+func (c *ClientWithResponses) PostApiBillingCreditsIdRestoreWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*PostApiBillingCreditsIdRestoreResponse, error) {
+	rsp, err := c.PostApiBillingCreditsIdRestore(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiBillingCreditsIdRestoreResponse(rsp)
+}
+
+// PostApiBillingPlansIdSyncWithResponse request returning *PostApiBillingPlansIdSyncResponse
+func (c *ClientWithResponses) PostApiBillingPlansIdSyncWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*PostApiBillingPlansIdSyncResponse, error) {
+	rsp, err := c.PostApiBillingPlansIdSync(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiBillingPlansIdSyncResponse(rsp)
+}
+
+// GetApiBillingPriceLinesWithResponse request returning *GetApiBillingPriceLinesResponse
+func (c *ClientWithResponses) GetApiBillingPriceLinesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiBillingPriceLinesResponse, error) {
+	rsp, err := c.GetApiBillingPriceLines(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiBillingPriceLinesResponse(rsp)
+}
+
+// PostApiBillingPriceLinesWithBodyWithResponse request with arbitrary body returning *PostApiBillingPriceLinesResponse
+func (c *ClientWithResponses) PostApiBillingPriceLinesWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiBillingPriceLinesResponse, error) {
+	rsp, err := c.PostApiBillingPriceLinesWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiBillingPriceLinesResponse(rsp)
+}
+
+func (c *ClientWithResponses) PostApiBillingPriceLinesWithResponse(ctx context.Context, body PostApiBillingPriceLinesJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiBillingPriceLinesResponse, error) {
+	rsp, err := c.PostApiBillingPriceLines(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiBillingPriceLinesResponse(rsp)
+}
+
+// DeleteApiBillingPriceLinesIdWithResponse request returning *DeleteApiBillingPriceLinesIdResponse
+func (c *ClientWithResponses) DeleteApiBillingPriceLinesIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteApiBillingPriceLinesIdResponse, error) {
+	rsp, err := c.DeleteApiBillingPriceLinesId(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteApiBillingPriceLinesIdResponse(rsp)
+}
+
+// PutApiBillingPriceLinesIdWithBodyWithResponse request with arbitrary body returning *PutApiBillingPriceLinesIdResponse
+func (c *ClientWithResponses) PutApiBillingPriceLinesIdWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutApiBillingPriceLinesIdResponse, error) {
+	rsp, err := c.PutApiBillingPriceLinesIdWithBody(ctx, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutApiBillingPriceLinesIdResponse(rsp)
+}
+
+func (c *ClientWithResponses) PutApiBillingPriceLinesIdWithResponse(ctx context.Context, id string, body PutApiBillingPriceLinesIdJSONRequestBody, reqEditors ...RequestEditorFn) (*PutApiBillingPriceLinesIdResponse, error) {
+	rsp, err := c.PutApiBillingPriceLinesId(ctx, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutApiBillingPriceLinesIdResponse(rsp)
+}
+
+// GetApiBillingPricingPlanPeriodsWithResponse request returning *GetApiBillingPricingPlanPeriodsResponse
+func (c *ClientWithResponses) GetApiBillingPricingPlanPeriodsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiBillingPricingPlanPeriodsResponse, error) {
+	rsp, err := c.GetApiBillingPricingPlanPeriods(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiBillingPricingPlanPeriodsResponse(rsp)
+}
+
+// PostApiBillingPricingPlanPeriodsWithBodyWithResponse request with arbitrary body returning *PostApiBillingPricingPlanPeriodsResponse
+func (c *ClientWithResponses) PostApiBillingPricingPlanPeriodsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiBillingPricingPlanPeriodsResponse, error) {
+	rsp, err := c.PostApiBillingPricingPlanPeriodsWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiBillingPricingPlanPeriodsResponse(rsp)
+}
+
+func (c *ClientWithResponses) PostApiBillingPricingPlanPeriodsWithResponse(ctx context.Context, body PostApiBillingPricingPlanPeriodsJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiBillingPricingPlanPeriodsResponse, error) {
+	rsp, err := c.PostApiBillingPricingPlanPeriods(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiBillingPricingPlanPeriodsResponse(rsp)
+}
+
+// DeleteApiBillingPricingPlanPeriodsIdWithResponse request returning *DeleteApiBillingPricingPlanPeriodsIdResponse
+func (c *ClientWithResponses) DeleteApiBillingPricingPlanPeriodsIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteApiBillingPricingPlanPeriodsIdResponse, error) {
+	rsp, err := c.DeleteApiBillingPricingPlanPeriodsId(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteApiBillingPricingPlanPeriodsIdResponse(rsp)
+}
+
+// GetApiBillingPricingPlanPeriodsIdWithResponse request returning *GetApiBillingPricingPlanPeriodsIdResponse
+func (c *ClientWithResponses) GetApiBillingPricingPlanPeriodsIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiBillingPricingPlanPeriodsIdResponse, error) {
+	rsp, err := c.GetApiBillingPricingPlanPeriodsId(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiBillingPricingPlanPeriodsIdResponse(rsp)
+}
+
+// PutApiBillingPricingPlanPeriodsIdWithBodyWithResponse request with arbitrary body returning *PutApiBillingPricingPlanPeriodsIdResponse
+func (c *ClientWithResponses) PutApiBillingPricingPlanPeriodsIdWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutApiBillingPricingPlanPeriodsIdResponse, error) {
+	rsp, err := c.PutApiBillingPricingPlanPeriodsIdWithBody(ctx, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutApiBillingPricingPlanPeriodsIdResponse(rsp)
+}
+
+func (c *ClientWithResponses) PutApiBillingPricingPlanPeriodsIdWithResponse(ctx context.Context, id string, body PutApiBillingPricingPlanPeriodsIdJSONRequestBody, reqEditors ...RequestEditorFn) (*PutApiBillingPricingPlanPeriodsIdResponse, error) {
+	rsp, err := c.PutApiBillingPricingPlanPeriodsId(ctx, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutApiBillingPricingPlanPeriodsIdResponse(rsp)
+}
+
+// GetApiBillingPricingPlansWithResponse request returning *GetApiBillingPricingPlansResponse
+func (c *ClientWithResponses) GetApiBillingPricingPlansWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiBillingPricingPlansResponse, error) {
+	rsp, err := c.GetApiBillingPricingPlans(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiBillingPricingPlansResponse(rsp)
+}
+
+// PostApiBillingPricingPlansWithBodyWithResponse request with arbitrary body returning *PostApiBillingPricingPlansResponse
+func (c *ClientWithResponses) PostApiBillingPricingPlansWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiBillingPricingPlansResponse, error) {
+	rsp, err := c.PostApiBillingPricingPlansWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiBillingPricingPlansResponse(rsp)
+}
+
+func (c *ClientWithResponses) PostApiBillingPricingPlansWithResponse(ctx context.Context, body PostApiBillingPricingPlansJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiBillingPricingPlansResponse, error) {
+	rsp, err := c.PostApiBillingPricingPlans(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiBillingPricingPlansResponse(rsp)
+}
+
+// DeleteApiBillingPricingPlansIdWithResponse request returning *DeleteApiBillingPricingPlansIdResponse
+func (c *ClientWithResponses) DeleteApiBillingPricingPlansIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteApiBillingPricingPlansIdResponse, error) {
+	rsp, err := c.DeleteApiBillingPricingPlansId(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteApiBillingPricingPlansIdResponse(rsp)
+}
+
+// PutApiBillingPricingPlansIdWithBodyWithResponse request with arbitrary body returning *PutApiBillingPricingPlansIdResponse
+func (c *ClientWithResponses) PutApiBillingPricingPlansIdWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutApiBillingPricingPlansIdResponse, error) {
+	rsp, err := c.PutApiBillingPricingPlansIdWithBody(ctx, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutApiBillingPricingPlansIdResponse(rsp)
+}
+
+func (c *ClientWithResponses) PutApiBillingPricingPlansIdWithResponse(ctx context.Context, id string, body PutApiBillingPricingPlansIdJSONRequestBody, reqEditors ...RequestEditorFn) (*PutApiBillingPricingPlansIdResponse, error) {
+	rsp, err := c.PutApiBillingPricingPlansId(ctx, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutApiBillingPricingPlansIdResponse(rsp)
+}
+
+// GetApiBillingUsersUserIdBalanceWithResponse request returning *GetApiBillingUsersUserIdBalanceResponse
+func (c *ClientWithResponses) GetApiBillingUsersUserIdBalanceWithResponse(ctx context.Context, userId string, reqEditors ...RequestEditorFn) (*GetApiBillingUsersUserIdBalanceResponse, error) {
+	rsp, err := c.GetApiBillingUsersUserIdBalance(ctx, userId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiBillingUsersUserIdBalanceResponse(rsp)
+}
+
+// GetApiBillingUsersUserIdDeletedCreditsWithResponse request returning *GetApiBillingUsersUserIdDeletedCreditsResponse
+func (c *ClientWithResponses) GetApiBillingUsersUserIdDeletedCreditsWithResponse(ctx context.Context, userId string, params *GetApiBillingUsersUserIdDeletedCreditsParams, reqEditors ...RequestEditorFn) (*GetApiBillingUsersUserIdDeletedCreditsResponse, error) {
+	rsp, err := c.GetApiBillingUsersUserIdDeletedCredits(ctx, userId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiBillingUsersUserIdDeletedCreditsResponse(rsp)
+}
+
 // PostApiIpfsWebsitesIdBlockWithResponse request returning *PostApiIpfsWebsitesIdBlockResponse
 func (c *ClientWithResponses) PostApiIpfsWebsitesIdBlockWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*PostApiIpfsWebsitesIdBlockResponse, error) {
 	rsp, err := c.PostApiIpfsWebsitesIdBlock(ctx, id, reqEditors...)
@@ -2096,6 +5751,1320 @@ func (c *ClientWithResponses) DeleteApiQuotaUserConfigsUserIDPlanWithResponse(ct
 		return nil, err
 	}
 	return ParseDeleteApiQuotaUserConfigsUserIDPlanResponse(rsp)
+}
+
+// ParseGetApiBillingCreditsResponse parses an HTTP response from a GetApiBillingCreditsWithResponse call
+func ParseGetApiBillingCreditsResponse(rsp *http.Response) (*GetApiBillingCreditsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiBillingCreditsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest CreditsListResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiBillingCreditsResponse parses an HTTP response from a PostApiBillingCreditsWithResponse call
+func ParsePostApiBillingCreditsResponse(rsp *http.Response) (*PostApiBillingCreditsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiBillingCreditsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest CreditResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest CreditResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiBillingCreditsPurgeResponse parses an HTTP response from a PostApiBillingCreditsPurgeWithResponse call
+func ParsePostApiBillingCreditsPurgeResponse(rsp *http.Response) (*PostApiBillingCreditsPurgeResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiBillingCreditsPurgeResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest CreditPurgeResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteApiBillingCreditsIdResponse parses an HTTP response from a DeleteApiBillingCreditsIdWithResponse call
+func ParseDeleteApiBillingCreditsIdResponse(rsp *http.Response) (*DeleteApiBillingCreditsIdResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteApiBillingCreditsIdResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiBillingCreditsIdResponse parses an HTTP response from a GetApiBillingCreditsIdWithResponse call
+func ParseGetApiBillingCreditsIdResponse(rsp *http.Response) (*GetApiBillingCreditsIdResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiBillingCreditsIdResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest CreditResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiBillingCreditsIdRestoreResponse parses an HTTP response from a PostApiBillingCreditsIdRestoreWithResponse call
+func ParsePostApiBillingCreditsIdRestoreResponse(rsp *http.Response) (*PostApiBillingCreditsIdRestoreResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiBillingCreditsIdRestoreResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest CreditResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiBillingPlansIdSyncResponse parses an HTTP response from a PostApiBillingPlansIdSyncWithResponse call
+func ParsePostApiBillingPlansIdSyncResponse(rsp *http.Response) (*PostApiBillingPlansIdSyncResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiBillingPlansIdSyncResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiBillingPriceLinesResponse parses an HTTP response from a GetApiBillingPriceLinesWithResponse call
+func ParseGetApiBillingPriceLinesResponse(rsp *http.Response) (*GetApiBillingPriceLinesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiBillingPriceLinesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest PriceLinesListResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiBillingPriceLinesResponse parses an HTTP response from a PostApiBillingPriceLinesWithResponse call
+func ParsePostApiBillingPriceLinesResponse(rsp *http.Response) (*PostApiBillingPriceLinesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiBillingPriceLinesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest PriceLineResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteApiBillingPriceLinesIdResponse parses an HTTP response from a DeleteApiBillingPriceLinesIdWithResponse call
+func ParseDeleteApiBillingPriceLinesIdResponse(rsp *http.Response) (*DeleteApiBillingPriceLinesIdResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteApiBillingPriceLinesIdResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePutApiBillingPriceLinesIdResponse parses an HTTP response from a PutApiBillingPriceLinesIdWithResponse call
+func ParsePutApiBillingPriceLinesIdResponse(rsp *http.Response) (*PutApiBillingPriceLinesIdResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PutApiBillingPriceLinesIdResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest PriceLineResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiBillingPricingPlanPeriodsResponse parses an HTTP response from a GetApiBillingPricingPlanPeriodsWithResponse call
+func ParseGetApiBillingPricingPlanPeriodsResponse(rsp *http.Response) (*GetApiBillingPricingPlanPeriodsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiBillingPricingPlanPeriodsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest PricingPlanPeriodsListResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiBillingPricingPlanPeriodsResponse parses an HTTP response from a PostApiBillingPricingPlanPeriodsWithResponse call
+func ParsePostApiBillingPricingPlanPeriodsResponse(rsp *http.Response) (*PostApiBillingPricingPlanPeriodsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiBillingPricingPlanPeriodsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest PricingPlanPeriodDTO
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteApiBillingPricingPlanPeriodsIdResponse parses an HTTP response from a DeleteApiBillingPricingPlanPeriodsIdWithResponse call
+func ParseDeleteApiBillingPricingPlanPeriodsIdResponse(rsp *http.Response) (*DeleteApiBillingPricingPlanPeriodsIdResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteApiBillingPricingPlanPeriodsIdResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiBillingPricingPlanPeriodsIdResponse parses an HTTP response from a GetApiBillingPricingPlanPeriodsIdWithResponse call
+func ParseGetApiBillingPricingPlanPeriodsIdResponse(rsp *http.Response) (*GetApiBillingPricingPlanPeriodsIdResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiBillingPricingPlanPeriodsIdResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest PricingPlanPeriodDTO
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePutApiBillingPricingPlanPeriodsIdResponse parses an HTTP response from a PutApiBillingPricingPlanPeriodsIdWithResponse call
+func ParsePutApiBillingPricingPlanPeriodsIdResponse(rsp *http.Response) (*PutApiBillingPricingPlanPeriodsIdResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PutApiBillingPricingPlanPeriodsIdResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest PricingPlanPeriodDTO
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiBillingPricingPlansResponse parses an HTTP response from a GetApiBillingPricingPlansWithResponse call
+func ParseGetApiBillingPricingPlansResponse(rsp *http.Response) (*GetApiBillingPricingPlansResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiBillingPricingPlansResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest PricingPlansListResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiBillingPricingPlansResponse parses an HTTP response from a PostApiBillingPricingPlansWithResponse call
+func ParsePostApiBillingPricingPlansResponse(rsp *http.Response) (*PostApiBillingPricingPlansResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiBillingPricingPlansResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest PricingPlanResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteApiBillingPricingPlansIdResponse parses an HTTP response from a DeleteApiBillingPricingPlansIdWithResponse call
+func ParseDeleteApiBillingPricingPlansIdResponse(rsp *http.Response) (*DeleteApiBillingPricingPlansIdResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteApiBillingPricingPlansIdResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePutApiBillingPricingPlansIdResponse parses an HTTP response from a PutApiBillingPricingPlansIdWithResponse call
+func ParsePutApiBillingPricingPlansIdResponse(rsp *http.Response) (*PutApiBillingPricingPlansIdResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PutApiBillingPricingPlansIdResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest PricingPlanResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiBillingUsersUserIdBalanceResponse parses an HTTP response from a GetApiBillingUsersUserIdBalanceWithResponse call
+func ParseGetApiBillingUsersUserIdBalanceResponse(rsp *http.Response) (*GetApiBillingUsersUserIdBalanceResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiBillingUsersUserIdBalanceResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest BalanceResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiBillingUsersUserIdDeletedCreditsResponse parses an HTTP response from a GetApiBillingUsersUserIdDeletedCreditsWithResponse call
+func ParseGetApiBillingUsersUserIdDeletedCreditsResponse(rsp *http.Response) (*GetApiBillingUsersUserIdDeletedCreditsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiBillingUsersUserIdDeletedCreditsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest DeletedCreditsListResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
 }
 
 // ParsePostApiIpfsWebsitesIdBlockResponse parses an HTTP response from a PostApiIpfsWebsitesIdBlockWithResponse call

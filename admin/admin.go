@@ -16,12 +16,14 @@ const DefaultEndpoint = "localhost:8080"
 // AdminAPI is the interface for admin operations.
 type AdminAPI interface {
 	Quota() *QuotaService
+	Billing() *BillingService
 }
 
 // AdminClient provides access to admin APIs for managing quotas, billing, and users.
 type AdminClient struct {
 	client          admin.ClientWithResponsesInterface
 	quota           *QuotaService
+	billing         *BillingService
 	config          *clientConfig
 	jwt             string
 	apiKey          string
@@ -144,8 +146,13 @@ func NewClient(opts ...ClientOption) *AdminClient {
 		client: c,
 	}
 
+	billingService := &BillingService{
+		client: c,
+	}
+
 	clientWrapper.client = c
 	clientWrapper.quota = quotaService
+	clientWrapper.billing = billingService
 	clientWrapper.config = cfg
 	return clientWrapper
 }
@@ -153,6 +160,11 @@ func NewClient(opts ...ClientOption) *AdminClient {
 // Quota returns the quota service for managing quotas.
 func (a *AdminClient) Quota() *QuotaService {
 	return a.quota
+}
+
+// Billing returns the billing service for managing billing operations.
+func (a *AdminClient) Billing() *BillingService {
+	return a.billing
 }
 
 // RequestExecutor provides a method to execute requests with the admin client's configuration.
