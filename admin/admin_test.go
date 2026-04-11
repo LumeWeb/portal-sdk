@@ -276,6 +276,86 @@ func TestBillingService_UpdatePriceLine(t *testing.T) {
 	}
 }
 
+func TestBillingService_GetPriceLine(t *testing.T) {
+	tests := []struct {
+		name        string
+		priceLineID string
+		statusCode  int
+		response    interface{}
+		wantErr     bool
+		errCheck    func(*testing.T, error)
+	}{
+		{
+			name:        "successful get price line",
+			priceLineID: "1",
+			statusCode:  http.StatusOK,
+			response: admin.PriceLineResponse{
+				Id:          1,
+				Name:        "Storage",
+				Description: "Storage pricing",
+				IsActive:    true,
+				IsDefault:   false,
+			},
+			wantErr: false,
+		},
+		{
+			name:        "not found",
+			priceLineID: "999",
+			statusCode:  http.StatusNotFound,
+			response:     admin.ErrorResponse{Error: "price line not found"},
+			wantErr:      true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "price line not found")
+			},
+		},
+		{
+			name:        "unauthorized",
+			priceLineID: "1",
+			statusCode:  http.StatusUnauthorized,
+			response:     admin.ErrorResponse{Error: "unauthorized"},
+			wantErr:      true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "unauthorized")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "GET" {
+					t.Errorf("expected GET request, got %s", r.Method)
+				}
+				if r.URL.Path != "/api/billing/price-lines/"+tt.priceLineID {
+					t.Errorf("expected /api/billing/price-lines/%s path, got %s", tt.priceLineID, r.URL.Path)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				require.NoError(t, json.NewEncoder(w).Encode(tt.response))
+			}))
+			defer server.Close()
+
+			client := NewClient(WithEndpoint(server.URL))
+			line, err := client.Billing().GetPriceLine(context.Background(), tt.priceLineID)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetPriceLine() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.NotNil(t, line)
+				require.Equal(t, "Storage", line.Name)
+			}
+		})
+	}
+}
+
 func TestBillingService_DeletePriceLine(t *testing.T) {
 	tests := []struct {
 		name        string
