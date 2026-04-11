@@ -366,7 +366,7 @@ type SubscriptionStatusResponse struct {
 }
 
 // UUID defines model for UUID.
-type UUID = []int
+type UUID = openapi_types.UUID
 
 // UpdateEmailRequest defines model for UpdateEmailRequest.
 type UpdateEmailRequest struct {
