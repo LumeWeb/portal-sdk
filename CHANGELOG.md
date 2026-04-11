@@ -1,3 +1,13 @@
+## 0.1.21 (2026-04-11)
+
+### Features
+
+- add comprehensive billing API
+
+### Fixes
+
+- add reserved field to QuotaTypeStatus
+
 ## 0.1.20 (2026-04-07)
 
 ### Features
