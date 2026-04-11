@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/oapi-codegen/runtime"
+	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
 // AllowanceGrantRequest defines model for AllowanceGrantRequest.
@@ -331,7 +332,7 @@ type SystemStatsResponse struct {
 }
 
 // UUID defines model for UUID.
-type UUID = []int
+type UUID = openapi_types.UUID
 
 // Usage defines model for Usage.
 type Usage struct {

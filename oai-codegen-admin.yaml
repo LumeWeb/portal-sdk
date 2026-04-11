@@ -5,3 +5,5 @@ generate:
     models: true
     client: true
 output-options:
+    overlay:
+        path: ../overlay-admin.yaml
