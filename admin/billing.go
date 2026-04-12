@@ -34,6 +34,12 @@ const (
 	OpBillingGetPricingPlanPeriod
 	OpBillingUpdatePricingPlanPeriod
 	OpBillingDeletePricingPlanPeriod
+	OpBillingListSubscribers
+	OpBillingGetSubscriber
+	OpBillingListGatewaySubscribers
+	OpBillingGetUserSubscribers
+	OpBillingCancelUserSubscription
+	OpBillingChangeUserPlan
 )
 
 const defaultBillingOperationName = "billing operation"
@@ -62,6 +68,12 @@ var billingOperationString = map[int]string{
 	OpBillingGetPricingPlanPeriod:    "get pricing plan period",
 	OpBillingUpdatePricingPlanPeriod: "update pricing plan period",
 	OpBillingDeletePricingPlanPeriod: "delete pricing plan period",
+	OpBillingListSubscribers:          "list subscribers",
+	OpBillingGetSubscriber:            "get subscriber",
+	OpBillingListGatewaySubscribers:   "list gateway subscribers",
+	OpBillingGetUserSubscribers:       "get user subscribers",
+	OpBillingCancelUserSubscription:   "cancel user subscription",
+	OpBillingChangeUserPlan:           "change user plan",
 }
 
 // httpErrorMessages maps billing operation IDs to their custom status code error messages.
@@ -175,6 +187,37 @@ var billingHTTPErrorMessages = map[int]map[int]internalhttp.ErrorFactoryError{
 		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
 		stdhttp.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
 		stdhttp.StatusNotFound:     internalhttp.PlainError("pricing plan period not found"),
+	},
+	OpBillingListSubscribers: {
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
+	},
+	OpBillingGetSubscriber: {
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
+		stdhttp.StatusNotFound:     internalhttp.PlainError("subscriber not found"),
+	},
+	OpBillingListGatewaySubscribers: {
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
+		stdhttp.StatusNotFound:     internalhttp.PlainError("gateway not found"),
+	},
+	OpBillingGetUserSubscribers: {
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
+		stdhttp.StatusNotFound:     internalhttp.PlainError("user not found"),
+	},
+	OpBillingCancelUserSubscription: {
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
+		stdhttp.StatusNotFound:     internalhttp.PlainError("user not found"),
+		stdhttp.StatusBadRequest:   internalhttp.PlainError("invalid cancellation request"),
+	},
+	OpBillingChangeUserPlan: {
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
+		stdhttp.StatusNotFound:     internalhttp.PlainError("user not found"),
+		stdhttp.StatusBadRequest:   internalhttp.PlainError("invalid plan change request"),
 	},
 }
 
@@ -362,13 +405,38 @@ type PricingPlanPeriodUpdateRequest struct {
 	RollingDays *int // Optional
 }
 
+// Subscriber represents a billing subscription subscriber.
+type Subscriber struct {
+	admin.SubscriberItem
+}
+
+// ManagementResult represents the result of a billing management operation.
+type ManagementResult struct {
+	admin.ManagementResultResponse
+}
+
+// PlanChangeResult represents the result of a plan change operation.
+type PlanChangeResult struct {
+	admin.PlanChangeResultResponse
+}
+
+// CancelSubscriptionRequest represents a request to cancel a subscription.
+type CancelSubscriptionRequest struct {
+	Mode string // e.g., "immediate", "end_of_period"
+}
+
+// ChangePlanRequest represents a request to change a subscription plan.
+type ChangePlanRequest struct {
+	PeriodID int // ID of the pricing plan period
+}
+
 // BillingService provides methods for managing billing operations.
 type BillingService struct {
 	client admin.ClientWithResponsesInterface
 }
 
 // ListCredits lists all credits with optional filtering.
-func (b *BillingService) ListCredits(ctx context.Context, params *GetApiBillingCreditsParams) ([]*CreditItem, error) {
+func (b *BillingService) ListCredits(ctx context.Context, params *GetApiBillingCreditsParams) ([]*CreditItem, int, error) {
 	var adminParams *admin.GetApiBillingCreditsParams
 	if params != nil {
 		adminParams = (*admin.GetApiBillingCreditsParams)(params)
@@ -376,22 +444,22 @@ func (b *BillingService) ListCredits(ctx context.Context, params *GetApiBillingC
 
 	resp, err := b.client.GetApiBillingCreditsWithResponse(ctx, adminParams)
 	if err != nil {
-		return nil, fmt.Errorf("failed to list credits: %w", err)
+		return nil, 0, fmt.Errorf("failed to list credits: %w", err)
 	}
 
 	if err := handleBillingResponse(resp.StatusCode(), resp.Body, OpBillingListCredits, []int{stdhttp.StatusOK}); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	if resp.JSON200 == nil {
-		return nil, fmt.Errorf("list credits response did not contain data")
+		return nil, 0, fmt.Errorf("list credits response did not contain data")
 	}
 
 	credits := lo.Map(resp.JSON200.Data, func(credit admin.CreditItem, _ int) *CreditItem {
 		return &CreditItem{CreditItem: credit}
 	})
 
-	return credits, nil
+	return credits, resp.JSON200.Total, nil
 }
 
 // CreateCredit creates a new credit entry.
@@ -505,7 +573,7 @@ func (b *BillingService) GetUserBalance(ctx context.Context, userID string) (*Us
 }
 
 // GetUserDeletedCredits retrieves soft-deleted credits for a user.
-func (b *BillingService) GetUserDeletedCredits(ctx context.Context, userID string, params *GetApiBillingUsersUserIdDeletedCreditsParams) ([]*CreditItem, error) {
+func (b *BillingService) GetUserDeletedCredits(ctx context.Context, userID string, params *GetApiBillingUsersUserIdDeletedCreditsParams) ([]*CreditItem, int, error) {
 	var adminParams *admin.GetApiBillingUsersUserIdDeletedCreditsParams
 	if params != nil {
 		adminParams = (*admin.GetApiBillingUsersUserIdDeletedCreditsParams)(params)
@@ -513,44 +581,44 @@ func (b *BillingService) GetUserDeletedCredits(ctx context.Context, userID strin
 
 	resp, err := b.client.GetApiBillingUsersUserIdDeletedCreditsWithResponse(ctx, userID, adminParams)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get user deleted credits: %w", err)
+		return nil, 0, fmt.Errorf("failed to get user deleted credits: %w", err)
 	}
 
 	if err := handleBillingResponse(resp.StatusCode(), resp.Body, OpBillingGetUserDeletedCredits, []int{stdhttp.StatusOK}); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	if resp.JSON200 == nil {
-		return nil, fmt.Errorf("get user deleted credits response did not contain data")
+		return nil, 0, fmt.Errorf("get user deleted credits response did not contain data")
 	}
 
 	credits := lo.Map(resp.JSON200.Data, func(credit admin.CreditItem, _ int) *CreditItem {
 		return &CreditItem{CreditItem: credit}
 	})
 
-	return credits, nil
+	return credits, resp.JSON200.Total, nil
 }
 
 // ListPriceLines lists all price lines.
-func (b *BillingService) ListPriceLines(ctx context.Context) ([]*PriceLine, error) {
+func (b *BillingService) ListPriceLines(ctx context.Context) ([]*PriceLine, int, error) {
 	resp, err := b.client.GetApiBillingPriceLinesWithResponse(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to list price lines: %w", err)
+		return nil, 0, fmt.Errorf("failed to list price lines: %w", err)
 	}
 
 	if err := handleBillingResponse(resp.StatusCode(), resp.Body, OpBillingListPriceLines, []int{stdhttp.StatusOK}); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	if resp.JSON200 == nil {
-		return nil, fmt.Errorf("list price lines response did not contain data")
+		return nil, 0, fmt.Errorf("list price lines response did not contain data")
 	}
 
 	lines := lo.Map(resp.JSON200.Data, func(line admin.PriceLineResponse, _ int) *PriceLine {
 		return &PriceLine{PriceLineResponse: line}
 	})
 
-	return lines, nil
+	return lines, resp.JSON200.Total, nil
 }
 
 // CreatePriceLine creates a new price line.
@@ -623,25 +691,25 @@ func (b *BillingService) DeletePriceLine(ctx context.Context, priceLineID string
 }
 
 // ListPricingPlans lists all pricing plans.
-func (b *BillingService) ListPricingPlans(ctx context.Context) ([]*PricingPlanItem, error) {
+func (b *BillingService) ListPricingPlans(ctx context.Context) ([]*PricingPlanItem, int, error) {
 	resp, err := b.client.GetApiBillingPricingPlansWithResponse(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to list pricing plans: %w", err)
+		return nil, 0, fmt.Errorf("failed to list pricing plans: %w", err)
 	}
 
 	if err := handleBillingResponse(resp.StatusCode(), resp.Body, OpBillingListPricingPlans, []int{stdhttp.StatusOK}); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	if resp.JSON200 == nil {
-		return nil, fmt.Errorf("list pricing plans response did not contain data")
+		return nil, 0, fmt.Errorf("list pricing plans response did not contain data")
 	}
 
 	plans := lo.Map(resp.JSON200.Data, func(plan admin.PricingPlanItem, _ int) *PricingPlanItem {
 		return &PricingPlanItem{PricingPlanItem: plan}
 	})
 
-	return plans, nil
+	return plans, resp.JSON200.Total, nil
 }
 
 // CreatePricingPlan creates a new pricing plan.
@@ -723,25 +791,25 @@ func (b *BillingService) DeletePricingPlan(ctx context.Context, planID string) e
 }
 
 // ListPricingPlanPeriods lists all pricing plan periods.
-func (b *BillingService) ListPricingPlanPeriods(ctx context.Context) ([]*PricingPlanPeriod, error) {
+func (b *BillingService) ListPricingPlanPeriods(ctx context.Context) ([]*PricingPlanPeriod, int, error) {
 	resp, err := b.client.GetApiBillingPricingPlanPeriodsWithResponse(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to list pricing plan periods: %w", err)
+		return nil, 0, fmt.Errorf("failed to list pricing plan periods: %w", err)
 	}
 
 	if err := handleBillingResponse(resp.StatusCode(), resp.Body, OpBillingListPricingPlanPeriods, []int{stdhttp.StatusOK}); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	if resp.JSON200 == nil {
-		return nil, fmt.Errorf("list pricing plan periods response did not contain data")
+		return nil, 0, fmt.Errorf("list pricing plan periods response did not contain data")
 	}
 
 	periods := lo.Map(resp.JSON200.Data, func(period admin.PricingPlanPeriodDTO, _ int) *PricingPlanPeriod {
 		return &PricingPlanPeriod{PricingPlanPeriodDTO: period}
 	})
 
-	return periods, nil
+	return periods, resp.JSON200.Total, nil
 }
 
 // CreatePricingPlanPeriod creates a new pricing plan period.
@@ -821,3 +889,138 @@ type GetApiBillingCreditsParams admin.GetApiBillingCreditsParams
 // GetApiBillingUsersUserIdDeletedCreditsParams defines parameters for GetUserDeletedCredits.
 // This type aliases the generated type for convenience.
 type GetApiBillingUsersUserIdDeletedCreditsParams admin.GetApiBillingUsersUserIdDeletedCreditsParams
+
+// ListSubscribers lists all subscribers across all gateways.
+func (b *BillingService) ListSubscribers(ctx context.Context) ([]*Subscriber, int, error) {
+	resp, err := b.client.GetApiBillingSubscribersWithResponse(ctx)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to list subscribers: %w", err)
+	}
+
+	if err := handleBillingResponse(resp.StatusCode(), resp.Body, OpBillingListSubscribers, []int{stdhttp.StatusOK}); err != nil {
+		return nil, 0, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, 0, fmt.Errorf("list subscribers response did not contain data")
+	}
+
+	subscribers := lo.Map(resp.JSON200.Data, func(sub admin.SubscriberItem, _ int) *Subscriber {
+		return &Subscriber{SubscriberItem: sub}
+	})
+
+	return subscribers, resp.JSON200.Total, nil
+}
+
+// GetSubscriber retrieves a specific subscriber by ID.
+func (b *BillingService) GetSubscriber(ctx context.Context, subscriberID string) (*Subscriber, error) {
+	resp, err := b.client.GetApiBillingSubscribersIdWithResponse(ctx, subscriberID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get subscriber: %w", err)
+	}
+
+	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingGetSubscriber)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Subscriber{SubscriberItem: admin.SubscriberItem{
+		BillingPeriodEnd:    data.BillingPeriodEnd,
+		BillingPeriodStart:  data.BillingPeriodStart,
+		CancelledAt:         data.CancelledAt,
+		CreatedAt:           data.CreatedAt,
+		ExternalId:          data.ExternalId,
+		GatewayType:         data.GatewayType,
+		Id:                  data.Id,
+		IsActive:            data.IsActive,
+		PaymentStatus:       data.PaymentStatus,
+		PreviousPlanId:      data.PreviousPlanId,
+		PricingPlanPeriodId: data.PricingPlanPeriodId,
+		SubscriptionId:      data.SubscriptionId,
+		UpdatedAt:           data.UpdatedAt,
+		UserId:              data.UserId,
+		WillCancelAt:        data.WillCancelAt,
+	}}, nil
+}
+
+// ListGatewaySubscribers lists subscribers for a specific gateway.
+func (b *BillingService) ListGatewaySubscribers(ctx context.Context, gatewayID string) ([]*Subscriber, int, error) {
+	resp, err := b.client.GetApiBillingGatewaysGatewayIdSubscribersWithResponse(ctx, gatewayID)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to list gateway subscribers: %w", err)
+	}
+
+	if err := handleBillingResponse(resp.StatusCode(), resp.Body, OpBillingListGatewaySubscribers, []int{stdhttp.StatusOK}); err != nil {
+		return nil, 0, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, 0, fmt.Errorf("list gateway subscribers response did not contain data")
+	}
+
+	subscribers := lo.Map(resp.JSON200.Data, func(sub admin.SubscriberItem, _ int) *Subscriber {
+		return &Subscriber{SubscriberItem: sub}
+	})
+
+	return subscribers, resp.JSON200.Total, nil
+}
+
+// GetUserSubscribers retrieves subscribers for a specific user.
+func (b *BillingService) GetUserSubscribers(ctx context.Context, userID string) ([]*Subscriber, int, error) {
+	resp, err := b.client.GetApiBillingUsersUserIdSubscribersWithResponse(ctx, userID)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to get user subscribers: %w", err)
+	}
+
+	if err := handleBillingResponse(resp.StatusCode(), resp.Body, OpBillingGetUserSubscribers, []int{stdhttp.StatusOK}); err != nil {
+		return nil, 0, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, 0, fmt.Errorf("get user subscribers response did not contain data")
+	}
+
+	subscribers := lo.Map(resp.JSON200.Data, func(sub admin.SubscriberItem, _ int) *Subscriber {
+		return &Subscriber{SubscriberItem: sub}
+	})
+
+	return subscribers, resp.JSON200.Total, nil
+}
+
+// CancelUserSubscription cancels a user's subscription.
+func (b *BillingService) CancelUserSubscription(ctx context.Context, userID string, req *CancelSubscriptionRequest) (*ManagementResult, error) {
+	reqBody := admin.PostApiBillingUsersUserIdSubscriptionsCancelJSONRequestBody{
+		Mode: req.Mode,
+	}
+
+	resp, err := b.client.PostApiBillingUsersUserIdSubscriptionsCancelWithResponse(ctx, userID, reqBody)
+	if err != nil {
+		return nil, fmt.Errorf("failed to cancel subscription: %w", err)
+	}
+
+	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingCancelUserSubscription)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ManagementResult{ManagementResultResponse: *data}, nil
+}
+
+// ChangeUserPlan changes a user's subscription plan.
+func (b *BillingService) ChangeUserPlan(ctx context.Context, userID string, req *ChangePlanRequest) (*PlanChangeResult, error) {
+	reqBody := admin.PostApiBillingUsersUserIdSubscriptionsChangePlanJSONRequestBody{
+		PeriodId: req.PeriodID,
+	}
+
+	resp, err := b.client.PostApiBillingUsersUserIdSubscriptionsChangePlanWithResponse(ctx, userID, reqBody)
+	if err != nil {
+		return nil, fmt.Errorf("failed to change user plan: %w", err)
+	}
+
+	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingChangeUserPlan)
+	if err != nil {
+		return nil, err
+	}
+
+	return &PlanChangeResult{PlanChangeResultResponse: *data}, nil
+}

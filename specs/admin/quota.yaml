@@ -1,5 +1,32 @@
 components:
   schemas:
+    APIEndpointInfoResponse:
+      additionalProperties: false
+      properties:
+        method:
+          type: string
+        path:
+          type: string
+      required:
+      - method
+      - path
+      type: object
+    AdminCancelSubscriptionRequest:
+      additionalProperties: false
+      properties:
+        mode:
+          type: string
+      required:
+      - mode
+      type: object
+    AdminChangePlanRequest:
+      additionalProperties: false
+      properties:
+        period_id:
+          type: integer
+      required:
+      - period_id
+      type: object
     AllowanceGrantRequest:
       additionalProperties: false
       properties:
@@ -232,8 +259,11 @@ components:
           items:
             $ref: '#/components/schemas/CreditItem'
           type: array
+        total:
+          type: integer
       required:
       - data
+      - total
       type: object
     Decimal:
       additionalProperties: false
@@ -245,8 +275,11 @@ components:
           items:
             $ref: '#/components/schemas/CreditItem'
           type: array
+        total:
+          type: integer
       required:
       - data
+      - total
       type: object
     ErrorResponse:
       additionalProperties: false
@@ -255,6 +288,47 @@ components:
           type: string
       required:
       - error
+      type: object
+    ManagementResultResponse:
+      additionalProperties: false
+      properties:
+        action:
+          type: string
+        api_endpoint:
+          $ref: '#/components/schemas/APIEndpointInfoResponse'
+        confirmation_message:
+          type: string
+        effective_time:
+          format: date-time
+          type: string
+        error_message:
+          type: string
+        requires_confirmation:
+          type: boolean
+        url:
+          type: string
+      required:
+      - action
+      - requires_confirmation
+      type: object
+    PlanChangeResultResponse:
+      additionalProperties: false
+      properties:
+        action:
+          type: string
+        charge_due:
+          $ref: '#/components/schemas/Decimal'
+        checkout_link:
+          type: string
+        credit_applied:
+          $ref: '#/components/schemas/Decimal'
+        effective_date:
+          format: date-time
+          type: string
+      required:
+      - action
+      - credit_applied
+      - charge_due
       type: object
     PlanListResponse:
       additionalProperties: false
@@ -684,6 +758,117 @@ components:
           type: string
       required:
       - status
+      type: object
+    SubscriberItem:
+      additionalProperties: false
+      properties:
+        billing_period_end:
+          format: date-time
+          type: string
+        billing_period_start:
+          format: date-time
+          type: string
+        cancelled_at:
+          format: date-time
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        external_id:
+          type: string
+        gateway_type:
+          type: string
+        id:
+          type: integer
+        is_active:
+          type: boolean
+        payment_status:
+          type: string
+        previous_plan_id:
+          type: integer
+        pricing_plan_period_id:
+          type: integer
+        subscription_id:
+          type: string
+        updated_at:
+          format: date-time
+          type: string
+        user_id:
+          type: integer
+        will_cancel_at:
+          format: date-time
+          type: string
+      required:
+      - id
+      - user_id
+      - gateway_type
+      - external_id
+      - subscription_id
+      - is_active
+      - created_at
+      - updated_at
+      type: object
+    SubscriberResponse:
+      additionalProperties: false
+      properties:
+        billing_period_end:
+          format: date-time
+          type: string
+        billing_period_start:
+          format: date-time
+          type: string
+        cancelled_at:
+          format: date-time
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        external_id:
+          type: string
+        gateway_type:
+          type: string
+        id:
+          type: integer
+        is_active:
+          type: boolean
+        payment_status:
+          type: string
+        previous_plan_id:
+          type: integer
+        pricing_plan_period_id:
+          type: integer
+        subscription_id:
+          type: string
+        updated_at:
+          format: date-time
+          type: string
+        user_id:
+          type: integer
+        will_cancel_at:
+          format: date-time
+          type: string
+      required:
+      - id
+      - user_id
+      - gateway_type
+      - external_id
+      - subscription_id
+      - is_active
+      - created_at
+      - updated_at
+      type: object
+    SubscribersListResponse:
+      additionalProperties: false
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/SubscriberItem'
+          type: array
+        total:
+          type: integer
+      required:
+      - data
+      - total
       type: object
     SystemStatsResponse:
       additionalProperties: false
@@ -1330,6 +1515,56 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Server error
       summary: Purge Credits
+      tags:
+      - Billing Admin
+  /api/billing/gateways/{gatewayId}/subscribers:
+    get:
+      description: Retrieves active subscribers for a specific payment gateway
+      parameters:
+      - description: Gateway ID
+        in: path
+        name: gatewayId
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscribersListResponse'
+          description: Gateway subscribers retrieved successfully
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Authentication required
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Insufficient permissions
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Server error
+      summary: List Gateway Subscribers
       tags:
       - Billing Admin
   /api/billing/plans/{id}/sync:
@@ -2058,6 +2293,100 @@ paths:
       summary: Update Pricing Plan
       tags:
       - Billing Admin
+  /api/billing/subscribers:
+    get:
+      description: Retrieves all subscribers with filtering, sorting, and pagination
+        support
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscribersListResponse'
+          description: Subscribers retrieved successfully
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Authentication required
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Insufficient permissions
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Server error
+      summary: List Subscribers
+      tags:
+      - Billing Admin
+  /api/billing/subscribers/{id}:
+    get:
+      description: Retrieves a specific subscriber by ID
+      parameters:
+      - description: Subscriber ID
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriberResponse'
+          description: Subscriber retrieved successfully
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Authentication required
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Insufficient permissions
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Resource not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Server error
+      summary: Get Subscriber
+      tags:
+      - Billing Admin
   /api/billing/users/{userId}/balance:
     get:
       description: Retrieves the current balance for a user
@@ -2321,6 +2650,171 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Server error
       summary: List Deleted Credits
+      tags:
+      - Billing Admin
+  /api/billing/users/{userId}/subscribers:
+    get:
+      description: Retrieves subscribers for a specific user across all gateways
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscribersListResponse'
+          description: User subscribers retrieved successfully
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Authentication required
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Insufficient permissions
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Server error
+      summary: Get User Subscribers
+      tags:
+      - Billing Admin
+  /api/billing/users/{userId}/subscriptions/cancel:
+    post:
+      description: 'Cancels a user''s active subscription. Supports two modes: ''gateway''
+        (delegates to payment gateway) or ''database'' (cancels locally only)'
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminCancelSubscriptionRequest'
+        description: Cancellation request with mode
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagementResultResponse'
+          description: Subscription cancelled successfully
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Authentication required
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Insufficient permissions
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Resource not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Server error
+      summary: Cancel User Subscription
+      tags:
+      - Billing Admin
+  /api/billing/users/{userId}/subscriptions/change-plan:
+    post:
+      description: Changes a user's subscription plan
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminChangePlanRequest'
+        description: Plan change request
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanChangeResultResponse'
+          description: Plan changed successfully
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Authentication required
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Insufficient permissions
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Resource not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Server error
+      summary: Change User Plan
       tags:
       - Billing Admin
   /api/ipfs/websites/{id}/block:

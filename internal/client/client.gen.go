@@ -409,7 +409,8 @@ type UserCreditItem struct {
 
 // UserCreditsListResponse defines model for UserCreditsListResponse.
 type UserCreditsListResponse struct {
-	Data []UserCreditItem `json:"data"`
+	Data  []UserCreditItem `json:"data"`
+	Total int              `json:"total"`
 }
 
 // VerifyEmailRequest defines model for VerifyEmailRequest.

@@ -1996,7 +1996,7 @@ func TestListAPIKeys(t *testing.T) {
 			defer server.Close()
 
 			acc := NewClient(WithEndpoint(server.URL), WithJWT(tt.jwt))
-			keys, err := acc.ListAPIKeys(context.Background(), tt.opts...)
+			keys, total, err := acc.ListAPIKeys(context.Background(), tt.opts...)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ListAPIKeys() error = %v, wantErr %v", err, tt.wantErr)
@@ -2018,9 +2018,15 @@ func TestListAPIKeys(t *testing.T) {
 					if len(keys) != 0 {
 						t.Errorf("expected 0 API keys for empty data, got %d", len(keys))
 					}
+					if total != 0 {
+						t.Errorf("expected total 0 for empty data, got %d", total)
+					}
 				} else {
 					if len(keys) != 2 {
 						t.Errorf("expected 2 API keys, got %d", len(keys))
+					}
+					if total != 2 {
+						t.Errorf("expected total 2, got %d", total)
 					}
 					if keys[0].Name != "test-key-1" {
 						t.Errorf("ListAPIKeys() got name = %v, want test-key-1", keys[0].Name)
@@ -2049,7 +2055,7 @@ func TestListAPIKeys_NetworkError(t *testing.T) {
 	defer server.Close()
 
 	acc := NewClient(WithEndpoint(server.URL), WithJWT("valid-token"))
-	_, err := acc.ListAPIKeys(context.Background())
+	_, _, err := acc.ListAPIKeys(context.Background())
 
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "failed to send list API keys request")
@@ -2072,7 +2078,7 @@ func TestListAPIKeys_NilJSON200(t *testing.T) {
 		Return(mockResp, nil)
 
 	acc := NewClientWithDefaults(mockClient)
-	_, err := acc.ListAPIKeys(context.Background())
+	_, _, err := acc.ListAPIKeys(context.Background())
 
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "list API keys response did not contain data")
@@ -2124,12 +2130,13 @@ func TestListAPIKeys_PaginationCoverage(t *testing.T) {
 	pagination := queryutil.Pagination{Start: 0, End: 10}
 
 	// Call ListAPIKeys with pagination options
-	keys, err := acc.ListAPIKeys(context.Background(), WithPagination(&pagination))
+	keys, total, err := acc.ListAPIKeys(context.Background(), WithPagination(&pagination))
 
 	require.NoError(t, err)
 	require.NotNil(t, keys)
 	require.Len(t, keys, 1)
 	require.Equal(t, "test-key", keys[0].Name)
+	require.Equal(t, 1, total)
 }
 
 func TestDeleteAPIKey(t *testing.T) {
