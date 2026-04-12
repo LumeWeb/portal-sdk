@@ -8,9 +8,11 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/oapi-codegen/runtime v1.1.2
 	github.com/samber/lo v1.52.0
+	github.com/shopspring/decimal v1.4.0
 	github.com/stretchr/testify v1.11.1
 	go.lumeweb.com/portal v0.4.2-0.20251225165008-2bdb358c492d
 	go.lumeweb.com/queryutil v0.3.15
+	gorm.io/datatypes v1.2.7
 )
 
 require (
@@ -67,7 +69,6 @@ require (
 	golang.org/x/tools v0.41.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	gorm.io/datatypes v1.2.7 // indirect
 	gorm.io/driver/mysql v1.6.0 // indirect
 	gorm.io/driver/sqlserver v1.6.3 // indirect
 	gorm.io/gorm v1.31.1 // indirect

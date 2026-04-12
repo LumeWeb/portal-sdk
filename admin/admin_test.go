@@ -2198,7 +2198,7 @@ func TestBillingService_ChangeUserPlan(t *testing.T) {
 			statusCode: http.StatusOK,
 			response: admin.PlanChangeResultResponse{
 				Action:    "change_plan",
-				ChargeDue: make(admin.Decimal),
+				ChargeDue: admin.Decimal{},
 			},
 			wantErr: false,
 		},

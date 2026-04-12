@@ -14,3 +14,9 @@ actions:
           "x-go-type": types.BinaryUUID
           "x-go-type-import":
               path: go.lumeweb.com/portal/db/types
+    - target: $.components.schemas.Decimal
+      update:
+          "x-go-type": decimal.Decimal
+          "x-go-type-import":
+              name: decimal
+              path: github.com/shopspring/decimal

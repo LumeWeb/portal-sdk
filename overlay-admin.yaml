@@ -7,3 +7,9 @@ actions:
       update:
           type: string
           format: uuid
+    - target: $.components.schemas.Decimal
+      update:
+          "x-go-type": decimal.Decimal
+          "x-go-type-import":
+              name: decimal
+              path: github.com/shopspring/decimal
