@@ -512,12 +512,14 @@ func TestBillingService_CreatePricingPlan(t *testing.T) {
 		{
 			name: "successful create pricing plan",
 			request: &PricingPlanCreateRequest{
-				Name:           "Basic",
-				Description:    "Basic plan",
-				Currency:       "USD",
-				IsActive:       true,
-				IsPublic:       true,
-				PricingPeriods: []admin.PricingPlanPeriodDTO{},
+				PricingPlanCreateRequest: admin.PricingPlanCreateRequest{
+					Name:           "Basic",
+					Description:    "Basic plan",
+					Currency:       "USD",
+					IsActive:       true,
+					IsPublic:       true,
+				},
+				PricingPeriods: []PricingPlanPeriod{},
 			},
 			statusCode: http.StatusCreated,
 			response: admin.PricingPlanResponse{
