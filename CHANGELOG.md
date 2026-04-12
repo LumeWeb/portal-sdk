@@ -1,3 +1,9 @@
+## 0.1.27 (2026-04-12)
+
+### Fixes
+
+- enable external packages to create pricing plans with periods
+
 ## 0.1.26 (2026-04-12)
 
 ### Fixes
