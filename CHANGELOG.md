@@ -1,3 +1,9 @@
+## 0.1.23 (2026-04-12)
+
+### Features
+
+- add subscriber and subscription management APIs
+
 ## 0.1.22 (2026-04-11)
 
 ### Features
