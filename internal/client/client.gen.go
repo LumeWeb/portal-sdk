@@ -16,6 +16,7 @@ import (
 
 	"github.com/oapi-codegen/runtime"
 	openapi_types "github.com/oapi-codegen/runtime/types"
+	decimal "github.com/shopspring/decimal"
 	"go.lumeweb.com/portal/db/types"
 )
 
@@ -119,7 +120,7 @@ type CreateAPIKeyResponse struct {
 }
 
 // Decimal defines model for Decimal.
-type Decimal = map[string]interface{}
+type Decimal = decimal.Decimal
 
 // Error defines model for Error.
 type Error struct {

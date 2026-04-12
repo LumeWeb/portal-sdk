@@ -16,6 +16,7 @@ import (
 
 	"github.com/oapi-codegen/runtime"
 	openapi_types "github.com/oapi-codegen/runtime/types"
+	decimal "github.com/shopspring/decimal"
 )
 
 // APIEndpointInfoResponse defines model for APIEndpointInfoResponse.
@@ -141,7 +142,7 @@ type CreditsListResponse struct {
 }
 
 // Decimal defines model for Decimal.
-type Decimal = map[string]interface{}
+type Decimal = decimal.Decimal
 
 // DeletedCreditsListResponse defines model for DeletedCreditsListResponse.
 type DeletedCreditsListResponse struct {
