@@ -1,3 +1,9 @@
+## 0.1.28 (2026-04-12)
+
+### Fixes
+
+- resolve pricing plan request structure errors
+
 ## 0.1.27 (2026-04-12)
 
 ### Fixes
