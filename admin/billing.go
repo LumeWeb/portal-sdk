@@ -312,6 +312,10 @@ type UserBalance struct {
 	admin.BalanceResponse
 }
 
+// CreditCreateRequest represents a request to create a credit.
+// This is an alias of the generated type for convenience.
+type CreditCreateRequest = admin.CreditCreateRequest
+
 // CreditPurgeRequest represents a request to purge soft-deleted credits.
 // This is an alias of the generated type for convenience.
 type CreditPurgeRequest = admin.CreditPurgeRequest
@@ -420,7 +424,7 @@ func (b *BillingService) ListCredits(ctx context.Context, params *GetApiBillingC
 }
 
 // CreateCredit creates a new credit entry.
-func (b *BillingService) CreateCredit(ctx context.Context, req *admin.CreditCreateRequest) (*Credit, error) {
+func (b *BillingService) CreateCredit(ctx context.Context, req *CreditCreateRequest) (*Credit, error) {
 	resp, err := b.client.PostApiBillingCreditsWithResponse(ctx, *req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create credit: %w", err)
