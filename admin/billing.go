@@ -341,19 +341,27 @@ type PricingPlan struct {
 }
 
 // PricingPlanCreateRequest represents a request to create a new pricing plan.
-// Embeds the generated type, overrides PricingPeriods with public type.
 type PricingPlanCreateRequest struct {
-	admin.PricingPlanCreateRequest
-	PricingPeriods []PricingPlanPeriod
+	Name           string              `json:"name"`
+	Description    string              `json:"description"`
+	Currency       string              `json:"currency"`
+	IsActive       bool                `json:"is_active"`
+	IsPublic       bool                `json:"is_public"`
+	PricingPeriods []PricingPlanPeriod `json:"pricing_periods"`
 }
 
 // toInternal converts to the generated type for API calls.
 func (r *PricingPlanCreateRequest) toInternal() admin.PricingPlanCreateRequest {
-	internal := r.PricingPlanCreateRequest
-	internal.PricingPeriods = lo.Map(r.PricingPeriods, func(p PricingPlanPeriod, _ int) admin.PricingPlanPeriodDTO {
-		return p.PricingPlanPeriodDTO
-	})
-	return internal
+	return admin.PricingPlanCreateRequest{
+		Name:           r.Name,
+		Description:    r.Description,
+		Currency:       r.Currency,
+		IsActive:       r.IsActive,
+		IsPublic:       r.IsPublic,
+		PricingPeriods: lo.Map(r.PricingPeriods, func(p PricingPlanPeriod, _ int) admin.PricingPlanPeriodDTO {
+			return p.PricingPlanPeriodDTO
+		}),
+	}
 }
 
 // PricingPlanItem represents a lightweight pricing plan item (used in lists).
@@ -363,19 +371,27 @@ type PricingPlanItem struct {
 }
 
 // PricingPlanUpdateRequest represents a request to update an existing pricing plan.
-// Embeds the generated type, overrides PricingPeriods with public type.
 type PricingPlanUpdateRequest struct {
-	admin.PricingPlanUpdateRequest
-	PricingPeriods []PricingPlanPeriod
+	Name           string              `json:"name"`
+	Description    string              `json:"description"`
+	Currency       string              `json:"currency"`
+	IsActive       bool                `json:"is_active"`
+	IsPublic       bool                `json:"is_public"`
+	PricingPeriods []PricingPlanPeriod `json:"pricing_periods"`
 }
 
 // toInternal converts to the generated type for API calls.
 func (r *PricingPlanUpdateRequest) toInternal() admin.PricingPlanUpdateRequest {
-	internal := r.PricingPlanUpdateRequest
-	internal.PricingPeriods = lo.Map(r.PricingPeriods, func(p PricingPlanPeriod, _ int) admin.PricingPlanPeriodDTO {
-		return p.PricingPlanPeriodDTO
-	})
-	return internal
+	return admin.PricingPlanUpdateRequest{
+		Name:           r.Name,
+		Description:    r.Description,
+		Currency:       r.Currency,
+		IsActive:       r.IsActive,
+		IsPublic:       r.IsPublic,
+		PricingPeriods: lo.Map(r.PricingPeriods, func(p PricingPlanPeriod, _ int) admin.PricingPlanPeriodDTO {
+			return p.PricingPlanPeriodDTO
+		}),
+	}
 }
 
 // PricingPlanPeriod represents a pricing plan period entry.
