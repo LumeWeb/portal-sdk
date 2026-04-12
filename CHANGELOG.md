@@ -1,3 +1,9 @@
+## 0.1.24 (2026-04-12)
+
+### Fixes
+
+- configure OpenAPI overlay to use shopspring/decimal for Decimal type
+
 ## 0.1.23 (2026-04-12)
 
 ### Features
