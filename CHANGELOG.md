@@ -1,3 +1,9 @@
+## 0.1.26 (2026-04-12)
+
+### Fixes
+
+- align CreditCreateRequest with generated client types
+
 ## 0.1.25 (2026-04-12)
 
 ### Fixes
