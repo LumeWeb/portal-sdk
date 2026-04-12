@@ -341,8 +341,20 @@ type PricingPlan struct {
 }
 
 // PricingPlanCreateRequest represents a request to create a new pricing plan.
-// This is an alias of the generated type for convenience.
-type PricingPlanCreateRequest = admin.PricingPlanCreateRequest
+// Embeds the generated type, overrides PricingPeriods with public type.
+type PricingPlanCreateRequest struct {
+	admin.PricingPlanCreateRequest
+	PricingPeriods []PricingPlanPeriod
+}
+
+// toInternal converts to the generated type for API calls.
+func (r *PricingPlanCreateRequest) toInternal() admin.PricingPlanCreateRequest {
+	internal := r.PricingPlanCreateRequest
+	internal.PricingPeriods = lo.Map(r.PricingPeriods, func(p PricingPlanPeriod, _ int) admin.PricingPlanPeriodDTO {
+		return p.PricingPlanPeriodDTO
+	})
+	return internal
+}
 
 // PricingPlanItem represents a lightweight pricing plan item (used in lists).
 // Embeds the generated admin.PricingPlanItem to reuse all fields.
@@ -351,8 +363,20 @@ type PricingPlanItem struct {
 }
 
 // PricingPlanUpdateRequest represents a request to update an existing pricing plan.
-// This is an alias of the generated type for convenience.
-type PricingPlanUpdateRequest = admin.PricingPlanUpdateRequest
+// Embeds the generated type, overrides PricingPeriods with public type.
+type PricingPlanUpdateRequest struct {
+	admin.PricingPlanUpdateRequest
+	PricingPeriods []PricingPlanPeriod
+}
+
+// toInternal converts to the generated type for API calls.
+func (r *PricingPlanUpdateRequest) toInternal() admin.PricingPlanUpdateRequest {
+	internal := r.PricingPlanUpdateRequest
+	internal.PricingPeriods = lo.Map(r.PricingPeriods, func(p PricingPlanPeriod, _ int) admin.PricingPlanPeriodDTO {
+		return p.PricingPlanPeriodDTO
+	})
+	return internal
+}
 
 // PricingPlanPeriod represents a pricing plan period entry.
 // Embeds the generated admin.PricingPlanPeriodDTO to reuse all fields.
@@ -639,7 +663,7 @@ func (b *BillingService) ListPricingPlans(ctx context.Context) ([]*PricingPlanIt
 
 // CreatePricingPlan creates a new pricing plan.
 func (b *BillingService) CreatePricingPlan(ctx context.Context, req *PricingPlanCreateRequest) (*PricingPlan, error) {
-	resp, err := b.client.PostApiBillingPricingPlansWithResponse(ctx, *req)
+	resp, err := b.client.PostApiBillingPricingPlansWithResponse(ctx, req.toInternal())
 	if err != nil {
 		return nil, fmt.Errorf("failed to create pricing plan: %w", err)
 	}
@@ -654,7 +678,7 @@ func (b *BillingService) CreatePricingPlan(ctx context.Context, req *PricingPlan
 
 // UpdatePricingPlan updates an existing pricing plan.
 func (b *BillingService) UpdatePricingPlan(ctx context.Context, planID string, req *PricingPlanUpdateRequest) (*PricingPlan, error) {
-	resp, err := b.client.PutApiBillingPricingPlansIdWithResponse(ctx, planID, *req)
+	resp, err := b.client.PutApiBillingPricingPlansIdWithResponse(ctx, planID, req.toInternal())
 	if err != nil {
 		return nil, fmt.Errorf("failed to update pricing plan: %w", err)
 	}
