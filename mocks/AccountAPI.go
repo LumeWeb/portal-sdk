@@ -784,6 +784,74 @@ func (_c *MockAccountAPI_GetCheckoutUI_Call) RunAndReturn(run func(ctx context.C
 	return _c
 }
 
+// GetGatewayLogo provides a mock function for the type MockAccountAPI
+func (_mock *MockAccountAPI) GetGatewayLogo(ctx context.Context, gatewayID string) (*account.GatewayLogo, error) {
+	ret := _mock.Called(ctx, gatewayID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetGatewayLogo")
+	}
+
+	var r0 *account.GatewayLogo
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (*account.GatewayLogo, error)); ok {
+		return returnFunc(ctx, gatewayID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) *account.GatewayLogo); ok {
+		r0 = returnFunc(ctx, gatewayID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*account.GatewayLogo)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = returnFunc(ctx, gatewayID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockAccountAPI_GetGatewayLogo_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetGatewayLogo'
+type MockAccountAPI_GetGatewayLogo_Call struct {
+	*mock.Call
+}
+
+// GetGatewayLogo is a helper method to define mock.On call
+//   - ctx context.Context
+//   - gatewayID string
+func (_e *MockAccountAPI_Expecter) GetGatewayLogo(ctx interface{}, gatewayID interface{}) *MockAccountAPI_GetGatewayLogo_Call {
+	return &MockAccountAPI_GetGatewayLogo_Call{Call: _e.mock.On("GetGatewayLogo", ctx, gatewayID)}
+}
+
+func (_c *MockAccountAPI_GetGatewayLogo_Call) Run(run func(ctx context.Context, gatewayID string)) *MockAccountAPI_GetGatewayLogo_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockAccountAPI_GetGatewayLogo_Call) Return(gatewayLogo *account.GatewayLogo, err error) *MockAccountAPI_GetGatewayLogo_Call {
+	_c.Call.Return(gatewayLogo, err)
+	return _c
+}
+
+func (_c *MockAccountAPI_GetGatewayLogo_Call) RunAndReturn(run func(ctx context.Context, gatewayID string) (*account.GatewayLogo, error)) *MockAccountAPI_GetGatewayLogo_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetManagementCapabilities provides a mock function for the type MockAccountAPI
 func (_mock *MockAccountAPI) GetManagementCapabilities(ctx context.Context) (*account.ManagementCapabilities, error) {
 	ret := _mock.Called(ctx)
@@ -1306,7 +1374,7 @@ func (_c *MockAccountAPI_HandleWebhook_Call) RunAndReturn(run func(ctx context.C
 }
 
 // ListAPIKeys provides a mock function for the type MockAccountAPI
-func (_mock *MockAccountAPI) ListAPIKeys(ctx context.Context, opts ...account.ListOption) ([]*account.APIKey, error) {
+func (_mock *MockAccountAPI) ListAPIKeys(ctx context.Context, opts ...account.ListOption) ([]*account.APIKey, int, error) {
 	// account.ListOption
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
@@ -1322,8 +1390,9 @@ func (_mock *MockAccountAPI) ListAPIKeys(ctx context.Context, opts ...account.Li
 	}
 
 	var r0 []*account.APIKey
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, ...account.ListOption) ([]*account.APIKey, error)); ok {
+	var r1 int
+	var r2 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ...account.ListOption) ([]*account.APIKey, int, error)); ok {
 		return returnFunc(ctx, opts...)
 	}
 	if returnFunc, ok := ret.Get(0).(func(context.Context, ...account.ListOption) []*account.APIKey); ok {
@@ -1333,12 +1402,17 @@ func (_mock *MockAccountAPI) ListAPIKeys(ctx context.Context, opts ...account.Li
 			r0 = ret.Get(0).([]*account.APIKey)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, ...account.ListOption) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, ...account.ListOption) int); ok {
 		r1 = returnFunc(ctx, opts...)
 	} else {
-		r1 = ret.Error(1)
+		r1 = ret.Get(1).(int)
 	}
-	return r0, r1
+	if returnFunc, ok := ret.Get(2).(func(context.Context, ...account.ListOption) error); ok {
+		r2 = returnFunc(ctx, opts...)
+	} else {
+		r2 = ret.Error(2)
+	}
+	return r0, r1, r2
 }
 
 // MockAccountAPI_ListAPIKeys_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListAPIKeys'
@@ -1376,18 +1450,80 @@ func (_c *MockAccountAPI_ListAPIKeys_Call) Run(run func(ctx context.Context, opt
 	return _c
 }
 
-func (_c *MockAccountAPI_ListAPIKeys_Call) Return(aPIKeys []*account.APIKey, err error) *MockAccountAPI_ListAPIKeys_Call {
-	_c.Call.Return(aPIKeys, err)
+func (_c *MockAccountAPI_ListAPIKeys_Call) Return(aPIKeys []*account.APIKey, n int, err error) *MockAccountAPI_ListAPIKeys_Call {
+	_c.Call.Return(aPIKeys, n, err)
 	return _c
 }
 
-func (_c *MockAccountAPI_ListAPIKeys_Call) RunAndReturn(run func(ctx context.Context, opts ...account.ListOption) ([]*account.APIKey, error)) *MockAccountAPI_ListAPIKeys_Call {
+func (_c *MockAccountAPI_ListAPIKeys_Call) RunAndReturn(run func(ctx context.Context, opts ...account.ListOption) ([]*account.APIKey, int, error)) *MockAccountAPI_ListAPIKeys_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ListBillingGateways provides a mock function for the type MockAccountAPI
+func (_mock *MockAccountAPI) ListBillingGateways(ctx context.Context) ([]*account.Gateway, error) {
+	ret := _mock.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListBillingGateways")
+	}
+
+	var r0 []*account.Gateway
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context) ([]*account.Gateway, error)); ok {
+		return returnFunc(ctx)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context) []*account.Gateway); ok {
+		r0 = returnFunc(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*account.Gateway)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = returnFunc(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockAccountAPI_ListBillingGateways_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListBillingGateways'
+type MockAccountAPI_ListBillingGateways_Call struct {
+	*mock.Call
+}
+
+// ListBillingGateways is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockAccountAPI_Expecter) ListBillingGateways(ctx interface{}) *MockAccountAPI_ListBillingGateways_Call {
+	return &MockAccountAPI_ListBillingGateways_Call{Call: _e.mock.On("ListBillingGateways", ctx)}
+}
+
+func (_c *MockAccountAPI_ListBillingGateways_Call) Run(run func(ctx context.Context)) *MockAccountAPI_ListBillingGateways_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockAccountAPI_ListBillingGateways_Call) Return(gateways []*account.Gateway, err error) *MockAccountAPI_ListBillingGateways_Call {
+	_c.Call.Return(gateways, err)
+	return _c
+}
+
+func (_c *MockAccountAPI_ListBillingGateways_Call) RunAndReturn(run func(ctx context.Context) ([]*account.Gateway, error)) *MockAccountAPI_ListBillingGateways_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // ListCredits provides a mock function for the type MockAccountAPI
-func (_mock *MockAccountAPI) ListCredits(ctx context.Context) ([]*account.Credit, error) {
+func (_mock *MockAccountAPI) ListCredits(ctx context.Context) ([]*account.Credit, int, error) {
 	ret := _mock.Called(ctx)
 
 	if len(ret) == 0 {
@@ -1395,8 +1531,9 @@ func (_mock *MockAccountAPI) ListCredits(ctx context.Context) ([]*account.Credit
 	}
 
 	var r0 []*account.Credit
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context) ([]*account.Credit, error)); ok {
+	var r1 int
+	var r2 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context) ([]*account.Credit, int, error)); ok {
 		return returnFunc(ctx)
 	}
 	if returnFunc, ok := ret.Get(0).(func(context.Context) []*account.Credit); ok {
@@ -1406,12 +1543,17 @@ func (_mock *MockAccountAPI) ListCredits(ctx context.Context) ([]*account.Credit
 			r0 = ret.Get(0).([]*account.Credit)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context) int); ok {
 		r1 = returnFunc(ctx)
 	} else {
-		r1 = ret.Error(1)
+		r1 = ret.Get(1).(int)
 	}
-	return r0, r1
+	if returnFunc, ok := ret.Get(2).(func(context.Context) error); ok {
+		r2 = returnFunc(ctx)
+	} else {
+		r2 = ret.Error(2)
+	}
+	return r0, r1, r2
 }
 
 // MockAccountAPI_ListCredits_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListCredits'
@@ -1438,12 +1580,12 @@ func (_c *MockAccountAPI_ListCredits_Call) Run(run func(ctx context.Context)) *M
 	return _c
 }
 
-func (_c *MockAccountAPI_ListCredits_Call) Return(credits []*account.Credit, err error) *MockAccountAPI_ListCredits_Call {
-	_c.Call.Return(credits, err)
+func (_c *MockAccountAPI_ListCredits_Call) Return(credits []*account.Credit, n int, err error) *MockAccountAPI_ListCredits_Call {
+	_c.Call.Return(credits, n, err)
 	return _c
 }
 
-func (_c *MockAccountAPI_ListCredits_Call) RunAndReturn(run func(ctx context.Context) ([]*account.Credit, error)) *MockAccountAPI_ListCredits_Call {
+func (_c *MockAccountAPI_ListCredits_Call) RunAndReturn(run func(ctx context.Context) ([]*account.Credit, int, error)) *MockAccountAPI_ListCredits_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -1525,6 +1667,74 @@ func (_c *MockAccountAPI_ListOperations_Call) Return(operations []*account.Opera
 }
 
 func (_c *MockAccountAPI_ListOperations_Call) RunAndReturn(run func(ctx context.Context, opts ...account.ListOption) ([]*account.Operation, error)) *MockAccountAPI_ListOperations_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ListPricingPlans provides a mock function for the type MockAccountAPI
+func (_mock *MockAccountAPI) ListPricingPlans(ctx context.Context) ([]*account.PricingPlanPublic, int, error) {
+	ret := _mock.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListPricingPlans")
+	}
+
+	var r0 []*account.PricingPlanPublic
+	var r1 int
+	var r2 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context) ([]*account.PricingPlanPublic, int, error)); ok {
+		return returnFunc(ctx)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context) []*account.PricingPlanPublic); ok {
+		r0 = returnFunc(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*account.PricingPlanPublic)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context) int); ok {
+		r1 = returnFunc(ctx)
+	} else {
+		r1 = ret.Get(1).(int)
+	}
+	if returnFunc, ok := ret.Get(2).(func(context.Context) error); ok {
+		r2 = returnFunc(ctx)
+	} else {
+		r2 = ret.Error(2)
+	}
+	return r0, r1, r2
+}
+
+// MockAccountAPI_ListPricingPlans_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListPricingPlans'
+type MockAccountAPI_ListPricingPlans_Call struct {
+	*mock.Call
+}
+
+// ListPricingPlans is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockAccountAPI_Expecter) ListPricingPlans(ctx interface{}) *MockAccountAPI_ListPricingPlans_Call {
+	return &MockAccountAPI_ListPricingPlans_Call{Call: _e.mock.On("ListPricingPlans", ctx)}
+}
+
+func (_c *MockAccountAPI_ListPricingPlans_Call) Run(run func(ctx context.Context)) *MockAccountAPI_ListPricingPlans_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockAccountAPI_ListPricingPlans_Call) Return(pricingPlanPublics []*account.PricingPlanPublic, n int, err error) *MockAccountAPI_ListPricingPlans_Call {
+	_c.Call.Return(pricingPlanPublics, n, err)
+	return _c
+}
+
+func (_c *MockAccountAPI_ListPricingPlans_Call) RunAndReturn(run func(ctx context.Context) ([]*account.PricingPlanPublic, int, error)) *MockAccountAPI_ListPricingPlans_Call {
 	_c.Call.Return(run)
 	return _c
 }

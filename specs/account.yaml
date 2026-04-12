@@ -800,8 +800,11 @@ components:
           items:
             $ref: '#/components/schemas/UserCreditItem'
           type: array
+        total:
+          type: integer
       required:
       - data
+      - total
       type: object
     VerifyEmailRequest:
       additionalProperties: false

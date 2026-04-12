@@ -3,11 +3,13 @@ package admin
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
 
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/require"
 	"go.lumeweb.com/portal-sdk/internal/admin"
 )
@@ -477,7 +479,7 @@ func TestBillingService_ListPricingPlans(t *testing.T) {
 			defer server.Close()
 
 			client := NewClient(WithEndpoint(server.URL))
-			plans, err := client.Billing().ListPricingPlans(context.Background())
+			plans, total, err := client.Billing().ListPricingPlans(context.Background())
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ListPricingPlans() error = %v, wantErr %v", err, tt.wantErr)
@@ -492,6 +494,7 @@ func TestBillingService_ListPricingPlans(t *testing.T) {
 				require.Len(t, plans, 2)
 				require.Equal(t, "Basic", plans[0].Name)
 				require.Equal(t, "Premium", plans[1].Name)
+				require.Equal(t, 2, total)
 			}
 		})
 	}
@@ -686,7 +689,7 @@ func TestBillingService_ListPricingPlanPeriods(t *testing.T) {
 			defer server.Close()
 
 			client := NewClient(WithEndpoint(server.URL))
-			periods, err := client.Billing().ListPricingPlanPeriods(context.Background())
+			periods, total, err := client.Billing().ListPricingPlanPeriods(context.Background())
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ListPricingPlanPeriods() error = %v, wantErr %v", err, tt.wantErr)
@@ -701,6 +704,7 @@ func TestBillingService_ListPricingPlanPeriods(t *testing.T) {
 				require.Len(t, periods, 2)
 				require.Equal(t, "monthly", periods[0].Cadence)
 				require.Equal(t, "yearly", periods[1].Cadence)
+				require.Equal(t, 2, total)
 			}
 		})
 	}
@@ -769,7 +773,7 @@ func TestBillingService_ListPriceLines(t *testing.T) {
 			defer server.Close()
 
 			client := NewClient(WithEndpoint(server.URL))
-			lines, err := client.Billing().ListPriceLines(context.Background())
+			lines, total, err := client.Billing().ListPriceLines(context.Background())
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ListPriceLines() error = %v, wantErr %v", err, tt.wantErr)
@@ -784,6 +788,7 @@ func TestBillingService_ListPriceLines(t *testing.T) {
 				require.Len(t, lines, 2)
 				require.Equal(t, "Storage", lines[0].Name)
 				require.Equal(t, "Bandwidth", lines[1].Name)
+				require.Equal(t, 2, total)
 			}
 		})
 	}
@@ -1761,6 +1766,489 @@ func TestQuotaService_GetStats(t *testing.T) {
 			if !tt.wantErr {
 				require.Equal(t, int(100), stats.TotalUsers)
 				require.Equal(t, int(75), stats.ActiveUsers)
+			}
+		})
+	}
+}
+// New Subscriber API tests
+
+func TestBillingService_ListSubscribers(t *testing.T) {
+	tests := []struct {
+		name       string
+		statusCode int
+		response   interface{}
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:       "successful list subscribers",
+			statusCode: http.StatusOK,
+			response: admin.SubscribersListResponse{
+				Data: []admin.SubscriberItem{
+					{
+						Id:                  1,
+						UserId:              100,
+						SubscriptionId:      "sub_123",
+						ExternalId:          "ext_456",
+						GatewayType:         "stripe",
+						IsActive:            true,
+						CreatedAt:           time.Now(),
+						UpdatedAt:           time.Now(),
+						PricingPlanPeriodId: lo.ToPtr[int](10),
+					},
+					{
+						Id:                  2,
+						UserId:              101,
+						SubscriptionId:      "sub_124",
+						ExternalId:          "ext_457",
+						GatewayType:         "paypal",
+						IsActive:            false,
+						CancelledAt:         lo.ToPtr(time.Now()),
+						CreatedAt:           time.Now(),
+						UpdatedAt:           time.Now(),
+					},
+				},
+				Total: 2,
+			},
+			wantErr: false,
+		},
+		{
+			name:       "unauthorized",
+			statusCode: http.StatusUnauthorized,
+			response:   admin.ErrorResponse{Error: "unauthorized"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "unauthorized")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "GET" {
+					t.Errorf("expected GET request, got %s", r.Method)
+				}
+				if r.URL.Path != "/api/billing/subscribers" {
+					t.Errorf("expected /api/billing/subscribers path, got %s", r.URL.Path)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				require.NoError(t, json.NewEncoder(w).Encode(tt.response))
+			}))
+			defer server.Close()
+
+			client := NewClient(WithEndpoint(server.URL))
+			subs, total, err := client.Billing().ListSubscribers(context.Background())
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ListSubscribers() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.Len(t, subs, 2)
+				require.Equal(t, int(1), subs[0].Id)
+				require.Equal(t, int(2), subs[1].Id)
+				require.Equal(t, "stripe", subs[0].GatewayType)
+				require.Equal(t, "paypal", subs[1].GatewayType)
+				require.Equal(t, 2, total)
+			}
+		})
+	}
+}
+
+func TestBillingService_GetSubscriber(t *testing.T) {
+	tests := []struct {
+		name        string
+		subscriberID string
+		statusCode  int
+		response    interface{}
+		wantErr     bool
+		errCheck    func(*testing.T, error)
+	}{
+		{
+			name:        "successful get subscriber",
+			subscriberID: "1",
+			statusCode:  http.StatusOK,
+			response: admin.SubscriberResponse{
+				Id:                  1,
+				UserId:              100,
+				SubscriptionId:      "sub_123",
+				ExternalId:          "ext_456",
+				GatewayType:         "stripe",
+				IsActive:            true,
+				CreatedAt:           time.Now(),
+				UpdatedAt:           time.Now(),
+				PricingPlanPeriodId: lo.ToPtr[int](10),
+				BillingPeriodStart:  lo.ToPtr(time.Now()),
+				BillingPeriodEnd:    lo.ToPtr(time.Now().AddDate(0, 1, 0)),
+			},
+			wantErr: false,
+		},
+		{
+			name:        "subscriber not found",
+			subscriberID: "999",
+			statusCode:  http.StatusNotFound,
+			response:    admin.ErrorResponse{Error: "not found"},
+			wantErr:     true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "not found")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "GET" {
+					t.Errorf("expected GET request, got %s", r.Method)
+				}
+				expectedPath := fmt.Sprintf("/api/billing/subscribers/%s", tt.subscriberID)
+				if r.URL.Path != expectedPath {
+					t.Errorf("expected %s path, got %s", expectedPath, r.URL.Path)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				require.NoError(t, json.NewEncoder(w).Encode(tt.response))
+			}))
+			defer server.Close()
+
+			client := NewClient(WithEndpoint(server.URL))
+			sub, err := client.Billing().GetSubscriber(context.Background(), tt.subscriberID)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetSubscriber() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.NotNil(t, sub)
+				require.Equal(t, int(1), sub.Id)
+				require.Equal(t, "stripe", sub.GatewayType)
+				require.Equal(t, true, sub.IsActive)
+			}
+		})
+	}
+}
+
+func TestBillingService_ListGatewaySubscribers(t *testing.T) {
+	tests := []struct {
+		name       string
+		gatewayID  string
+		statusCode int
+		response   interface{}
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:       "successful list gateway subscribers",
+			gatewayID:  "stripe",
+			statusCode: http.StatusOK,
+			response: admin.SubscribersListResponse{
+				Data: []admin.SubscriberItem{
+					{
+						Id:             1,
+						UserId:         100,
+						SubscriptionId: "sub_123",
+						ExternalId:     "ext_456",
+						GatewayType:    "stripe",
+						IsActive:       true,
+						CreatedAt:      time.Now(),
+						UpdatedAt:      time.Now(),
+					},
+				},
+				Total: 1,
+			},
+			wantErr: false,
+		},
+		{
+			name:       "gateway not found",
+			gatewayID:  "unknown",
+			statusCode: http.StatusNotFound,
+			response:   admin.ErrorResponse{Error: "gateway not found"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "not found")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "GET" {
+					t.Errorf("expected GET request, got %s", r.Method)
+				}
+				expectedPath := fmt.Sprintf("/api/billing/gateways/%s/subscribers", tt.gatewayID)
+				if r.URL.Path != expectedPath {
+					t.Errorf("expected %s path, got %s", expectedPath, r.URL.Path)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				require.NoError(t, json.NewEncoder(w).Encode(tt.response))
+			}))
+			defer server.Close()
+
+			client := NewClient(WithEndpoint(server.URL))
+			subs, total, err := client.Billing().ListGatewaySubscribers(context.Background(), tt.gatewayID)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ListGatewaySubscribers() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.Len(t, subs, 1)
+				require.Equal(t, "stripe", subs[0].GatewayType)
+				require.Equal(t, 1, total)
+			}
+		})
+	}
+}
+
+func TestBillingService_GetUserSubscribers(t *testing.T) {
+	tests := []struct {
+		name       string
+		userID     string
+		statusCode int
+		response   interface{}
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:       "successful get user subscribers",
+			userID:     "100",
+			statusCode: http.StatusOK,
+			response: admin.SubscribersListResponse{
+				Data: []admin.SubscriberItem{
+					{
+						Id:             1,
+						UserId:         100,
+						SubscriptionId: "sub_123",
+						ExternalId:     "ext_456",
+						GatewayType:    "stripe",
+						IsActive:       true,
+						CreatedAt:      time.Now(),
+						UpdatedAt:      time.Now(),
+					},
+				},
+				Total: 1,
+			},
+			wantErr: false,
+		},
+		{
+			name:       "user not found",
+			userID:     "999",
+			statusCode: http.StatusNotFound,
+			response:   admin.ErrorResponse{Error: "user not found"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "not found")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "GET" {
+					t.Errorf("expected GET request, got %s", r.Method)
+				}
+				expectedPath := fmt.Sprintf("/api/billing/users/%s/subscribers", tt.userID)
+				if r.URL.Path != expectedPath {
+					t.Errorf("expected %s path, got %s", expectedPath, r.URL.Path)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				require.NoError(t, json.NewEncoder(w).Encode(tt.response))
+			}))
+			defer server.Close()
+
+			client := NewClient(WithEndpoint(server.URL))
+			subs, total, err := client.Billing().GetUserSubscribers(context.Background(), tt.userID)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetUserSubscribers() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.Len(t, subs, 1)
+				require.Equal(t, int(100), subs[0].UserId)
+				require.Equal(t, 1, total)
+			}
+		})
+	}
+}
+
+func TestBillingService_CancelUserSubscription(t *testing.T) {
+	tests := []struct {
+		name       string
+		userID     string
+		request    *CancelSubscriptionRequest
+		statusCode int
+		response   interface{}
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:   "successful cancel subscription",
+			userID: "100",
+			request: &CancelSubscriptionRequest{
+				Mode: "immediate",
+			},
+			statusCode: http.StatusOK,
+			response: admin.ManagementResultResponse{
+				Action:               "cancel",
+				RequiresConfirmation: false,
+				ConfirmationMessage:  lo.ToPtr("Subscription cancelled immediately"),
+			},
+			wantErr: false,
+		},
+		{
+			name:   "user not found",
+			userID: "999",
+			request: &CancelSubscriptionRequest{
+				Mode: "end_of_period",
+			},
+			statusCode: http.StatusNotFound,
+			response:   admin.ErrorResponse{Error: "user not found"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "not found")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "POST" {
+					t.Errorf("expected POST request, got %s", r.Method)
+				}
+				expectedPath := fmt.Sprintf("/api/billing/users/%s/subscriptions/cancel", tt.userID)
+				if r.URL.Path != expectedPath {
+					t.Errorf("expected %s path, got %s", expectedPath, r.URL.Path)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				require.NoError(t, json.NewEncoder(w).Encode(tt.response))
+			}))
+			defer server.Close()
+
+			client := NewClient(WithEndpoint(server.URL))
+			result, err := client.Billing().CancelUserSubscription(context.Background(), tt.userID, tt.request)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("CancelUserSubscription() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.NotNil(t, result)
+				require.Equal(t, "cancel", result.Action)
+				require.False(t, result.RequiresConfirmation)
+			}
+		})
+	}
+}
+
+func TestBillingService_ChangeUserPlan(t *testing.T) {
+	tests := []struct {
+		name       string
+		userID     string
+		request    *ChangePlanRequest
+		statusCode int
+		response   interface{}
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:   "successful change user plan",
+			userID: "100",
+			request: &ChangePlanRequest{
+				PeriodID: 20,
+			},
+			statusCode: http.StatusOK,
+			response: admin.PlanChangeResultResponse{
+				Action:    "change_plan",
+				ChargeDue: make(admin.Decimal),
+			},
+			wantErr: false,
+		},
+		{
+			name:   "invalid request",
+			userID: "100",
+			request: &ChangePlanRequest{
+				PeriodID: 0,
+			},
+			statusCode: http.StatusBadRequest,
+			response:   admin.ErrorResponse{Error: "invalid plan change request"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "invalid")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "POST" {
+					t.Errorf("expected POST request, got %s", r.Method)
+				}
+				expectedPath := fmt.Sprintf("/api/billing/users/%s/subscriptions/change-plan", tt.userID)
+				if r.URL.Path != expectedPath {
+					t.Errorf("expected %s path, got %s", expectedPath, r.URL.Path)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				require.NoError(t, json.NewEncoder(w).Encode(tt.response))
+			}))
+			defer server.Close()
+
+			client := NewClient(WithEndpoint(server.URL))
+			result, err := client.Billing().ChangeUserPlan(context.Background(), tt.userID, tt.request)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ChangeUserPlan() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.NotNil(t, result)
+				require.Equal(t, "change_plan", result.Action)
 			}
 		})
 	}

@@ -647,7 +647,7 @@ type AccountAPI interface {
 	CreateAPIKey(ctx context.Context, name string) (*APIKey, error)
 
 	// ListAPIKeys retrieves a list of API keys for the authenticated user.
-	ListAPIKeys(ctx context.Context, opts ...ListOption) ([]*APIKey, error)
+	ListAPIKeys(ctx context.Context, opts ...ListOption) ([]*APIKey, int, error)
 
 	// DeleteAPIKey deletes a specific API key for the authenticated user.
 	DeleteAPIKey(ctx context.Context, keyID string) error
@@ -717,7 +717,7 @@ type AccountAPI interface {
 	GetBalance(ctx context.Context) (*Balance, error)
 
 	// ListCredits retrieves a list of credits for the authenticated user.
-	ListCredits(ctx context.Context) ([]*Credit, error)
+	ListCredits(ctx context.Context) ([]*Credit, int, error)
 
 	// GetCheckoutUI retrieves the checkout UI configuration for a specific plan.
 	GetCheckoutUI(ctx context.Context, planID string) (*CheckoutUI, error)
@@ -1111,7 +1111,7 @@ func (c *Client) CreateAPIKey(ctx context.Context, name string) (*APIKey, error)
 }
 
 // ListAPIKeys retrieves a list of API keys for the authenticated user.
-func (c *Client) ListAPIKeys(ctx context.Context, opts ...ListOption) ([]*APIKey, error) {
+func (c *Client) ListAPIKeys(ctx context.Context, opts ...ListOption) ([]*APIKey, int, error) {
 	options := &ListOptions{}
 	for _, opt := range opts {
 		opt(options)
@@ -1128,15 +1128,15 @@ func (c *Client) ListAPIKeys(ctx context.Context, opts ...ListOption) ([]*APIKey
 
 	resp, err := c.client.GetApiAccountKeysWithResponse(ctx, params)
 	if err != nil {
-		return nil, fmt.Errorf("failed to send list API keys request: %w", err)
+		return nil, 0, fmt.Errorf("failed to send list API keys request: %w", err)
 	}
 
 	if resp.StatusCode() != http.StatusOK {
-		return nil, fmt.Errorf("failed to list API keys with status %d: %s", resp.StatusCode(), string(resp.Body))
+		return nil, 0, fmt.Errorf("failed to list API keys with status %d: %s", resp.StatusCode(), string(resp.Body))
 	}
 
 	if resp.JSON200 == nil {
-		return nil, fmt.Errorf("list API keys response did not contain data")
+		return nil, 0, fmt.Errorf("list API keys response did not contain data")
 	}
 
 	keys := lo.Map(resp.JSON200.Data, func(key client.APIKeyResponse, _ int) *APIKey {
@@ -1147,7 +1147,7 @@ func (c *Client) ListAPIKeys(ctx context.Context, opts ...ListOption) ([]*APIKey
 		}}
 	})
 
-	return keys, nil
+	return keys, resp.JSON200.Total, nil
 }
 
 // DeleteAPIKey deletes a specific API key for the authenticated user.
@@ -1636,25 +1636,25 @@ func (c *Client) GetBalance(ctx context.Context) (*Balance, error) {
 }
 
 // ListCredits retrieves a list of credits for the authenticated user.
-func (c *Client) ListCredits(ctx context.Context) ([]*Credit, error) {
+func (c *Client) ListCredits(ctx context.Context) ([]*Credit, int, error) {
 	resp, err := c.client.GetApiAccountBillingCreditsWithResponse(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to list credits: %w", err)
+		return nil, 0, fmt.Errorf("failed to list credits: %w", err)
 	}
 
 	if err := handleResponse(resp.StatusCode(), resp.Body, OpListCredits, []int{http.StatusOK}); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	if resp.JSON200 == nil {
-		return nil, fmt.Errorf("list credits response did not contain data")
+		return nil, 0, fmt.Errorf("list credits response did not contain data")
 	}
 
 	credits := lo.Map(resp.JSON200.Data, func(credit client.UserCreditItem, _ int) *Credit {
 		return &Credit{UserCreditItem: credit}
 	})
 
-	return credits, nil
+	return credits, resp.JSON200.Total, nil
 }
 
 // GetCheckoutUI retrieves the checkout UI configuration for a specific plan.
