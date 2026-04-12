@@ -312,21 +312,9 @@ type UserBalance struct {
 	admin.BalanceResponse
 }
 
-// CreditCreateRequest represents a request to create a new credit.
-type CreditCreateRequest struct {
-	UserID          int
-	Amount          string
-	TransactionType string
-	Direction       string
-	Description     string
-	ReferenceID     string
-	ReferenceType   string
-}
-
 // CreditPurgeRequest represents a request to purge soft-deleted credits.
-type CreditPurgeRequest struct {
-	OlderThan string // Duration string (e.g., "30d", "24h", "1y")
-}
+// This is an alias of the generated type for convenience.
+type CreditPurgeRequest = admin.CreditPurgeRequest
 
 // PriceLine represents a price line entry.
 // Embeds the generated admin.PriceLineResponse to reuse all fields.
@@ -335,20 +323,12 @@ type PriceLine struct {
 }
 
 // PriceLineCreateRequest represents a request to create a new price line.
-type PriceLineCreateRequest struct {
-	Name        string
-	Description string
-	IsActive    bool
-	IsDefault   bool
-}
+// This is an alias of the generated type for convenience.
+type PriceLineCreateRequest = admin.PriceLineCreateRequest
 
 // PriceLineUpdateRequest represents a request to update an existing price line.
-type PriceLineUpdateRequest struct {
-	Name        string
-	Description string
-	IsActive    bool
-	IsDefault   bool
-}
+// This is an alias of the generated type for convenience.
+type PriceLineUpdateRequest = admin.PriceLineUpdateRequest
 
 // PricingPlan represents a pricing plan entry.
 // Embeds the generated admin.PricingPlanResponse to reuse all fields.
@@ -357,14 +337,8 @@ type PricingPlan struct {
 }
 
 // PricingPlanCreateRequest represents a request to create a new pricing plan.
-type PricingPlanCreateRequest struct {
-	Name           string
-	Description    string
-	Currency       string
-	IsActive       bool
-	IsPublic       bool
-	PricingPeriods []PricingPlanPeriod
-}
+// This is an alias of the generated type for convenience.
+type PricingPlanCreateRequest = admin.PricingPlanCreateRequest
 
 // PricingPlanItem represents a lightweight pricing plan item (used in lists).
 // Embeds the generated admin.PricingPlanItem to reuse all fields.
@@ -373,14 +347,8 @@ type PricingPlanItem struct {
 }
 
 // PricingPlanUpdateRequest represents a request to update an existing pricing plan.
-type PricingPlanUpdateRequest struct {
-	Name           string
-	Description    string
-	Currency       string
-	IsActive       bool
-	IsPublic       bool
-	PricingPeriods []PricingPlanPeriod
-}
+// This is an alias of the generated type for convenience.
+type PricingPlanUpdateRequest = admin.PricingPlanUpdateRequest
 
 // PricingPlanPeriod represents a pricing plan period entry.
 // Embeds the generated admin.PricingPlanPeriodDTO to reuse all fields.
@@ -389,21 +357,12 @@ type PricingPlanPeriod struct {
 }
 
 // PricingPlanPeriodCreateRequest represents a request to create a new pricing plan period.
-type PricingPlanPeriodCreateRequest struct {
-	Cadence       string
-	PriceUsd      float32
-	PricingPlanId int
-	QuotaPlanId   int
-	RollingDays   *int // Optional
-}
+// This is an alias of the generated type for convenience.
+type PricingPlanPeriodCreateRequest = admin.PricingPlanPeriodCreateRequest
 
 // PricingPlanPeriodUpdateRequest represents a request to update an existing pricing plan period.
-type PricingPlanPeriodUpdateRequest struct {
-	Cadence     string
-	PriceUsd    float32
-	QuotaPlanId int
-	RollingDays *int // Optional
-}
+// This is an alias of the generated type for convenience.
+type PricingPlanPeriodUpdateRequest = admin.PricingPlanPeriodUpdateRequest
 
 // Subscriber represents a billing subscription subscriber.
 type Subscriber struct {
@@ -421,14 +380,12 @@ type PlanChangeResult struct {
 }
 
 // CancelSubscriptionRequest represents a request to cancel a subscription.
-type CancelSubscriptionRequest struct {
-	Mode string // e.g., "immediate", "end_of_period"
-}
+// This is an alias of the generated type for convenience.
+type CancelSubscriptionRequest = admin.PostApiBillingUsersUserIdSubscriptionsCancelJSONRequestBody
 
 // ChangePlanRequest represents a request to change a subscription plan.
-type ChangePlanRequest struct {
-	PeriodID int // ID of the pricing plan period
-}
+// This is an alias of the generated type for convenience.
+type ChangePlanRequest = admin.PostApiBillingUsersUserIdSubscriptionsChangePlanJSONRequestBody
 
 // BillingService provides methods for managing billing operations.
 type BillingService struct {
@@ -463,26 +420,8 @@ func (b *BillingService) ListCredits(ctx context.Context, params *GetApiBillingC
 }
 
 // CreateCredit creates a new credit entry.
-func (b *BillingService) CreateCredit(ctx context.Context, req *CreditCreateRequest) (*Credit, error) {
-	reqBody := admin.CreditCreateRequest{
-		UserId:          req.UserID,
-		Amount:          req.Amount,
-		TransactionType: req.TransactionType,
-		Direction:       req.Direction,
-	}
-
-	// Set optional fields if provided
-	if req.Description != "" {
-		reqBody.Description = &req.Description
-	}
-	if req.ReferenceID != "" {
-		reqBody.ReferenceId = &req.ReferenceID
-	}
-	if req.ReferenceType != "" {
-		reqBody.ReferenceType = &req.ReferenceType
-	}
-
-	resp, err := b.client.PostApiBillingCreditsWithResponse(ctx, reqBody)
+func (b *BillingService) CreateCredit(ctx context.Context, req *admin.CreditCreateRequest) (*Credit, error) {
+	resp, err := b.client.PostApiBillingCreditsWithResponse(ctx, *req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create credit: %w", err)
 	}
@@ -537,11 +476,7 @@ func (b *BillingService) RestoreCredit(ctx context.Context, creditID string) (*C
 
 // PurgeCredits permanently removes soft-deleted credits older than specified duration.
 func (b *BillingService) PurgeCredits(ctx context.Context, req *CreditPurgeRequest) (int, error) {
-	reqBody := admin.CreditPurgeRequest{
-		OlderThan: req.OlderThan,
-	}
-
-	resp, err := b.client.PostApiBillingCreditsPurgeWithResponse(ctx, reqBody)
+	resp, err := b.client.PostApiBillingCreditsPurgeWithResponse(ctx, *req)
 	if err != nil {
 		return 0, fmt.Errorf("failed to purge credits: %w", err)
 	}
@@ -623,14 +558,7 @@ func (b *BillingService) ListPriceLines(ctx context.Context) ([]*PriceLine, int,
 
 // CreatePriceLine creates a new price line.
 func (b *BillingService) CreatePriceLine(ctx context.Context, req *PriceLineCreateRequest) (*PriceLine, error) {
-	reqBody := admin.PriceLineCreateRequest{
-		Name:        req.Name,
-		Description: req.Description,
-		IsActive:    req.IsActive,
-		IsDefault:   req.IsDefault,
-	}
-
-	resp, err := b.client.PostApiBillingPriceLinesWithResponse(ctx, reqBody)
+	resp, err := b.client.PostApiBillingPriceLinesWithResponse(ctx, *req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create price line: %w", err)
 	}
@@ -660,14 +588,7 @@ func (b *BillingService) GetPriceLine(ctx context.Context, priceLineID string) (
 
 // UpdatePriceLine updates an existing price line.
 func (b *BillingService) UpdatePriceLine(ctx context.Context, priceLineID string, req *PriceLineUpdateRequest) (*PriceLine, error) {
-	reqBody := admin.PriceLineUpdateRequest{
-		Name:        req.Name,
-		Description: req.Description,
-		IsActive:    req.IsActive,
-		IsDefault:   req.IsDefault,
-	}
-
-	resp, err := b.client.PutApiBillingPriceLinesIdWithResponse(ctx, priceLineID, reqBody)
+	resp, err := b.client.PutApiBillingPriceLinesIdWithResponse(ctx, priceLineID, *req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update price line: %w", err)
 	}
@@ -714,26 +635,7 @@ func (b *BillingService) ListPricingPlans(ctx context.Context) ([]*PricingPlanIt
 
 // CreatePricingPlan creates a new pricing plan.
 func (b *BillingService) CreatePricingPlan(ctx context.Context, req *PricingPlanCreateRequest) (*PricingPlan, error) {
-	periods := lo.Map(req.PricingPeriods, func(p PricingPlanPeriod, _ int) admin.PricingPlanPeriodDTO {
-		return admin.PricingPlanPeriodDTO{
-			Cadence:       p.Cadence,
-			PriceUsd:      p.PriceUsd,
-			PricingPlanId: p.PricingPlanId,
-			QuotaPlanId:   p.QuotaPlanId,
-			RollingDays:   p.RollingDays,
-		}
-	})
-
-	reqBody := admin.PricingPlanCreateRequest{
-		Name:           req.Name,
-		Description:    req.Description,
-		Currency:       req.Currency,
-		IsActive:       req.IsActive,
-		IsPublic:       req.IsPublic,
-		PricingPeriods: periods,
-	}
-
-	resp, err := b.client.PostApiBillingPricingPlansWithResponse(ctx, reqBody)
+	resp, err := b.client.PostApiBillingPricingPlansWithResponse(ctx, *req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create pricing plan: %w", err)
 	}
@@ -748,26 +650,7 @@ func (b *BillingService) CreatePricingPlan(ctx context.Context, req *PricingPlan
 
 // UpdatePricingPlan updates an existing pricing plan.
 func (b *BillingService) UpdatePricingPlan(ctx context.Context, planID string, req *PricingPlanUpdateRequest) (*PricingPlan, error) {
-	periods := lo.Map(req.PricingPeriods, func(p PricingPlanPeriod, _ int) admin.PricingPlanPeriodDTO {
-		return admin.PricingPlanPeriodDTO{
-			Cadence:       p.Cadence,
-			PriceUsd:      p.PriceUsd,
-			PricingPlanId: p.PricingPlanId,
-			QuotaPlanId:   p.QuotaPlanId,
-			RollingDays:   p.RollingDays,
-		}
-	})
-
-	reqBody := admin.PricingPlanUpdateRequest{
-		Name:           req.Name,
-		Description:    req.Description,
-		Currency:       req.Currency,
-		IsActive:       req.IsActive,
-		IsPublic:       req.IsPublic,
-		PricingPeriods: periods,
-	}
-
-	resp, err := b.client.PutApiBillingPricingPlansIdWithResponse(ctx, planID, reqBody)
+	resp, err := b.client.PutApiBillingPricingPlansIdWithResponse(ctx, planID, *req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update pricing plan: %w", err)
 	}
@@ -814,15 +697,7 @@ func (b *BillingService) ListPricingPlanPeriods(ctx context.Context) ([]*Pricing
 
 // CreatePricingPlanPeriod creates a new pricing plan period.
 func (b *BillingService) CreatePricingPlanPeriod(ctx context.Context, req *PricingPlanPeriodCreateRequest) (*PricingPlanPeriod, error) {
-	reqBody := admin.PricingPlanPeriodCreateRequest{
-		Cadence:       req.Cadence,
-		PriceUsd:      req.PriceUsd,
-		PricingPlanId: req.PricingPlanId,
-		QuotaPlanId:   req.QuotaPlanId,
-		RollingDays:   req.RollingDays,
-	}
-
-	resp, err := b.client.PostApiBillingPricingPlanPeriodsWithResponse(ctx, reqBody)
+	resp, err := b.client.PostApiBillingPricingPlanPeriodsWithResponse(ctx, *req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create pricing plan period: %w", err)
 	}
@@ -852,14 +727,7 @@ func (b *BillingService) GetPricingPlanPeriod(ctx context.Context, periodID stri
 
 // UpdatePricingPlanPeriod updates an existing pricing plan period.
 func (b *BillingService) UpdatePricingPlanPeriod(ctx context.Context, periodID string, req *PricingPlanPeriodUpdateRequest) (*PricingPlanPeriod, error) {
-	reqBody := admin.PricingPlanPeriodUpdateRequest{
-		Cadence:     req.Cadence,
-		PriceUsd:    req.PriceUsd,
-		QuotaPlanId: req.QuotaPlanId,
-		RollingDays: req.RollingDays,
-	}
-
-	resp, err := b.client.PutApiBillingPricingPlanPeriodsIdWithResponse(ctx, periodID, reqBody)
+	resp, err := b.client.PutApiBillingPricingPlanPeriodsIdWithResponse(ctx, periodID, *req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update pricing plan period: %w", err)
 	}
@@ -989,11 +857,7 @@ func (b *BillingService) GetUserSubscribers(ctx context.Context, userID string) 
 
 // CancelUserSubscription cancels a user's subscription.
 func (b *BillingService) CancelUserSubscription(ctx context.Context, userID string, req *CancelSubscriptionRequest) (*ManagementResult, error) {
-	reqBody := admin.PostApiBillingUsersUserIdSubscriptionsCancelJSONRequestBody{
-		Mode: req.Mode,
-	}
-
-	resp, err := b.client.PostApiBillingUsersUserIdSubscriptionsCancelWithResponse(ctx, userID, reqBody)
+	resp, err := b.client.PostApiBillingUsersUserIdSubscriptionsCancelWithResponse(ctx, userID, *req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to cancel subscription: %w", err)
 	}
@@ -1008,11 +872,7 @@ func (b *BillingService) CancelUserSubscription(ctx context.Context, userID stri
 
 // ChangeUserPlan changes a user's subscription plan.
 func (b *BillingService) ChangeUserPlan(ctx context.Context, userID string, req *ChangePlanRequest) (*PlanChangeResult, error) {
-	reqBody := admin.PostApiBillingUsersUserIdSubscriptionsChangePlanJSONRequestBody{
-		PeriodId: req.PeriodID,
-	}
-
-	resp, err := b.client.PostApiBillingUsersUserIdSubscriptionsChangePlanWithResponse(ctx, userID, reqBody)
+	resp, err := b.client.PostApiBillingUsersUserIdSubscriptionsChangePlanWithResponse(ctx, userID, *req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to change user plan: %w", err)
 	}

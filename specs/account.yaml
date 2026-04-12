@@ -784,12 +784,12 @@ components:
           type: string
         id:
           $ref: '#/components/schemas/UUID'
-        transaction_type:
+        type:
           type: string
       required:
       - id
       - amount
-      - transaction_type
+      - type
       - direction
       - created_at
       type: object

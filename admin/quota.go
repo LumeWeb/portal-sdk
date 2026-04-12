@@ -216,35 +216,14 @@ type UserQuotaConfig struct {
 	admin.UserQuotaConfigResponse
 }
 
-// SystemUsage represents system-wide usage statistics.
-type SystemUsage struct {
-	DownloadBytes int `json:"download_bytes"`
-	StorageBytes  int `json:"storage_bytes"`
-	UploadBytes   int `json:"upload_bytes"`
-}
-
 // SystemStats represents system-wide quota statistics.
 type SystemStats struct {
 	admin.SystemStatsResponse
 }
 
 // UserQuotaConfigUpdate represents a user quota configuration update request.
-type UserQuotaConfigUpdate struct {
-	ID                 int
-	UserID             int
-	DownloadLimitBytes *int
-	DownloadThreshold  *int
-	EnforcementPolicy  string
-	QuotaPlanID        *int
-	StorageLimitBytes  *int
-	StorageThreshold   *int
-	UploadLimitBytes   *int
-	UploadThreshold    *int
-	WindowDuration     *int
-	WindowStartHour    *int
-	WindowTimezone     *string
-	WindowType         *string
-}
+// This is an alias of the generated type for convenience.
+type UserQuotaConfigUpdate = admin.UserQuotaConfigUpdateRequest
 
 // QuotaService provides methods for managing quotas.
 type QuotaService struct {
@@ -573,47 +552,8 @@ func (q *QuotaService) ListUserConfigs(ctx context.Context) ([]*UserQuotaConfig,
 }
 
 // UpdateUserConfig updates a user's quota configuration.
-func (q *QuotaService) UpdateUserConfig(ctx context.Context, userID int, config *UserQuotaConfigUpdate) (*UserQuotaConfig, error) {
-	reqBody := admin.UserQuotaConfigUpdateRequest{}
-
-	if config.DownloadLimitBytes != nil {
-		reqBody.DownloadLimitBytes = config.DownloadLimitBytes
-	}
-	if config.DownloadThreshold != nil {
-		reqBody.DownloadThreshold = config.DownloadThreshold
-	}
-	if config.EnforcementPolicy != "" {
-		reqBody.EnforcementPolicy = &config.EnforcementPolicy
-	}
-	if config.QuotaPlanID != nil {
-		reqBody.QuotaPlanId = config.QuotaPlanID
-	}
-	if config.StorageLimitBytes != nil {
-		reqBody.StorageLimitBytes = config.StorageLimitBytes
-	}
-	if config.StorageThreshold != nil {
-		reqBody.StorageThreshold = config.StorageThreshold
-	}
-	if config.UploadLimitBytes != nil {
-		reqBody.UploadLimitBytes = config.UploadLimitBytes
-	}
-	if config.UploadThreshold != nil {
-		reqBody.UploadThreshold = config.UploadThreshold
-	}
-	if config.WindowDuration != nil {
-		reqBody.WindowDuration = config.WindowDuration
-	}
-	if config.WindowStartHour != nil {
-		reqBody.WindowStartHour = config.WindowStartHour
-	}
-	if config.WindowTimezone != nil {
-		reqBody.WindowTimezone = config.WindowTimezone
-	}
-	if config.WindowType != nil {
-		reqBody.WindowType = config.WindowType
-	}
-
-	resp, err := q.client.PutApiQuotaUserConfigsUserIDWithResponse(ctx, fmt.Sprintf("%d", userID), reqBody)
+func (q *QuotaService) UpdateUserConfig(ctx context.Context, userID int, config *admin.UserQuotaConfigUpdateRequest) (*UserQuotaConfig, error) {
+	resp, err := q.client.PutApiQuotaUserConfigsUserIDWithResponse(ctx, fmt.Sprintf("%d", userID), *config)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update user config: %w", err)
 	}
