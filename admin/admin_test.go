@@ -517,7 +517,7 @@ func TestBillingService_CreatePricingPlan(t *testing.T) {
 				Currency:       "USD",
 				IsActive:       true,
 				IsPublic:       true,
-				PricingPeriods: []PricingPlanPeriod{},
+				PricingPeriods: []admin.PricingPlanPeriodDTO{},
 			},
 			statusCode: http.StatusCreated,
 			response: admin.PricingPlanResponse{
@@ -899,7 +899,7 @@ func TestQuotaService_UpdateUserConfig(t *testing.T) {
 	tests := []struct {
 		name       string
 		userID     int
-		update     *UserQuotaConfigUpdate
+		update     *admin.UserQuotaConfigUpdateRequest
 		statusCode int
 		response   interface{}
 		wantErr    bool
@@ -908,12 +908,11 @@ func TestQuotaService_UpdateUserConfig(t *testing.T) {
 		{
 			name:   "successful update user config",
 			userID: 100,
-			update: &UserQuotaConfigUpdate{
-				UserID:             100,
+			update: &admin.UserQuotaConfigUpdateRequest{
 				UploadLimitBytes:   new(1000),
 				DownloadLimitBytes: new(10000),
-				StorageLimitBytes:       new(100000),
-				EnforcementPolicy:  "strict",
+				StorageLimitBytes:  new(100000),
+				EnforcementPolicy:  new("strict"),
 			},
 			statusCode: http.StatusOK,
 			response: admin.UserQuotaConfigResponse{
@@ -931,9 +930,7 @@ func TestQuotaService_UpdateUserConfig(t *testing.T) {
 		{
 			name:   "unauthorized",
 			userID: 100,
-			update: &UserQuotaConfigUpdate{
-				UserID: 100,
-			},
+			update: &admin.UserQuotaConfigUpdateRequest{},
 			statusCode: http.StatusUnauthorized,
 			response:   admin.ErrorResponse{Error: "unauthorized"},
 			wantErr:    true,
@@ -944,9 +941,7 @@ func TestQuotaService_UpdateUserConfig(t *testing.T) {
 		{
 			name:   "user not found",
 			userID: 999,
-			update: &UserQuotaConfigUpdate{
-				UserID: 999,
-			},
+			update: &admin.UserQuotaConfigUpdateRequest{},
 			statusCode: http.StatusNotFound,
 			response:   admin.ErrorResponse{Error: "user not found"},
 			wantErr:    true,
@@ -957,9 +952,7 @@ func TestQuotaService_UpdateUserConfig(t *testing.T) {
 		{
 			name:   "bad request",
 			userID: 100,
-			update: &UserQuotaConfigUpdate{
-				UserID: 100,
-			},
+			update: &admin.UserQuotaConfigUpdateRequest{},
 			statusCode: http.StatusBadRequest,
 			response:   admin.ErrorResponse{Error: "invalid configuration"},
 			wantErr:    true,
@@ -2193,7 +2186,7 @@ func TestBillingService_ChangeUserPlan(t *testing.T) {
 			name:   "successful change user plan",
 			userID: "100",
 			request: &ChangePlanRequest{
-				PeriodID: 20,
+				PeriodId: 20,
 			},
 			statusCode: http.StatusOK,
 			response: admin.PlanChangeResultResponse{
@@ -2206,7 +2199,7 @@ func TestBillingService_ChangeUserPlan(t *testing.T) {
 			name:   "invalid request",
 			userID: "100",
 			request: &ChangePlanRequest{
-				PeriodID: 0,
+				PeriodId: 0,
 			},
 			statusCode: http.StatusBadRequest,
 			response:   admin.ErrorResponse{Error: "invalid plan change request"},

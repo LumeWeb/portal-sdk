@@ -85,27 +85,27 @@ type CleanupResponse struct {
 
 // CreditCreateRequest defines model for CreditCreateRequest.
 type CreditCreateRequest struct {
-	Amount          string  `json:"amount"`
-	Description     *string `json:"description,omitempty"`
-	Direction       string  `json:"direction"`
-	ReferenceId     *string `json:"reference_id,omitempty"`
-	ReferenceType   *string `json:"reference_type,omitempty"`
-	TransactionType string  `json:"transaction_type"`
-	UserId          int     `json:"user_id"`
+	Amount        string  `json:"amount"`
+	Description   *string `json:"description,omitempty"`
+	Direction     string  `json:"direction"`
+	ReferenceId   *string `json:"reference_id,omitempty"`
+	ReferenceType *string `json:"reference_type,omitempty"`
+	Type          string  `json:"type"`
+	UserId        int     `json:"user_id"`
 }
 
 // CreditItem defines model for CreditItem.
 type CreditItem struct {
-	Amount          Decimal    `json:"amount"`
-	CreatedAt       time.Time  `json:"created_at"`
-	CreatedBy       int        `json:"created_by"`
-	DeletedAt       *time.Time `json:"deleted_at,omitempty"`
-	Description     *string    `json:"description,omitempty"`
-	Direction       string     `json:"direction"`
-	Id              UUID       `json:"id"`
-	TransactionType string     `json:"transaction_type"`
-	UpdatedAt       time.Time  `json:"updated_at"`
-	UserId          int        `json:"user_id"`
+	Amount      Decimal    `json:"amount"`
+	CreatedAt   time.Time  `json:"created_at"`
+	CreatedBy   int        `json:"created_by"`
+	DeletedAt   *time.Time `json:"deleted_at,omitempty"`
+	Description *string    `json:"description,omitempty"`
+	Direction   string     `json:"direction"`
+	Id          UUID       `json:"id"`
+	Type        string     `json:"type"`
+	UpdatedAt   time.Time  `json:"updated_at"`
+	UserId      int        `json:"user_id"`
 }
 
 // CreditPurgeRequest defines model for CreditPurgeRequest.
@@ -120,19 +120,19 @@ type CreditPurgeResponse struct {
 
 // CreditResponse defines model for CreditResponse.
 type CreditResponse struct {
-	Amount          Decimal                 `json:"amount"`
-	CreatedAt       time.Time               `json:"created_at"`
-	CreatedBy       int                     `json:"created_by"`
-	DeletedAt       *time.Time              `json:"deleted_at,omitempty"`
-	Description     *string                 `json:"description,omitempty"`
-	Direction       string                  `json:"direction"`
-	Id              UUID                    `json:"id"`
-	Metadata        *map[string]interface{} `json:"metadata,omitempty"`
-	ReferenceId     *string                 `json:"reference_id,omitempty"`
-	ReferenceType   *string                 `json:"reference_type,omitempty"`
-	TransactionType string                  `json:"transaction_type"`
-	UpdatedAt       time.Time               `json:"updated_at"`
-	UserId          int                     `json:"user_id"`
+	Amount        Decimal                 `json:"amount"`
+	CreatedAt     time.Time               `json:"created_at"`
+	CreatedBy     int                     `json:"created_by"`
+	DeletedAt     *time.Time              `json:"deleted_at,omitempty"`
+	Description   *string                 `json:"description,omitempty"`
+	Direction     string                  `json:"direction"`
+	Id            UUID                    `json:"id"`
+	Metadata      *map[string]interface{} `json:"metadata,omitempty"`
+	ReferenceId   *string                 `json:"reference_id,omitempty"`
+	ReferenceType *string                 `json:"reference_type,omitempty"`
+	Type          string                  `json:"type"`
+	UpdatedAt     time.Time               `json:"updated_at"`
+	UserId        int                     `json:"user_id"`
 }
 
 // CreditsListResponse defines model for CreditsListResponse.
@@ -516,20 +516,20 @@ type GetApiBillingCreditsParams struct {
 	// FiltersDirectionStartswith Filter by direction startswith
 	FiltersDirectionStartswith *string `form:"filters[direction][startswith],omitempty" json:"filters[direction][startswith],omitempty"`
 
-	// FiltersTransactionTypeContains Filter by transaction_type contains
-	FiltersTransactionTypeContains *string `form:"filters[transaction_type][contains],omitempty" json:"filters[transaction_type][contains],omitempty"`
+	// FiltersTypeContains Filter by type contains
+	FiltersTypeContains *string `form:"filters[type][contains],omitempty" json:"filters[type][contains],omitempty"`
 
-	// FiltersTransactionTypeEndswith Filter by transaction_type endswith
-	FiltersTransactionTypeEndswith *string `form:"filters[transaction_type][endswith],omitempty" json:"filters[transaction_type][endswith],omitempty"`
+	// FiltersTypeEndswith Filter by type endswith
+	FiltersTypeEndswith *string `form:"filters[type][endswith],omitempty" json:"filters[type][endswith],omitempty"`
 
-	// FiltersTransactionTypeEq Filter by transaction_type eq
-	FiltersTransactionTypeEq *string `form:"filters[transaction_type][eq],omitempty" json:"filters[transaction_type][eq],omitempty"`
+	// FiltersTypeEq Filter by type eq
+	FiltersTypeEq *string `form:"filters[type][eq],omitempty" json:"filters[type][eq],omitempty"`
 
-	// FiltersTransactionTypeNe Filter by transaction_type ne
-	FiltersTransactionTypeNe *string `form:"filters[transaction_type][ne],omitempty" json:"filters[transaction_type][ne],omitempty"`
+	// FiltersTypeNe Filter by type ne
+	FiltersTypeNe *string `form:"filters[type][ne],omitempty" json:"filters[type][ne],omitempty"`
 
-	// FiltersTransactionTypeStartswith Filter by transaction_type startswith
-	FiltersTransactionTypeStartswith *string `form:"filters[transaction_type][startswith],omitempty" json:"filters[transaction_type][startswith],omitempty"`
+	// FiltersTypeStartswith Filter by type startswith
+	FiltersTypeStartswith *string `form:"filters[type][startswith],omitempty" json:"filters[type][startswith],omitempty"`
 
 	// FiltersUserIdBetween Filter by user_id between
 	FiltersUserIdBetween *string `form:"filters[user_id][between],omitempty" json:"filters[user_id][between],omitempty"`
@@ -552,20 +552,20 @@ type GetApiBillingCreditsParams struct {
 	// FiltersUserIdNe Filter by user_id ne
 	FiltersUserIdNe *string `form:"filters[user_id][ne],omitempty" json:"filters[user_id][ne],omitempty"`
 
-	// TransactionTypeContains Filter by transaction_type contains
-	TransactionTypeContains *string `form:"transaction_type_contains,omitempty" json:"transaction_type_contains,omitempty"`
+	// TypeContains Filter by type contains
+	TypeContains *string `form:"type_contains,omitempty" json:"type_contains,omitempty"`
 
-	// TransactionTypeEndswith Filter by transaction_type endswith
-	TransactionTypeEndswith *string `form:"transaction_type_endswith,omitempty" json:"transaction_type_endswith,omitempty"`
+	// TypeEndswith Filter by type endswith
+	TypeEndswith *string `form:"type_endswith,omitempty" json:"type_endswith,omitempty"`
 
-	// TransactionTypeEq Filter by transaction_type eq
-	TransactionTypeEq *string `form:"transaction_type_eq,omitempty" json:"transaction_type_eq,omitempty"`
+	// TypeEq Filter by type eq
+	TypeEq *string `form:"type_eq,omitempty" json:"type_eq,omitempty"`
 
-	// TransactionTypeNe Filter by transaction_type ne
-	TransactionTypeNe *string `form:"transaction_type_ne,omitempty" json:"transaction_type_ne,omitempty"`
+	// TypeNe Filter by type ne
+	TypeNe *string `form:"type_ne,omitempty" json:"type_ne,omitempty"`
 
-	// TransactionTypeStartswith Filter by transaction_type startswith
-	TransactionTypeStartswith *string `form:"transaction_type_startswith,omitempty" json:"transaction_type_startswith,omitempty"`
+	// TypeStartswith Filter by type startswith
+	TypeStartswith *string `form:"type_startswith,omitempty" json:"type_startswith,omitempty"`
 
 	// UserIdEq Filter by user_id eq
 	UserIdEq *string `form:"user_id_eq,omitempty" json:"user_id_eq,omitempty"`
@@ -618,20 +618,20 @@ type GetApiBillingUsersUserIdDeletedCreditsParams struct {
 	// FiltersDirectionStartswith Filter by direction startswith
 	FiltersDirectionStartswith *string `form:"filters[direction][startswith],omitempty" json:"filters[direction][startswith],omitempty"`
 
-	// FiltersTransactionTypeContains Filter by transaction_type contains
-	FiltersTransactionTypeContains *string `form:"filters[transaction_type][contains],omitempty" json:"filters[transaction_type][contains],omitempty"`
+	// FiltersTypeContains Filter by type contains
+	FiltersTypeContains *string `form:"filters[type][contains],omitempty" json:"filters[type][contains],omitempty"`
 
-	// FiltersTransactionTypeEndswith Filter by transaction_type endswith
-	FiltersTransactionTypeEndswith *string `form:"filters[transaction_type][endswith],omitempty" json:"filters[transaction_type][endswith],omitempty"`
+	// FiltersTypeEndswith Filter by type endswith
+	FiltersTypeEndswith *string `form:"filters[type][endswith],omitempty" json:"filters[type][endswith],omitempty"`
 
-	// FiltersTransactionTypeEq Filter by transaction_type eq
-	FiltersTransactionTypeEq *string `form:"filters[transaction_type][eq],omitempty" json:"filters[transaction_type][eq],omitempty"`
+	// FiltersTypeEq Filter by type eq
+	FiltersTypeEq *string `form:"filters[type][eq],omitempty" json:"filters[type][eq],omitempty"`
 
-	// FiltersTransactionTypeNe Filter by transaction_type ne
-	FiltersTransactionTypeNe *string `form:"filters[transaction_type][ne],omitempty" json:"filters[transaction_type][ne],omitempty"`
+	// FiltersTypeNe Filter by type ne
+	FiltersTypeNe *string `form:"filters[type][ne],omitempty" json:"filters[type][ne],omitempty"`
 
-	// FiltersTransactionTypeStartswith Filter by transaction_type startswith
-	FiltersTransactionTypeStartswith *string `form:"filters[transaction_type][startswith],omitempty" json:"filters[transaction_type][startswith],omitempty"`
+	// FiltersTypeStartswith Filter by type startswith
+	FiltersTypeStartswith *string `form:"filters[type][startswith],omitempty" json:"filters[type][startswith],omitempty"`
 
 	// FiltersUserIdBetween Filter by user_id between
 	FiltersUserIdBetween *string `form:"filters[user_id][between],omitempty" json:"filters[user_id][between],omitempty"`
@@ -654,20 +654,20 @@ type GetApiBillingUsersUserIdDeletedCreditsParams struct {
 	// FiltersUserIdNe Filter by user_id ne
 	FiltersUserIdNe *string `form:"filters[user_id][ne],omitempty" json:"filters[user_id][ne],omitempty"`
 
-	// TransactionTypeContains Filter by transaction_type contains
-	TransactionTypeContains *string `form:"transaction_type_contains,omitempty" json:"transaction_type_contains,omitempty"`
+	// TypeContains Filter by type contains
+	TypeContains *string `form:"type_contains,omitempty" json:"type_contains,omitempty"`
 
-	// TransactionTypeEndswith Filter by transaction_type endswith
-	TransactionTypeEndswith *string `form:"transaction_type_endswith,omitempty" json:"transaction_type_endswith,omitempty"`
+	// TypeEndswith Filter by type endswith
+	TypeEndswith *string `form:"type_endswith,omitempty" json:"type_endswith,omitempty"`
 
-	// TransactionTypeEq Filter by transaction_type eq
-	TransactionTypeEq *string `form:"transaction_type_eq,omitempty" json:"transaction_type_eq,omitempty"`
+	// TypeEq Filter by type eq
+	TypeEq *string `form:"type_eq,omitempty" json:"type_eq,omitempty"`
 
-	// TransactionTypeNe Filter by transaction_type ne
-	TransactionTypeNe *string `form:"transaction_type_ne,omitempty" json:"transaction_type_ne,omitempty"`
+	// TypeNe Filter by type ne
+	TypeNe *string `form:"type_ne,omitempty" json:"type_ne,omitempty"`
 
-	// TransactionTypeStartswith Filter by transaction_type startswith
-	TransactionTypeStartswith *string `form:"transaction_type_startswith,omitempty" json:"transaction_type_startswith,omitempty"`
+	// TypeStartswith Filter by type startswith
+	TypeStartswith *string `form:"type_startswith,omitempty" json:"type_startswith,omitempty"`
 
 	// UserIdEq Filter by user_id eq
 	UserIdEq *string `form:"user_id_eq,omitempty" json:"user_id_eq,omitempty"`
@@ -1938,9 +1938,9 @@ func NewGetApiBillingCreditsRequest(server string, params *GetApiBillingCreditsP
 
 		}
 
-		if params.FiltersTransactionTypeContains != nil {
+		if params.FiltersTypeContains != nil {
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[transaction_type][contains]", runtime.ParamLocationQuery, *params.FiltersTransactionTypeContains); err != nil {
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[type][contains]", runtime.ParamLocationQuery, *params.FiltersTypeContains); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -1954,9 +1954,9 @@ func NewGetApiBillingCreditsRequest(server string, params *GetApiBillingCreditsP
 
 		}
 
-		if params.FiltersTransactionTypeEndswith != nil {
+		if params.FiltersTypeEndswith != nil {
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[transaction_type][endswith]", runtime.ParamLocationQuery, *params.FiltersTransactionTypeEndswith); err != nil {
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[type][endswith]", runtime.ParamLocationQuery, *params.FiltersTypeEndswith); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -1970,9 +1970,9 @@ func NewGetApiBillingCreditsRequest(server string, params *GetApiBillingCreditsP
 
 		}
 
-		if params.FiltersTransactionTypeEq != nil {
+		if params.FiltersTypeEq != nil {
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[transaction_type][eq]", runtime.ParamLocationQuery, *params.FiltersTransactionTypeEq); err != nil {
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[type][eq]", runtime.ParamLocationQuery, *params.FiltersTypeEq); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -1986,9 +1986,9 @@ func NewGetApiBillingCreditsRequest(server string, params *GetApiBillingCreditsP
 
 		}
 
-		if params.FiltersTransactionTypeNe != nil {
+		if params.FiltersTypeNe != nil {
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[transaction_type][ne]", runtime.ParamLocationQuery, *params.FiltersTransactionTypeNe); err != nil {
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[type][ne]", runtime.ParamLocationQuery, *params.FiltersTypeNe); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -2002,9 +2002,9 @@ func NewGetApiBillingCreditsRequest(server string, params *GetApiBillingCreditsP
 
 		}
 
-		if params.FiltersTransactionTypeStartswith != nil {
+		if params.FiltersTypeStartswith != nil {
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[transaction_type][startswith]", runtime.ParamLocationQuery, *params.FiltersTransactionTypeStartswith); err != nil {
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[type][startswith]", runtime.ParamLocationQuery, *params.FiltersTypeStartswith); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -2130,9 +2130,9 @@ func NewGetApiBillingCreditsRequest(server string, params *GetApiBillingCreditsP
 
 		}
 
-		if params.TransactionTypeContains != nil {
+		if params.TypeContains != nil {
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "transaction_type_contains", runtime.ParamLocationQuery, *params.TransactionTypeContains); err != nil {
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "type_contains", runtime.ParamLocationQuery, *params.TypeContains); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -2146,9 +2146,9 @@ func NewGetApiBillingCreditsRequest(server string, params *GetApiBillingCreditsP
 
 		}
 
-		if params.TransactionTypeEndswith != nil {
+		if params.TypeEndswith != nil {
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "transaction_type_endswith", runtime.ParamLocationQuery, *params.TransactionTypeEndswith); err != nil {
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "type_endswith", runtime.ParamLocationQuery, *params.TypeEndswith); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -2162,9 +2162,9 @@ func NewGetApiBillingCreditsRequest(server string, params *GetApiBillingCreditsP
 
 		}
 
-		if params.TransactionTypeEq != nil {
+		if params.TypeEq != nil {
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "transaction_type_eq", runtime.ParamLocationQuery, *params.TransactionTypeEq); err != nil {
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "type_eq", runtime.ParamLocationQuery, *params.TypeEq); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -2178,9 +2178,9 @@ func NewGetApiBillingCreditsRequest(server string, params *GetApiBillingCreditsP
 
 		}
 
-		if params.TransactionTypeNe != nil {
+		if params.TypeNe != nil {
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "transaction_type_ne", runtime.ParamLocationQuery, *params.TransactionTypeNe); err != nil {
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "type_ne", runtime.ParamLocationQuery, *params.TypeNe); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -2194,9 +2194,9 @@ func NewGetApiBillingCreditsRequest(server string, params *GetApiBillingCreditsP
 
 		}
 
-		if params.TransactionTypeStartswith != nil {
+		if params.TypeStartswith != nil {
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "transaction_type_startswith", runtime.ParamLocationQuery, *params.TransactionTypeStartswith); err != nil {
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "type_startswith", runtime.ParamLocationQuery, *params.TypeStartswith); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -3363,9 +3363,9 @@ func NewGetApiBillingUsersUserIdDeletedCreditsRequest(server string, userId stri
 
 		}
 
-		if params.FiltersTransactionTypeContains != nil {
+		if params.FiltersTypeContains != nil {
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[transaction_type][contains]", runtime.ParamLocationQuery, *params.FiltersTransactionTypeContains); err != nil {
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[type][contains]", runtime.ParamLocationQuery, *params.FiltersTypeContains); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -3379,9 +3379,9 @@ func NewGetApiBillingUsersUserIdDeletedCreditsRequest(server string, userId stri
 
 		}
 
-		if params.FiltersTransactionTypeEndswith != nil {
+		if params.FiltersTypeEndswith != nil {
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[transaction_type][endswith]", runtime.ParamLocationQuery, *params.FiltersTransactionTypeEndswith); err != nil {
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[type][endswith]", runtime.ParamLocationQuery, *params.FiltersTypeEndswith); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -3395,9 +3395,9 @@ func NewGetApiBillingUsersUserIdDeletedCreditsRequest(server string, userId stri
 
 		}
 
-		if params.FiltersTransactionTypeEq != nil {
+		if params.FiltersTypeEq != nil {
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[transaction_type][eq]", runtime.ParamLocationQuery, *params.FiltersTransactionTypeEq); err != nil {
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[type][eq]", runtime.ParamLocationQuery, *params.FiltersTypeEq); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -3411,9 +3411,9 @@ func NewGetApiBillingUsersUserIdDeletedCreditsRequest(server string, userId stri
 
 		}
 
-		if params.FiltersTransactionTypeNe != nil {
+		if params.FiltersTypeNe != nil {
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[transaction_type][ne]", runtime.ParamLocationQuery, *params.FiltersTransactionTypeNe); err != nil {
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[type][ne]", runtime.ParamLocationQuery, *params.FiltersTypeNe); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -3427,9 +3427,9 @@ func NewGetApiBillingUsersUserIdDeletedCreditsRequest(server string, userId stri
 
 		}
 
-		if params.FiltersTransactionTypeStartswith != nil {
+		if params.FiltersTypeStartswith != nil {
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[transaction_type][startswith]", runtime.ParamLocationQuery, *params.FiltersTransactionTypeStartswith); err != nil {
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[type][startswith]", runtime.ParamLocationQuery, *params.FiltersTypeStartswith); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -3555,9 +3555,9 @@ func NewGetApiBillingUsersUserIdDeletedCreditsRequest(server string, userId stri
 
 		}
 
-		if params.TransactionTypeContains != nil {
+		if params.TypeContains != nil {
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "transaction_type_contains", runtime.ParamLocationQuery, *params.TransactionTypeContains); err != nil {
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "type_contains", runtime.ParamLocationQuery, *params.TypeContains); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -3571,9 +3571,9 @@ func NewGetApiBillingUsersUserIdDeletedCreditsRequest(server string, userId stri
 
 		}
 
-		if params.TransactionTypeEndswith != nil {
+		if params.TypeEndswith != nil {
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "transaction_type_endswith", runtime.ParamLocationQuery, *params.TransactionTypeEndswith); err != nil {
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "type_endswith", runtime.ParamLocationQuery, *params.TypeEndswith); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -3587,9 +3587,9 @@ func NewGetApiBillingUsersUserIdDeletedCreditsRequest(server string, userId stri
 
 		}
 
-		if params.TransactionTypeEq != nil {
+		if params.TypeEq != nil {
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "transaction_type_eq", runtime.ParamLocationQuery, *params.TransactionTypeEq); err != nil {
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "type_eq", runtime.ParamLocationQuery, *params.TypeEq); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -3603,9 +3603,9 @@ func NewGetApiBillingUsersUserIdDeletedCreditsRequest(server string, userId stri
 
 		}
 
-		if params.TransactionTypeNe != nil {
+		if params.TypeNe != nil {
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "transaction_type_ne", runtime.ParamLocationQuery, *params.TransactionTypeNe); err != nil {
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "type_ne", runtime.ParamLocationQuery, *params.TypeNe); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -3619,9 +3619,9 @@ func NewGetApiBillingUsersUserIdDeletedCreditsRequest(server string, userId stri
 
 		}
 
-		if params.TransactionTypeStartswith != nil {
+		if params.TypeStartswith != nil {
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "transaction_type_startswith", runtime.ParamLocationQuery, *params.TransactionTypeStartswith); err != nil {
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "type_startswith", runtime.ParamLocationQuery, *params.TypeStartswith); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err

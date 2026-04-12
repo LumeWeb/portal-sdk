@@ -148,14 +148,14 @@ components:
           type: string
         reference_type:
           type: string
-        transaction_type:
+        type:
           type: string
         user_id:
           type: integer
       required:
       - user_id
       - amount
-      - transaction_type
+      - type
       - direction
       type: object
     CreditItem:
@@ -177,7 +177,7 @@ components:
           type: string
         id:
           $ref: '#/components/schemas/UUID'
-        transaction_type:
+        type:
           type: string
         updated_at:
           format: date-time
@@ -188,7 +188,7 @@ components:
       - id
       - user_id
       - amount
-      - transaction_type
+      - type
       - direction
       - created_by
       - created_at
@@ -235,7 +235,7 @@ components:
           type: string
         reference_type:
           type: string
-        transaction_type:
+        type:
           type: string
         updated_at:
           format: date-time
@@ -246,7 +246,7 @@ components:
       - id
       - user_id
       - amount
-      - transaction_type
+      - type
       - direction
       - created_by
       - created_at
@@ -1111,29 +1111,29 @@ paths:
         name: filters[direction][startswith]
         schema:
           type: string
-      - description: Filter by transaction_type contains
+      - description: Filter by type contains
         in: query
-        name: filters[transaction_type][contains]
+        name: filters[type][contains]
         schema:
           type: string
-      - description: Filter by transaction_type endswith
+      - description: Filter by type endswith
         in: query
-        name: filters[transaction_type][endswith]
+        name: filters[type][endswith]
         schema:
           type: string
-      - description: Filter by transaction_type eq
+      - description: Filter by type eq
         in: query
-        name: filters[transaction_type][eq]
+        name: filters[type][eq]
         schema:
           type: string
-      - description: Filter by transaction_type ne
+      - description: Filter by type ne
         in: query
-        name: filters[transaction_type][ne]
+        name: filters[type][ne]
         schema:
           type: string
-      - description: Filter by transaction_type startswith
+      - description: Filter by type startswith
         in: query
-        name: filters[transaction_type][startswith]
+        name: filters[type][startswith]
         schema:
           type: string
       - description: Filter by user_id between
@@ -1171,29 +1171,29 @@ paths:
         name: filters[user_id][ne]
         schema:
           type: string
-      - description: Filter by transaction_type contains
+      - description: Filter by type contains
         in: query
-        name: transaction_type_contains
+        name: type_contains
         schema:
           type: string
-      - description: Filter by transaction_type endswith
+      - description: Filter by type endswith
         in: query
-        name: transaction_type_endswith
+        name: type_endswith
         schema:
           type: string
-      - description: Filter by transaction_type eq
+      - description: Filter by type eq
         in: query
-        name: transaction_type_eq
+        name: type_eq
         schema:
           type: string
-      - description: Filter by transaction_type ne
+      - description: Filter by type ne
         in: query
-        name: transaction_type_ne
+        name: type_ne
         schema:
           type: string
-      - description: Filter by transaction_type startswith
+      - description: Filter by type startswith
         in: query
-        name: transaction_type_startswith
+        name: type_startswith
         schema:
           type: string
       - description: Filter by user_id eq
@@ -2497,29 +2497,29 @@ paths:
         name: filters[direction][startswith]
         schema:
           type: string
-      - description: Filter by transaction_type contains
+      - description: Filter by type contains
         in: query
-        name: filters[transaction_type][contains]
+        name: filters[type][contains]
         schema:
           type: string
-      - description: Filter by transaction_type endswith
+      - description: Filter by type endswith
         in: query
-        name: filters[transaction_type][endswith]
+        name: filters[type][endswith]
         schema:
           type: string
-      - description: Filter by transaction_type eq
+      - description: Filter by type eq
         in: query
-        name: filters[transaction_type][eq]
+        name: filters[type][eq]
         schema:
           type: string
-      - description: Filter by transaction_type ne
+      - description: Filter by type ne
         in: query
-        name: filters[transaction_type][ne]
+        name: filters[type][ne]
         schema:
           type: string
-      - description: Filter by transaction_type startswith
+      - description: Filter by type startswith
         in: query
-        name: filters[transaction_type][startswith]
+        name: filters[type][startswith]
         schema:
           type: string
       - description: Filter by user_id between
@@ -2557,29 +2557,29 @@ paths:
         name: filters[user_id][ne]
         schema:
           type: string
-      - description: Filter by transaction_type contains
+      - description: Filter by type contains
         in: query
-        name: transaction_type_contains
+        name: type_contains
         schema:
           type: string
-      - description: Filter by transaction_type endswith
+      - description: Filter by type endswith
         in: query
-        name: transaction_type_endswith
+        name: type_endswith
         schema:
           type: string
-      - description: Filter by transaction_type eq
+      - description: Filter by type eq
         in: query
-        name: transaction_type_eq
+        name: type_eq
         schema:
           type: string
-      - description: Filter by transaction_type ne
+      - description: Filter by type ne
         in: query
-        name: transaction_type_ne
+        name: type_ne
         schema:
           type: string
-      - description: Filter by transaction_type startswith
+      - description: Filter by type startswith
         in: query
-        name: transaction_type_startswith
+        name: type_startswith
         schema:
           type: string
       - description: Filter by user_id eq

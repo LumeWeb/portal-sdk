@@ -400,12 +400,12 @@ type UsagePoint struct {
 
 // UserCreditItem defines model for UserCreditItem.
 type UserCreditItem struct {
-	Amount          Decimal   `json:"amount"`
-	CreatedAt       time.Time `json:"created_at"`
-	Description     *string   `json:"description,omitempty"`
-	Direction       string    `json:"direction"`
-	Id              UUID      `json:"id"`
-	TransactionType string    `json:"transaction_type"`
+	Amount      Decimal   `json:"amount"`
+	CreatedAt   time.Time `json:"created_at"`
+	Description *string   `json:"description,omitempty"`
+	Direction   string    `json:"direction"`
+	Id          UUID      `json:"id"`
+	Type        string    `json:"type"`
 }
 
 // UserCreditsListResponse defines model for UserCreditsListResponse.
