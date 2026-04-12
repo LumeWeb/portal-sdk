@@ -1,3 +1,9 @@
+## 0.1.25 (2026-04-12)
+
+### Fixes
+
+- align admin package with account pattern using generated types
+
 ## 0.1.24 (2026-04-12)
 
 ### Fixes
