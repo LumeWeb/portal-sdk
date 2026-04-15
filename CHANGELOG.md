@@ -1,3 +1,9 @@
+## 0.1.29 (2026-04-15)
+
+### Features
+
+- add price line plan management API
+
 ## 0.1.28 (2026-04-12)
 
 ### Fixes
