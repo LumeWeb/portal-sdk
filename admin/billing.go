@@ -383,6 +383,8 @@ type PricingPlanCreateRequest struct {
 	Currency       string              `json:"currency"`
 	IsActive       bool                `json:"is_active"`
 	IsPublic       bool                `json:"is_public"`
+	Position       *int                `json:"position,omitempty"`
+	PricelineId    *int                `json:"priceline_id,omitempty"`
 	PricingPeriods []PricingPlanPeriod `json:"pricing_periods"`
 }
 
@@ -394,6 +396,8 @@ func (r *PricingPlanCreateRequest) toInternal() admin.PricingPlanCreateRequest {
 		Currency:       r.Currency,
 		IsActive:       r.IsActive,
 		IsPublic:       r.IsPublic,
+		Position:       r.Position,
+		PricelineId:    r.PricelineId,
 		PricingPeriods: lo.Map(r.PricingPeriods, func(p PricingPlanPeriod, _ int) admin.PricingPlanPeriodDTO {
 			return p.PricingPlanPeriodDTO
 		}),
