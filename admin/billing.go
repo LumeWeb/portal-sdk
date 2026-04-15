@@ -40,6 +40,9 @@ const (
 	OpBillingGetUserSubscribers
 	OpBillingCancelUserSubscription
 	OpBillingChangeUserPlan
+	OpBillingAddPlanToPriceLine
+	OpBillingDeletePlanFromPriceLine
+	OpBillingUpdatePlanPosition
 )
 
 const defaultBillingOperationName = "billing operation"
@@ -74,6 +77,9 @@ var billingOperationString = map[int]string{
 	OpBillingGetUserSubscribers:       "get user subscribers",
 	OpBillingCancelUserSubscription:   "cancel user subscription",
 	OpBillingChangeUserPlan:           "change user plan",
+	OpBillingAddPlanToPriceLine:       "add plan to price line",
+	OpBillingDeletePlanFromPriceLine:  "delete plan from price line",
+	OpBillingUpdatePlanPosition:       "update plan position",
 }
 
 // httpErrorMessages maps billing operation IDs to their custom status code error messages.
@@ -219,6 +225,24 @@ var billingHTTPErrorMessages = map[int]map[int]internalhttp.ErrorFactoryError{
 		stdhttp.StatusNotFound:     internalhttp.PlainError("user not found"),
 		stdhttp.StatusBadRequest:   internalhttp.PlainError("invalid plan change request"),
 	},
+	OpBillingAddPlanToPriceLine: {
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
+		stdhttp.StatusNotFound:     internalhttp.PlainError("price line not found"),
+		stdhttp.StatusBadRequest:   internalhttp.PlainError("invalid plan data"),
+	},
+	OpBillingDeletePlanFromPriceLine: {
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
+		stdhttp.StatusNotFound:     internalhttp.PlainError("price line not found"),
+		stdhttp.StatusBadRequest:   internalhttp.PlainError("invalid plan data"),
+	},
+	OpBillingUpdatePlanPosition: {
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
+		stdhttp.StatusNotFound:     internalhttp.PlainError("price line or plan not found"),
+		stdhttp.StatusBadRequest:   internalhttp.PlainError("invalid position data"),
+	},
 }
 
 // handleBillingResponse processes an HTTP response using the billing error message map.
@@ -316,6 +340,12 @@ type UserBalance struct {
 // This is an alias of the generated type for convenience.
 type CreditCreateRequest = admin.CreditCreateRequest
 
+// AddPlanToPriceLineRequest represents a request to add a plan to a price line.
+type AddPlanToPriceLineRequest = admin.AddPlanToPriceLineRequest
+
+// UpdatePlanPositionRequest represents a request to update a plan's position.
+type UpdatePlanPositionRequest = admin.UpdatePlanPositionRequest
+
 // CreditPurgeRequest represents a request to purge soft-deleted credits.
 // This is an alias of the generated type for convenience.
 type CreditPurgeRequest = admin.CreditPurgeRequest
@@ -324,6 +354,12 @@ type CreditPurgeRequest = admin.CreditPurgeRequest
 // Embeds the generated admin.PriceLineResponse to reuse all fields.
 type PriceLine struct {
 	admin.PriceLineResponse
+}
+
+// PriceLineDetailResponse represents a detailed price line with its associated plans.
+// Embeds the generated admin.PriceLineDetailResponse to reuse all fields.
+type PriceLineDetailResponse struct {
+	admin.PriceLineDetailResponse
 }
 
 // PriceLineCreateRequest represents a request to create a new price line.
@@ -615,8 +651,8 @@ func (b *BillingService) CreatePriceLine(ctx context.Context, req *PriceLineCrea
 	return &PriceLine{PriceLineResponse: *data}, nil
 }
 
-// GetPriceLine retrieves a price line by ID.
-func (b *BillingService) GetPriceLine(ctx context.Context, priceLineID string) (*PriceLine, error) {
+// GetPriceLine retrieves a price line by ID with its associated plans.
+func (b *BillingService) GetPriceLine(ctx context.Context, priceLineID string) (*PriceLineDetailResponse, error) {
 	resp, err := b.client.GetApiBillingPriceLinesIdWithResponse(ctx, priceLineID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get price line: %w", err)
@@ -627,7 +663,7 @@ func (b *BillingService) GetPriceLine(ctx context.Context, priceLineID string) (
 		return nil, err
 	}
 
-	return &PriceLine{PriceLineResponse: *data}, nil
+	return &PriceLineDetailResponse{PriceLineDetailResponse: *data}, nil
 }
 
 // UpdatePriceLine updates an existing price line.
@@ -927,4 +963,34 @@ func (b *BillingService) ChangeUserPlan(ctx context.Context, userID string, req 
 	}
 
 	return &PlanChangeResult{PlanChangeResultResponse: *data}, nil
+}
+
+// AddPlanToPriceLine adds a pricing plan to a price line.
+func (b *BillingService) AddPlanToPriceLine(ctx context.Context, priceLineID string, req *AddPlanToPriceLineRequest) error {
+	resp, err := b.client.PostApiBillingPriceLinesIdPlanWithResponse(ctx, priceLineID, *req)
+	if err != nil {
+		return fmt.Errorf("failed to add plan to price line: %w", err)
+	}
+
+	return handleBillingResponse(resp.StatusCode(), resp.Body, OpBillingAddPlanToPriceLine, []int{stdhttp.StatusNoContent})
+}
+
+// DeletePlanFromPriceLine removes a pricing plan from a price line.
+func (b *BillingService) DeletePlanFromPriceLine(ctx context.Context, priceLineID, planID string) error {
+	resp, err := b.client.DeleteApiBillingPriceLinesIdPlansPlanIdWithResponse(ctx, priceLineID, planID)
+	if err != nil {
+		return fmt.Errorf("failed to delete plan from price line: %w", err)
+	}
+
+	return handleBillingResponse(resp.StatusCode(), resp.Body, OpBillingDeletePlanFromPriceLine, []int{stdhttp.StatusNoContent})
+}
+
+// UpdatePlanPosition updates the position of a plan in a price line.
+func (b *BillingService) UpdatePlanPosition(ctx context.Context, priceLineID, planID string, req *UpdatePlanPositionRequest) error {
+	resp, err := b.client.PutApiBillingPriceLinesIdPlansPlanIdWithResponse(ctx, priceLineID, planID, *req)
+	if err != nil {
+		return fmt.Errorf("failed to update plan position: %w", err)
+	}
+
+	return handleBillingResponse(resp.StatusCode(), resp.Body, OpBillingUpdatePlanPosition, []int{stdhttp.StatusNoContent})
 }
