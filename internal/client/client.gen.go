@@ -437,6 +437,15 @@ type PostApiAccountAvatarMultipartBody struct {
 	File openapi_types.File `json:"file"`
 }
 
+// GetApiAccountBillingCheckoutUiPlanIdParams defines parameters for GetApiAccountBillingCheckoutUiPlanId.
+type GetApiAccountBillingCheckoutUiPlanIdParams struct {
+	// Gateway Payment gateway type (defaults to Stripe if not specified)
+	Gateway *string `form:"gateway,omitempty" json:"gateway,omitempty"`
+
+	// PeriodId Period ID for the selected pricing period
+	PeriodId *string `form:"period_id,omitempty" json:"period_id,omitempty"`
+}
+
 // PostApiAccountBillingWebhooksGatewayTypeJSONBody defines parameters for PostApiAccountBillingWebhooksGatewayType.
 type PostApiAccountBillingWebhooksGatewayTypeJSONBody = map[string]interface{}
 
@@ -813,7 +822,7 @@ type ClientInterface interface {
 	PostApiAccountBillingChangePlan(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetApiAccountBillingCheckoutUiPlanId request
-	GetApiAccountBillingCheckoutUiPlanId(ctx context.Context, planId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetApiAccountBillingCheckoutUiPlanId(ctx context.Context, planId string, params *GetApiAccountBillingCheckoutUiPlanIdParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetApiAccountBillingCredits request
 	GetApiAccountBillingCredits(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1054,8 +1063,8 @@ func (c *Client) PostApiAccountBillingChangePlan(ctx context.Context, reqEditors
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetApiAccountBillingCheckoutUiPlanId(ctx context.Context, planId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetApiAccountBillingCheckoutUiPlanIdRequest(c.Server, planId)
+func (c *Client) GetApiAccountBillingCheckoutUiPlanId(ctx context.Context, planId string, params *GetApiAccountBillingCheckoutUiPlanIdParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiAccountBillingCheckoutUiPlanIdRequest(c.Server, planId, params)
 	if err != nil {
 		return nil, err
 	}
@@ -1874,7 +1883,7 @@ func NewPostApiAccountBillingChangePlanRequest(server string) (*http.Request, er
 }
 
 // NewGetApiAccountBillingCheckoutUiPlanIdRequest generates requests for GetApiAccountBillingCheckoutUiPlanId
-func NewGetApiAccountBillingCheckoutUiPlanIdRequest(server string, planId string) (*http.Request, error) {
+func NewGetApiAccountBillingCheckoutUiPlanIdRequest(server string, planId string, params *GetApiAccountBillingCheckoutUiPlanIdParams) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -1897,6 +1906,44 @@ func NewGetApiAccountBillingCheckoutUiPlanIdRequest(server string, planId string
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Gateway != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "gateway", runtime.ParamLocationQuery, *params.Gateway); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.PeriodId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "period_id", runtime.ParamLocationQuery, *params.PeriodId); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
 	}
 
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
@@ -4248,7 +4295,7 @@ type ClientWithResponsesInterface interface {
 	PostApiAccountBillingChangePlanWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*PostApiAccountBillingChangePlanResponse, error)
 
 	// GetApiAccountBillingCheckoutUiPlanIdWithResponse request
-	GetApiAccountBillingCheckoutUiPlanIdWithResponse(ctx context.Context, planId string, reqEditors ...RequestEditorFn) (*GetApiAccountBillingCheckoutUiPlanIdResponse, error)
+	GetApiAccountBillingCheckoutUiPlanIdWithResponse(ctx context.Context, planId string, params *GetApiAccountBillingCheckoutUiPlanIdParams, reqEditors ...RequestEditorFn) (*GetApiAccountBillingCheckoutUiPlanIdResponse, error)
 
 	// GetApiAccountBillingCreditsWithResponse request
 	GetApiAccountBillingCreditsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiAccountBillingCreditsResponse, error)
@@ -5571,8 +5618,8 @@ func (c *ClientWithResponses) PostApiAccountBillingChangePlanWithResponse(ctx co
 }
 
 // GetApiAccountBillingCheckoutUiPlanIdWithResponse request returning *GetApiAccountBillingCheckoutUiPlanIdResponse
-func (c *ClientWithResponses) GetApiAccountBillingCheckoutUiPlanIdWithResponse(ctx context.Context, planId string, reqEditors ...RequestEditorFn) (*GetApiAccountBillingCheckoutUiPlanIdResponse, error) {
-	rsp, err := c.GetApiAccountBillingCheckoutUiPlanId(ctx, planId, reqEditors...)
+func (c *ClientWithResponses) GetApiAccountBillingCheckoutUiPlanIdWithResponse(ctx context.Context, planId string, params *GetApiAccountBillingCheckoutUiPlanIdParams, reqEditors ...RequestEditorFn) (*GetApiAccountBillingCheckoutUiPlanIdResponse, error) {
+	rsp, err := c.GetApiAccountBillingCheckoutUiPlanId(ctx, planId, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}

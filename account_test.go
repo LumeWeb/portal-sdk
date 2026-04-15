@@ -4832,3 +4832,141 @@ func TestListPricingPlans(t *testing.T) {
 		})
 	}
 }
+
+func TestGetCheckoutUI(t *testing.T) {
+	tests := []struct {
+		name        string
+		planID      string
+		queryParams map[string]string
+		statusCode  int
+		response    interface{}
+		wantErr     bool
+		errCheck    func(*testing.T, error)
+	}{
+		{
+			name:       "successful get checkout UI without params",
+			planID:     "plan-123",
+			statusCode: http.StatusOK,
+			response: client.CheckoutUIResponse{
+				ExpiresAt: time.Now().Add(time.Hour),
+				Fragments: []client.CheckoutUIFragment{
+					{
+						Type:   "ui_element",
+						Script: new(string),
+					},
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name:        "with stripe gateway",
+			planID:      "plan-123",
+			queryParams: map[string]string{"gateway": "stripe"},
+			statusCode:  http.StatusOK,
+			response: client.CheckoutUIResponse{
+				ExpiresAt: time.Now().Add(time.Hour),
+				Fragments: []client.CheckoutUIFragment{
+					{
+						Type:   "ui_element",
+						Script: new(string),
+					},
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name:        "with period ID",
+			planID:      "plan-123",
+			queryParams: map[string]string{"period_id": "annual-2024"},
+			statusCode:  http.StatusOK,
+			response: client.CheckoutUIResponse{
+				ExpiresAt: time.Now().Add(time.Hour),
+				Fragments: []client.CheckoutUIFragment{
+					{
+						Type:   "ui_element",
+						Script: new(string),
+					},
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name:        "with both gateway and period ID",
+			planID:      "plan-123",
+			queryParams: map[string]string{"gateway": "btm", "period_id": "annual-2024"},
+			statusCode:  http.StatusOK,
+			response: client.CheckoutUIResponse{
+				ExpiresAt: time.Now().Add(time.Hour),
+				Fragments: []client.CheckoutUIFragment{
+					{
+						Type:   "ui_element",
+						Script: new(string),
+					},
+				},
+			},
+			wantErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "GET" {
+					t.Errorf("expected GET request, got %s", r.Method)
+				}
+
+				expectedPath := "/api/account/billing/checkout/ui/" + tt.planID
+				if r.URL.Path != expectedPath {
+					t.Errorf("expected %s path, got %s", expectedPath, r.URL.Path)
+				}
+
+				// Verify query parameters
+				if tt.queryParams != nil {
+					for key, expectedValue := range tt.queryParams {
+						actualValue := r.URL.Query().Get(key)
+						if actualValue != expectedValue {
+							t.Errorf("expected %s=%s, got %s", key, expectedValue, actualValue)
+						}
+					}
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				require.NoError(t, json.NewEncoder(w).Encode(tt.response))
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithEndpoint(server.URL), WithJWT("test-jwt-token"))
+
+			// Build options from queryParams
+			var opts []CheckoutUIOption
+			if tt.queryParams != nil {
+				if g, ok := tt.queryParams["gateway"]; ok {
+					opts = append(opts, WithGateway(g))
+				}
+				if p, ok := tt.queryParams["period_id"]; ok {
+					opts = append(opts, WithPeriodID(p))
+				}
+			}
+
+			checkoutUI, err := acc.GetCheckoutUI(context.Background(), tt.planID, opts...)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetCheckoutUI() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.NotNil(t, checkoutUI)
+				require.NotNil(t, checkoutUI.CheckoutUIResponse.Fragments)
+				require.Len(t, checkoutUI.CheckoutUIResponse.Fragments, 1)
+				require.Equal(t, "ui_element", checkoutUI.CheckoutUIResponse.Fragments[0].Type)
+				require.NotNil(t, checkoutUI.CheckoutUIResponse.ExpiresAt)
+			}
+		})
+	}
+}

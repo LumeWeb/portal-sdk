@@ -370,14 +370,14 @@ func (_c *MockClientWithResponsesInterface_GetApiAccountBillingBalanceWithRespon
 }
 
 // GetApiAccountBillingCheckoutUiPlanIdWithResponse provides a mock function for the type MockClientWithResponsesInterface
-func (_mock *MockClientWithResponsesInterface) GetApiAccountBillingCheckoutUiPlanIdWithResponse(ctx context.Context, planId string, reqEditors ...client.RequestEditorFn) (*client.GetApiAccountBillingCheckoutUiPlanIdResponse, error) {
+func (_mock *MockClientWithResponsesInterface) GetApiAccountBillingCheckoutUiPlanIdWithResponse(ctx context.Context, planId string, params *client.GetApiAccountBillingCheckoutUiPlanIdParams, reqEditors ...client.RequestEditorFn) (*client.GetApiAccountBillingCheckoutUiPlanIdResponse, error) {
 	// client.RequestEditorFn
 	_va := make([]interface{}, len(reqEditors))
 	for _i := range reqEditors {
 		_va[_i] = reqEditors[_i]
 	}
 	var _ca []interface{}
-	_ca = append(_ca, ctx, planId)
+	_ca = append(_ca, ctx, planId, params)
 	_ca = append(_ca, _va...)
 	ret := _mock.Called(_ca...)
 
@@ -387,18 +387,18 @@ func (_mock *MockClientWithResponsesInterface) GetApiAccountBillingCheckoutUiPla
 
 	var r0 *client.GetApiAccountBillingCheckoutUiPlanIdResponse
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string, ...client.RequestEditorFn) (*client.GetApiAccountBillingCheckoutUiPlanIdResponse, error)); ok {
-		return returnFunc(ctx, planId, reqEditors...)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, *client.GetApiAccountBillingCheckoutUiPlanIdParams, ...client.RequestEditorFn) (*client.GetApiAccountBillingCheckoutUiPlanIdResponse, error)); ok {
+		return returnFunc(ctx, planId, params, reqEditors...)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string, ...client.RequestEditorFn) *client.GetApiAccountBillingCheckoutUiPlanIdResponse); ok {
-		r0 = returnFunc(ctx, planId, reqEditors...)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, *client.GetApiAccountBillingCheckoutUiPlanIdParams, ...client.RequestEditorFn) *client.GetApiAccountBillingCheckoutUiPlanIdResponse); ok {
+		r0 = returnFunc(ctx, planId, params, reqEditors...)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*client.GetApiAccountBillingCheckoutUiPlanIdResponse)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, string, ...client.RequestEditorFn) error); ok {
-		r1 = returnFunc(ctx, planId, reqEditors...)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string, *client.GetApiAccountBillingCheckoutUiPlanIdParams, ...client.RequestEditorFn) error); ok {
+		r1 = returnFunc(ctx, planId, params, reqEditors...)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -413,13 +413,14 @@ type MockClientWithResponsesInterface_GetApiAccountBillingCheckoutUiPlanIdWithRe
 // GetApiAccountBillingCheckoutUiPlanIdWithResponse is a helper method to define mock.On call
 //   - ctx context.Context
 //   - planId string
+//   - params *client.GetApiAccountBillingCheckoutUiPlanIdParams
 //   - reqEditors ...client.RequestEditorFn
-func (_e *MockClientWithResponsesInterface_Expecter) GetApiAccountBillingCheckoutUiPlanIdWithResponse(ctx interface{}, planId interface{}, reqEditors ...interface{}) *MockClientWithResponsesInterface_GetApiAccountBillingCheckoutUiPlanIdWithResponse_Call {
+func (_e *MockClientWithResponsesInterface_Expecter) GetApiAccountBillingCheckoutUiPlanIdWithResponse(ctx interface{}, planId interface{}, params interface{}, reqEditors ...interface{}) *MockClientWithResponsesInterface_GetApiAccountBillingCheckoutUiPlanIdWithResponse_Call {
 	return &MockClientWithResponsesInterface_GetApiAccountBillingCheckoutUiPlanIdWithResponse_Call{Call: _e.mock.On("GetApiAccountBillingCheckoutUiPlanIdWithResponse",
-		append([]interface{}{ctx, planId}, reqEditors...)...)}
+		append([]interface{}{ctx, planId, params}, reqEditors...)...)}
 }
 
-func (_c *MockClientWithResponsesInterface_GetApiAccountBillingCheckoutUiPlanIdWithResponse_Call) Run(run func(ctx context.Context, planId string, reqEditors ...client.RequestEditorFn)) *MockClientWithResponsesInterface_GetApiAccountBillingCheckoutUiPlanIdWithResponse_Call {
+func (_c *MockClientWithResponsesInterface_GetApiAccountBillingCheckoutUiPlanIdWithResponse_Call) Run(run func(ctx context.Context, planId string, params *client.GetApiAccountBillingCheckoutUiPlanIdParams, reqEditors ...client.RequestEditorFn)) *MockClientWithResponsesInterface_GetApiAccountBillingCheckoutUiPlanIdWithResponse_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -429,18 +430,23 @@ func (_c *MockClientWithResponsesInterface_GetApiAccountBillingCheckoutUiPlanIdW
 		if args[1] != nil {
 			arg1 = args[1].(string)
 		}
-		var arg2 []client.RequestEditorFn
-		variadicArgs := make([]client.RequestEditorFn, len(args)-2)
-		for i, a := range args[2:] {
+		var arg2 *client.GetApiAccountBillingCheckoutUiPlanIdParams
+		if args[2] != nil {
+			arg2 = args[2].(*client.GetApiAccountBillingCheckoutUiPlanIdParams)
+		}
+		var arg3 []client.RequestEditorFn
+		variadicArgs := make([]client.RequestEditorFn, len(args)-3)
+		for i, a := range args[3:] {
 			if a != nil {
 				variadicArgs[i] = a.(client.RequestEditorFn)
 			}
 		}
-		arg2 = variadicArgs
+		arg3 = variadicArgs
 		run(
 			arg0,
 			arg1,
-			arg2...,
+			arg2,
+			arg3...,
 		)
 	})
 	return _c
@@ -451,7 +457,7 @@ func (_c *MockClientWithResponsesInterface_GetApiAccountBillingCheckoutUiPlanIdW
 	return _c
 }
 
-func (_c *MockClientWithResponsesInterface_GetApiAccountBillingCheckoutUiPlanIdWithResponse_Call) RunAndReturn(run func(ctx context.Context, planId string, reqEditors ...client.RequestEditorFn) (*client.GetApiAccountBillingCheckoutUiPlanIdResponse, error)) *MockClientWithResponsesInterface_GetApiAccountBillingCheckoutUiPlanIdWithResponse_Call {
+func (_c *MockClientWithResponsesInterface_GetApiAccountBillingCheckoutUiPlanIdWithResponse_Call) RunAndReturn(run func(ctx context.Context, planId string, params *client.GetApiAccountBillingCheckoutUiPlanIdParams, reqEditors ...client.RequestEditorFn) (*client.GetApiAccountBillingCheckoutUiPlanIdResponse, error)) *MockClientWithResponsesInterface_GetApiAccountBillingCheckoutUiPlanIdWithResponse_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -717,8 +717,16 @@ func (_c *MockAccountAPI_GetBalance_Call) RunAndReturn(run func(ctx context.Cont
 }
 
 // GetCheckoutUI provides a mock function for the type MockAccountAPI
-func (_mock *MockAccountAPI) GetCheckoutUI(ctx context.Context, planID string) (*account.CheckoutUI, error) {
-	ret := _mock.Called(ctx, planID)
+func (_mock *MockAccountAPI) GetCheckoutUI(ctx context.Context, planID string, opts ...account.CheckoutUIOption) (*account.CheckoutUI, error) {
+	// account.CheckoutUIOption
+	_va := make([]interface{}, len(opts))
+	for _i := range opts {
+		_va[_i] = opts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, planID)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetCheckoutUI")
@@ -726,18 +734,18 @@ func (_mock *MockAccountAPI) GetCheckoutUI(ctx context.Context, planID string) (
 
 	var r0 *account.CheckoutUI
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (*account.CheckoutUI, error)); ok {
-		return returnFunc(ctx, planID)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, ...account.CheckoutUIOption) (*account.CheckoutUI, error)); ok {
+		return returnFunc(ctx, planID, opts...)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) *account.CheckoutUI); ok {
-		r0 = returnFunc(ctx, planID)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, ...account.CheckoutUIOption) *account.CheckoutUI); ok {
+		r0 = returnFunc(ctx, planID, opts...)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*account.CheckoutUI)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
-		r1 = returnFunc(ctx, planID)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string, ...account.CheckoutUIOption) error); ok {
+		r1 = returnFunc(ctx, planID, opts...)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -752,11 +760,13 @@ type MockAccountAPI_GetCheckoutUI_Call struct {
 // GetCheckoutUI is a helper method to define mock.On call
 //   - ctx context.Context
 //   - planID string
-func (_e *MockAccountAPI_Expecter) GetCheckoutUI(ctx interface{}, planID interface{}) *MockAccountAPI_GetCheckoutUI_Call {
-	return &MockAccountAPI_GetCheckoutUI_Call{Call: _e.mock.On("GetCheckoutUI", ctx, planID)}
+//   - opts ...account.CheckoutUIOption
+func (_e *MockAccountAPI_Expecter) GetCheckoutUI(ctx interface{}, planID interface{}, opts ...interface{}) *MockAccountAPI_GetCheckoutUI_Call {
+	return &MockAccountAPI_GetCheckoutUI_Call{Call: _e.mock.On("GetCheckoutUI",
+		append([]interface{}{ctx, planID}, opts...)...)}
 }
 
-func (_c *MockAccountAPI_GetCheckoutUI_Call) Run(run func(ctx context.Context, planID string)) *MockAccountAPI_GetCheckoutUI_Call {
+func (_c *MockAccountAPI_GetCheckoutUI_Call) Run(run func(ctx context.Context, planID string, opts ...account.CheckoutUIOption)) *MockAccountAPI_GetCheckoutUI_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -766,9 +776,18 @@ func (_c *MockAccountAPI_GetCheckoutUI_Call) Run(run func(ctx context.Context, p
 		if args[1] != nil {
 			arg1 = args[1].(string)
 		}
+		var arg2 []account.CheckoutUIOption
+		variadicArgs := make([]account.CheckoutUIOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(account.CheckoutUIOption)
+			}
+		}
+		arg2 = variadicArgs
 		run(
 			arg0,
 			arg1,
+			arg2...,
 		)
 	})
 	return _c
@@ -779,7 +798,7 @@ func (_c *MockAccountAPI_GetCheckoutUI_Call) Return(checkoutUI *account.Checkout
 	return _c
 }
 
-func (_c *MockAccountAPI_GetCheckoutUI_Call) RunAndReturn(run func(ctx context.Context, planID string) (*account.CheckoutUI, error)) *MockAccountAPI_GetCheckoutUI_Call {
+func (_c *MockAccountAPI_GetCheckoutUI_Call) RunAndReturn(run func(ctx context.Context, planID string, opts ...account.CheckoutUIOption) (*account.CheckoutUI, error)) *MockAccountAPI_GetCheckoutUI_Call {
 	_c.Call.Return(run)
 	return _c
 }
