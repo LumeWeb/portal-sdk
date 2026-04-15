@@ -11,6 +11,17 @@ components:
       - method
       - path
       type: object
+    AddPlanToPriceLineRequest:
+      additionalProperties: false
+      properties:
+        plan_id:
+          type: integer
+        position:
+          type: integer
+      required:
+      - plan_id
+      - position
+      type: object
     AdminCancelSubscriptionRequest:
       additionalProperties: false
       properties:
@@ -360,6 +371,38 @@ components:
       - is_active
       - is_default
       type: object
+    PriceLineDetailResponse:
+      additionalProperties: false
+      properties:
+        created_at:
+          format: date-time
+          type: string
+        description:
+          type: string
+        id:
+          type: integer
+        is_active:
+          type: boolean
+        is_default:
+          type: boolean
+        name:
+          type: string
+        plans:
+          items:
+            $ref: '#/components/schemas/PricingPlanItem'
+          type: array
+        updated_at:
+          format: date-time
+          type: string
+      required:
+      - id
+      - name
+      - description
+      - is_active
+      - is_default
+      - created_at
+      - updated_at
+      type: object
     PriceLineResponse:
       additionalProperties: false
       properties:
@@ -431,6 +474,10 @@ components:
           type: boolean
         name:
           type: string
+        position:
+          type: integer
+        priceline_id:
+          type: integer
         pricing_periods:
           items:
             $ref: '#/components/schemas/PricingPlanPeriodDTO'
@@ -905,6 +952,14 @@ components:
       maxItems: 16
       minItems: 16
       type: array
+    UpdatePlanPositionRequest:
+      additionalProperties: false
+      properties:
+        position:
+          type: integer
+      required:
+      - position
+      type: object
     Usage:
       additionalProperties: false
       properties:
@@ -1753,7 +1808,7 @@ paths:
       tags:
       - Billing Admin
     get:
-      description: Retrieves a specific price line by ID
+      description: Retrieves a specific price line by ID with its associated plans
       parameters:
       - description: Price Line ID
         in: path
@@ -1766,7 +1821,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PriceLineResponse'
+                $ref: '#/components/schemas/PriceLineDetailResponse'
           description: ""
         "400":
           content:
@@ -1854,6 +1909,179 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Internal server error
       summary: Update Price Line
+      tags:
+      - Billing Admin
+  /api/billing/price-lines/{id}/plan:
+    post:
+      description: Adds a pricing plan to a price line with a specified position
+      parameters:
+      - description: Price Line ID
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddPlanToPriceLineRequest'
+        description: Plan to add with position
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriceLineDetailResponse'
+          description: Plan added to price line
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Add Plan to Price Line
+      tags:
+      - Billing Admin
+  /api/billing/price-lines/{id}/plans/{planId}:
+    delete:
+      description: Removes a pricing plan from a price line and reorders remaining
+        plans
+      parameters:
+      - description: Price Line ID
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      - description: Plan ID
+        in: path
+        name: planId
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: Plan removed from price line
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Remove Plan from Price Line
+      tags:
+      - Billing Admin
+    put:
+      description: Updates the position of a plan within a price line, reordering
+        other plans as needed
+      parameters:
+      - description: Price Line ID
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      - description: Plan ID
+        in: path
+        name: planId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePlanPositionRequest'
+        description: New position for the plan
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriceLineDetailResponse'
+          description: Plan position updated
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Update Plan Position
       tags:
       - Billing Admin
   /api/billing/pricing-plan-periods:

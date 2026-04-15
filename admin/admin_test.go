@@ -2246,3 +2246,317 @@ func TestBillingService_ChangeUserPlan(t *testing.T) {
 		})
 	}
 }
+
+// TestBillingService_AddPlanToPriceLine tests the AddPlanToPriceLine method
+func TestBillingService_AddPlanToPriceLine(t *testing.T) {
+	tests := []struct {
+		name       string
+		priceLineID string
+		request    *AddPlanToPriceLineRequest
+		statusCode int
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:       "successful add plan to price line",
+			priceLineID: "1",
+			request: &AddPlanToPriceLineRequest{
+				PlanId:   10,
+				Position: 0,
+			},
+			statusCode: http.StatusNoContent,
+			wantErr:    false,
+		},
+		{
+			name:       "unauthorized",
+			priceLineID: "1",
+			request:    &AddPlanToPriceLineRequest{},
+			statusCode: http.StatusUnauthorized,
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "unauthorized")
+			},
+		},
+		{
+			name:       "price line not found",
+			priceLineID: "999",
+			request:    &AddPlanToPriceLineRequest{},
+			statusCode: http.StatusNotFound,
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "price line not found")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "POST" {
+					t.Errorf("expected POST request, got %s", r.Method)
+				}
+				expectedPath := "/api/billing/price-lines/" + tt.priceLineID + "/plan"
+				if r.URL.Path != expectedPath {
+					t.Errorf("expected %s path, got %s", expectedPath, r.URL.Path)
+				}
+				w.WriteHeader(tt.statusCode)
+			}))
+			defer server.Close()
+
+			client := NewClient(WithEndpoint(server.URL))
+			err := client.Billing().AddPlanToPriceLine(context.Background(), tt.priceLineID, tt.request)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("AddPlanToPriceLine() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+		})
+	}
+}
+
+// TestBillingService_DeletePlanFromPriceLine tests the DeletePlanFromPriceLine method
+func TestBillingService_DeletePlanFromPriceLine(t *testing.T) {
+	tests := []struct {
+		name        string
+		priceLineID string
+		planID      string
+		statusCode  int
+		wantErr     bool
+		errCheck    func(*testing.T, error)
+	}{
+		{
+			name:        "successful delete plan from price line",
+			priceLineID: "1",
+			planID:      "10",
+			statusCode:  http.StatusNoContent,
+			wantErr:     false,
+		},
+		{
+			name:        "unauthorized",
+			priceLineID: "1",
+			planID:      "10",
+			statusCode:  http.StatusUnauthorized,
+			wantErr:     true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "unauthorized")
+			},
+		},
+		{
+			name:        "price line not found",
+			priceLineID: "999",
+			planID:      "10",
+			statusCode:  http.StatusNotFound,
+			wantErr:     true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "price line not found")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "DELETE" {
+					t.Errorf("expected DELETE request, got %s", r.Method)
+				}
+				expectedPath := "/api/billing/price-lines/" + tt.priceLineID + "/plans/" + tt.planID
+				if r.URL.Path != expectedPath {
+					t.Errorf("expected %s path, got %s", expectedPath, r.URL.Path)
+				}
+				w.WriteHeader(tt.statusCode)
+			}))
+			defer server.Close()
+
+			client := NewClient(WithEndpoint(server.URL))
+			err := client.Billing().DeletePlanFromPriceLine(context.Background(), tt.priceLineID, tt.planID)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("DeletePlanFromPriceLine() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+		})
+	}
+}
+
+// TestBillingService_UpdatePlanPosition tests the UpdatePlanPosition method
+func TestBillingService_UpdatePlanPosition(t *testing.T) {
+	tests := []struct {
+		name        string
+		priceLineID string
+		planID      string
+		request     *UpdatePlanPositionRequest
+		statusCode  int
+		wantErr     bool
+		errCheck    func(*testing.T, error)
+	}{
+		{
+			name:        "successful update plan position",
+			priceLineID: "1",
+			planID:      "10",
+			request:     &UpdatePlanPositionRequest{Position: 5},
+			statusCode:  http.StatusNoContent,
+			wantErr:     false,
+		},
+		{
+			name:        "unauthorized",
+			priceLineID: "1",
+			planID:      "10",
+			request:     &UpdatePlanPositionRequest{},
+			statusCode:  http.StatusUnauthorized,
+			wantErr:     true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "unauthorized")
+			},
+		},
+		{
+			name:        "price line not found",
+			priceLineID: "999",
+			planID:      "10",
+			request:     &UpdatePlanPositionRequest{},
+			statusCode:  http.StatusNotFound,
+			wantErr:     true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "price line or plan not found")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "PUT" {
+					t.Errorf("expected PUT request, got %s", r.Method)
+				}
+				expectedPath := "/api/billing/price-lines/" + tt.priceLineID + "/plans/" + tt.planID
+				if r.URL.Path != expectedPath {
+					t.Errorf("expected %s path, got %s", expectedPath, r.URL.Path)
+				}
+				w.WriteHeader(tt.statusCode)
+			}))
+			defer server.Close()
+
+			client := NewClient(WithEndpoint(server.URL))
+			err := client.Billing().UpdatePlanPosition(context.Background(), tt.priceLineID, tt.planID, tt.request)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("UpdatePlanPosition() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+		})
+	}
+}
+
+// TestBillingService_GetPriceLineDetail tests the GetPriceLine method with detailed response including plans
+func TestBillingService_GetPriceLineDetail(t *testing.T) {
+	now := time.Now()
+
+	tests := []struct {
+		name        string
+		priceLineID string
+		statusCode  int
+		response    admin.PriceLineDetailResponse
+		wantErr     bool
+		errCheck    func(*testing.T, error)
+	}{
+		{
+			name:        "successful get price line with plans",
+			priceLineID: "1",
+			statusCode:  http.StatusOK,
+			response: admin.PriceLineDetailResponse{
+				Id:          1,
+				Name:        "Storage",
+				Description: "Storage pricing with plans",
+				IsActive:    true,
+				IsDefault:   false,
+				CreatedAt:   now,
+				UpdatedAt:   now,
+				Plans: &[]admin.PricingPlanItem{
+					{
+						Id:          10,
+						Name:        "Basic Storage",
+						Description: "Basic storage plan",
+						Currency:    "USD",
+						IsActive:    true,
+					},
+					{
+						Id:          11,
+						Name:        "Premium Storage",
+						Description: "Premium storage plan",
+						Currency:    "USD",
+						IsActive:    true,
+					},
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name:        "price line not found",
+			priceLineID: "999",
+			statusCode:  http.StatusNotFound,
+			response:    admin.PriceLineDetailResponse{},
+			wantErr:     true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "price line not found")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "GET" {
+					t.Errorf("expected GET request, got %s", r.Method)
+				}
+				expectedPath := "/api/billing/price-lines/" + tt.priceLineID
+				if r.URL.Path != expectedPath {
+					t.Errorf("expected %s path, got %s", expectedPath, r.URL.Path)
+				}
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				if tt.statusCode == http.StatusOK {
+					require.NoError(t, json.NewEncoder(w).Encode(tt.response))
+				} else if tt.statusCode == http.StatusNotFound {
+					json.NewEncoder(w).Encode(admin.ErrorResponse{Error: "price line not found"})
+				}
+			}))
+			defer server.Close()
+
+			client := NewClient(WithEndpoint(server.URL))
+			line, err := client.Billing().GetPriceLine(context.Background(), tt.priceLineID)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetPriceLine() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.NotNil(t, line)
+				require.Equal(t, "Storage", line.Name)
+				require.Equal(t, "Storage pricing with plans", line.Description)
+				require.Equal(t, int(1), line.Id)
+				require.Equal(t, true, line.IsActive)
+				require.Equal(t, false, line.IsDefault)
+				require.NotNil(t, line.Plans)
+				require.Len(t, *line.Plans, 2)
+				require.Equal(t, int(10), (*line.Plans)[0].Id)
+				require.Equal(t, int(11), (*line.Plans)[1].Id)
+			}
+		})
+	}
+}
