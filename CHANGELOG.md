@@ -1,3 +1,9 @@
+## 0.1.30 (2026-04-15)
+
+### Fixes
+
+- add missing fields to PricingPlanCreateRequest
+
 ## 0.1.29 (2026-04-15)
 
 ### Features
