@@ -531,6 +531,29 @@ func TestBillingService_CreatePricingPlan(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name: "successful create pricing plan with position and price line",
+			request: &PricingPlanCreateRequest{
+				Name:           "Premium",
+				Description:    "Premium plan",
+				Currency:       "USD",
+				IsActive:       true,
+				IsPublic:       true,
+				Position:       new(2),
+				PricelineId:    new(1),
+				PricingPeriods: []PricingPlanPeriod{},
+			},
+			statusCode: http.StatusCreated,
+			response: admin.PricingPlanResponse{
+				Id:          2,
+				Name:        "Premium",
+				Description: "Premium plan",
+				Currency:    "USD",
+				IsActive:    true,
+				IsPublic:    true,
+			},
+			wantErr: false,
+		},
+		{
 			name:       "unauthorized",
 			request:    &PricingPlanCreateRequest{},
 			statusCode: http.StatusUnauthorized,
@@ -572,7 +595,7 @@ func TestBillingService_CreatePricingPlan(t *testing.T) {
 
 			if !tt.wantErr {
 				require.NotNil(t, plan)
-				require.Equal(t, "Basic", plan.Name)
+				require.Equal(t, tt.request.Name, plan.Name)
 			}
 		})
 	}
