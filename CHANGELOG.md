@@ -1,3 +1,9 @@
+## 0.1.31 (2026-04-16)
+
+### Fixes
+
+- add options pattern for GetCheckoutUI params
+
 ## 0.1.30 (2026-04-15)
 
 ### Fixes
