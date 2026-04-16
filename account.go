@@ -720,7 +720,7 @@ type AccountAPI interface {
 	ListCredits(ctx context.Context) ([]*Credit, int, error)
 
 	// GetCheckoutUI retrieves the checkout UI configuration for a specific plan.
-	GetCheckoutUI(ctx context.Context, planID string) (*CheckoutUI, error)
+	GetCheckoutUI(ctx context.Context, planID string, opts ...CheckoutUIOption) (*CheckoutUI, error)
 
 	// GetManagementCapabilities retrieves the billing management capabilities for the user.
 	GetManagementCapabilities(ctx context.Context) (*ManagementCapabilities, error)
@@ -1657,9 +1657,40 @@ func (c *Client) ListCredits(ctx context.Context) ([]*Credit, int, error) {
 	return credits, resp.JSON200.Total, nil
 }
 
+// CheckoutUIOptions provides options for GetCheckoutUI.
+type CheckoutUIOptions struct {
+	gateway *string
+	periodID *string
+}
+
+// CheckoutUIOption is a function that modifies CheckoutUIOptions.
+type CheckoutUIOption func(*CheckoutUIOptions)
+
+// WithGateway specifies the payment gateway type (defaults to Stripe if not specified).
+func WithGateway(gateway string) CheckoutUIOption {
+	return func(opts *CheckoutUIOptions) {
+		opts.gateway = &gateway
+	}
+}
+
+// WithPeriodID specifies the period ID for the selected pricing period.
+func WithPeriodID(periodID string) CheckoutUIOption {
+	return func(opts *CheckoutUIOptions) {
+		opts.periodID = &periodID
+	}
+}
+
 // GetCheckoutUI retrieves the checkout UI configuration for a specific plan.
-func (c *Client) GetCheckoutUI(ctx context.Context, planID string) (*CheckoutUI, error) {
-	resp, err := c.client.GetApiAccountBillingCheckoutUiPlanIdWithResponse(ctx, planID)
+func (c *Client) GetCheckoutUI(ctx context.Context, planID string, opts ...CheckoutUIOption) (*CheckoutUI, error) {
+	options := &CheckoutUIOptions{}
+	for _, opt := range opts {
+		opt(options)
+	}
+	params := &client.GetApiAccountBillingCheckoutUiPlanIdParams{
+		Gateway:  options.gateway,
+		PeriodId: options.periodID,
+	}
+	resp, err := c.client.GetApiAccountBillingCheckoutUiPlanIdWithResponse(ctx, planID, params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get checkout UI: %w", err)
 	}

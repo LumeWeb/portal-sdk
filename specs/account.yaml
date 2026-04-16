@@ -1166,6 +1166,16 @@ paths:
         required: true
         schema:
           type: string
+      - description: Payment gateway type (defaults to Stripe if not specified)
+        in: query
+        name: gateway
+        schema:
+          type: string
+      - description: Period ID for the selected pricing period
+        in: query
+        name: period_id
+        schema:
+          type: string
       responses:
         "200":
           content:
