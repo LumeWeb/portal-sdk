@@ -1,3 +1,9 @@
+## 0.1.34 (2026-04-17)
+
+### Features
+
+- support pausing subscriptions via API
+
 ## 0.1.33 (2026-04-17)
 
 ### Fixes
