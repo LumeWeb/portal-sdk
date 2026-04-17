@@ -1,3 +1,9 @@
+## 0.1.36 (2026-04-17)
+
+### Features
+
+- add PauseUserSubscription and ResumeUserSubscription billing methods
+
 ## 0.1.35 (2026-04-17)
 
 ### Features
