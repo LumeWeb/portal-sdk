@@ -99,6 +99,7 @@ const (
 	OpGetSubscriptionStatus
 	OpManageBilling
 	OpCancelSubscription
+	OpAbortSubscriptionCancellation
 	OpChangePlan
 	OpHandleWebhook
 	OpListBillingGateways
@@ -140,9 +141,10 @@ var operationString = map[int]string{
 	OpGetCheckoutUI:          "get checkout UI",
 	OpGetManagementCapabilities: "get management capabilities",
 	OpGetSubscriptionStatus:   "get subscription status",
-	OpManageBilling:           "manage billing",
-	OpCancelSubscription:      "cancel subscription",
-	OpChangePlan:              "change subscription plan",
+	OpManageBilling:                  "manage billing",
+	OpCancelSubscription:             "cancel subscription",
+	OpAbortSubscriptionCancellation:  "abort subscription cancellation",
+	OpChangePlan:                    "change subscription plan",
 	OpHandleWebhook:           "handle billing webhook",
 	OpListBillingGateways:     "list billing gateways",
 	OpGetGatewayLogo:          "get gateway logo",
@@ -271,6 +273,11 @@ var httpErrorMessages = map[int]map[int]internalhttp.ErrorFactoryError{
 		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
 		http.StatusBadRequest:   internalhttp.PlainError("cannot cancel subscription"),
 		http.StatusNotFound:     internalhttp.PlainError("no active subscription"),
+	},
+	OpAbortSubscriptionCancellation: {
+		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		http.StatusBadRequest:   internalhttp.PlainError("cannot abort cancellation"),
+		http.StatusNotFound:     internalhttp.PlainError("no scheduled cancellation found"),
 	},
 	OpChangePlan: {
 		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
@@ -733,6 +740,10 @@ type AccountAPI interface {
 
 	// CancelSubscription cancels the user's subscription.
 	CancelSubscription(ctx context.Context) (*ManagementResult, error)
+
+	// AbortSubscriptionCancellation aborts a scheduled subscription cancellation,
+	// restoring the subscription to active status.
+	AbortSubscriptionCancellation(ctx context.Context) (*ManagementResult, error)
 
 	// ChangePlan changes the user's subscription plan.
 	ChangePlan(ctx context.Context, planID string) (*ManagementResult, error)
@@ -1777,6 +1788,25 @@ func (c *Client) CancelSubscription(ctx context.Context) (*ManagementResult, err
 
 	if resp.JSON200 == nil {
 		return nil, fmt.Errorf("cancel subscription response did not contain data")
+	}
+
+	return &ManagementResult{ManagementResultResponse: *resp.JSON200}, nil
+}
+
+// AbortSubscriptionCancellation aborts a scheduled subscription cancellation,
+// restoring the subscription to active status.
+func (c *Client) AbortSubscriptionCancellation(ctx context.Context) (*ManagementResult, error) {
+	resp, err := c.client.PostApiAccountBillingCancelAbortWithResponse(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to abort subscription cancellation: %w", err)
+	}
+
+	if err := handleResponse(resp.StatusCode(), resp.Body, OpAbortSubscriptionCancellation, []int{http.StatusOK}); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, fmt.Errorf("abort subscription cancellation response did not contain data")
 	}
 
 	return &ManagementResult{ManagementResultResponse: *resp.JSON200}, nil

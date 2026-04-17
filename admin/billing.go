@@ -39,6 +39,7 @@ const (
 	OpBillingListGatewaySubscribers
 	OpBillingGetUserSubscribers
 	OpBillingCancelUserSubscription
+	OpBillingAbortUserSubscriptionCancellation
 	OpBillingChangeUserPlan
 	OpBillingAddPlanToPriceLine
 	OpBillingDeletePlanFromPriceLine
@@ -75,8 +76,9 @@ var billingOperationString = map[int]string{
 	OpBillingGetSubscriber:            "get subscriber",
 	OpBillingListGatewaySubscribers:   "list gateway subscribers",
 	OpBillingGetUserSubscribers:       "get user subscribers",
-	OpBillingCancelUserSubscription:   "cancel user subscription",
-	OpBillingChangeUserPlan:           "change user plan",
+	OpBillingCancelUserSubscription:             "cancel user subscription",
+	OpBillingAbortUserSubscriptionCancellation: "abort user subscription cancellation",
+	OpBillingChangeUserPlan:                     "change user plan",
 	OpBillingAddPlanToPriceLine:       "add plan to price line",
 	OpBillingDeletePlanFromPriceLine:  "delete plan from price line",
 	OpBillingUpdatePlanPosition:       "update plan position",
@@ -218,6 +220,12 @@ var billingHTTPErrorMessages = map[int]map[int]internalhttp.ErrorFactoryError{
 		stdhttp.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
 		stdhttp.StatusNotFound:     internalhttp.PlainError("user not found"),
 		stdhttp.StatusBadRequest:   internalhttp.PlainError("invalid cancellation request"),
+	},
+	OpBillingAbortUserSubscriptionCancellation: {
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
+		stdhttp.StatusNotFound:     internalhttp.PlainError("no scheduled cancellation found"),
+		stdhttp.StatusBadRequest:   internalhttp.PlainError("cannot abort cancellation"),
 	},
 	OpBillingChangeUserPlan: {
 		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
@@ -947,6 +955,22 @@ func (b *BillingService) CancelUserSubscription(ctx context.Context, userID stri
 	}
 
 	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingCancelUserSubscription)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ManagementResult{ManagementResultResponse: *data}, nil
+}
+
+// AbortUserSubscriptionCancellation aborts a scheduled subscription cancellation,
+// restoring the subscription to active status.
+func (b *BillingService) AbortUserSubscriptionCancellation(ctx context.Context, userID string) (*ManagementResult, error) {
+	resp, err := b.client.PostApiBillingUsersUserIdSubscriptionsCancelAbortWithResponse(ctx, userID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to abort subscription cancellation: %w", err)
+	}
+
+	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingAbortUserSubscriptionCancellation)
 	if err != nil {
 		return nil, err
 	}

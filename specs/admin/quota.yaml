@@ -27,8 +27,6 @@ components:
       properties:
         mode:
           type: string
-      required:
-      - mode
       type: object
     AdminChangePlanRequest:
       additionalProperties: false
@@ -307,6 +305,8 @@ components:
           type: string
         api_endpoint:
           $ref: '#/components/schemas/APIEndpointInfoResponse'
+        can_abort:
+          type: boolean
         confirmation_message:
           type: string
         effective_time:
@@ -316,11 +316,15 @@ components:
           type: string
         requires_confirmation:
           type: boolean
+        status:
+          type: string
         url:
           type: string
       required:
       - action
       - requires_confirmation
+      - status
+      - can_abort
       type: object
     PlanChangeResultResponse:
       additionalProperties: false
@@ -2986,6 +2990,57 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Server error
       summary: Cancel User Subscription
+      tags:
+      - Billing Admin
+  /api/billing/users/{userId}/subscriptions/cancel/abort:
+    post:
+      description: Cancels a scheduled subscription cancellation, restoring the subscription
+        to active status
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagementResultResponse'
+          description: Scheduled cancellation aborted successfully
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Authentication required
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Insufficient permissions
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: No scheduled cancellation found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Server error
+      summary: Abort Scheduled Cancellation
       tags:
       - Billing Admin
   /api/billing/users/{userId}/subscriptions/change-plan:

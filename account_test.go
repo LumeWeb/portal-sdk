@@ -4336,6 +4336,103 @@ func TestCancelSubscription(t *testing.T) {
 	}
 }
 
+func TestAbortSubscriptionCancellation(t *testing.T) {
+	tests := []struct {
+		name       string
+		jwt        string
+		statusCode int
+		response   interface{}
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:       "successful abort subscription cancellation",
+			jwt:        "test-jwt-token",
+			statusCode: http.StatusOK,
+			response: client.ManagementResultResponse{
+					Action:              "abort",
+				ConfirmationMessage: stringPtr("Subscription cancellation aborted successfully"),
+				CanAbort:            false,
+				Status:              "active",
+			},
+			wantErr: false,
+		},
+		{
+			name:       "unauthorized - missing JWT",
+			jwt:        "",
+			statusCode: http.StatusUnauthorized,
+			response:   client.ErrorResponse{Error: "unauthorized"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.Error(t, err)
+				require.ErrorContains(t, err, "authentication required")
+			},
+		},
+		{
+			name:       "no scheduled cancellation found",
+			jwt:        "test-jwt-token",
+			statusCode: http.StatusNotFound,
+			response:   client.ErrorResponse{Error: "no scheduled cancellation found"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "no scheduled cancellation found")
+			},
+		},
+		{
+			name:       "abort not supported by gateway",
+			jwt:        "test-jwt-token",
+			statusCode: http.StatusBadRequest,
+			response:   client.ErrorResponse{Error: "abort is not supported by this gateway"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "cannot abort cancellation")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "POST" {
+					t.Errorf("expected POST request, got %s", r.Method)
+				}
+
+				if r.URL.Path != "/api/account/billing/cancel/abort" {
+					t.Errorf("expected /api/account/billing/cancel/abort path, got %s", r.URL.Path)
+				}
+
+				// Verify Authorization header
+				authHeader := r.Header.Get("Authorization")
+				if tt.jwt != "" {
+					require.Equal(t, "Bearer "+tt.jwt, authHeader)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				require.NoError(t, json.NewEncoder(w).Encode(tt.response))
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithEndpoint(server.URL), WithJWT(tt.jwt))
+			result, err := acc.AbortSubscriptionCancellation(context.Background())
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("AbortSubscriptionCancellation() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.NotNil(t, result)
+				require.Equal(t, tt.response.(client.ManagementResultResponse).Action, result.Action)
+			}
+		})
+	}
+}
+
 func TestChangePlan(t *testing.T) {
 	tests := []struct {
 		name       string

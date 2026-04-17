@@ -161,8 +161,9 @@ type LoginResponse struct {
 
 // ManagementCapabilitiesResponse defines model for ManagementCapabilitiesResponse.
 type ManagementCapabilitiesResponse struct {
-	ManagementMode string          `json:"management_mode"`
-	Operations     map[string]bool `json:"operations"`
+	AdminOperations map[string]bool `json:"admin_operations"`
+	ManagementMode  string          `json:"management_mode"`
+	Operations      map[string]bool `json:"operations"`
 }
 
 // ManagementRequest defines model for ManagementRequest.
@@ -174,10 +175,12 @@ type ManagementRequest struct {
 type ManagementResultResponse struct {
 	Action               string                   `json:"action"`
 	ApiEndpoint          *APIEndpointInfoResponse `json:"api_endpoint,omitempty"`
+	CanAbort             bool                     `json:"can_abort"`
 	ConfirmationMessage  *string                  `json:"confirmation_message,omitempty"`
 	EffectiveTime        *time.Time               `json:"effective_time,omitempty"`
 	ErrorMessage         *string                  `json:"error_message,omitempty"`
 	RequiresConfirmation bool                     `json:"requires_confirmation"`
+	Status               string                   `json:"status"`
 	Url                  *string                  `json:"url,omitempty"`
 }
 
@@ -818,6 +821,9 @@ type ClientInterface interface {
 	// PostApiAccountBillingCancel request
 	PostApiAccountBillingCancel(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// PostApiAccountBillingCancelAbort request
+	PostApiAccountBillingCancelAbort(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// PostApiAccountBillingChangePlan request
 	PostApiAccountBillingChangePlan(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -1041,6 +1047,18 @@ func (c *Client) GetApiAccountBillingBalance(ctx context.Context, reqEditors ...
 
 func (c *Client) PostApiAccountBillingCancel(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPostApiAccountBillingCancelRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiAccountBillingCancelAbort(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiAccountBillingCancelAbortRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -1838,6 +1856,33 @@ func NewPostApiAccountBillingCancelRequest(server string) (*http.Request, error)
 	}
 
 	operationPath := fmt.Sprintf("/api/account/billing/cancel")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPostApiAccountBillingCancelAbortRequest generates requests for PostApiAccountBillingCancelAbort
+func NewPostApiAccountBillingCancelAbortRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/account/billing/cancel/abort")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -4291,6 +4336,9 @@ type ClientWithResponsesInterface interface {
 	// PostApiAccountBillingCancelWithResponse request
 	PostApiAccountBillingCancelWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*PostApiAccountBillingCancelResponse, error)
 
+	// PostApiAccountBillingCancelAbortWithResponse request
+	PostApiAccountBillingCancelAbortWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*PostApiAccountBillingCancelAbortResponse, error)
+
 	// PostApiAccountBillingChangePlanWithResponse request
 	PostApiAccountBillingChangePlanWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*PostApiAccountBillingChangePlanResponse, error)
 
@@ -4602,6 +4650,33 @@ func (r PostApiAccountBillingCancelResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r PostApiAccountBillingCancelResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PostApiAccountBillingCancelAbortResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ManagementResultResponse
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiAccountBillingCancelAbortResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiAccountBillingCancelAbortResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -5608,6 +5683,15 @@ func (c *ClientWithResponses) PostApiAccountBillingCancelWithResponse(ctx contex
 	return ParsePostApiAccountBillingCancelResponse(rsp)
 }
 
+// PostApiAccountBillingCancelAbortWithResponse request returning *PostApiAccountBillingCancelAbortResponse
+func (c *ClientWithResponses) PostApiAccountBillingCancelAbortWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*PostApiAccountBillingCancelAbortResponse, error) {
+	rsp, err := c.PostApiAccountBillingCancelAbort(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiAccountBillingCancelAbortResponse(rsp)
+}
+
 // PostApiAccountBillingChangePlanWithResponse request returning *PostApiAccountBillingChangePlanResponse
 func (c *ClientWithResponses) PostApiAccountBillingChangePlanWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*PostApiAccountBillingChangePlanResponse, error) {
 	rsp, err := c.PostApiAccountBillingChangePlan(ctx, reqEditors...)
@@ -6356,6 +6440,67 @@ func ParsePostApiAccountBillingCancelResponse(rsp *http.Response) (*PostApiAccou
 	}
 
 	response := &PostApiAccountBillingCancelResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ManagementResultResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiAccountBillingCancelAbortResponse parses an HTTP response from a PostApiAccountBillingCancelAbortWithResponse call
+func ParsePostApiAccountBillingCancelAbortResponse(rsp *http.Response) (*PostApiAccountBillingCancelAbortResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiAccountBillingCancelAbortResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
