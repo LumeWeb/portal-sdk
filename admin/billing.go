@@ -1064,13 +1064,35 @@ func (b *BillingService) ResumeUserSubscription(ctx context.Context, userID stri
 }
 
 // AddPlanToPriceLine adds a pricing plan to a price line.
-func (b *BillingService) AddPlanToPriceLine(ctx context.Context, priceLineID string, req *AddPlanToPriceLineRequest) error {
+func (b *BillingService) AddPlanToPriceLine(ctx context.Context, priceLineID string, req *AddPlanToPriceLineRequest) (*PriceLineDetailResponse, error) {
 	resp, err := b.client.PostApiBillingPriceLinesIdPlanWithResponse(ctx, priceLineID, *req)
 	if err != nil {
-		return fmt.Errorf("failed to add plan to price line: %w", err)
+		return nil, fmt.Errorf("failed to add plan to price line: %w", err)
 	}
 
-	return handleBillingResponse(resp.StatusCode(), resp.Body, OpBillingAddPlanToPriceLine, []int{stdhttp.StatusNoContent})
+	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingAddPlanToPriceLine)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert internal plans to public PricingPlanItem type
+	var plans []*PricingPlanItem
+	if data.Plans != nil {
+		plans = lo.Map(*data.Plans, func(plan admin.PricingPlanItem, _ int) *PricingPlanItem {
+			return &PricingPlanItem{PricingPlanItem: plan}
+		})
+	}
+
+	return &PriceLineDetailResponse{
+		CreatedAt:   data.CreatedAt,
+		Description: data.Description,
+		Id:          data.Id,
+		IsActive:    data.IsActive,
+		IsDefault:   data.IsDefault,
+		Name:        data.Name,
+		Plans:       plans,
+		UpdatedAt:   data.UpdatedAt,
+	}, nil
 }
 
 // DeletePlanFromPriceLine removes a pricing plan from a price line.
