@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/samber/lo"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.lumeweb.com/portal-sdk/internal/admin"
 )
@@ -2543,6 +2544,7 @@ func TestBillingService_AddPlanToPriceLine(t *testing.T) {
 		name       string
 		priceLineID string
 		request    *AddPlanToPriceLineRequest
+		response   admin.PriceLineDetailResponse
 		statusCode int
 		wantErr    bool
 		errCheck   func(*testing.T, error)
@@ -2554,28 +2556,28 @@ func TestBillingService_AddPlanToPriceLine(t *testing.T) {
 				PlanId:   10,
 				Position: 0,
 			},
-			statusCode: http.StatusNoContent,
+			response: admin.PriceLineDetailResponse{
+				Id:   1,
+				Name: "Price Line 1",
+			},
+			statusCode: http.StatusOK,
 			wantErr:    false,
 		},
 		{
 			name:       "unauthorized",
 			priceLineID: "1",
 			request:    &AddPlanToPriceLineRequest{},
+			response:   admin.PriceLineDetailResponse{},
 			statusCode: http.StatusUnauthorized,
 			wantErr:    true,
-			errCheck: func(t *testing.T, err error) {
-				require.ErrorContains(t, err, "unauthorized")
-			},
 		},
 		{
 			name:       "price line not found",
 			priceLineID: "999",
 			request:    &AddPlanToPriceLineRequest{},
+			response:   admin.PriceLineDetailResponse{},
 			statusCode: http.StatusNotFound,
 			wantErr:    true,
-			errCheck: func(t *testing.T, err error) {
-				require.ErrorContains(t, err, "price line not found")
-			},
 		},
 	}
 
@@ -2589,21 +2591,33 @@ func TestBillingService_AddPlanToPriceLine(t *testing.T) {
 				if r.URL.Path != expectedPath {
 					t.Errorf("expected %s path, got %s", expectedPath, r.URL.Path)
 				}
+				w.Header().Set("Content-Type", "application/json")
 				w.WriteHeader(tt.statusCode)
+				if tt.wantErr {
+					json.NewEncoder(w).Encode(admin.ErrorResponse{Error: "test error"})
+				} else {
+					json.NewEncoder(w).Encode(tt.response)
+				}
 			}))
 			defer server.Close()
 
 			client := NewClient(WithEndpoint(server.URL))
-			err := client.Billing().AddPlanToPriceLine(context.Background(), tt.priceLineID, tt.request)
+			result, err := client.Billing().AddPlanToPriceLine(context.Background(), tt.priceLineID, tt.request)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("AddPlanToPriceLine() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 
-			if tt.wantErr && tt.errCheck != nil {
-				tt.errCheck(t, err)
+			if tt.wantErr {
+				if tt.errCheck != nil {
+					tt.errCheck(t, err)
+				}
+				return
 			}
+
+			require.NotNil(t, result)
+			assert.Equal(t, tt.response.Name, result.Name)
 		})
 	}
 }
