@@ -969,6 +969,12 @@ type ClientInterface interface {
 
 	PostApiBillingUsersUserIdSubscriptionsChangePlan(ctx context.Context, userId string, body PostApiBillingUsersUserIdSubscriptionsChangePlanJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// PostApiBillingUsersUserIdSubscriptionsPause request
+	PostApiBillingUsersUserIdSubscriptionsPause(ctx context.Context, userId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiBillingUsersUserIdSubscriptionsResume request
+	PostApiBillingUsersUserIdSubscriptionsResume(ctx context.Context, userId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// PostApiIpfsWebsitesIdBlock request
 	PostApiIpfsWebsitesIdBlock(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -1568,6 +1574,30 @@ func (c *Client) PostApiBillingUsersUserIdSubscriptionsChangePlanWithBody(ctx co
 
 func (c *Client) PostApiBillingUsersUserIdSubscriptionsChangePlan(ctx context.Context, userId string, body PostApiBillingUsersUserIdSubscriptionsChangePlanJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPostApiBillingUsersUserIdSubscriptionsChangePlanRequest(c.Server, userId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiBillingUsersUserIdSubscriptionsPause(ctx context.Context, userId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiBillingUsersUserIdSubscriptionsPauseRequest(c.Server, userId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiBillingUsersUserIdSubscriptionsResume(ctx context.Context, userId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiBillingUsersUserIdSubscriptionsResumeRequest(c.Server, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -4168,6 +4198,74 @@ func NewPostApiBillingUsersUserIdSubscriptionsChangePlanRequestWithBody(server s
 	return req, nil
 }
 
+// NewPostApiBillingUsersUserIdSubscriptionsPauseRequest generates requests for PostApiBillingUsersUserIdSubscriptionsPause
+func NewPostApiBillingUsersUserIdSubscriptionsPauseRequest(server string, userId string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "userId", runtime.ParamLocationPath, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/billing/users/%s/subscriptions/pause", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPostApiBillingUsersUserIdSubscriptionsResumeRequest generates requests for PostApiBillingUsersUserIdSubscriptionsResume
+func NewPostApiBillingUsersUserIdSubscriptionsResumeRequest(server string, userId string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "userId", runtime.ParamLocationPath, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/billing/users/%s/subscriptions/resume", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewPostApiIpfsWebsitesIdBlockRequest generates requests for PostApiIpfsWebsitesIdBlock
 func NewPostApiIpfsWebsitesIdBlockRequest(server string, id string) (*http.Request, error) {
 	var err error
@@ -4980,6 +5078,12 @@ type ClientWithResponsesInterface interface {
 	PostApiBillingUsersUserIdSubscriptionsChangePlanWithBodyWithResponse(ctx context.Context, userId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiBillingUsersUserIdSubscriptionsChangePlanResponse, error)
 
 	PostApiBillingUsersUserIdSubscriptionsChangePlanWithResponse(ctx context.Context, userId string, body PostApiBillingUsersUserIdSubscriptionsChangePlanJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiBillingUsersUserIdSubscriptionsChangePlanResponse, error)
+
+	// PostApiBillingUsersUserIdSubscriptionsPauseWithResponse request
+	PostApiBillingUsersUserIdSubscriptionsPauseWithResponse(ctx context.Context, userId string, reqEditors ...RequestEditorFn) (*PostApiBillingUsersUserIdSubscriptionsPauseResponse, error)
+
+	// PostApiBillingUsersUserIdSubscriptionsResumeWithResponse request
+	PostApiBillingUsersUserIdSubscriptionsResumeWithResponse(ctx context.Context, userId string, reqEditors ...RequestEditorFn) (*PostApiBillingUsersUserIdSubscriptionsResumeResponse, error)
 
 	// PostApiIpfsWebsitesIdBlockWithResponse request
 	PostApiIpfsWebsitesIdBlockWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*PostApiIpfsWebsitesIdBlockResponse, error)
@@ -5936,6 +6040,60 @@ func (r PostApiBillingUsersUserIdSubscriptionsChangePlanResponse) StatusCode() i
 	return 0
 }
 
+type PostApiBillingUsersUserIdSubscriptionsPauseResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ManagementResultResponse
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiBillingUsersUserIdSubscriptionsPauseResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiBillingUsersUserIdSubscriptionsPauseResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PostApiBillingUsersUserIdSubscriptionsResumeResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ManagementResultResponse
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiBillingUsersUserIdSubscriptionsResumeResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiBillingUsersUserIdSubscriptionsResumeResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type PostApiIpfsWebsitesIdBlockResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -6779,6 +6937,24 @@ func (c *ClientWithResponses) PostApiBillingUsersUserIdSubscriptionsChangePlanWi
 		return nil, err
 	}
 	return ParsePostApiBillingUsersUserIdSubscriptionsChangePlanResponse(rsp)
+}
+
+// PostApiBillingUsersUserIdSubscriptionsPauseWithResponse request returning *PostApiBillingUsersUserIdSubscriptionsPauseResponse
+func (c *ClientWithResponses) PostApiBillingUsersUserIdSubscriptionsPauseWithResponse(ctx context.Context, userId string, reqEditors ...RequestEditorFn) (*PostApiBillingUsersUserIdSubscriptionsPauseResponse, error) {
+	rsp, err := c.PostApiBillingUsersUserIdSubscriptionsPause(ctx, userId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiBillingUsersUserIdSubscriptionsPauseResponse(rsp)
+}
+
+// PostApiBillingUsersUserIdSubscriptionsResumeWithResponse request returning *PostApiBillingUsersUserIdSubscriptionsResumeResponse
+func (c *ClientWithResponses) PostApiBillingUsersUserIdSubscriptionsResumeWithResponse(ctx context.Context, userId string, reqEditors ...RequestEditorFn) (*PostApiBillingUsersUserIdSubscriptionsResumeResponse, error) {
+	rsp, err := c.PostApiBillingUsersUserIdSubscriptionsResume(ctx, userId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiBillingUsersUserIdSubscriptionsResumeResponse(rsp)
 }
 
 // PostApiIpfsWebsitesIdBlockWithResponse request returning *PostApiIpfsWebsitesIdBlockResponse
@@ -8932,6 +9108,128 @@ func ParsePostApiBillingUsersUserIdSubscriptionsChangePlanResponse(rsp *http.Res
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest PlanChangeResultResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiBillingUsersUserIdSubscriptionsPauseResponse parses an HTTP response from a PostApiBillingUsersUserIdSubscriptionsPauseWithResponse call
+func ParsePostApiBillingUsersUserIdSubscriptionsPauseResponse(rsp *http.Response) (*PostApiBillingUsersUserIdSubscriptionsPauseResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiBillingUsersUserIdSubscriptionsPauseResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ManagementResultResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiBillingUsersUserIdSubscriptionsResumeResponse parses an HTTP response from a PostApiBillingUsersUserIdSubscriptionsResumeWithResponse call
+func ParsePostApiBillingUsersUserIdSubscriptionsResumeResponse(rsp *http.Response) (*PostApiBillingUsersUserIdSubscriptionsResumeResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiBillingUsersUserIdSubscriptionsResumeResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ManagementResultResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

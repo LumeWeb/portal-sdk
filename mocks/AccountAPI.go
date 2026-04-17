@@ -38,6 +38,68 @@ func (_m *MockAccountAPI) EXPECT() *MockAccountAPI_Expecter {
 	return &MockAccountAPI_Expecter{mock: &_m.Mock}
 }
 
+// AbortSubscriptionCancellation provides a mock function for the type MockAccountAPI
+func (_mock *MockAccountAPI) AbortSubscriptionCancellation(ctx context.Context) (*account.ManagementResult, error) {
+	ret := _mock.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for AbortSubscriptionCancellation")
+	}
+
+	var r0 *account.ManagementResult
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context) (*account.ManagementResult, error)); ok {
+		return returnFunc(ctx)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context) *account.ManagementResult); ok {
+		r0 = returnFunc(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*account.ManagementResult)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = returnFunc(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockAccountAPI_AbortSubscriptionCancellation_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AbortSubscriptionCancellation'
+type MockAccountAPI_AbortSubscriptionCancellation_Call struct {
+	*mock.Call
+}
+
+// AbortSubscriptionCancellation is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockAccountAPI_Expecter) AbortSubscriptionCancellation(ctx interface{}) *MockAccountAPI_AbortSubscriptionCancellation_Call {
+	return &MockAccountAPI_AbortSubscriptionCancellation_Call{Call: _e.mock.On("AbortSubscriptionCancellation", ctx)}
+}
+
+func (_c *MockAccountAPI_AbortSubscriptionCancellation_Call) Run(run func(ctx context.Context)) *MockAccountAPI_AbortSubscriptionCancellation_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockAccountAPI_AbortSubscriptionCancellation_Call) Return(managementResult *account.ManagementResult, err error) *MockAccountAPI_AbortSubscriptionCancellation_Call {
+	_c.Call.Return(managementResult, err)
+	return _c
+}
+
+func (_c *MockAccountAPI_AbortSubscriptionCancellation_Call) RunAndReturn(run func(ctx context.Context) (*account.ManagementResult, error)) *MockAccountAPI_AbortSubscriptionCancellation_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CancelSubscription provides a mock function for the type MockAccountAPI
 func (_mock *MockAccountAPI) CancelSubscription(ctx context.Context) (*account.ManagementResult, error) {
 	ret := _mock.Called(ctx)
@@ -1962,6 +2024,68 @@ func (_c *MockAccountAPI_ManageBilling_Call) Return(managementResult *account.Ma
 }
 
 func (_c *MockAccountAPI_ManageBilling_Call) RunAndReturn(run func(ctx context.Context, request account.ManagementRequest) (*account.ManagementResult, error)) *MockAccountAPI_ManageBilling_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// PauseBilling provides a mock function for the type MockAccountAPI
+func (_mock *MockAccountAPI) PauseBilling(ctx context.Context) (*account.ManagementResult, error) {
+	ret := _mock.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PauseBilling")
+	}
+
+	var r0 *account.ManagementResult
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context) (*account.ManagementResult, error)); ok {
+		return returnFunc(ctx)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context) *account.ManagementResult); ok {
+		r0 = returnFunc(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*account.ManagementResult)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = returnFunc(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockAccountAPI_PauseBilling_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PauseBilling'
+type MockAccountAPI_PauseBilling_Call struct {
+	*mock.Call
+}
+
+// PauseBilling is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockAccountAPI_Expecter) PauseBilling(ctx interface{}) *MockAccountAPI_PauseBilling_Call {
+	return &MockAccountAPI_PauseBilling_Call{Call: _e.mock.On("PauseBilling", ctx)}
+}
+
+func (_c *MockAccountAPI_PauseBilling_Call) Run(run func(ctx context.Context)) *MockAccountAPI_PauseBilling_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockAccountAPI_PauseBilling_Call) Return(managementResult *account.ManagementResult, err error) *MockAccountAPI_PauseBilling_Call {
+	_c.Call.Return(managementResult, err)
+	return _c
+}
+
+func (_c *MockAccountAPI_PauseBilling_Call) RunAndReturn(run func(ctx context.Context) (*account.ManagementResult, error)) *MockAccountAPI_PauseBilling_Call {
 	_c.Call.Return(run)
 	return _c
 }
