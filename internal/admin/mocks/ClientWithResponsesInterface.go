@@ -3531,6 +3531,93 @@ func (_c *MockClientWithResponsesInterface_PostApiBillingPricingPlansWithRespons
 	return _c
 }
 
+// PostApiBillingUsersUserIdSubscriptionsCancelAbortWithResponse provides a mock function for the type MockClientWithResponsesInterface
+func (_mock *MockClientWithResponsesInterface) PostApiBillingUsersUserIdSubscriptionsCancelAbortWithResponse(ctx context.Context, userId string, reqEditors ...admin.RequestEditorFn) (*admin.PostApiBillingUsersUserIdSubscriptionsCancelAbortResponse, error) {
+	// admin.RequestEditorFn
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, userId)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PostApiBillingUsersUserIdSubscriptionsCancelAbortWithResponse")
+	}
+
+	var r0 *admin.PostApiBillingUsersUserIdSubscriptionsCancelAbortResponse
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, ...admin.RequestEditorFn) (*admin.PostApiBillingUsersUserIdSubscriptionsCancelAbortResponse, error)); ok {
+		return returnFunc(ctx, userId, reqEditors...)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, ...admin.RequestEditorFn) *admin.PostApiBillingUsersUserIdSubscriptionsCancelAbortResponse); ok {
+		r0 = returnFunc(ctx, userId, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*admin.PostApiBillingUsersUserIdSubscriptionsCancelAbortResponse)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string, ...admin.RequestEditorFn) error); ok {
+		r1 = returnFunc(ctx, userId, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_PostApiBillingUsersUserIdSubscriptionsCancelAbortWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PostApiBillingUsersUserIdSubscriptionsCancelAbortWithResponse'
+type MockClientWithResponsesInterface_PostApiBillingUsersUserIdSubscriptionsCancelAbortWithResponse_Call struct {
+	*mock.Call
+}
+
+// PostApiBillingUsersUserIdSubscriptionsCancelAbortWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - userId string
+//   - reqEditors ...admin.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) PostApiBillingUsersUserIdSubscriptionsCancelAbortWithResponse(ctx interface{}, userId interface{}, reqEditors ...interface{}) *MockClientWithResponsesInterface_PostApiBillingUsersUserIdSubscriptionsCancelAbortWithResponse_Call {
+	return &MockClientWithResponsesInterface_PostApiBillingUsersUserIdSubscriptionsCancelAbortWithResponse_Call{Call: _e.mock.On("PostApiBillingUsersUserIdSubscriptionsCancelAbortWithResponse",
+		append([]interface{}{ctx, userId}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiBillingUsersUserIdSubscriptionsCancelAbortWithResponse_Call) Run(run func(ctx context.Context, userId string, reqEditors ...admin.RequestEditorFn)) *MockClientWithResponsesInterface_PostApiBillingUsersUserIdSubscriptionsCancelAbortWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 []admin.RequestEditorFn
+		variadicArgs := make([]admin.RequestEditorFn, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(admin.RequestEditorFn)
+			}
+		}
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiBillingUsersUserIdSubscriptionsCancelAbortWithResponse_Call) Return(postApiBillingUsersUserIdSubscriptionsCancelAbortResponse *admin.PostApiBillingUsersUserIdSubscriptionsCancelAbortResponse, err error) *MockClientWithResponsesInterface_PostApiBillingUsersUserIdSubscriptionsCancelAbortWithResponse_Call {
+	_c.Call.Return(postApiBillingUsersUserIdSubscriptionsCancelAbortResponse, err)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiBillingUsersUserIdSubscriptionsCancelAbortWithResponse_Call) RunAndReturn(run func(ctx context.Context, userId string, reqEditors ...admin.RequestEditorFn) (*admin.PostApiBillingUsersUserIdSubscriptionsCancelAbortResponse, error)) *MockClientWithResponsesInterface_PostApiBillingUsersUserIdSubscriptionsCancelAbortWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // PostApiBillingUsersUserIdSubscriptionsCancelWithBodyWithResponse provides a mock function for the type MockClientWithResponsesInterface
 func (_mock *MockClientWithResponsesInterface) PostApiBillingUsersUserIdSubscriptionsCancelWithBodyWithResponse(ctx context.Context, userId string, contentType string, body io.Reader, reqEditors ...admin.RequestEditorFn) (*admin.PostApiBillingUsersUserIdSubscriptionsCancelResponse, error) {
 	// admin.RequestEditorFn

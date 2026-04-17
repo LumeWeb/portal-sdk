@@ -2132,7 +2132,7 @@ func TestBillingService_CancelUserSubscription(t *testing.T) {
 			name:   "successful cancel subscription",
 			userID: "100",
 			request: &CancelSubscriptionRequest{
-				Mode: "immediate",
+				Mode: lo.ToPtr("immediate"),
 			},
 			statusCode: http.StatusOK,
 			response: admin.ManagementResultResponse{
@@ -2146,7 +2146,7 @@ func TestBillingService_CancelUserSubscription(t *testing.T) {
 			name:   "user not found",
 			userID: "999",
 			request: &CancelSubscriptionRequest{
-				Mode: "end_of_period",
+				Mode: lo.ToPtr("end_of_period"),
 			},
 			statusCode: http.StatusNotFound,
 			response:   admin.ErrorResponse{Error: "user not found"},
@@ -2190,6 +2190,91 @@ func TestBillingService_CancelUserSubscription(t *testing.T) {
 				require.NotNil(t, result)
 				require.Equal(t, "cancel", result.Action)
 				require.False(t, result.RequiresConfirmation)
+			}
+		})
+	}
+}
+
+func TestBillingService_AbortUserSubscriptionCancellation(t *testing.T) {
+	tests := []struct {
+		name       string
+		userID     string
+		statusCode int
+		response   interface{}
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:       "successful abort subscription cancellation",
+			userID:     "100",
+			statusCode: http.StatusOK,
+			response: admin.ManagementResultResponse{
+				Action:               "abort",
+				RequiresConfirmation: false,
+				ConfirmationMessage:  lo.ToPtr("Subscription cancellation aborted successfully"),
+				CanAbort:             false,
+				Status:               "active",
+			},
+			wantErr: false,
+		},
+		{
+			name:       "user not found",
+			userID:     "999",
+			statusCode: http.StatusNotFound,
+			response:   admin.ErrorResponse{Error: "no scheduled cancellation found"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "no scheduled cancellation found")
+			},
+		},
+		{
+			name:       "unauthorized",
+			userID:     "100",
+			statusCode: http.StatusUnauthorized,
+			response:   admin.ErrorResponse{Error: "unauthorized"},
+			wantErr:    true,
+		},
+		{
+			name:       "forbidden - insufficient permissions",
+			userID:     "100",
+			statusCode: http.StatusForbidden,
+			response:   admin.ErrorResponse{Error: "insufficient permissions"},
+			wantErr:    true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "POST" {
+					t.Errorf("expected POST request, got %s", r.Method)
+				}
+				expectedPath := fmt.Sprintf("/api/billing/users/%s/subscriptions/cancel/abort", tt.userID)
+				if r.URL.Path != expectedPath {
+					t.Errorf("expected %s path, got %s", expectedPath, r.URL.Path)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				require.NoError(t, json.NewEncoder(w).Encode(tt.response))
+			}))
+			defer server.Close()
+
+			client := NewClient(WithEndpoint(server.URL))
+			result, err := client.Billing().AbortUserSubscriptionCancellation(context.Background(), tt.userID)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("AbortUserSubscriptionCancellation() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.NotNil(t, result)
+				require.Equal(t, tt.response.(admin.ManagementResultResponse).Action, result.Action)
 			}
 		})
 	}

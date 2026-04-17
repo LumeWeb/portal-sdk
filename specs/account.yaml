@@ -276,6 +276,10 @@ components:
     ManagementCapabilitiesResponse:
       additionalProperties: false
       properties:
+        admin_operations:
+          additionalProperties:
+            type: boolean
+          type: object
         management_mode:
           type: string
         operations:
@@ -285,6 +289,7 @@ components:
       required:
       - management_mode
       - operations
+      - admin_operations
       type: object
     ManagementRequest:
       additionalProperties: false
@@ -301,6 +306,8 @@ components:
           type: string
         api_endpoint:
           $ref: '#/components/schemas/APIEndpointInfoResponse'
+        can_abort:
+          type: boolean
         confirmation_message:
           type: string
         effective_time:
@@ -310,11 +317,15 @@ components:
           type: string
         requires_confirmation:
           type: boolean
+        status:
+          type: string
         url:
           type: string
       required:
       - action
       - requires_confirmation
+      - status
+      - can_abort
       type: object
     OTPDisableRequest:
       additionalProperties: false
@@ -1107,6 +1118,50 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Failed to process cancel operation
       summary: Cancel subscription
+      tags:
+      - Billing
+  /api/account/billing/cancel/abort:
+    post:
+      description: Cancels a scheduled subscription cancellation, restoring the subscription
+        to active status
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagementResultResponse'
+          description: Scheduled cancellation aborted successfully
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Abort is not supported by this gateway
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Authentication required
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: No active subscription or no scheduled cancellation found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Failed to abort cancellation
+      summary: Abort scheduled cancellation
       tags:
       - Billing
   /api/account/billing/change-plan:
