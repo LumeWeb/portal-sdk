@@ -1,3 +1,9 @@
+## 0.1.35 (2026-04-17)
+
+### Features
+
+- allow users to resume paused subscriptions
+
 ## 0.1.34 (2026-04-17)
 
 ### Features
