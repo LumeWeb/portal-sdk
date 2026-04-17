@@ -106,6 +106,7 @@ const (
 	OpGetGatewayLogo
 	OpListPricingPlans
 	OpPauseBilling
+	OpResumeBilling
 )
 
 const defaultOperationName = "operation"
@@ -151,6 +152,7 @@ var operationString = map[int]string{
 	OpGetGatewayLogo:          "get gateway logo",
 	OpListPricingPlans:        "list pricing plans",
 	OpPauseBilling:            "pause billing",
+	OpResumeBilling:           "resume billing",
 }
 
 // httpErrorMessages maps operation IDs to their custom status code error messages.
@@ -313,6 +315,12 @@ var httpErrorMessages = map[int]map[int]internalhttp.ErrorFactoryError{
 		http.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
 		http.StatusBadRequest:   internalhttp.PlainError("cannot pause billing"),
 		http.StatusNotFound:     internalhttp.PlainError("no active subscription"),
+	},
+	OpResumeBilling: {
+		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		http.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
+		http.StatusBadRequest:   internalhttp.PlainError("cannot resume billing"),
+		http.StatusNotFound:     internalhttp.PlainError("no paused subscription"),
 	},
 }
 
@@ -759,6 +767,9 @@ type AccountAPI interface {
 
 	// PauseBilling pauses the user's billing/subscription.
 	PauseBilling(ctx context.Context) (*ManagementResult, error)
+
+	// ResumeBilling resumes the user's billing/subscription.
+	ResumeBilling(ctx context.Context) (*ManagementResult, error)
 
 	// HandleWebhook handles a webhook event from a billing gateway.
 	HandleWebhook(ctx context.Context, gatewayType string, webhookData map[string]interface{}) error
@@ -1864,6 +1875,24 @@ func (c *Client) PauseBilling(ctx context.Context) (*ManagementResult, error) {
 
 	if resp.JSON200 == nil {
 		return nil, fmt.Errorf("pause billing response did not contain data")
+	}
+
+	return &ManagementResult{ManagementResultResponse: *resp.JSON200}, nil
+}
+
+// ResumeBilling resumes the user's billing/subscription.
+func (c *Client) ResumeBilling(ctx context.Context) (*ManagementResult, error) {
+	resp, err := c.client.PostApiAccountBillingResumeWithResponse(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to resume billing: %w", err)
+	}
+
+	if err := handleResponse(resp.StatusCode(), resp.Body, OpResumeBilling, []int{http.StatusOK}); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, fmt.Errorf("resume billing response did not contain data")
 	}
 
 	return &ManagementResult{ManagementResultResponse: *resp.JSON200}, nil
