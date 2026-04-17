@@ -1,3 +1,9 @@
+## 0.1.38 (2026-04-17)
+
+### Fixes
+
+- correct AddPlanToPriceLine response handling
+
 ## 0.1.37 (2026-04-17)
 
 ### Fixes
