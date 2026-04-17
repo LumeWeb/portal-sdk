@@ -2355,6 +2355,188 @@ func TestBillingService_ChangeUserPlan(t *testing.T) {
 	}
 }
 
+func TestBillingService_PauseUserSubscription(t *testing.T) {
+	tests := []struct {
+		name       string
+		userID     string
+		statusCode int
+		response   interface{}
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:       "successful pause subscription",
+			userID:     "100",
+			statusCode: http.StatusOK,
+			response: admin.ManagementResultResponse{
+				Action:               "pause",
+				RequiresConfirmation: false,
+				ConfirmationMessage:  lo.ToPtr("Subscription paused successfully"),
+				Status:               "paused",
+			},
+			wantErr: false,
+		},
+		{
+			name:       "user not found",
+			userID:     "999",
+			statusCode: http.StatusNotFound,
+			response:   admin.ErrorResponse{Error: "user not found"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "not found")
+			},
+		},
+		{
+			name:       "subscription cannot be paused",
+			userID:     "100",
+			statusCode: http.StatusBadRequest,
+			response:   admin.ErrorResponse{Error: "subscription cannot be paused"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "cannot be paused")
+			},
+		},
+		{
+			name:       "unauthorized",
+			userID:     "100",
+			statusCode: http.StatusUnauthorized,
+			response:   admin.ErrorResponse{Error: "unauthorized"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "unauthorized")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "POST" {
+					t.Errorf("expected POST request, got %s", r.Method)
+				}
+				expectedPath := fmt.Sprintf("/api/billing/users/%s/subscriptions/pause", tt.userID)
+				if r.URL.Path != expectedPath {
+					t.Errorf("expected %s path, got %s", expectedPath, r.URL.Path)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				require.NoError(t, json.NewEncoder(w).Encode(tt.response))
+			}))
+			defer server.Close()
+
+			client := NewClient(WithEndpoint(server.URL))
+			result, err := client.Billing().PauseUserSubscription(context.Background(), tt.userID)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("PauseUserSubscription() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.NotNil(t, result)
+				require.Equal(t, "pause", result.Action)
+				require.Equal(t, "paused", result.Status)
+			}
+		})
+	}
+}
+
+func TestBillingService_ResumeUserSubscription(t *testing.T) {
+	tests := []struct {
+		name       string
+		userID     string
+		statusCode int
+		response   interface{}
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:       "successful resume subscription",
+			userID:     "100",
+			statusCode: http.StatusOK,
+			response: admin.ManagementResultResponse{
+				Action:               "resume",
+				RequiresConfirmation: false,
+				ConfirmationMessage:  lo.ToPtr("Subscription resumed successfully"),
+				Status:               "active",
+			},
+			wantErr: false,
+		},
+		{
+			name:       "user not found",
+			userID:     "999",
+			statusCode: http.StatusNotFound,
+			response:   admin.ErrorResponse{Error: "user not found"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "not found")
+			},
+		},
+		{
+			name:       "subscription cannot be resumed",
+			userID:     "100",
+			statusCode: http.StatusBadRequest,
+			response:   admin.ErrorResponse{Error: "subscription cannot be resumed"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "cannot be resumed")
+			},
+		},
+		{
+			name:       "unauthorized",
+			userID:     "100",
+			statusCode: http.StatusUnauthorized,
+			response:   admin.ErrorResponse{Error: "unauthorized"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "unauthorized")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "POST" {
+					t.Errorf("expected POST request, got %s", r.Method)
+				}
+				expectedPath := fmt.Sprintf("/api/billing/users/%s/subscriptions/resume", tt.userID)
+				if r.URL.Path != expectedPath {
+					t.Errorf("expected %s path, got %s", expectedPath, r.URL.Path)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				require.NoError(t, json.NewEncoder(w).Encode(tt.response))
+			}))
+			defer server.Close()
+
+			client := NewClient(WithEndpoint(server.URL))
+			result, err := client.Billing().ResumeUserSubscription(context.Background(), tt.userID)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ResumeUserSubscription() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.NotNil(t, result)
+				require.Equal(t, "resume", result.Action)
+				require.Equal(t, "active", result.Status)
+			}
+		})
+	}
+}
+
 // TestBillingService_AddPlanToPriceLine tests the AddPlanToPriceLine method
 func TestBillingService_AddPlanToPriceLine(t *testing.T) {
 	tests := []struct {

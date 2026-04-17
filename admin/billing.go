@@ -41,6 +41,8 @@ const (
 	OpBillingCancelUserSubscription
 	OpBillingAbortUserSubscriptionCancellation
 	OpBillingChangeUserPlan
+	OpBillingPauseUserSubscription
+	OpBillingResumeUserSubscription
 	OpBillingAddPlanToPriceLine
 	OpBillingDeletePlanFromPriceLine
 	OpBillingUpdatePlanPosition
@@ -79,6 +81,8 @@ var billingOperationString = map[int]string{
 	OpBillingCancelUserSubscription:             "cancel user subscription",
 	OpBillingAbortUserSubscriptionCancellation: "abort user subscription cancellation",
 	OpBillingChangeUserPlan:                     "change user plan",
+	OpBillingPauseUserSubscription:              "pause user subscription",
+	OpBillingResumeUserSubscription:             "resume user subscription",
 	OpBillingAddPlanToPriceLine:       "add plan to price line",
 	OpBillingDeletePlanFromPriceLine:  "delete plan from price line",
 	OpBillingUpdatePlanPosition:       "update plan position",
@@ -232,6 +236,18 @@ var billingHTTPErrorMessages = map[int]map[int]internalhttp.ErrorFactoryError{
 		stdhttp.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
 		stdhttp.StatusNotFound:     internalhttp.PlainError("user not found"),
 		stdhttp.StatusBadRequest:   internalhttp.PlainError("invalid plan change request"),
+	},
+	OpBillingPauseUserSubscription: {
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
+		stdhttp.StatusNotFound:     internalhttp.PlainError("user not found"),
+		stdhttp.StatusBadRequest:   internalhttp.PlainError("subscription cannot be paused"),
+	},
+	OpBillingResumeUserSubscription: {
+		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
+		stdhttp.StatusNotFound:     internalhttp.PlainError("user not found"),
+		stdhttp.StatusBadRequest:   internalhttp.PlainError("subscription cannot be resumed"),
 	},
 	OpBillingAddPlanToPriceLine: {
 		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
@@ -991,6 +1007,36 @@ func (b *BillingService) ChangeUserPlan(ctx context.Context, userID string, req 
 	}
 
 	return &PlanChangeResult{PlanChangeResultResponse: *data}, nil
+}
+
+// PauseUserSubscription pauses a user's subscription.
+func (b *BillingService) PauseUserSubscription(ctx context.Context, userID string) (*ManagementResult, error) {
+	resp, err := b.client.PostApiBillingUsersUserIdSubscriptionsPauseWithResponse(ctx, userID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to pause subscription: %w", err)
+	}
+
+	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingPauseUserSubscription)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ManagementResult{ManagementResultResponse: *data}, nil
+}
+
+// ResumeUserSubscription resumes a user's paused subscription.
+func (b *BillingService) ResumeUserSubscription(ctx context.Context, userID string) (*ManagementResult, error) {
+	resp, err := b.client.PostApiBillingUsersUserIdSubscriptionsResumeWithResponse(ctx, userID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to resume subscription: %w", err)
+	}
+
+	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingResumeUserSubscription)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ManagementResult{ManagementResultResponse: *data}, nil
 }
 
 // AddPlanToPriceLine adds a pricing plan to a price line.
