@@ -276,6 +276,7 @@ var httpErrorMessages = map[int]map[int]internalhttp.ErrorFactoryError{
 	},
 	OpAbortSubscriptionCancellation: {
 		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		http.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
 		http.StatusBadRequest:   internalhttp.PlainError("cannot abort cancellation"),
 		http.StatusNotFound:     internalhttp.PlainError("no scheduled cancellation found"),
 	},

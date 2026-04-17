@@ -4388,6 +4388,16 @@ func TestAbortSubscriptionCancellation(t *testing.T) {
 				require.ErrorContains(t, err, "cannot abort cancellation")
 			},
 		},
+		{
+			name:       "forbidden - insufficient permissions",
+			jwt:        "test-jwt-token",
+			statusCode: http.StatusForbidden,
+			response:   client.ErrorResponse{Error: "insufficient permissions"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "insufficient permissions")
+			},
+		},
 	}
 
 	for _, tt := range tests {
