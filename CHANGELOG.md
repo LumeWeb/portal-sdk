@@ -1,3 +1,13 @@
+## 0.1.32 (2026-04-17)
+
+### Features
+
+- add abort subscription cancellation endpoints
+
+### Fixes
+
+- add missing 403 error handling for abort cancellation
+
 ## 0.1.31 (2026-04-16)
 
 ### Fixes
