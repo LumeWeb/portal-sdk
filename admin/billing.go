@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	stdhttp "net/http"
+	"time"
 
 	"github.com/samber/lo"
 	"go.lumeweb.com/portal-sdk/internal/admin"
@@ -381,9 +382,15 @@ type PriceLine struct {
 }
 
 // PriceLineDetailResponse represents a detailed price line with its associated plans.
-// Embeds the generated admin.PriceLineDetailResponse to reuse all fields.
 type PriceLineDetailResponse struct {
-	admin.PriceLineDetailResponse
+	CreatedAt   time.Time
+	Description string
+	Id          int
+	IsActive    bool
+	IsDefault   bool
+	Name        string
+	Plans       []*PricingPlanItem
+	UpdatedAt   time.Time
 }
 
 // PriceLineCreateRequest represents a request to create a new price line.
@@ -691,7 +698,24 @@ func (b *BillingService) GetPriceLine(ctx context.Context, priceLineID string) (
 		return nil, err
 	}
 
-	return &PriceLineDetailResponse{PriceLineDetailResponse: *data}, nil
+	// Convert internal plans to public PricingPlanItem type
+	var plans []*PricingPlanItem
+	if data.Plans != nil {
+		plans = lo.Map(*data.Plans, func(plan admin.PricingPlanItem, _ int) *PricingPlanItem {
+			return &PricingPlanItem{PricingPlanItem: plan}
+		})
+	}
+
+	return &PriceLineDetailResponse{
+		CreatedAt:   data.CreatedAt,
+		Description: data.Description,
+		Id:          data.Id,
+		IsActive:    data.IsActive,
+		IsDefault:   data.IsDefault,
+		Name:        data.Name,
+		Plans:       plans,
+		UpdatedAt:   data.UpdatedAt,
+	}, nil
 }
 
 // UpdatePriceLine updates an existing price line.
