@@ -25,6 +25,8 @@ components:
     AdminCancelSubscriptionRequest:
       additionalProperties: false
       properties:
+        immediate:
+          type: boolean
         mode:
           type: string
       type: object

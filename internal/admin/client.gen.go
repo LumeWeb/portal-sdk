@@ -33,7 +33,8 @@ type AddPlanToPriceLineRequest struct {
 
 // AdminCancelSubscriptionRequest defines model for AdminCancelSubscriptionRequest.
 type AdminCancelSubscriptionRequest struct {
-	Mode *string `json:"mode,omitempty"`
+	Immediate *bool   `json:"immediate,omitempty"`
+	Mode      *string `json:"mode,omitempty"`
 }
 
 // AdminChangePlanRequest defines model for AdminChangePlanRequest.
