@@ -2330,6 +2330,68 @@ func (_c *MockAccountAPI_ResendVerifyEmail_Call) RunAndReturn(run func(ctx conte
 	return _c
 }
 
+// ResumeBilling provides a mock function for the type MockAccountAPI
+func (_mock *MockAccountAPI) ResumeBilling(ctx context.Context) (*account.ManagementResult, error) {
+	ret := _mock.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ResumeBilling")
+	}
+
+	var r0 *account.ManagementResult
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context) (*account.ManagementResult, error)); ok {
+		return returnFunc(ctx)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context) *account.ManagementResult); ok {
+		r0 = returnFunc(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*account.ManagementResult)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = returnFunc(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockAccountAPI_ResumeBilling_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ResumeBilling'
+type MockAccountAPI_ResumeBilling_Call struct {
+	*mock.Call
+}
+
+// ResumeBilling is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockAccountAPI_Expecter) ResumeBilling(ctx interface{}) *MockAccountAPI_ResumeBilling_Call {
+	return &MockAccountAPI_ResumeBilling_Call{Call: _e.mock.On("ResumeBilling", ctx)}
+}
+
+func (_c *MockAccountAPI_ResumeBilling_Call) Run(run func(ctx context.Context)) *MockAccountAPI_ResumeBilling_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockAccountAPI_ResumeBilling_Call) Return(managementResult *account.ManagementResult, err error) *MockAccountAPI_ResumeBilling_Call {
+	_c.Call.Return(managementResult, err)
+	return _c
+}
+
+func (_c *MockAccountAPI_ResumeBilling_Call) RunAndReturn(run func(ctx context.Context) (*account.ManagementResult, error)) *MockAccountAPI_ResumeBilling_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // UpdateEmail provides a mock function for the type MockAccountAPI
 func (_mock *MockAccountAPI) UpdateEmail(ctx context.Context, email string, password string) error {
 	ret := _mock.Called(ctx, email, password)

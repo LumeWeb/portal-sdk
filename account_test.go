@@ -4432,6 +4432,102 @@ func TestPauseBilling(t *testing.T) {
 	}
 }
 
+func TestResumeBilling(t *testing.T) {
+	tests := []struct {
+		name       string
+		jwt        string
+		statusCode int
+		response   interface{}
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:       "successful resume billing",
+			jwt:        "test-jwt-token",
+			statusCode: http.StatusOK,
+			response: client.ManagementResultResponse{
+				Action:              "resume",
+				ConfirmationMessage: stringPtr("Billing resumed successfully"),
+			},
+			wantErr: false,
+		},
+		{
+			name:       "unauthorized - missing JWT",
+			jwt:        "",
+			statusCode: http.StatusUnauthorized,
+			response:   client.ErrorResponse{Error: "unauthorized"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorIs(t, err, ErrUnauthorized)
+			},
+		},
+		{
+			name:       "no paused subscription",
+			jwt:        "test-jwt-token",
+			statusCode: http.StatusNotFound,
+			response:   client.ErrorResponse{Error: "no paused subscription"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "no paused subscription")
+			},
+		},
+		{
+			name:       "cannot resume billing",
+			jwt:        "test-jwt-token",
+			statusCode: http.StatusBadRequest,
+			response:   client.ErrorResponse{Error: "cannot resume billing"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "cannot resume billing")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "POST" {
+					t.Errorf("expected POST request, got %s", r.Method)
+				}
+
+				if r.URL.Path != "/api/account/billing/resume" {
+					t.Errorf("expected /api/account/billing/resume path, got %s", r.URL.Path)
+				}
+
+				// Verify Authorization header
+				authHeader := r.Header.Get("Authorization")
+				if tt.jwt != "" {
+					require.Equal(t, "Bearer "+tt.jwt, authHeader)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				require.NoError(t, json.NewEncoder(w).Encode(tt.response))
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithEndpoint(server.URL), WithJWT(tt.jwt))
+			result, err := acc.ResumeBilling(context.Background())
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ResumeBilling() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.NotNil(t, result)
+				require.Equal(t, "resume", result.Action)
+				require.NotNil(t, result.ConfirmationMessage)
+				require.Equal(t, "Billing resumed successfully", *result.ConfirmationMessage)
+			}
+		})
+	}
+}
+
 func TestAbortSubscriptionCancellation(t *testing.T) {
 	tests := []struct {
 		name       string
