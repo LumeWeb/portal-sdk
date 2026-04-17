@@ -1,3 +1,9 @@
+## 0.1.37 (2026-04-17)
+
+### Fixes
+
+- convert PriceLineDetailResponse.Plans to public PricingPlanItem type
+
 ## 0.1.36 (2026-04-17)
 
 ### Features
