@@ -1,3 +1,9 @@
+## 0.1.33 (2026-04-17)
+
+### Fixes
+
+- add immediate option for subscription cancellation
+
 ## 0.1.32 (2026-04-17)
 
 ### Features
