@@ -3102,6 +3102,106 @@ paths:
       summary: Change User Plan
       tags:
       - Billing Admin
+  /api/billing/users/{userId}/subscriptions/pause:
+    post:
+      description: Pauses a user's active subscription through the payment gateway
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagementResultResponse'
+          description: Subscription paused successfully
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Authentication required
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Insufficient permissions
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: No active subscription found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Server error
+      summary: Pause User Subscription
+      tags:
+      - Billing Admin
+  /api/billing/users/{userId}/subscriptions/resume:
+    post:
+      description: Resumes a user's paused subscription through the payment gateway
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagementResultResponse'
+          description: Subscription resumed successfully
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Authentication required
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Insufficient permissions
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: No paused subscription found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Server error
+      summary: Resume User Subscription
+      tags:
+      - Billing Admin
   /api/ipfs/websites/{id}/block:
     post:
       description: |-

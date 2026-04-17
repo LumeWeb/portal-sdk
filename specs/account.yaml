@@ -1417,6 +1417,94 @@ paths:
       summary: Get subscription management capabilities
       tags:
       - Billing
+  /api/account/billing/pause:
+    post:
+      description: Executes the pause operation on the current subscription. Validates
+        that the gateway supports pausing and returns the appropriate action
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagementResultResponse'
+          description: Pause operation completed successfully
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Pause is not supported by this gateway
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Authentication required
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: No active subscription found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Failed to process pause operation
+      summary: Pause subscription
+      tags:
+      - Billing
+  /api/account/billing/resume:
+    post:
+      description: Executes the resume operation on the current subscription. Validates
+        that the gateway supports resuming and returns the appropriate action
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagementResultResponse'
+          description: Resume operation completed successfully
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Resume is not supported by this gateway
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Authentication required
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: No paused subscription found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Failed to process resume operation
+      summary: Resume subscription
+      tags:
+      - Billing
   /api/account/billing/subscription:
     get:
       description: Returns the subscription status for the authenticated user
