@@ -2843,9 +2843,9 @@ func TestBillingService_GetPriceLineDetail(t *testing.T) {
 				require.Equal(t, true, line.IsActive)
 				require.Equal(t, false, line.IsDefault)
 				require.NotNil(t, line.Plans)
-				require.Len(t, *line.Plans, 2)
-				require.Equal(t, int(10), (*line.Plans)[0].Id)
-				require.Equal(t, int(11), (*line.Plans)[1].Id)
+				require.Len(t, line.Plans, 2)
+				require.Equal(t, int(10), line.Plans[0].Id)
+				require.Equal(t, int(11), line.Plans[1].Id)
 			}
 		})
 	}
