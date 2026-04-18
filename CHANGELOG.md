@@ -1,3 +1,9 @@
+## 0.1.40 (2026-04-18)
+
+### Fixes
+
+- update ChangePlan to use period_id in request body
+
 ## 0.1.39 (2026-04-18)
 
 ### Fixes
