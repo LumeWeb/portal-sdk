@@ -1,3 +1,9 @@
+## 0.1.39 (2026-04-18)
+
+### Fixes
+
+- return PriceLineDetailResponse from UpdatePlanPosition
+
 ## 0.1.38 (2026-04-17)
 
 ### Fixes
