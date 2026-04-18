@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -4638,7 +4639,7 @@ func TestAbortSubscriptionCancellation(t *testing.T) {
 func TestChangePlan(t *testing.T) {
 	tests := []struct {
 		name       string
-		planID     string
+		periodID   int
 		jwt        string
 		statusCode int
 		response   interface{}
@@ -4647,7 +4648,7 @@ func TestChangePlan(t *testing.T) {
 	}{
 		{
 			name:       "successful plan change",
-			planID:     "premium-plan-123",
+			periodID:   123,
 			jwt:        "test-jwt-token",
 			statusCode: http.StatusOK,
 			response: client.ManagementResultResponse{
@@ -4658,7 +4659,7 @@ func TestChangePlan(t *testing.T) {
 		},
 		{
 			name:       "unauthorized - missing JWT",
-			planID:     "premium-plan-123",
+			periodID:   123,
 			jwt:        "",
 			statusCode: http.StatusUnauthorized,
 			response:   client.ErrorResponse{Error: "unauthorized"},
@@ -4669,7 +4670,7 @@ func TestChangePlan(t *testing.T) {
 		},
 		{
 			name:       "plan not found",
-			planID:     "nonexistent-plan",
+			periodID:   999,
 			jwt:        "test-jwt-token",
 			statusCode: http.StatusNotFound,
 			response:   client.ErrorResponse{Error: "plan not found"},
@@ -4697,9 +4698,12 @@ func TestChangePlan(t *testing.T) {
 					require.Equal(t, "Bearer "+tt.jwt, authHeader)
 				}
 
-				// Verify planID query parameter
-				planID := r.URL.Query().Get("planId")
-				require.Equal(t, tt.planID, planID)
+				// Verify request body contains period_id
+				var reqBody client.ChangePlanRequest
+				body, err := io.ReadAll(r.Body)
+				require.NoError(t, err)
+				require.NoError(t, json.Unmarshal(body, &reqBody))
+				require.Equal(t, tt.periodID, reqBody.PeriodId)
 
 				w.Header().Set("Content-Type", "application/json")
 				w.WriteHeader(tt.statusCode)
@@ -4708,7 +4712,7 @@ func TestChangePlan(t *testing.T) {
 			defer server.Close()
 
 			acc := NewClient(WithEndpoint(server.URL), WithJWT(tt.jwt))
-			result, err := acc.ChangePlan(context.Background(), tt.planID)
+			result, err := acc.ChangePlan(context.Background(), tt.periodID)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ChangePlan() error = %v, wantErr %v", err, tt.wantErr)

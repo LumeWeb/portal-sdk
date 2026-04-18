@@ -150,6 +150,14 @@ components:
     BinaryUUID:
       format: uuid
       type: string
+    ChangePlanRequest:
+      additionalProperties: false
+      properties:
+        period_id:
+          type: integer
+      required:
+      - period_id
+      type: object
     CheckoutUIFragment:
       additionalProperties: false
       properties:
@@ -850,7 +858,7 @@ components:
 info:
   description: API endpoints for managing user accounts, authentication, and API keys.
   title: Account API
-  version: v0.2.7-0.20260312042836-d9dfa043a80d
+  version: v0.2.7-0.20260418132608-572560c6efd0
 openapi: 3.0.0
 paths:
   /api/account:
@@ -1169,6 +1177,13 @@ paths:
       description: Executes the change plan operation on the current subscription.
         Validates that the gateway supports plan changes and returns the appropriate
         action
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePlanRequest'
+        description: Plan to change to
+        required: true
       responses:
         "200":
           content:

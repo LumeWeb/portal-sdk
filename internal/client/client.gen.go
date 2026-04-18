@@ -94,6 +94,11 @@ type BalanceResponse struct {
 // BinaryUUID defines model for BinaryUUID.
 type BinaryUUID = types.BinaryUUID
 
+// ChangePlanRequest defines model for ChangePlanRequest.
+type ChangePlanRequest struct {
+	PeriodId int `json:"period_id"`
+}
+
 // CheckoutUIFragment defines model for CheckoutUIFragment.
 type CheckoutUIFragment struct {
 	Css      *string                 `json:"css,omitempty"`
@@ -683,6 +688,9 @@ type PatchApiAccountJSONRequestBody = UpdateProfileRequest
 // PostApiAccountAvatarMultipartRequestBody defines body for PostApiAccountAvatar for multipart/form-data ContentType.
 type PostApiAccountAvatarMultipartRequestBody PostApiAccountAvatarMultipartBody
 
+// PostApiAccountBillingChangePlanJSONRequestBody defines body for PostApiAccountBillingChangePlan for application/json ContentType.
+type PostApiAccountBillingChangePlanJSONRequestBody = ChangePlanRequest
+
 // PostApiAccountBillingManagementJSONRequestBody defines body for PostApiAccountBillingManagement for application/json ContentType.
 type PostApiAccountBillingManagementJSONRequestBody = ManagementRequest
 
@@ -824,8 +832,10 @@ type ClientInterface interface {
 	// PostApiAccountBillingCancelAbort request
 	PostApiAccountBillingCancelAbort(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PostApiAccountBillingChangePlan request
-	PostApiAccountBillingChangePlan(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// PostApiAccountBillingChangePlanWithBody request with any body
+	PostApiAccountBillingChangePlanWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PostApiAccountBillingChangePlan(ctx context.Context, body PostApiAccountBillingChangePlanJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetApiAccountBillingCheckoutUiPlanId request
 	GetApiAccountBillingCheckoutUiPlanId(ctx context.Context, planId string, params *GetApiAccountBillingCheckoutUiPlanIdParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1075,8 +1085,20 @@ func (c *Client) PostApiAccountBillingCancelAbort(ctx context.Context, reqEditor
 	return c.Client.Do(req)
 }
 
-func (c *Client) PostApiAccountBillingChangePlan(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPostApiAccountBillingChangePlanRequest(c.Server)
+func (c *Client) PostApiAccountBillingChangePlanWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiAccountBillingChangePlanRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiAccountBillingChangePlan(ctx context.Context, body PostApiAccountBillingChangePlanJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiAccountBillingChangePlanRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1930,8 +1952,19 @@ func NewPostApiAccountBillingCancelAbortRequest(server string) (*http.Request, e
 	return req, nil
 }
 
-// NewPostApiAccountBillingChangePlanRequest generates requests for PostApiAccountBillingChangePlan
-func NewPostApiAccountBillingChangePlanRequest(server string) (*http.Request, error) {
+// NewPostApiAccountBillingChangePlanRequest calls the generic PostApiAccountBillingChangePlan builder with application/json body
+func NewPostApiAccountBillingChangePlanRequest(server string, body PostApiAccountBillingChangePlanJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostApiAccountBillingChangePlanRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPostApiAccountBillingChangePlanRequestWithBody generates requests for PostApiAccountBillingChangePlan with any type of body
+func NewPostApiAccountBillingChangePlanRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -1949,10 +1982,12 @@ func NewPostApiAccountBillingChangePlanRequest(server string) (*http.Request, er
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -4423,8 +4458,10 @@ type ClientWithResponsesInterface interface {
 	// PostApiAccountBillingCancelAbortWithResponse request
 	PostApiAccountBillingCancelAbortWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*PostApiAccountBillingCancelAbortResponse, error)
 
-	// PostApiAccountBillingChangePlanWithResponse request
-	PostApiAccountBillingChangePlanWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*PostApiAccountBillingChangePlanResponse, error)
+	// PostApiAccountBillingChangePlanWithBodyWithResponse request with any body
+	PostApiAccountBillingChangePlanWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAccountBillingChangePlanResponse, error)
+
+	PostApiAccountBillingChangePlanWithResponse(ctx context.Context, body PostApiAccountBillingChangePlanJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiAccountBillingChangePlanResponse, error)
 
 	// GetApiAccountBillingCheckoutUiPlanIdWithResponse request
 	GetApiAccountBillingCheckoutUiPlanIdWithResponse(ctx context.Context, planId string, params *GetApiAccountBillingCheckoutUiPlanIdParams, reqEditors ...RequestEditorFn) (*GetApiAccountBillingCheckoutUiPlanIdResponse, error)
@@ -5836,9 +5873,17 @@ func (c *ClientWithResponses) PostApiAccountBillingCancelAbortWithResponse(ctx c
 	return ParsePostApiAccountBillingCancelAbortResponse(rsp)
 }
 
-// PostApiAccountBillingChangePlanWithResponse request returning *PostApiAccountBillingChangePlanResponse
-func (c *ClientWithResponses) PostApiAccountBillingChangePlanWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*PostApiAccountBillingChangePlanResponse, error) {
-	rsp, err := c.PostApiAccountBillingChangePlan(ctx, reqEditors...)
+// PostApiAccountBillingChangePlanWithBodyWithResponse request with arbitrary body returning *PostApiAccountBillingChangePlanResponse
+func (c *ClientWithResponses) PostApiAccountBillingChangePlanWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAccountBillingChangePlanResponse, error) {
+	rsp, err := c.PostApiAccountBillingChangePlanWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiAccountBillingChangePlanResponse(rsp)
+}
+
+func (c *ClientWithResponses) PostApiAccountBillingChangePlanWithResponse(ctx context.Context, body PostApiAccountBillingChangePlanJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiAccountBillingChangePlanResponse, error) {
+	rsp, err := c.PostApiAccountBillingChangePlan(ctx, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
