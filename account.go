@@ -762,8 +762,8 @@ type AccountAPI interface {
 	// restoring the subscription to active status.
 	AbortSubscriptionCancellation(ctx context.Context) (*ManagementResult, error)
 
-	// ChangePlan changes the user's subscription plan.
-	ChangePlan(ctx context.Context, planID string) (*ManagementResult, error)
+	// ChangePlan changes the user's subscription plan by specifying the period ID.
+	ChangePlan(ctx context.Context, periodID int) (*ManagementResult, error)
 
 	// PauseBilling pauses the user's billing/subscription.
 	PauseBilling(ctx context.Context) (*ManagementResult, error)
@@ -1835,18 +1835,12 @@ func (c *Client) AbortSubscriptionCancellation(ctx context.Context) (*Management
 	return &ManagementResult{ManagementResultResponse: *resp.JSON200}, nil
 }
 
-// ChangePlan changes the user's subscription plan.
-// This is a simplified implementation - the actual plan ID would need to be sent
-// via request editors or the endpoint may require a different approach.
-func (c *Client) ChangePlan(ctx context.Context, planID string) (*ManagementResult, error) {
-	resp, err := c.client.PostApiAccountBillingChangePlanWithResponse(ctx,
-		func(ctx context.Context, req *http.Request) error {
-			q := req.URL.Query()
-			q.Set("planId", planID)
-			req.URL.RawQuery = q.Encode()
-			return nil
-		},
-	)
+// ChangePlan changes the user's subscription plan by specifying the period ID.
+func (c *Client) ChangePlan(ctx context.Context, periodID int) (*ManagementResult, error) {
+	reqBody := client.ChangePlanRequest{
+		PeriodId: periodID,
+	}
+	resp, err := c.client.PostApiAccountBillingChangePlanWithResponse(ctx, reqBody)
 	if err != nil {
 		return nil, fmt.Errorf("failed to change subscription plan: %w", err)
 	}

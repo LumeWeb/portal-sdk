@@ -2223,15 +2223,108 @@ func (_c *MockClientWithResponsesInterface_PostApiAccountBillingCancelWithRespon
 	return _c
 }
 
-// PostApiAccountBillingChangePlanWithResponse provides a mock function for the type MockClientWithResponsesInterface
-func (_mock *MockClientWithResponsesInterface) PostApiAccountBillingChangePlanWithResponse(ctx context.Context, reqEditors ...client.RequestEditorFn) (*client.PostApiAccountBillingChangePlanResponse, error) {
+// PostApiAccountBillingChangePlanWithBodyWithResponse provides a mock function for the type MockClientWithResponsesInterface
+func (_mock *MockClientWithResponsesInterface) PostApiAccountBillingChangePlanWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...client.RequestEditorFn) (*client.PostApiAccountBillingChangePlanResponse, error) {
 	// client.RequestEditorFn
 	_va := make([]interface{}, len(reqEditors))
 	for _i := range reqEditors {
 		_va[_i] = reqEditors[_i]
 	}
 	var _ca []interface{}
-	_ca = append(_ca, ctx)
+	_ca = append(_ca, ctx, contentType, body)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PostApiAccountBillingChangePlanWithBodyWithResponse")
+	}
+
+	var r0 *client.PostApiAccountBillingChangePlanResponse
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, io.Reader, ...client.RequestEditorFn) (*client.PostApiAccountBillingChangePlanResponse, error)); ok {
+		return returnFunc(ctx, contentType, body, reqEditors...)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, io.Reader, ...client.RequestEditorFn) *client.PostApiAccountBillingChangePlanResponse); ok {
+		r0 = returnFunc(ctx, contentType, body, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*client.PostApiAccountBillingChangePlanResponse)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string, io.Reader, ...client.RequestEditorFn) error); ok {
+		r1 = returnFunc(ctx, contentType, body, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_PostApiAccountBillingChangePlanWithBodyWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PostApiAccountBillingChangePlanWithBodyWithResponse'
+type MockClientWithResponsesInterface_PostApiAccountBillingChangePlanWithBodyWithResponse_Call struct {
+	*mock.Call
+}
+
+// PostApiAccountBillingChangePlanWithBodyWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - contentType string
+//   - body io.Reader
+//   - reqEditors ...client.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) PostApiAccountBillingChangePlanWithBodyWithResponse(ctx interface{}, contentType interface{}, body interface{}, reqEditors ...interface{}) *MockClientWithResponsesInterface_PostApiAccountBillingChangePlanWithBodyWithResponse_Call {
+	return &MockClientWithResponsesInterface_PostApiAccountBillingChangePlanWithBodyWithResponse_Call{Call: _e.mock.On("PostApiAccountBillingChangePlanWithBodyWithResponse",
+		append([]interface{}{ctx, contentType, body}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiAccountBillingChangePlanWithBodyWithResponse_Call) Run(run func(ctx context.Context, contentType string, body io.Reader, reqEditors ...client.RequestEditorFn)) *MockClientWithResponsesInterface_PostApiAccountBillingChangePlanWithBodyWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 io.Reader
+		if args[2] != nil {
+			arg2 = args[2].(io.Reader)
+		}
+		var arg3 []client.RequestEditorFn
+		variadicArgs := make([]client.RequestEditorFn, len(args)-3)
+		for i, a := range args[3:] {
+			if a != nil {
+				variadicArgs[i] = a.(client.RequestEditorFn)
+			}
+		}
+		arg3 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3...,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiAccountBillingChangePlanWithBodyWithResponse_Call) Return(postApiAccountBillingChangePlanResponse *client.PostApiAccountBillingChangePlanResponse, err error) *MockClientWithResponsesInterface_PostApiAccountBillingChangePlanWithBodyWithResponse_Call {
+	_c.Call.Return(postApiAccountBillingChangePlanResponse, err)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiAccountBillingChangePlanWithBodyWithResponse_Call) RunAndReturn(run func(ctx context.Context, contentType string, body io.Reader, reqEditors ...client.RequestEditorFn) (*client.PostApiAccountBillingChangePlanResponse, error)) *MockClientWithResponsesInterface_PostApiAccountBillingChangePlanWithBodyWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// PostApiAccountBillingChangePlanWithResponse provides a mock function for the type MockClientWithResponsesInterface
+func (_mock *MockClientWithResponsesInterface) PostApiAccountBillingChangePlanWithResponse(ctx context.Context, body client.PostApiAccountBillingChangePlanJSONRequestBody, reqEditors ...client.RequestEditorFn) (*client.PostApiAccountBillingChangePlanResponse, error) {
+	// client.RequestEditorFn
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, body)
 	_ca = append(_ca, _va...)
 	ret := _mock.Called(_ca...)
 
@@ -2241,18 +2334,18 @@ func (_mock *MockClientWithResponsesInterface) PostApiAccountBillingChangePlanWi
 
 	var r0 *client.PostApiAccountBillingChangePlanResponse
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, ...client.RequestEditorFn) (*client.PostApiAccountBillingChangePlanResponse, error)); ok {
-		return returnFunc(ctx, reqEditors...)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, client.PostApiAccountBillingChangePlanJSONRequestBody, ...client.RequestEditorFn) (*client.PostApiAccountBillingChangePlanResponse, error)); ok {
+		return returnFunc(ctx, body, reqEditors...)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, ...client.RequestEditorFn) *client.PostApiAccountBillingChangePlanResponse); ok {
-		r0 = returnFunc(ctx, reqEditors...)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, client.PostApiAccountBillingChangePlanJSONRequestBody, ...client.RequestEditorFn) *client.PostApiAccountBillingChangePlanResponse); ok {
+		r0 = returnFunc(ctx, body, reqEditors...)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*client.PostApiAccountBillingChangePlanResponse)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, ...client.RequestEditorFn) error); ok {
-		r1 = returnFunc(ctx, reqEditors...)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, client.PostApiAccountBillingChangePlanJSONRequestBody, ...client.RequestEditorFn) error); ok {
+		r1 = returnFunc(ctx, body, reqEditors...)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -2266,29 +2359,35 @@ type MockClientWithResponsesInterface_PostApiAccountBillingChangePlanWithRespons
 
 // PostApiAccountBillingChangePlanWithResponse is a helper method to define mock.On call
 //   - ctx context.Context
+//   - body client.PostApiAccountBillingChangePlanJSONRequestBody
 //   - reqEditors ...client.RequestEditorFn
-func (_e *MockClientWithResponsesInterface_Expecter) PostApiAccountBillingChangePlanWithResponse(ctx interface{}, reqEditors ...interface{}) *MockClientWithResponsesInterface_PostApiAccountBillingChangePlanWithResponse_Call {
+func (_e *MockClientWithResponsesInterface_Expecter) PostApiAccountBillingChangePlanWithResponse(ctx interface{}, body interface{}, reqEditors ...interface{}) *MockClientWithResponsesInterface_PostApiAccountBillingChangePlanWithResponse_Call {
 	return &MockClientWithResponsesInterface_PostApiAccountBillingChangePlanWithResponse_Call{Call: _e.mock.On("PostApiAccountBillingChangePlanWithResponse",
-		append([]interface{}{ctx}, reqEditors...)...)}
+		append([]interface{}{ctx, body}, reqEditors...)...)}
 }
 
-func (_c *MockClientWithResponsesInterface_PostApiAccountBillingChangePlanWithResponse_Call) Run(run func(ctx context.Context, reqEditors ...client.RequestEditorFn)) *MockClientWithResponsesInterface_PostApiAccountBillingChangePlanWithResponse_Call {
+func (_c *MockClientWithResponsesInterface_PostApiAccountBillingChangePlanWithResponse_Call) Run(run func(ctx context.Context, body client.PostApiAccountBillingChangePlanJSONRequestBody, reqEditors ...client.RequestEditorFn)) *MockClientWithResponsesInterface_PostApiAccountBillingChangePlanWithResponse_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 []client.RequestEditorFn
-		variadicArgs := make([]client.RequestEditorFn, len(args)-1)
-		for i, a := range args[1:] {
+		var arg1 client.PostApiAccountBillingChangePlanJSONRequestBody
+		if args[1] != nil {
+			arg1 = args[1].(client.PostApiAccountBillingChangePlanJSONRequestBody)
+		}
+		var arg2 []client.RequestEditorFn
+		variadicArgs := make([]client.RequestEditorFn, len(args)-2)
+		for i, a := range args[2:] {
 			if a != nil {
 				variadicArgs[i] = a.(client.RequestEditorFn)
 			}
 		}
-		arg1 = variadicArgs
+		arg2 = variadicArgs
 		run(
 			arg0,
-			arg1...,
+			arg1,
+			arg2...,
 		)
 	})
 	return _c
@@ -2299,7 +2398,7 @@ func (_c *MockClientWithResponsesInterface_PostApiAccountBillingChangePlanWithRe
 	return _c
 }
 
-func (_c *MockClientWithResponsesInterface_PostApiAccountBillingChangePlanWithResponse_Call) RunAndReturn(run func(ctx context.Context, reqEditors ...client.RequestEditorFn) (*client.PostApiAccountBillingChangePlanResponse, error)) *MockClientWithResponsesInterface_PostApiAccountBillingChangePlanWithResponse_Call {
+func (_c *MockClientWithResponsesInterface_PostApiAccountBillingChangePlanWithResponse_Call) RunAndReturn(run func(ctx context.Context, body client.PostApiAccountBillingChangePlanJSONRequestBody, reqEditors ...client.RequestEditorFn) (*client.PostApiAccountBillingChangePlanResponse, error)) *MockClientWithResponsesInterface_PostApiAccountBillingChangePlanWithResponse_Call {
 	_c.Call.Return(run)
 	return _c
 }

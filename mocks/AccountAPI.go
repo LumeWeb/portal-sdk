@@ -163,8 +163,8 @@ func (_c *MockAccountAPI_CancelSubscription_Call) RunAndReturn(run func(ctx cont
 }
 
 // ChangePlan provides a mock function for the type MockAccountAPI
-func (_mock *MockAccountAPI) ChangePlan(ctx context.Context, planID string) (*account.ManagementResult, error) {
-	ret := _mock.Called(ctx, planID)
+func (_mock *MockAccountAPI) ChangePlan(ctx context.Context, periodID int) (*account.ManagementResult, error) {
+	ret := _mock.Called(ctx, periodID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ChangePlan")
@@ -172,18 +172,18 @@ func (_mock *MockAccountAPI) ChangePlan(ctx context.Context, planID string) (*ac
 
 	var r0 *account.ManagementResult
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (*account.ManagementResult, error)); ok {
-		return returnFunc(ctx, planID)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int) (*account.ManagementResult, error)); ok {
+		return returnFunc(ctx, periodID)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) *account.ManagementResult); ok {
-		r0 = returnFunc(ctx, planID)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int) *account.ManagementResult); ok {
+		r0 = returnFunc(ctx, periodID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*account.ManagementResult)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
-		r1 = returnFunc(ctx, planID)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, int) error); ok {
+		r1 = returnFunc(ctx, periodID)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -197,20 +197,20 @@ type MockAccountAPI_ChangePlan_Call struct {
 
 // ChangePlan is a helper method to define mock.On call
 //   - ctx context.Context
-//   - planID string
-func (_e *MockAccountAPI_Expecter) ChangePlan(ctx interface{}, planID interface{}) *MockAccountAPI_ChangePlan_Call {
-	return &MockAccountAPI_ChangePlan_Call{Call: _e.mock.On("ChangePlan", ctx, planID)}
+//   - periodID int
+func (_e *MockAccountAPI_Expecter) ChangePlan(ctx interface{}, periodID interface{}) *MockAccountAPI_ChangePlan_Call {
+	return &MockAccountAPI_ChangePlan_Call{Call: _e.mock.On("ChangePlan", ctx, periodID)}
 }
 
-func (_c *MockAccountAPI_ChangePlan_Call) Run(run func(ctx context.Context, planID string)) *MockAccountAPI_ChangePlan_Call {
+func (_c *MockAccountAPI_ChangePlan_Call) Run(run func(ctx context.Context, periodID int)) *MockAccountAPI_ChangePlan_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 string
+		var arg1 int
 		if args[1] != nil {
-			arg1 = args[1].(string)
+			arg1 = args[1].(int)
 		}
 		run(
 			arg0,
@@ -225,7 +225,7 @@ func (_c *MockAccountAPI_ChangePlan_Call) Return(managementResult *account.Manag
 	return _c
 }
 
-func (_c *MockAccountAPI_ChangePlan_Call) RunAndReturn(run func(ctx context.Context, planID string) (*account.ManagementResult, error)) *MockAccountAPI_ChangePlan_Call {
+func (_c *MockAccountAPI_ChangePlan_Call) RunAndReturn(run func(ctx context.Context, periodID int) (*account.ManagementResult, error)) *MockAccountAPI_ChangePlan_Call {
 	_c.Call.Return(run)
 	return _c
 }
