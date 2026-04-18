@@ -1106,11 +1106,33 @@ func (b *BillingService) DeletePlanFromPriceLine(ctx context.Context, priceLineI
 }
 
 // UpdatePlanPosition updates the position of a plan in a price line.
-func (b *BillingService) UpdatePlanPosition(ctx context.Context, priceLineID, planID string, req *UpdatePlanPositionRequest) error {
+func (b *BillingService) UpdatePlanPosition(ctx context.Context, priceLineID, planID string, req *UpdatePlanPositionRequest) (*PriceLineDetailResponse, error) {
 	resp, err := b.client.PutApiBillingPriceLinesIdPlansPlanIdWithResponse(ctx, priceLineID, planID, *req)
 	if err != nil {
-		return fmt.Errorf("failed to update plan position: %w", err)
+		return nil, fmt.Errorf("failed to update plan position: %w", err)
 	}
 
-	return handleBillingResponse(resp.StatusCode(), resp.Body, OpBillingUpdatePlanPosition, []int{stdhttp.StatusNoContent})
+	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingUpdatePlanPosition)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert internal plans to public PricingPlanItem type
+	var plans []*PricingPlanItem
+	if data.Plans != nil {
+		plans = lo.Map(*data.Plans, func(plan admin.PricingPlanItem, _ int) *PricingPlanItem {
+			return &PricingPlanItem{PricingPlanItem: plan}
+		})
+	}
+
+	return &PriceLineDetailResponse{
+		CreatedAt:   data.CreatedAt,
+		Description: data.Description,
+		Id:          data.Id,
+		IsActive:    data.IsActive,
+		IsDefault:   data.IsDefault,
+		Name:        data.Name,
+		Plans:       plans,
+		UpdatedAt:   data.UpdatedAt,
+	}, nil
 }
