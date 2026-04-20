@@ -1,3 +1,9 @@
+## 0.1.42 (2026-04-20)
+
+### Fixes
+
+- export CheckoutUIFragment type from account package
+
 ## 0.1.41 (2026-04-20)
 
 ### Fixes
