@@ -1,3 +1,9 @@
+## 0.1.41 (2026-04-20)
+
+### Fixes
+
+- add will_cancel_at field to SubscriptionStatusResponse
+
 ## 0.1.40 (2026-04-18)
 
 ### Fixes
