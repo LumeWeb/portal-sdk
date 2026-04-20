@@ -372,6 +372,7 @@ type SubscriptionStatusResponse struct {
 	IsSubscribed        bool       `json:"is_subscribed"`
 	PricingPlanPeriodId *int       `json:"pricing_plan_period_id,omitempty"`
 	UpdatedAt           *time.Time `json:"updated_at,omitempty"`
+	WillCancelAt        *time.Time `json:"will_cancel_at,omitempty"`
 }
 
 // UUID defines model for UUID.
