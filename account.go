@@ -410,10 +410,65 @@ type Credit struct {
 	client.UserCreditItem
 }
 
+// CheckoutUIFragment represents a single fragment of the checkout UI.
+type CheckoutUIFragment struct {
+	Css      *string                 `json:"css,omitempty"`
+	Html     *string                 `json:"html,omitempty"`
+	Link     *string                 `json:"link,omitempty"`
+	Metadata *map[string]interface{} `json:"metadata,omitempty"`
+	Script   *string                 `json:"script,omitempty"`
+	Type     string                  `json:"type"`
+}
+
+// internal converts the public CheckoutUIFragment to the internal client type.
+func (f CheckoutUIFragment) internal() client.CheckoutUIFragment {
+	return client.CheckoutUIFragment{
+		Css:      f.Css,
+		Html:     f.Html,
+		Link:     f.Link,
+		Metadata: f.Metadata,
+		Script:   f.Script,
+		Type:     f.Type,
+	}
+}
+
 // CheckoutUI represents the checkout UI configuration.
-// Embeds the generated client.CheckoutUIResponse to reuse all fields.
 type CheckoutUI struct {
-	client.CheckoutUIResponse
+	ExpiresAt time.Time               `json:"expires_at"`
+	Fragments []CheckoutUIFragment    `json:"fragments"`
+	Metadata  *map[string]interface{} `json:"metadata,omitempty"`
+	SessionId *string                 `json:"session_id,omitempty"`
+}
+
+// internal converts the public CheckoutUI to the internal client type.
+func (c CheckoutUI) internal() client.CheckoutUIResponse {
+	return client.CheckoutUIResponse{
+		ExpiresAt: c.ExpiresAt,
+		Fragments: lo.Map(c.Fragments, func(f CheckoutUIFragment, _ int) client.CheckoutUIFragment {
+			return f.internal()
+		}),
+		Metadata:  c.Metadata,
+		SessionId: c.SessionId,
+	}
+}
+
+// fromClientCheckoutUIResponse creates a CheckoutUI from the internal client response.
+func fromClientCheckoutUIResponse(resp client.CheckoutUIResponse) CheckoutUI {
+	return CheckoutUI{
+		ExpiresAt: resp.ExpiresAt,
+		Fragments: lo.Map(resp.Fragments, func(f client.CheckoutUIFragment, _ int) CheckoutUIFragment {
+			return CheckoutUIFragment{
+				Css:      f.Css,
+				Html:     f.Html,
+				Link:     f.Link,
+				Metadata: f.Metadata,
+				Script:   f.Script,
+				Type:     f.Type,
+			}
+		}),
+		Metadata:  resp.Metadata,
+		SessionId: resp.SessionId,
+	}
 }
 
 // ManagementCapabilities represents the billing management capabilities.
@@ -1737,7 +1792,8 @@ func (c *Client) GetCheckoutUI(ctx context.Context, planID string, opts ...Check
 		return nil, fmt.Errorf("get checkout UI response did not contain data")
 	}
 
-	return &CheckoutUI{CheckoutUIResponse: *resp.JSON200}, nil
+	checkoutUI := fromClientCheckoutUIResponse(*resp.JSON200)
+	return &checkoutUI, nil
 }
 
 // GetManagementCapabilities retrieves the billing management capabilities for the user.

@@ -5150,9 +5150,9 @@ func TestGetCheckoutUI(t *testing.T) {
 			name:       "successful get checkout UI without params",
 			planID:     "plan-123",
 			statusCode: http.StatusOK,
-			response: client.CheckoutUIResponse{
+			response: CheckoutUI{
 				ExpiresAt: time.Now().Add(time.Hour),
-				Fragments: []client.CheckoutUIFragment{
+				Fragments: []CheckoutUIFragment{
 					{
 						Type:   "ui_element",
 						Script: new(string),
@@ -5166,9 +5166,9 @@ func TestGetCheckoutUI(t *testing.T) {
 			planID:      "plan-123",
 			queryParams: map[string]string{"gateway": "stripe"},
 			statusCode:  http.StatusOK,
-			response: client.CheckoutUIResponse{
+			response: CheckoutUI{
 				ExpiresAt: time.Now().Add(time.Hour),
-				Fragments: []client.CheckoutUIFragment{
+				Fragments: []CheckoutUIFragment{
 					{
 						Type:   "ui_element",
 						Script: new(string),
@@ -5182,9 +5182,9 @@ func TestGetCheckoutUI(t *testing.T) {
 			planID:      "plan-123",
 			queryParams: map[string]string{"period_id": "annual-2024"},
 			statusCode:  http.StatusOK,
-			response: client.CheckoutUIResponse{
+			response: CheckoutUI{
 				ExpiresAt: time.Now().Add(time.Hour),
-				Fragments: []client.CheckoutUIFragment{
+				Fragments: []CheckoutUIFragment{
 					{
 						Type:   "ui_element",
 						Script: new(string),
@@ -5198,9 +5198,9 @@ func TestGetCheckoutUI(t *testing.T) {
 			planID:      "plan-123",
 			queryParams: map[string]string{"gateway": "btm", "period_id": "annual-2024"},
 			statusCode:  http.StatusOK,
-			response: client.CheckoutUIResponse{
+			response: CheckoutUI{
 				ExpiresAt: time.Now().Add(time.Hour),
-				Fragments: []client.CheckoutUIFragment{
+				Fragments: []CheckoutUIFragment{
 					{
 						Type:   "ui_element",
 						Script: new(string),
@@ -5265,10 +5265,10 @@ func TestGetCheckoutUI(t *testing.T) {
 
 			if !tt.wantErr {
 				require.NotNil(t, checkoutUI)
-				require.NotNil(t, checkoutUI.CheckoutUIResponse.Fragments)
-				require.Len(t, checkoutUI.CheckoutUIResponse.Fragments, 1)
-				require.Equal(t, "ui_element", checkoutUI.CheckoutUIResponse.Fragments[0].Type)
-				require.NotNil(t, checkoutUI.CheckoutUIResponse.ExpiresAt)
+				require.NotNil(t, checkoutUI.Fragments)
+				require.Len(t, checkoutUI.Fragments, 1)
+				require.Equal(t, "ui_element", checkoutUI.Fragments[0].Type)
+				require.NotNil(t, checkoutUI.ExpiresAt)
 			}
 		})
 	}
