@@ -567,45 +567,28 @@ components:
       - ping
       - token
       type: object
-    PricingPlanPeriodDTO:
+    PublicPricingPlanPeriodDTO:
       additionalProperties: false
       properties:
         cadence:
           type: string
-        created_at:
-          format: date-time
-          type: string
         id:
           type: integer
-        is_active:
-          type: boolean
         price_usd:
           type: number
-        pricing_plan_id:
-          type: integer
         quota_plan_id:
           type: integer
         rolling_days:
           type: integer
-        updated_at:
-          format: date-time
-          type: string
       required:
       - id
-      - pricing_plan_id
       - cadence
       - price_usd
       - quota_plan_id
-      - is_active
-      - created_at
-      - updated_at
       type: object
     PublicPricingPlanResponse:
       additionalProperties: false
       properties:
-        created_at:
-          format: date-time
-          type: string
         currency:
           type: string
         description:
@@ -616,19 +599,14 @@ components:
           type: string
         pricing_periods:
           items:
-            $ref: '#/components/schemas/PricingPlanPeriodDTO'
+            $ref: '#/components/schemas/PublicPricingPlanPeriodDTO'
           type: array
-        updated_at:
-          format: date-time
-          type: string
       required:
       - id
       - name
       - description
       - currency
       - pricing_periods
-      - created_at
-      - updated_at
       type: object
     PublicPricingPlansListResponse:
       additionalProperties: false

@@ -2949,7 +2949,7 @@ func TestValidateJSON200_ErrorPaths(t *testing.T) {
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.Error(t, err)
-				require.Contains(t, err.Error(), "failed with status 400")
+				require.Contains(t, err.Error(), "bad request")
 			},
 		},
 		{
@@ -2960,7 +2960,7 @@ func TestValidateJSON200_ErrorPaths(t *testing.T) {
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.Error(t, err)
-				require.Contains(t, err.Error(), "test nil message")
+				require.Contains(t, err.Error(), "response body is required")
 			},
 		},
 	}
@@ -3000,7 +3000,7 @@ func TestHandleResponse_GenericErrorPath(t *testing.T) {
 			wantErr:      true,
 			errCheck: func(t *testing.T, err error) {
 				require.Error(t, err)
-				require.Contains(t, err.Error(), "operation failed with status 500")
+				require.Contains(t, err.Error(), "internal server error")
 			},
 		},
 		{
@@ -5037,7 +5037,7 @@ func TestListPricingPlans(t *testing.T) {
 						Name:        "Basic",
 						Description: "Basic plan",
 						Currency:    "USD",
-						PricingPeriods: []client.PricingPlanPeriodDTO{
+						PricingPeriods: []client.PublicPricingPlanPeriodDTO{
 							{
 								Id:          1,
 								Cadence:     "monthly",
@@ -5051,7 +5051,7 @@ func TestListPricingPlans(t *testing.T) {
 						Name:        "Premium",
 						Description: "Premium plan",
 						Currency:    "USD",
-						PricingPeriods: []client.PricingPlanPeriodDTO{
+						PricingPeriods: []client.PublicPricingPlanPeriodDTO{
 							{
 								Id:          2,
 								Cadence:     "monthly",

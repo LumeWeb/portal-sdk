@@ -298,28 +298,22 @@ type PongResponse struct {
 	Token string `json:"token"`
 }
 
-// PricingPlanPeriodDTO defines model for PricingPlanPeriodDTO.
-type PricingPlanPeriodDTO struct {
-	Cadence       string    `json:"cadence"`
-	CreatedAt     time.Time `json:"created_at"`
-	Id            int       `json:"id"`
-	IsActive      bool      `json:"is_active"`
-	PriceUsd      float32   `json:"price_usd"`
-	PricingPlanId int       `json:"pricing_plan_id"`
-	QuotaPlanId   int       `json:"quota_plan_id"`
-	RollingDays   *int      `json:"rolling_days,omitempty"`
-	UpdatedAt     time.Time `json:"updated_at"`
+// PublicPricingPlanPeriodDTO defines model for PublicPricingPlanPeriodDTO.
+type PublicPricingPlanPeriodDTO struct {
+	Cadence     string  `json:"cadence"`
+	Id          int     `json:"id"`
+	PriceUsd    float32 `json:"price_usd"`
+	QuotaPlanId int     `json:"quota_plan_id"`
+	RollingDays *int    `json:"rolling_days,omitempty"`
 }
 
 // PublicPricingPlanResponse defines model for PublicPricingPlanResponse.
 type PublicPricingPlanResponse struct {
-	CreatedAt      time.Time              `json:"created_at"`
-	Currency       string                 `json:"currency"`
-	Description    string                 `json:"description"`
-	Id             int                    `json:"id"`
-	Name           string                 `json:"name"`
-	PricingPeriods []PricingPlanPeriodDTO `json:"pricing_periods"`
-	UpdatedAt      time.Time              `json:"updated_at"`
+	Currency       string                       `json:"currency"`
+	Description    string                       `json:"description"`
+	Id             int                          `json:"id"`
+	Name           string                       `json:"name"`
+	PricingPeriods []PublicPricingPlanPeriodDTO `json:"pricing_periods"`
 }
 
 // PublicPricingPlansListResponse defines model for PublicPricingPlansListResponse.

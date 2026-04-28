@@ -2,6 +2,7 @@ package admin
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	stdhttp "net/http"
 	"time"
@@ -32,6 +33,9 @@ const (
 )
 
 const defaultQuotaOperationName = "quota operation"
+
+// ErrQuotaDefault is returned when a quota operation fails without a more specific error.
+var ErrQuotaDefault = errors.New("quota operation failed")
 
 // operationString maps quota operation IDs to their string names.
 var quotaOperationString = map[int]string{
@@ -125,78 +129,42 @@ var quotaHTTPErrorMessages = map[int]map[int]internalhttp.ErrorFactoryError{
 	},
 }
 
-// handleQuotaResponse processes an HTTP response using the quota error message map.
-// op: the operation ID (used to lookup custom error messages)
-// successCodes: status codes that indicate success (e.g., []int{stdhttp.StatusOK})
-// Returns nil for success codes, custom error from global map, or generic error with body.
+// quotaOpHandler is the shared operation handler for quota operations (lazily initialized).
+var quotaOpHandler = initQuotaOpHandler()
+
+// initQuotaOpHandler initializes the OpHandler with quota operation mappings.
+func initQuotaOpHandler() *internalhttp.OpHandler {
+	oh := internalhttp.NewOpHandler()
+	oh.Default = defaultQuotaOperationName
+
+	for opID, name := range quotaOperationString {
+		oh.SetName(opID, name)
+	}
+	for opID, errorMap := range quotaHTTPErrorMessages {
+		oh.AddOperation(opID, errorMap)
+	}
+	return oh
+}
+
+// handleQuotaResponse wraps OpHandler.HandleResponse.
 func handleQuotaResponse(statusCode int, body []byte, op int, successCodes []int) error {
-	// Check if status code is in success codes
-	for _, code := range successCodes {
-		if statusCode == code {
-			return nil
-		}
-	}
-
-	// Check for custom error message in global map
-	if errorMessages, ok := quotaHTTPErrorMessages[op]; ok {
-		if factory, ok := errorMessages[statusCode]; ok {
-			return factory.Error()
-		}
-	}
-
-	// Get operation name for generic error
-	opName := quotaOperationString[op]
-	if opName == "" {
-		opName = defaultQuotaOperationName
-	}
-
-	// Generic error with body
-	return fmt.Errorf("%s failed with status %d: %s", opName, statusCode, string(body))
+	return quotaOpHandler.HandleResponse(statusCode, body, op, successCodes)
 }
 
-// validateQuotaJSON201 validates HTTP 201 responses with JSON201 data.
-func validateQuotaJSON201[T any](respStatusCode int, json201 *T, nilMsg string, op int, body []byte) (*T, error) {
+// validateQuotaJSON200 wraps OpHandler.ValidateJSON200.
+func validateQuotaJSON200[T any](respStatusCode int, json200 *T, op int) (*T, error) {
+	body := fmt.Appendf(nil, "expected status 200, got %d", respStatusCode)
+	return internalhttp.ValidateJSON200(quotaOpHandler, respStatusCode, body, json200, op)
+}
+
+// validateQuotaJSON201 wraps OpHandler.ValidateJSON201.
+func validateQuotaJSON201[T any](respStatusCode int, json201 *T, nilMsg string, op int) (*T, error) {
 	if respStatusCode == stdhttp.StatusUnauthorized {
 		return nil, fmt.Errorf("%w: authentication required", internalhttp.ErrUnauthorized)
 	}
-	if respStatusCode != stdhttp.StatusCreated {
-		// Check for custom error message in global map first
-		if errorMessages, ok := quotaHTTPErrorMessages[op]; ok {
-			if factory, ok := errorMessages[respStatusCode]; ok {
-				return nil, factory.Error()
-			}
-		}
-		return nil, fmt.Errorf("expected status 201, got %d: %s", respStatusCode, string(body))
-	}
-	if json201 == nil {
-		return nil, fmt.Errorf("%s", nilMsg)
-	}
-	return json201, nil
+	body := []byte(nilMsg)
+	return internalhttp.ValidateJSON201(quotaOpHandler, respStatusCode, body, json201, op)
 }
-
-// validateQuotaJSON200 validates HTTP 200 responses with JSON200 data.
-func validateQuotaJSON200[T any](respStatusCode int, json200 *T, op int, body []byte) (*T, error) {
-	if respStatusCode == stdhttp.StatusUnauthorized {
-		return nil, fmt.Errorf("%w: authentication required", internalhttp.ErrUnauthorized)
-	}
-	if respStatusCode != stdhttp.StatusOK {
-		// Check for custom error message in global map first
-		if errorMessages, ok := quotaHTTPErrorMessages[op]; ok {
-			if factory, ok := errorMessages[respStatusCode]; ok {
-				return nil, factory.Error()
-			}
-		}
-		return nil, fmt.Errorf("expected status 200, got %d: %s", respStatusCode, string(body))
-	}
-	if json200 == nil {
-		return nil, fmt.Errorf("response body is required")
-	}
-	return json200, nil
-}
-
-// ErrQuotaDefault is a generic quota error type.
-var ErrQuotaDefault = fmt.Errorf("quota operation failed")
-
 // QuotaPlan represents a quota plan with limits and thresholds.
 // Embeds the generated admin.QuotaPlanResponse to reuse all fields.
 type QuotaPlan struct {
@@ -227,8 +195,6 @@ type UserQuotaConfigUpdate = admin.UserQuotaConfigUpdateRequest
 // QuotaService provides methods for managing quotas.
 type QuotaService struct {
 	client   admin.ClientWithResponsesInterface
-	jwt      string
-	apiKey   string
 }
 
 // QuotaServerConfig holds configuration for quota service operations.
@@ -317,7 +283,7 @@ func (q *QuotaService) CreatePlan(ctx context.Context, plan *QuotaPlan) (*QuotaP
 		return nil, fmt.Errorf("failed to create plan: %w", err)
 	}
 
-	data, err := validateQuotaJSON201(resp.StatusCode(), resp.JSON201, "create plan response did not contain data", OpQuotaCreatePlan, resp.Body)
+	data, err := validateQuotaJSON201(resp.StatusCode(), resp.JSON201, "create plan response did not contain data", OpQuotaCreatePlan)
 	if err != nil {
 		return nil, err
 	}
@@ -332,7 +298,7 @@ func (q *QuotaService) GetPlan(ctx context.Context, planID string) (*QuotaPlan, 
 		return nil, fmt.Errorf("failed to get plan: %w", err)
 	}
 
-	data, err := validateQuotaJSON200(resp.StatusCode(), resp.JSON200, OpQuotaGetPlan, resp.Body)
+	data, err := validateQuotaJSON200(resp.StatusCode(), resp.JSON200, OpQuotaGetPlan)
 	if err != nil {
 		return nil, err
 	}
@@ -363,7 +329,7 @@ func (q *QuotaService) UpdatePlan(ctx context.Context, planID string, plan *Quot
 		return nil, fmt.Errorf("failed to update plan: %w", err)
 	}
 
-	data, err := validateQuotaJSON200(resp.StatusCode(), resp.JSON200, OpQuotaUpdatePlan, resp.Body)
+	data, err := validateQuotaJSON200(resp.StatusCode(), resp.JSON200, OpQuotaUpdatePlan)
 	if err != nil {
 		return nil, err
 	}
@@ -430,7 +396,7 @@ func (q *QuotaService) CreateAllowance(ctx context.Context, userID int, source, 
 		return nil, fmt.Errorf("failed to create allowance: %w", err)
 	}
 
-	data, err := validateQuotaJSON201(resp.StatusCode(), resp.JSON201, "create allowance response did not contain data", OpQuotaCreateAllowance, resp.Body)
+	data, err := validateQuotaJSON201(resp.StatusCode(), resp.JSON201, "create allowance response did not contain data", OpQuotaCreateAllowance)
 	if err != nil {
 		return nil, err
 	}
@@ -455,7 +421,7 @@ func (q *QuotaService) UpdateAllowance(ctx context.Context, grantID string, user
 		return nil, fmt.Errorf("failed to update allowance: %w", err)
 	}
 
-	data, err := validateQuotaJSON200(resp.StatusCode(), resp.JSON200, OpQuotaUpdateAllowance, resp.Body)
+	data, err := validateQuotaJSON200(resp.StatusCode(), resp.JSON200, OpQuotaUpdateAllowance)
 	if err != nil {
 		return nil, err
 	}
@@ -557,7 +523,7 @@ func (q *QuotaService) UpdateUserConfig(ctx context.Context, userID int, config 
 		return nil, fmt.Errorf("failed to update user config: %w", err)
 	}
 
-	data, err := validateQuotaJSON200(resp.StatusCode(), resp.JSON200, OpQuotaUpdateUserConfig, resp.Body)
+	data, err := validateQuotaJSON200(resp.StatusCode(), resp.JSON200, OpQuotaUpdateUserConfig)
 	if err != nil {
 		return nil, err
 	}
