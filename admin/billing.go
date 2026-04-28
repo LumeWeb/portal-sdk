@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/samber/lo"
+	"github.com/shopspring/decimal"
 	"go.lumeweb.com/portal-sdk/internal/admin"
 	internalhttp "go.lumeweb.com/portal-sdk/internal/http"
 )
@@ -479,19 +480,100 @@ type PricingPlanPeriodCreateRequest = admin.PricingPlanPeriodCreateRequest
 // This is an alias of the generated type for convenience.
 type PricingPlanPeriodUpdateRequest = admin.PricingPlanPeriodUpdateRequest
 
+// APIEndpointInfo describes an API endpoint returned by management operations.
+type APIEndpointInfo struct {
+	Method string
+	Path   string
+}
+
 // Subscriber represents a billing subscription subscriber.
 type Subscriber struct {
-	admin.SubscriberItem
+	BillingPeriodEnd    *time.Time
+	BillingPeriodStart  *time.Time
+	CancelledAt         *time.Time
+	CreatedAt           time.Time
+	ExternalId          string
+	GatewayType         string
+	Id                  int
+	IsActive            bool
+	PaymentStatus       *string
+	PreviousPlanId      *int
+	PricingPlanPeriodId *int
+	SubscriptionId      string
+	UpdatedAt           time.Time
+	UserId              int
+	WillCancelAt        *time.Time
+}
+
+// fromInternal populates the Subscriber from the generated admin type.
+func (s *Subscriber) fromInternal(item admin.SubscriberItem) {
+	s.BillingPeriodEnd = item.BillingPeriodEnd
+	s.BillingPeriodStart = item.BillingPeriodStart
+	s.CancelledAt = item.CancelledAt
+	s.CreatedAt = item.CreatedAt
+	s.ExternalId = item.ExternalId
+	s.GatewayType = item.GatewayType
+	s.Id = item.Id
+	s.IsActive = item.IsActive
+	s.PaymentStatus = item.PaymentStatus
+	s.PreviousPlanId = item.PreviousPlanId
+	s.PricingPlanPeriodId = item.PricingPlanPeriodId
+	s.SubscriptionId = item.SubscriptionId
+	s.UpdatedAt = item.UpdatedAt
+	s.UserId = item.UserId
+	s.WillCancelAt = item.WillCancelAt
 }
 
 // ManagementResult represents the result of a billing management operation.
 type ManagementResult struct {
-	admin.ManagementResultResponse
+	Action               string
+	ApiEndpoint          *APIEndpointInfo
+	CanAbort             bool
+	ConfirmationMessage  *string
+	EffectiveTime        *time.Time
+	ErrorMessage         *string
+	RequiresConfirmation bool
+	Status               string
+	Url                  *string
 }
+
+// fromInternal populates the ManagementResult from the generated admin type.
+func (m *ManagementResult) fromInternal(resp admin.ManagementResultResponse) {
+	m.Action = resp.Action
+	m.CanAbort = resp.CanAbort
+	m.ConfirmationMessage = resp.ConfirmationMessage
+	m.EffectiveTime = resp.EffectiveTime
+	m.ErrorMessage = resp.ErrorMessage
+	m.RequiresConfirmation = resp.RequiresConfirmation
+	m.Status = resp.Status
+	m.Url = resp.Url
+	if resp.ApiEndpoint != nil {
+		m.ApiEndpoint = &APIEndpointInfo{
+			Method: resp.ApiEndpoint.Method,
+			Path:   resp.ApiEndpoint.Path,
+		}
+	}
+}
+
+// Decimal is an alias for the decimal.Decimal type used in billing calculations.
+type Decimal = decimal.Decimal
 
 // PlanChangeResult represents the result of a plan change operation.
 type PlanChangeResult struct {
-	admin.PlanChangeResultResponse
+	Action        string
+	ChargeDue     Decimal
+	CheckoutLink  *string
+	CreditApplied Decimal
+	EffectiveDate *time.Time
+}
+
+// fromInternal populates the PlanChangeResult from the generated admin type.
+func (p *PlanChangeResult) fromInternal(resp admin.PlanChangeResultResponse) {
+	p.Action = resp.Action
+	p.ChargeDue = resp.ChargeDue
+	p.CheckoutLink = resp.CheckoutLink
+	p.CreditApplied = resp.CreditApplied
+	p.EffectiveDate = resp.EffectiveDate
 }
 
 // CancelSubscriptionRequest represents a request to cancel a subscription.
@@ -906,7 +988,9 @@ func (b *BillingService) ListSubscribers(ctx context.Context) ([]*Subscriber, in
 	}
 
 	subscribers := lo.Map(resp.JSON200.Data, func(sub admin.SubscriberItem, _ int) *Subscriber {
-		return &Subscriber{SubscriberItem: sub}
+		s := &Subscriber{}
+		s.fromInternal(sub)
+		return s
 	})
 
 	return subscribers, resp.JSON200.Total, nil
@@ -924,7 +1008,8 @@ func (b *BillingService) GetSubscriber(ctx context.Context, subscriberID string)
 		return nil, err
 	}
 
-	return &Subscriber{SubscriberItem: admin.SubscriberItem{
+	s := &Subscriber{}
+	s.fromInternal(admin.SubscriberItem{
 		BillingPeriodEnd:    data.BillingPeriodEnd,
 		BillingPeriodStart:  data.BillingPeriodStart,
 		CancelledAt:         data.CancelledAt,
@@ -940,7 +1025,8 @@ func (b *BillingService) GetSubscriber(ctx context.Context, subscriberID string)
 		UpdatedAt:           data.UpdatedAt,
 		UserId:              data.UserId,
 		WillCancelAt:        data.WillCancelAt,
-	}}, nil
+	})
+	return s, nil
 }
 
 // ListGatewaySubscribers lists subscribers for a specific gateway.
@@ -959,7 +1045,9 @@ func (b *BillingService) ListGatewaySubscribers(ctx context.Context, gatewayID s
 	}
 
 	subscribers := lo.Map(resp.JSON200.Data, func(sub admin.SubscriberItem, _ int) *Subscriber {
-		return &Subscriber{SubscriberItem: sub}
+		s := &Subscriber{}
+		s.fromInternal(sub)
+		return s
 	})
 
 	return subscribers, resp.JSON200.Total, nil
@@ -981,7 +1069,9 @@ func (b *BillingService) GetUserSubscribers(ctx context.Context, userID string) 
 	}
 
 	subscribers := lo.Map(resp.JSON200.Data, func(sub admin.SubscriberItem, _ int) *Subscriber {
-		return &Subscriber{SubscriberItem: sub}
+		s := &Subscriber{}
+		s.fromInternal(sub)
+		return s
 	})
 
 	return subscribers, resp.JSON200.Total, nil
@@ -999,7 +1089,9 @@ func (b *BillingService) CancelUserSubscription(ctx context.Context, userID stri
 		return nil, err
 	}
 
-	return &ManagementResult{ManagementResultResponse: *data}, nil
+	result := &ManagementResult{}
+	result.fromInternal(*data)
+	return result, nil
 }
 
 // AbortUserSubscriptionCancellation aborts a scheduled subscription cancellation,
@@ -1015,7 +1107,9 @@ func (b *BillingService) AbortUserSubscriptionCancellation(ctx context.Context, 
 		return nil, err
 	}
 
-	return &ManagementResult{ManagementResultResponse: *data}, nil
+	result := &ManagementResult{}
+	result.fromInternal(*data)
+	return result, nil
 }
 
 // ChangeUserPlan changes a user's subscription plan.
@@ -1030,7 +1124,9 @@ func (b *BillingService) ChangeUserPlan(ctx context.Context, userID string, req 
 		return nil, err
 	}
 
-	return &PlanChangeResult{PlanChangeResultResponse: *data}, nil
+	result := &PlanChangeResult{}
+	result.fromInternal(*data)
+	return result, nil
 }
 
 // PauseUserSubscription pauses a user's subscription.
@@ -1045,7 +1141,9 @@ func (b *BillingService) PauseUserSubscription(ctx context.Context, userID strin
 		return nil, err
 	}
 
-	return &ManagementResult{ManagementResultResponse: *data}, nil
+	result := &ManagementResult{}
+	result.fromInternal(*data)
+	return result, nil
 }
 
 // ResumeUserSubscription resumes a user's paused subscription.
@@ -1060,7 +1158,9 @@ func (b *BillingService) ResumeUserSubscription(ctx context.Context, userID stri
 		return nil, err
 	}
 
-	return &ManagementResult{ManagementResultResponse: *data}, nil
+	result := &ManagementResult{}
+	result.fromInternal(*data)
+	return result, nil
 }
 
 // AddPlanToPriceLine adds a pricing plan to a price line.
