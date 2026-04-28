@@ -5,10 +5,34 @@ import (
 	stdhttp "net/http"
 
 	"go.lumeweb.com/portal-sdk/internal/admin"
-	"go.lumeweb.com/portal-sdk/internal/http"
+	internalhttp "go.lumeweb.com/portal-sdk/internal/http"
 )
 
 //go:generate go tool oapi-codegen -config ../oai-codegen-admin.yaml ../specs/admin/quota.yaml
+
+// Common error sentinels re-exported from internal/http for consumer use.
+var (
+	// ErrUnauthorized is returned when authentication fails (e.g., invalid JWT token).
+	ErrUnauthorized = internalhttp.ErrUnauthorized
+
+	// ErrNotFound is returned when a requested resource is not found.
+	ErrNotFound = internalhttp.ErrNotFound
+
+	// ErrForbidden is returned when the user lacks permission for the operation.
+	ErrForbidden = internalhttp.ErrForbidden
+
+	// ErrBadRequest is returned when the request is invalid or malformed.
+	ErrBadRequest = internalhttp.ErrBadRequest
+
+	// ErrConflict is returned when the request conflicts with the current state.
+	ErrConflict = internalhttp.ErrConflict
+
+	// ErrInternalServer is returned when the server encounters an unexpected error.
+	ErrInternalServer = internalhttp.ErrInternalServer
+
+	// ErrUnavailable is returned when the service is temporarily unavailable.
+	ErrUnavailable = internalhttp.ErrUnavailable
+)
 
 // DefaultEndpoint is the default API endpoint for the admin service.
 const DefaultEndpoint = "localhost:8080"
@@ -35,7 +59,7 @@ type clientConfig struct {
 	endpoint       string
 	jwt            string
 	apiKey         string
-	hostOverride   *http.HostOverride
+	hostOverride   *internalhttp.HostOverride
 	disableRedirect bool
 }
 
@@ -85,7 +109,7 @@ func WithDisableFollowRedirect() ClientOption {
 //	)
 func WithHostOverride(host, target string) ClientOption {
 	return func(c *clientConfig) {
-		c.hostOverride = &http.HostOverride{
+		c.hostOverride = &internalhttp.HostOverride{
 			Host:   host,
 			Target: target,
 		}
@@ -119,7 +143,7 @@ func NewClient(opts ...ClientOption) *AdminClient {
 	clientOpts := []admin.ClientOption{}
 
 	// Create HTTP client with redirect control and optional host override using shared utilities
-	httpClient := http.BuildHTTPClient(&clientWrapper.disableRedirect, cfg.hostOverride)
+	httpClient := internalhttp.BuildHTTPClient(&clientWrapper.disableRedirect, cfg.hostOverride)
 
 	// Add the HTTP client to client options
 	clientOpts = append(clientOpts, admin.WithHTTPClient(httpClient))

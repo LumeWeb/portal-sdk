@@ -56,6 +56,24 @@ var (
 	// ErrUnauthorized is returned when authentication fails (e.g., invalid JWT token).
 	ErrUnauthorized = internalhttp.ErrUnauthorized
 
+	// ErrNotFound is returned when a requested resource is not found.
+	ErrNotFound = internalhttp.ErrNotFound
+
+	// ErrForbidden is returned when the user lacks permission for the operation.
+	ErrForbidden = internalhttp.ErrForbidden
+
+	// ErrBadRequest is returned when the request is invalid or malformed.
+	ErrBadRequest = internalhttp.ErrBadRequest
+
+	// ErrConflict is returned when the request conflicts with the current state.
+	ErrConflict = internalhttp.ErrConflict
+
+	// ErrInternalServer is returned when the server encounters an unexpected error.
+	ErrInternalServer = internalhttp.ErrInternalServer
+
+	// ErrUnavailable is returned when the service is temporarily unavailable.
+	ErrUnavailable = internalhttp.ErrUnavailable
+
 	// InsufficientQuotaError is returned when a requested operation would exceed available quota.
 	InsufficientQuotaError = errors.New("insufficient quota")
 )
@@ -607,47 +625,32 @@ func checkResponseWithBody(statusCode int, body []byte, operation string) error 
 	return nil
 }
 
-// handleResponse processes an HTTP response using the global error message map.
-// op: the operation ID (used to lookup custom error messages)
-// successCodes: status codes that indicate success (e.g., []int{http.StatusOK})
-// Returns nil for success codes, custom error from global map, or generic error with body.
-func handleResponse(statusCode int, body []byte, op int, successCodes []int) error {
-	// Check if status code is in success codes
-	for _, code := range successCodes {
-		if statusCode == code {
-			return nil
-		}
-	}
+// accountOpHandler is the shared operation handler for account operations (lazily initialized).
+var accountOpHandler = initAccountOpHandler()
 
-	// Check for custom error message in global map
-	if errorMessages, ok := httpErrorMessages[op]; ok {
-		if factory, ok := errorMessages[statusCode]; ok {
-			return factory.Error()
-		}
-	}
+// initAccountOpHandler initializes the OpHandler with account operation mappings.
+func initAccountOpHandler() *internalhttp.OpHandler {
+	oh := internalhttp.NewOpHandler()
 
-	// Get operation name for generic error
-	opName := operationString[op]
-	if opName == "" {
-		opName = defaultOperationName
+	for opID, name := range operationString {
+		oh.SetName(opID, name)
 	}
-
-	// Generic error with body
-	return fmt.Errorf("%s failed with status %d: %s", opName, statusCode, string(body))
+	for opID, errorMap := range httpErrorMessages {
+		oh.AddOperation(opID, errorMap)
+	}
+	return oh
 }
 
-// validateJSON200 validates the HTTP status code and JSON200 field, returning the data if valid
+// handleResponse wraps OpHandler.HandleResponse.
+func handleResponse(statusCode int, body []byte, op int, successCodes []int) error {
+	return accountOpHandler.HandleResponse(statusCode, body, op, successCodes)
+}
+
+// validateJSON200 wraps OpHandler.ValidateJSON200 with a default op value.
+// Note: This uses -1 as op since the internalhttp.ValidateJSON200 signature requires it
+// but doesn't use it for path lookups in the current implementation.
 func validateJSON200[T any](statusCode int, body []byte, json200 *T, nilMsg string) (*T, error) {
-	if statusCode == http.StatusUnauthorized {
-		return nil, fmt.Errorf("%w: authentication required", ErrUnauthorized)
-	}
-	if statusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed with status %d: %s", statusCode, string(body))
-	}
-	if json200 == nil {
-		return nil, fmt.Errorf("%s", nilMsg)
-	}
-	return json200, nil
+	return internalhttp.ValidateJSON200[T](accountOpHandler, statusCode, body, json200, -1)
 }
 
 // newAPIKey creates a new APIKey from a CreateAPIKeyResponse.
