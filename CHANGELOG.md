@@ -1,3 +1,9 @@
+## 0.1.45 (2026-04-28)
+
+### Fixes
+
+- unify error handling and update swagger specs
+
 ## 0.1.44 (2026-04-28)
 
 ### Fixes
