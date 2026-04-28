@@ -1,3 +1,9 @@
+## 0.1.43 (2026-04-28)
+
+### Fixes
+
+- expose internal billing types for consumers
+
 ## 0.1.42 (2026-04-20)
 
 ### Fixes
