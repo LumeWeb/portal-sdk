@@ -1,3 +1,9 @@
+## 0.1.44 (2026-04-28)
+
+### Fixes
+
+- include server error body in admin validate
+
 ## 0.1.43 (2026-04-28)
 
 ### Fixes
