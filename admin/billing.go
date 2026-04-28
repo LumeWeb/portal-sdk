@@ -301,7 +301,7 @@ func handleBillingResponse(statusCode int, body []byte, op int, successCodes []i
 }
 
 // validateBillingJSON200 validates HTTP 200 responses with JSON200 data.
-func validateBillingJSON200[T any](respStatusCode int, json200 *T, op int) (*T, error) {
+func validateBillingJSON200[T any](respStatusCode int, json200 *T, op int, body []byte) (*T, error) {
 	if respStatusCode == stdhttp.StatusUnauthorized {
 		return nil, fmt.Errorf("%w: authentication required", internalhttp.ErrUnauthorized)
 	}
@@ -312,8 +312,7 @@ func validateBillingJSON200[T any](respStatusCode int, json200 *T, op int) (*T, 
 				return nil, factory.Error()
 			}
 		}
-		// Generic error if no custom message
-		return nil, fmt.Errorf("expected status 200, got %d", respStatusCode)
+		return nil, fmt.Errorf("expected status 200, got %d: %s", respStatusCode, string(body))
 	}
 	if json200 == nil {
 		return nil, fmt.Errorf("response body is required")
@@ -322,7 +321,7 @@ func validateBillingJSON200[T any](respStatusCode int, json200 *T, op int) (*T, 
 }
 
 // validateBillingJSON201 validates HTTP 201 responses with JSON201 data.
-func validateBillingJSON201[T any](respStatusCode int, json201 *T, nilMsg string, op int) (*T, error) {
+func validateBillingJSON201[T any](respStatusCode int, json201 *T, nilMsg string, op int, body []byte) (*T, error) {
 	if respStatusCode == stdhttp.StatusUnauthorized {
 		return nil, fmt.Errorf("%w: authentication required", internalhttp.ErrUnauthorized)
 	}
@@ -333,7 +332,7 @@ func validateBillingJSON201[T any](respStatusCode int, json201 *T, nilMsg string
 				return nil, factory.Error()
 			}
 		}
-		return nil, fmt.Errorf("expected status 201, got %d", respStatusCode)
+		return nil, fmt.Errorf("expected status 201, got %d: %s", respStatusCode, string(body))
 	}
 	if json201 == nil {
 		return nil, fmt.Errorf("%s", nilMsg)
@@ -623,7 +622,7 @@ func (b *BillingService) CreateCredit(ctx context.Context, req *CreditCreateRequ
 		return nil, fmt.Errorf("failed to create credit: %w", err)
 	}
 
-	data, err := validateBillingJSON201(resp.StatusCode(), resp.JSON201, "create credit response did not contain data", OpBillingCreateCredit)
+	data, err := validateBillingJSON201(resp.StatusCode(), resp.JSON201, "create credit response did not contain data", OpBillingCreateCredit, resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -638,7 +637,7 @@ func (b *BillingService) GetCredit(ctx context.Context, creditID string) (*Credi
 		return nil, fmt.Errorf("failed to get credit: %w", err)
 	}
 
-	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingGetCredit)
+	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingGetCredit, resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -663,7 +662,7 @@ func (b *BillingService) RestoreCredit(ctx context.Context, creditID string) (*C
 		return nil, fmt.Errorf("failed to restore credit: %w", err)
 	}
 
-	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingRestoreCredit)
+	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingRestoreCredit, resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -696,7 +695,7 @@ func (b *BillingService) GetUserBalance(ctx context.Context, userID string) (*Us
 		return nil, fmt.Errorf("failed to get user balance: %w", err)
 	}
 
-	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingGetUserBalance)
+	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingGetUserBalance, resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -760,7 +759,7 @@ func (b *BillingService) CreatePriceLine(ctx context.Context, req *PriceLineCrea
 		return nil, fmt.Errorf("failed to create price line: %w", err)
 	}
 
-	data, err := validateBillingJSON201(resp.StatusCode(), resp.JSON201, "create price line response did not contain data", OpBillingCreatePriceLine)
+	data, err := validateBillingJSON201(resp.StatusCode(), resp.JSON201, "create price line response did not contain data", OpBillingCreatePriceLine, resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -775,7 +774,7 @@ func (b *BillingService) GetPriceLine(ctx context.Context, priceLineID string) (
 		return nil, fmt.Errorf("failed to get price line: %w", err)
 	}
 
-	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingGetPriceLine)
+	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingGetPriceLine, resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -807,7 +806,7 @@ func (b *BillingService) UpdatePriceLine(ctx context.Context, priceLineID string
 		return nil, fmt.Errorf("failed to update price line: %w", err)
 	}
 
-	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingUpdatePriceLine)
+	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingUpdatePriceLine, resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -854,7 +853,7 @@ func (b *BillingService) CreatePricingPlan(ctx context.Context, req *PricingPlan
 		return nil, fmt.Errorf("failed to create pricing plan: %w", err)
 	}
 
-	data, err := validateBillingJSON201(resp.StatusCode(), resp.JSON201, "create pricing plan response did not contain data", OpBillingCreatePricingPlan)
+	data, err := validateBillingJSON201(resp.StatusCode(), resp.JSON201, "create pricing plan response did not contain data", OpBillingCreatePricingPlan, resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -869,7 +868,7 @@ func (b *BillingService) UpdatePricingPlan(ctx context.Context, planID string, r
 		return nil, fmt.Errorf("failed to update pricing plan: %w", err)
 	}
 
-	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingUpdatePricingPlan)
+	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingUpdatePricingPlan, resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -916,7 +915,7 @@ func (b *BillingService) CreatePricingPlanPeriod(ctx context.Context, req *Prici
 		return nil, fmt.Errorf("failed to create pricing plan period: %w", err)
 	}
 
-	data, err := validateBillingJSON201(resp.StatusCode(), resp.JSON201, "create pricing plan period response did not contain data", OpBillingCreatePricingPlanPeriod)
+	data, err := validateBillingJSON201(resp.StatusCode(), resp.JSON201, "create pricing plan period response did not contain data", OpBillingCreatePricingPlanPeriod, resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -931,7 +930,7 @@ func (b *BillingService) GetPricingPlanPeriod(ctx context.Context, periodID stri
 		return nil, fmt.Errorf("failed to get pricing plan period: %w", err)
 	}
 
-	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingGetPricingPlanPeriod)
+	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingGetPricingPlanPeriod, resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -946,7 +945,7 @@ func (b *BillingService) UpdatePricingPlanPeriod(ctx context.Context, periodID s
 		return nil, fmt.Errorf("failed to update pricing plan period: %w", err)
 	}
 
-	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingUpdatePricingPlanPeriod)
+	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingUpdatePricingPlanPeriod, resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -1003,7 +1002,7 @@ func (b *BillingService) GetSubscriber(ctx context.Context, subscriberID string)
 		return nil, fmt.Errorf("failed to get subscriber: %w", err)
 	}
 
-	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingGetSubscriber)
+	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingGetSubscriber, resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -1084,7 +1083,7 @@ func (b *BillingService) CancelUserSubscription(ctx context.Context, userID stri
 		return nil, fmt.Errorf("failed to cancel subscription: %w", err)
 	}
 
-	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingCancelUserSubscription)
+	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingCancelUserSubscription, resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -1102,7 +1101,7 @@ func (b *BillingService) AbortUserSubscriptionCancellation(ctx context.Context, 
 		return nil, fmt.Errorf("failed to abort subscription cancellation: %w", err)
 	}
 
-	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingAbortUserSubscriptionCancellation)
+	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingAbortUserSubscriptionCancellation, resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -1119,7 +1118,7 @@ func (b *BillingService) ChangeUserPlan(ctx context.Context, userID string, req 
 		return nil, fmt.Errorf("failed to change user plan: %w", err)
 	}
 
-	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingChangeUserPlan)
+	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingChangeUserPlan, resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -1136,7 +1135,7 @@ func (b *BillingService) PauseUserSubscription(ctx context.Context, userID strin
 		return nil, fmt.Errorf("failed to pause subscription: %w", err)
 	}
 
-	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingPauseUserSubscription)
+	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingPauseUserSubscription, resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -1153,7 +1152,7 @@ func (b *BillingService) ResumeUserSubscription(ctx context.Context, userID stri
 		return nil, fmt.Errorf("failed to resume subscription: %w", err)
 	}
 
-	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingResumeUserSubscription)
+	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingResumeUserSubscription, resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -1170,7 +1169,7 @@ func (b *BillingService) AddPlanToPriceLine(ctx context.Context, priceLineID str
 		return nil, fmt.Errorf("failed to add plan to price line: %w", err)
 	}
 
-	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingAddPlanToPriceLine)
+	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingAddPlanToPriceLine, resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -1212,7 +1211,7 @@ func (b *BillingService) UpdatePlanPosition(ctx context.Context, priceLineID, pl
 		return nil, fmt.Errorf("failed to update plan position: %w", err)
 	}
 
-	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingUpdatePlanPosition)
+	data, err := validateBillingJSON200(resp.StatusCode(), resp.JSON200, OpBillingUpdatePlanPosition, resp.Body)
 	if err != nil {
 		return nil, err
 	}

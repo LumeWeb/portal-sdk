@@ -155,7 +155,7 @@ func handleQuotaResponse(statusCode int, body []byte, op int, successCodes []int
 }
 
 // validateQuotaJSON201 validates HTTP 201 responses with JSON201 data.
-func validateQuotaJSON201[T any](respStatusCode int, json201 *T, nilMsg string, op int) (*T, error) {
+func validateQuotaJSON201[T any](respStatusCode int, json201 *T, nilMsg string, op int, body []byte) (*T, error) {
 	if respStatusCode == stdhttp.StatusUnauthorized {
 		return nil, fmt.Errorf("%w: authentication required", internalhttp.ErrUnauthorized)
 	}
@@ -166,7 +166,7 @@ func validateQuotaJSON201[T any](respStatusCode int, json201 *T, nilMsg string, 
 				return nil, factory.Error()
 			}
 		}
-		return nil, fmt.Errorf("expected status 201, got %d", respStatusCode)
+		return nil, fmt.Errorf("expected status 201, got %d: %s", respStatusCode, string(body))
 	}
 	if json201 == nil {
 		return nil, fmt.Errorf("%s", nilMsg)
@@ -175,7 +175,7 @@ func validateQuotaJSON201[T any](respStatusCode int, json201 *T, nilMsg string, 
 }
 
 // validateQuotaJSON200 validates HTTP 200 responses with JSON200 data.
-func validateQuotaJSON200[T any](respStatusCode int, json200 *T, op int) (*T, error) {
+func validateQuotaJSON200[T any](respStatusCode int, json200 *T, op int, body []byte) (*T, error) {
 	if respStatusCode == stdhttp.StatusUnauthorized {
 		return nil, fmt.Errorf("%w: authentication required", internalhttp.ErrUnauthorized)
 	}
@@ -186,8 +186,7 @@ func validateQuotaJSON200[T any](respStatusCode int, json200 *T, op int) (*T, er
 				return nil, factory.Error()
 			}
 		}
-		// Generic error if no custom message
-		return nil, fmt.Errorf("expected status 200, got %d", respStatusCode)
+		return nil, fmt.Errorf("expected status 200, got %d: %s", respStatusCode, string(body))
 	}
 	if json200 == nil {
 		return nil, fmt.Errorf("response body is required")
@@ -318,7 +317,7 @@ func (q *QuotaService) CreatePlan(ctx context.Context, plan *QuotaPlan) (*QuotaP
 		return nil, fmt.Errorf("failed to create plan: %w", err)
 	}
 
-	data, err := validateQuotaJSON201(resp.StatusCode(), resp.JSON201, "create plan response did not contain data", OpQuotaCreatePlan)
+	data, err := validateQuotaJSON201(resp.StatusCode(), resp.JSON201, "create plan response did not contain data", OpQuotaCreatePlan, resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -333,7 +332,7 @@ func (q *QuotaService) GetPlan(ctx context.Context, planID string) (*QuotaPlan, 
 		return nil, fmt.Errorf("failed to get plan: %w", err)
 	}
 
-	data, err := validateQuotaJSON200(resp.StatusCode(), resp.JSON200, OpQuotaGetPlan)
+	data, err := validateQuotaJSON200(resp.StatusCode(), resp.JSON200, OpQuotaGetPlan, resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -364,7 +363,7 @@ func (q *QuotaService) UpdatePlan(ctx context.Context, planID string, plan *Quot
 		return nil, fmt.Errorf("failed to update plan: %w", err)
 	}
 
-	data, err := validateQuotaJSON200(resp.StatusCode(), resp.JSON200, OpQuotaUpdatePlan)
+	data, err := validateQuotaJSON200(resp.StatusCode(), resp.JSON200, OpQuotaUpdatePlan, resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -431,7 +430,7 @@ func (q *QuotaService) CreateAllowance(ctx context.Context, userID int, source, 
 		return nil, fmt.Errorf("failed to create allowance: %w", err)
 	}
 
-	data, err := validateQuotaJSON201(resp.StatusCode(), resp.JSON201, "create allowance response did not contain data", OpQuotaCreateAllowance)
+	data, err := validateQuotaJSON201(resp.StatusCode(), resp.JSON201, "create allowance response did not contain data", OpQuotaCreateAllowance, resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -456,7 +455,7 @@ func (q *QuotaService) UpdateAllowance(ctx context.Context, grantID string, user
 		return nil, fmt.Errorf("failed to update allowance: %w", err)
 	}
 
-	data, err := validateQuotaJSON200(resp.StatusCode(), resp.JSON200, OpQuotaUpdateAllowance)
+	data, err := validateQuotaJSON200(resp.StatusCode(), resp.JSON200, OpQuotaUpdateAllowance, resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -558,7 +557,7 @@ func (q *QuotaService) UpdateUserConfig(ctx context.Context, userID int, config 
 		return nil, fmt.Errorf("failed to update user config: %w", err)
 	}
 
-	data, err := validateQuotaJSON200(resp.StatusCode(), resp.JSON200, OpQuotaUpdateUserConfig)
+	data, err := validateQuotaJSON200(resp.StatusCode(), resp.JSON200, OpQuotaUpdateUserConfig, resp.Body)
 	if err != nil {
 		return nil, err
 	}
