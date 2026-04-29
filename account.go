@@ -53,6 +53,57 @@ var (
 	// ErrOperationTimeout is returned when WaitForOperation times out waiting for an operation to settle.
 	ErrOperationTimeout = errors.New("operation timed out")
 
+	// HTTP ErrorFactoryError sentinels for DRY error mapping
+	errAuthRequiredOrPassword    = internalhttp.AuthError("authentication required or invalid password")
+	errInvalidLoginCredentials   = internalhttp.AuthError("invalid login credentials")
+	errInvalidAPIKey             = internalhttp.AuthError("invalid API key")
+	errInvalid2FASession         = internalhttp.AuthError("invalid or expired 2FA session")
+	errInvalidOTPCode            = internalhttp.PlainError("invalid OTP code")
+	errAccountPendingDeletion    = internalhttp.PlainError("account is pending deletion")
+	errUserAlreadyExists         = internalhttp.PlainError("user already exists with this email")
+	errInvalidVerificationToken  = internalhttp.PlainError("invalid verification token or email")
+	errInvalidEmailAddress       = internalhttp.PlainError("invalid email address")
+	errCannotDeleteAccount       = internalhttp.PlainError("cannot delete account")
+	errAccountNotFound           = internalhttp.PlainError("account not found")
+	errInvalidResetToken         = internalhttp.PlainError("invalid or expired reset token")
+	errInvalidPassword           = internalhttp.PlainError("invalid password")
+	errInvalidProfileData        = internalhttp.PlainError("invalid profile data")
+	errAvatarNotFound            = internalhttp.PlainError("avatar not found")
+	errInvalidEmailOrPassword    = internalhttp.PlainError("invalid email or password")
+	errPermissionsNotFound       = internalhttp.PlainError("permissions not found")
+	errQuotaNotFound             = internalhttp.PlainError("quota not found")
+	errInvalidDateParameters     = internalhttp.PlainError("invalid date parameters")
+	errQuotaHistoryNotFound      = internalhttp.PlainError("quota history not found")
+	errBalanceNotFound           = internalhttp.PlainError("balance not found")
+	errInvalidRequestParams      = internalhttp.PlainError("invalid request parameters")
+	errInvalidPlanID             = internalhttp.PlainError("invalid plan ID")
+	errCheckoutUINotFound        = internalhttp.PlainError("checkout UI not found")
+	errManagementCapsNotFound    = internalhttp.PlainError("management capabilities not found")
+	errSubscriptionStatusNotFound = internalhttp.PlainError("subscription status not found")
+	errInvalidRequest            = internalhttp.PlainError("invalid request")
+	errResourceNotFound          = internalhttp.PlainError("resource not found")
+	errCannotCancelSubscription  = internalhttp.PlainError("cannot cancel subscription")
+	errNoActiveSubscription      = internalhttp.PlainError("no active subscription")
+	errCannotAbortCancellation   = internalhttp.PlainError("cannot abort cancellation")
+	errNoScheduledCancellation   = internalhttp.PlainError("no scheduled cancellation found")
+	errCannotChangePlan          = internalhttp.PlainError("cannot change plan")
+	errPlanNotFound              = internalhttp.PlainError("plan not found")
+	errInvalidWebhookData        = internalhttp.PlainError("invalid webhook data")
+	errGatewayRegistryNotInit    = internalhttp.PlainError("gateway registry not initialized")
+	errGatewayLogoNotFound       = internalhttp.PlainError("gateway logo not found")
+	errFailedGetPricingPlans     = internalhttp.PlainError("failed to get pricing plans")
+	errCannotPauseBilling        = internalhttp.PlainError("cannot pause billing")
+	errCannotResumeBilling       = internalhttp.PlainError("cannot resume billing")
+	errNoPausedSubscription      = internalhttp.PlainError("no paused subscription")
+
+	// Generic/shared error sentinels (from internalhttp)
+	errAuthRequired            = internalhttp.FactoryErrAuthRequired
+	errInsufficientPermissions = internalhttp.FactoryErrInsufficientPermissions
+	errBadRequest              = internalhttp.FactoryErrBadRequest
+	errNotFound                = internalhttp.FactoryErrNotFound
+	errInternalServerError     = internalhttp.FactoryErrInternalServerError
+	errUserNotFound            = internalhttp.FactoryErrUserNotFound
+
 	// ErrUnauthorized is returned when authentication fails (e.g., invalid JWT token).
 	ErrUnauthorized = internalhttp.ErrUnauthorized
 
@@ -177,168 +228,168 @@ var operationString = map[int]string{
 // This provides a centralized, DRY way to handle HTTP error responses.
 var httpErrorMessages = map[int]map[int]internalhttp.ErrorFactoryError{
 	OpLogin: {
-		http.StatusUnauthorized: internalhttp.AuthError("invalid login credentials"),
+		http.StatusUnauthorized: errInvalidLoginCredentials,
 	},
 	OpOTPValidation: {
-		http.StatusBadRequest:   internalhttp.PlainError("invalid OTP code"),
-		http.StatusUnauthorized: internalhttp.AuthError("invalid or expired 2FA session"),
+		http.StatusBadRequest:   errInvalidOTPCode,
+		http.StatusUnauthorized: errInvalid2FASession,
 	},
 	OpPing: {
 		http.StatusUnauthorized: internalhttp.AuthError("invalid JWT token"),
 	},
 	OpOTPGeneration: {
-		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		http.StatusUnauthorized: errAuthRequired,
 	},
 	OpOTPVerification: {
-		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
-		http.StatusBadRequest:   internalhttp.PlainError("invalid OTP code"),
+		http.StatusUnauthorized: errAuthRequired,
+		http.StatusBadRequest:   errInvalidOTPCode,
 	},
 	OpOTPDisable: {
-		http.StatusUnauthorized: internalhttp.AuthError("authentication required or invalid password"),
+		http.StatusUnauthorized: errAuthRequiredOrPassword,
 	},
 	OpAPIKeyLogin: {
-		http.StatusUnauthorized: internalhttp.AuthError("invalid API key"),
-		http.StatusForbidden:    internalhttp.PlainError("account is pending deletion"),
+		http.StatusUnauthorized: errInvalidAPIKey,
+		http.StatusForbidden:    errAccountPendingDeletion,
 	},
 	OpRegistration: {
-		http.StatusConflict: internalhttp.PlainError("user already exists with this email"),
+		http.StatusConflict: errUserAlreadyExists,
 	},
 	OpEmailVerification: {
-		http.StatusBadRequest: internalhttp.PlainError("invalid verification token or email"),
-		http.StatusNotFound:   internalhttp.PlainError("user not found"),
+		http.StatusBadRequest: errInvalidVerificationToken,
+		http.StatusNotFound:   errUserNotFound,
 	},
 	OpResendEmailVerification: {
-		http.StatusBadRequest: internalhttp.PlainError("invalid email address"),
-		http.StatusNotFound:   internalhttp.PlainError("user not found"),
+		http.StatusBadRequest: errInvalidEmailAddress,
+		http.StatusNotFound:   errUserNotFound,
 	},
 	OpDeleteAccount: {
-		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
-		http.StatusBadRequest:   internalhttp.PlainError("cannot delete account"),
-		http.StatusNotFound:     internalhttp.PlainError("account not found"),
+		http.StatusUnauthorized: errAuthRequired,
+		http.StatusBadRequest:   errCannotDeleteAccount,
+		http.StatusNotFound:     errAccountNotFound,
 	},
 	OpPasswordResetRequest: {
-		http.StatusBadRequest: internalhttp.PlainError("invalid email address"),
-		http.StatusNotFound:   internalhttp.PlainError("user not found"),
+		http.StatusBadRequest: errInvalidEmailAddress,
+		http.StatusNotFound:   errUserNotFound,
 	},
 	OpPasswordResetConfirm: {
-		http.StatusBadRequest: internalhttp.PlainError("invalid or expired reset token"),
-		http.StatusNotFound:   internalhttp.PlainError("user not found"),
+		http.StatusBadRequest: errInvalidResetToken,
+		http.StatusNotFound:   errUserNotFound,
 	},
 	OpPasswordUpdate: {
-		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
-		http.StatusBadRequest:   internalhttp.PlainError("invalid password"),
-		http.StatusNotFound:     internalhttp.PlainError("user not found"),
+		http.StatusUnauthorized: errAuthRequired,
+		http.StatusBadRequest:   errInvalidPassword,
+		http.StatusNotFound:     errUserNotFound,
 	},
 	OpGetAccount: {
-		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
-		http.StatusNotFound:     internalhttp.PlainError("account not found"),
+		http.StatusUnauthorized: errAuthRequired,
+		http.StatusNotFound:     errAccountNotFound,
 	},
 	OpUpdateProfile: {
-		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
-		http.StatusBadRequest:   internalhttp.PlainError("invalid profile data"),
-		http.StatusNotFound:     internalhttp.PlainError("user not found"),
+		http.StatusUnauthorized: errAuthRequired,
+		http.StatusBadRequest:   errInvalidProfileData,
+		http.StatusNotFound:     errUserNotFound,
 	},
 	OpGetAvatar: {
-		http.StatusBadRequest:   internalhttp.PlainError("bad request"),
-		http.StatusNotFound:     internalhttp.PlainError("avatar not found"),
+		http.StatusBadRequest: errBadRequest,
+		http.StatusNotFound:   errAvatarNotFound,
 	},
 	OpUploadAvatar: {
-		http.StatusBadRequest:internalhttp.PlainError("bad request"),
-		http.StatusNotFound:    internalhttp.PlainError("not found"),
+		http.StatusBadRequest: errBadRequest,
+		http.StatusNotFound:   errNotFound,
 	},
 	OpUpdateEmail: {
-		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
-		http.StatusBadRequest: internalhttp.PlainError("invalid email or password"),
-		http.StatusNotFound:   internalhttp.PlainError("user not found"),
+		http.StatusUnauthorized: errAuthRequired,
+		http.StatusBadRequest:   errInvalidEmailOrPassword,
+		http.StatusNotFound:     errUserNotFound,
 	},
 	OpGetPermissions: {
-		http.StatusBadRequest:  internalhttp.PlainError("bad request"),
-		http.StatusNotFound:     internalhttp.PlainError("permissions not found"),
+		http.StatusBadRequest: errBadRequest,
+		http.StatusNotFound:   errPermissionsNotFound,
 	},
 	OpGetQuota: {
-		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
-		http.StatusBadRequest:   internalhttp.PlainError("bad request"),
-		http.StatusNotFound:     internalhttp.PlainError("quota not found"),
+		http.StatusUnauthorized: errAuthRequired,
+		http.StatusBadRequest:   errBadRequest,
+		http.StatusNotFound:     errQuotaNotFound,
 	},
 	OpGetQuotaHistory: {
-		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
-		http.StatusBadRequest:   internalhttp.PlainError("invalid date parameters"),
-		http.StatusNotFound:     internalhttp.PlainError("quota history not found"),
+		http.StatusUnauthorized: errAuthRequired,
+		http.StatusBadRequest:   errInvalidDateParameters,
+		http.StatusNotFound:     errQuotaHistoryNotFound,
 	},
 	OpGetBalance: {
-		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
-		http.StatusNotFound:     internalhttp.PlainError("balance not found"),
+		http.StatusUnauthorized: errAuthRequired,
+		http.StatusNotFound:     errBalanceNotFound,
 	},
 	OpListCredits: {
-		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
-		http.StatusBadRequest:   internalhttp.PlainError("invalid request parameters"),
+		http.StatusUnauthorized: errAuthRequired,
+		http.StatusBadRequest:   errInvalidRequestParams,
 	},
 	OpGetCheckoutUI: {
-		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
-		http.StatusBadRequest:   internalhttp.PlainError("invalid plan ID"),
-		http.StatusNotFound:     internalhttp.PlainError("checkout UI not found"),
+		http.StatusUnauthorized: errAuthRequired,
+		http.StatusBadRequest:   errInvalidPlanID,
+		http.StatusNotFound:     errCheckoutUINotFound,
 	},
 	OpGetManagementCapabilities: {
-		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
-		http.StatusNotFound:     internalhttp.PlainError("management capabilities not found"),
+		http.StatusUnauthorized: errAuthRequired,
+		http.StatusNotFound:     errManagementCapsNotFound,
 	},
 	OpGetSubscriptionStatus: {
-		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
-		http.StatusNotFound:     internalhttp.PlainError("subscription status not found"),
+		http.StatusUnauthorized: errAuthRequired,
+		http.StatusNotFound:     errSubscriptionStatusNotFound,
 	},
 	OpManageBilling: {
-		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
-		http.StatusBadRequest:   internalhttp.PlainError("invalid request"),
-		http.StatusNotFound:     internalhttp.PlainError("resource not found"),
+		http.StatusUnauthorized: errAuthRequired,
+		http.StatusBadRequest:   errInvalidRequest,
+		http.StatusNotFound:     errResourceNotFound,
 	},
 	OpCancelSubscription: {
-		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
-		http.StatusBadRequest:   internalhttp.PlainError("cannot cancel subscription"),
-		http.StatusNotFound:     internalhttp.PlainError("no active subscription"),
+		http.StatusUnauthorized: errAuthRequired,
+		http.StatusBadRequest:   errCannotCancelSubscription,
+		http.StatusNotFound:     errNoActiveSubscription,
 	},
 	OpAbortSubscriptionCancellation: {
-		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
-		http.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
-		http.StatusBadRequest:   internalhttp.PlainError("cannot abort cancellation"),
-		http.StatusNotFound:     internalhttp.PlainError("no scheduled cancellation found"),
+		http.StatusUnauthorized: errAuthRequired,
+		http.StatusForbidden:    errInsufficientPermissions,
+		http.StatusBadRequest:   errCannotAbortCancellation,
+		http.StatusNotFound:     errNoScheduledCancellation,
 	},
 	OpChangePlan: {
-		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
-		http.StatusBadRequest:   internalhttp.PlainError("cannot change plan"),
-		http.StatusNotFound:     internalhttp.PlainError("plan not found"),
+		http.StatusUnauthorized: errAuthRequired,
+		http.StatusBadRequest:   errCannotChangePlan,
+		http.StatusNotFound:     errPlanNotFound,
 	},
 	OpHandleWebhook: {
-		http.StatusBadRequest: internalhttp.PlainError("invalid webhook data"),
+		http.StatusBadRequest: errInvalidWebhookData,
 	},
 	OpListBillingGateways: {
-		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
-		http.StatusInternalServerError: internalhttp.PlainError("gateway registry not initialized"),
+		http.StatusUnauthorized:        errAuthRequired,
+		http.StatusInternalServerError: errGatewayRegistryNotInit,
 	},
 	OpGetGatewayLogo: {
-		http.StatusBadRequest:     internalhttp.PlainError("bad request"),
-		http.StatusUnauthorized:   internalhttp.AuthError("authentication required"),
-		http.StatusForbidden:      internalhttp.PlainError("insufficient permissions"),
-		http.StatusNotFound:       internalhttp.PlainError("gateway logo not found"),
-		http.StatusInternalServerError: internalhttp.PlainError("internal server error"),
+		http.StatusBadRequest:          errBadRequest,
+		http.StatusUnauthorized:        errAuthRequired,
+		http.StatusForbidden:           errInsufficientPermissions,
+		http.StatusNotFound:            errGatewayLogoNotFound,
+		http.StatusInternalServerError: errInternalServerError,
 	},
 	OpListPricingPlans: {
-		http.StatusBadRequest:     internalhttp.PlainError("failed to get pricing plans"),
-		http.StatusUnauthorized:   internalhttp.AuthError("authentication required"),
-		http.StatusForbidden:      internalhttp.PlainError("insufficient permissions"),
-		http.StatusNotFound:       internalhttp.PlainError("not found"),
-		http.StatusInternalServerError: internalhttp.PlainError("internal server error"),
+		http.StatusBadRequest:          errFailedGetPricingPlans,
+		http.StatusUnauthorized:        errAuthRequired,
+		http.StatusForbidden:           errInsufficientPermissions,
+		http.StatusNotFound:            errNotFound,
+		http.StatusInternalServerError: errInternalServerError,
 	},
 	OpPauseBilling: {
-		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
-		http.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
-		http.StatusBadRequest:   internalhttp.PlainError("cannot pause billing"),
-		http.StatusNotFound:     internalhttp.PlainError("no active subscription"),
+		http.StatusUnauthorized: errAuthRequired,
+		http.StatusForbidden:    errInsufficientPermissions,
+		http.StatusBadRequest:   errCannotPauseBilling,
+		http.StatusNotFound:     errNoActiveSubscription,
 	},
 	OpResumeBilling: {
-		http.StatusUnauthorized: internalhttp.AuthError("authentication required"),
-		http.StatusForbidden:    internalhttp.PlainError("insufficient permissions"),
-		http.StatusBadRequest:   internalhttp.PlainError("cannot resume billing"),
-		http.StatusNotFound:     internalhttp.PlainError("no paused subscription"),
+		http.StatusUnauthorized: errAuthRequired,
+		http.StatusForbidden:    errInsufficientPermissions,
+		http.StatusBadRequest:   errCannotResumeBilling,
+		http.StatusNotFound:     errNoPausedSubscription,
 	},
 }
 
