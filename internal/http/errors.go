@@ -33,6 +33,28 @@ var (
 	ErrUnavailable = errors.New("service unavailable")
 )
 
+// ErrorFactoryError sentinels for HTTP response error mapping.
+// These are used by SDK clients to map HTTP status codes to typed errors.
+var (
+	// FactoryErrAuthRequired is a sentinel for authentication required errors.
+	FactoryErrAuthRequired = AuthError("authentication required")
+
+	// FactoryErrInsufficientPermissions is a sentinel for insufficient permissions errors.
+	FactoryErrInsufficientPermissions = ForbiddenError("insufficient permissions")
+
+	// FactoryErrBadRequest is a sentinel for bad request errors.
+	FactoryErrBadRequest = BadRequestError("bad request")
+
+	// FactoryErrNotFound is a sentinel for not found errors.
+	FactoryErrNotFound = NotFoundError("not found")
+
+	// FactoryErrInternalServerError is a sentinel for internal server errors.
+	FactoryErrInternalServerError = PlainError("internal server error")
+
+	// FactoryErrUserNotFound is a sentinel for user not found errors.
+	FactoryErrUserNotFound = NotFoundError("user not found")
+)
+
 // sentinelMap maps HTTP status codes to their corresponding sentinel errors.
 var sentinelMap = map[int]error{
 	http.StatusUnauthorized:         ErrUnauthorized,
@@ -174,6 +196,14 @@ func BadRequestError(msg string) ErrorFactoryError {
 func ConflictError(msg string) ErrorFactoryError {
 	return sentinelWrappedErr(ErrConflict, msg)
 }
+
+// Predefined ErrorFactoryError sentinels for commonly used error messages.
+// These eliminate repetitive string literals in error mappings.
+var (
+	// Authentication/authorization errors
+	ErrAuthRequired            = AuthError("authentication required")
+	ErrInsufficientPermissions = ForbiddenError("insufficient permissions")
+)
 
 // JSON200Validator is a functional interface for validating JSON 200 responses using an OpHandler.
 type JSON200Validator[T any] func(oh *OpHandler, statusCode int, body []byte, json200 *T, opID int) (*T, error)

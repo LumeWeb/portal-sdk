@@ -602,6 +602,98 @@ func TestBillingService_CreatePricingPlan(t *testing.T) {
 	}
 }
 
+func TestBillingService_GetPricingPlan(t *testing.T) {
+	tests := []struct {
+		name       string
+		planID     string
+		statusCode int
+		response   interface{}
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:   "successful get pricing plan",
+			planID: "1",
+			statusCode: http.StatusOK,
+			response: admin.PricingPlanResponse{
+				Id:          1,
+				Name:        "Basic",
+				Description: "Basic plan",
+				Currency:    "USD",
+				IsActive:    true,
+				IsPublic:    true,
+				PricingPeriods: []admin.PricingPlanPeriodDTO{
+					{
+						Id:          1,
+						AllowFree:   false,
+						Cadence:     "monthly",
+						IsActive:    true,
+						PriceUsd:    9.99,
+						QuotaPlanId: 1,
+					},
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name:       "plan not found",
+			planID:     "999",
+			statusCode: http.StatusNotFound,
+			response:   admin.ErrorResponse{Error: "pricing plan not found"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "pricing plan not found")
+			},
+		},
+		{
+			name:       "unauthorized",
+			planID:     "1",
+			statusCode: http.StatusUnauthorized,
+			response:   admin.ErrorResponse{Error: "unauthorized"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "unauthorized")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "GET" {
+					t.Errorf("expected GET request, got %s", r.Method)
+				}
+				expectedPath := "/api/billing/pricing-plans/" + tt.planID
+				if r.URL.Path != expectedPath {
+					t.Errorf("expected %s path, got %s", expectedPath, r.URL.Path)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				require.NoError(t, json.NewEncoder(w).Encode(tt.response))
+			}))
+			defer server.Close()
+
+			client := NewClient(WithEndpoint(server.URL))
+			plan, err := client.Billing().GetPricingPlan(context.Background(), tt.planID)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetPricingPlan() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.NotNil(t, plan)
+				require.Equal(t, tt.planID, fmt.Sprintf("%d", plan.Id))
+			}
+		})
+	}
+}
+
 func TestBillingService_DeletePricingPlan(t *testing.T) {
 	tests := []struct {
 		name    string

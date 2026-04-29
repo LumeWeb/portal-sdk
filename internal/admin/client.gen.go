@@ -960,6 +960,9 @@ type ClientInterface interface {
 	// DeleteApiBillingPricingPlansId request
 	DeleteApiBillingPricingPlansId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetApiBillingPricingPlansId request
+	GetApiBillingPricingPlansId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// PutApiBillingPricingPlansIdWithBody request with any body
 	PutApiBillingPricingPlansIdWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -1454,6 +1457,18 @@ func (c *Client) PostApiBillingPricingPlans(ctx context.Context, body PostApiBil
 
 func (c *Client) DeleteApiBillingPricingPlansId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewDeleteApiBillingPricingPlansIdRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetApiBillingPricingPlansId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiBillingPricingPlansIdRequest(c.Server, id)
 	if err != nil {
 		return nil, err
 	}
@@ -3350,6 +3365,40 @@ func NewDeleteApiBillingPricingPlansIdRequest(server string, id string) (*http.R
 	return req, nil
 }
 
+// NewGetApiBillingPricingPlansIdRequest generates requests for GetApiBillingPricingPlansId
+func NewGetApiBillingPricingPlansIdRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/billing/pricing-plans/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewPutApiBillingPricingPlansIdRequest calls the generic PutApiBillingPricingPlansId builder with application/json body
 func NewPutApiBillingPricingPlansIdRequest(server string, id string, body PutApiBillingPricingPlansIdJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -5070,6 +5119,9 @@ type ClientWithResponsesInterface interface {
 	// DeleteApiBillingPricingPlansIdWithResponse request
 	DeleteApiBillingPricingPlansIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteApiBillingPricingPlansIdResponse, error)
 
+	// GetApiBillingPricingPlansIdWithResponse request
+	GetApiBillingPricingPlansIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiBillingPricingPlansIdResponse, error)
+
 	// PutApiBillingPricingPlansIdWithBodyWithResponse request with any body
 	PutApiBillingPricingPlansIdWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutApiBillingPricingPlansIdResponse, error)
 
@@ -5815,6 +5867,33 @@ func (r DeleteApiBillingPricingPlansIdResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r DeleteApiBillingPricingPlansIdResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetApiBillingPricingPlansIdResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *PricingPlanResponse
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiBillingPricingPlansIdResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiBillingPricingPlansIdResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -6856,6 +6935,15 @@ func (c *ClientWithResponses) DeleteApiBillingPricingPlansIdWithResponse(ctx con
 		return nil, err
 	}
 	return ParseDeleteApiBillingPricingPlansIdResponse(rsp)
+}
+
+// GetApiBillingPricingPlansIdWithResponse request returning *GetApiBillingPricingPlansIdResponse
+func (c *ClientWithResponses) GetApiBillingPricingPlansIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiBillingPricingPlansIdResponse, error) {
+	rsp, err := c.GetApiBillingPricingPlansId(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiBillingPricingPlansIdResponse(rsp)
 }
 
 // PutApiBillingPricingPlansIdWithBodyWithResponse request with arbitrary body returning *PutApiBillingPricingPlansIdResponse
@@ -8588,6 +8676,67 @@ func ParseDeleteApiBillingPricingPlansIdResponse(rsp *http.Response) (*DeleteApi
 	}
 
 	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiBillingPricingPlansIdResponse parses an HTTP response from a GetApiBillingPricingPlansIdWithResponse call
+func ParseGetApiBillingPricingPlansIdResponse(rsp *http.Response) (*GetApiBillingPricingPlansIdResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiBillingPricingPlansIdResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest PricingPlanResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {

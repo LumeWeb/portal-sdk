@@ -2524,6 +2524,55 @@ paths:
       summary: Delete Pricing Plan
       tags:
       - Billing Admin
+    get:
+      description: Retrieves a specific pricing plan by ID with its pricing periods
+      parameters:
+      - description: Pricing Plan ID
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PricingPlanResponse'
+          description: ""
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Get Pricing Plan
+      tags:
+      - Billing Admin
     put:
       parameters:
       - description: Pricing Plan ID
@@ -3982,4 +4031,4 @@ paths:
       - quota
       - user-configs
 servers:
-- url: /api
+- url: /

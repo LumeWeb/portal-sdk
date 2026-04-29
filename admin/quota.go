@@ -12,6 +12,18 @@ import (
 	internalhttp "go.lumeweb.com/portal-sdk/internal/http"
 )
 
+// Quota-specific error sentinels (shared: errAuthRequired, errInvalidPlanData, errUserNotFound from billing.go)
+var (
+	errPlanNotFound       = internalhttp.PlainError("plan not found")
+	errInvalidRequest     = internalhttp.PlainError("invalid request parameters")
+	errInvalidAllowance   = internalhttp.PlainError("invalid allowance data")
+	errAllowanceNotFound  = internalhttp.PlainError("allowance not found")
+	errPlanNameConflict   = internalhttp.PlainError("plan with this name already exists")
+	errPlanInUse          = internalhttp.PlainError("cannot delete plan in use")
+	errInvalidEndpoint    = internalhttp.PlainError("invalid endpoint")
+	errInvalidUserConfig  = internalhttp.PlainError("invalid user configuration data")
+)
+
 const (
 	// Quota operation identifiers for error message mapping
 	OpQuotaListPlans = 100 + iota
@@ -60,72 +72,72 @@ var quotaOperationString = map[int]string{
 // httpErrorMessages maps quota operation IDs to their custom status code error messages.
 var quotaHTTPErrorMessages = map[int]map[int]internalhttp.ErrorFactoryError{
 	OpQuotaListPlans: {
-		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
-		stdhttp.StatusBadRequest:   internalhttp.PlainError("invalid request parameters"),
+		stdhttp.StatusUnauthorized: errAuthRequired,
+		stdhttp.StatusBadRequest:   errInvalidRequest,
 	},
 	OpQuotaCreatePlan: {
-		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
-		stdhttp.StatusBadRequest:   internalhttp.PlainError("invalid plan data"),
-		stdhttp.StatusConflict:    internalhttp.PlainError("plan with this name already exists"),
+		stdhttp.StatusUnauthorized: errAuthRequired,
+		stdhttp.StatusBadRequest:   errInvalidPlanData,
+		stdhttp.StatusConflict:     errPlanNameConflict,
 	},
 	OpQuotaGetPlan: {
-		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
-		stdhttp.StatusNotFound:     internalhttp.PlainError("plan not found"),
+		stdhttp.StatusUnauthorized: errAuthRequired,
+		stdhttp.StatusNotFound:     errPlanNotFound,
 	},
 	OpQuotaUpdatePlan: {
-		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
-		stdhttp.StatusBadRequest:   internalhttp.PlainError("invalid plan data"),
-		stdhttp.StatusNotFound:     internalhttp.PlainError("plan not found"),
+		stdhttp.StatusUnauthorized: errAuthRequired,
+		stdhttp.StatusBadRequest:   errInvalidPlanData,
+		stdhttp.StatusNotFound:     errPlanNotFound,
 	},
 	OpQuotaDeletePlan: {
-		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
-		stdhttp.StatusNotFound:     internalhttp.PlainError("plan not found"),
-		stdhttp.StatusConflict:     internalhttp.PlainError("cannot delete plan in use"),
+		stdhttp.StatusUnauthorized: errAuthRequired,
+		stdhttp.StatusNotFound:     errPlanNotFound,
+		stdhttp.StatusConflict:     errPlanInUse,
 	},
 	OpQuotaSetDefaultPlan: {
-		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
-		stdhttp.StatusNotFound:     internalhttp.PlainError("plan not found"),
+		stdhttp.StatusUnauthorized: errAuthRequired,
+		stdhttp.StatusNotFound:     errPlanNotFound,
 	},
 	OpQuotaListAllowances: {
-		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
-		stdhttp.StatusBadRequest:   internalhttp.PlainError("invalid request parameters"),
+		stdhttp.StatusUnauthorized: errAuthRequired,
+		stdhttp.StatusBadRequest:   errInvalidRequest,
 	},
 	OpQuotaCreateAllowance: {
-		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
-		stdhttp.StatusBadRequest:   internalhttp.PlainError("invalid allowance data"),
-		stdhttp.StatusNotFound:     internalhttp.PlainError("user not found"),
+		stdhttp.StatusUnauthorized: errAuthRequired,
+		stdhttp.StatusBadRequest:   errInvalidAllowance,
+		stdhttp.StatusNotFound:     errUserNotFound,
 	},
 	OpQuotaUpdateAllowance: {
-		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
-		stdhttp.StatusBadRequest:   internalhttp.PlainError("invalid allowance data"),
-		stdhttp.StatusNotFound:     internalhttp.PlainError("allowance not found"),
+		stdhttp.StatusUnauthorized: errAuthRequired,
+		stdhttp.StatusBadRequest:   errInvalidAllowance,
+		stdhttp.StatusNotFound:     errAllowanceNotFound,
 	},
 	OpQuotaDeleteAllowance: {
-		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
-		stdhttp.StatusNotFound:     internalhttp.PlainError("allowance not found"),
+		stdhttp.StatusUnauthorized: errAuthRequired,
+		stdhttp.StatusNotFound:     errAllowanceNotFound,
 	},
 	OpQuotaGetStats: {
-		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusUnauthorized: errAuthRequired,
 	},
 	OpQuotaReconcile: {
-		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusUnauthorized: errAuthRequired,
 	},
 	OpQuotaCleanup: {
-		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
+		stdhttp.StatusUnauthorized: errAuthRequired,
 	},
 	OpQuotaListUserConfigs: {
-		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
-		stdhttp.StatusBadRequest:   internalhttp.PlainError("invalid request parameters"),
-		stdhttp.StatusNotFound:     internalhttp.PlainError("invalid endpoint"),
+		stdhttp.StatusUnauthorized: errAuthRequired,
+		stdhttp.StatusBadRequest:   errInvalidRequest,
+		stdhttp.StatusNotFound:     errInvalidEndpoint,
 	},
 	OpQuotaUpdateUserConfig: {
-		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
-		stdhttp.StatusBadRequest:   internalhttp.PlainError("invalid user configuration data"),
-		stdhttp.StatusNotFound:     internalhttp.PlainError("user not found"),
+		stdhttp.StatusUnauthorized: errAuthRequired,
+		stdhttp.StatusBadRequest:   errInvalidUserConfig,
+		stdhttp.StatusNotFound:     errUserNotFound,
 	},
 	OpQuotaResetUserPlan: {
-		stdhttp.StatusUnauthorized: internalhttp.AuthError("authentication required"),
-		stdhttp.StatusNotFound:     internalhttp.PlainError("user not found"),
+		stdhttp.StatusUnauthorized: errAuthRequired,
+		stdhttp.StatusNotFound:     errUserNotFound,
 	},
 }
 
