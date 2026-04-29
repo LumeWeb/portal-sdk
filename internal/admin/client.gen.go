@@ -255,12 +255,13 @@ type PricingPlanItem struct {
 	IsActive     bool     `json:"is_active"`
 	MonthlyPrice *float32 `json:"monthly_price,omitempty"`
 	Name         string   `json:"name"`
-	Position     *int     `json:"position,omitempty"`
+	Position     int      `json:"position"`
 	YearlyPrice  *float32 `json:"yearly_price,omitempty"`
 }
 
 // PricingPlanPeriodCreateRequest defines model for PricingPlanPeriodCreateRequest.
 type PricingPlanPeriodCreateRequest struct {
+	AllowFree     *bool   `json:"allow_free,omitempty"`
 	Cadence       string  `json:"cadence"`
 	PriceUsd      float32 `json:"price_usd"`
 	PricingPlanId int     `json:"pricing_plan_id"`
@@ -283,6 +284,7 @@ type PricingPlanPeriodDTO struct {
 
 // PricingPlanPeriodUpdateRequest defines model for PricingPlanPeriodUpdateRequest.
 type PricingPlanPeriodUpdateRequest struct {
+	AllowFree   *bool   `json:"allow_free,omitempty"`
 	Cadence     string  `json:"cadence"`
 	PriceUsd    float32 `json:"price_usd"`
 	QuotaPlanId int     `json:"quota_plan_id"`
