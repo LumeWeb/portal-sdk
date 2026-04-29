@@ -521,10 +521,13 @@ components:
       - description
       - currency
       - is_active
+      - position
       type: object
     PricingPlanPeriodCreateRequest:
       additionalProperties: false
       properties:
+        allow_free:
+          type: boolean
         cadence:
           type: string
         price_usd:
@@ -577,6 +580,8 @@ components:
     PricingPlanPeriodUpdateRequest:
       additionalProperties: false
       properties:
+        allow_free:
+          type: boolean
         cadence:
           type: string
         price_usd:
