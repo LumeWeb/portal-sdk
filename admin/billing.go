@@ -398,8 +398,8 @@ func (r *PricingPlanCreateRequest) toInternal() admin.PricingPlanCreateRequest {
 		IsPublic:       r.IsPublic,
 		Position:       r.Position,
 		PricelineId:    r.PricelineId,
-		PricingPeriods: lo.Map(r.PricingPeriods, func(p PricingPlanPeriod, _ int) admin.PricingPlanPeriodDTO {
-			return p.PricingPlanPeriodDTO
+		PricingPeriods: lo.Map(r.PricingPeriods, func(p PricingPlanPeriod, _ int) admin.PricingPeriodCreateInput {
+			return p.toCreateInput()
 		}),
 	}
 }
@@ -428,8 +428,8 @@ func (r *PricingPlanUpdateRequest) toInternal() admin.PricingPlanUpdateRequest {
 		Currency:       r.Currency,
 		IsActive:       r.IsActive,
 		IsPublic:       r.IsPublic,
-		PricingPeriods: lo.Map(r.PricingPeriods, func(p PricingPlanPeriod, _ int) admin.PricingPlanPeriodDTO {
-			return p.PricingPlanPeriodDTO
+		PricingPeriods: lo.Map(r.PricingPeriods, func(p PricingPlanPeriod, _ int) admin.PricingPeriodInput {
+			return p.toInput()
 		}),
 	}
 }
@@ -438,6 +438,32 @@ func (r *PricingPlanUpdateRequest) toInternal() admin.PricingPlanUpdateRequest {
 // Embeds the generated admin.PricingPlanPeriodDTO to reuse all fields.
 type PricingPlanPeriod struct {
 	admin.PricingPlanPeriodDTO
+}
+
+// toCreateInput converts PricingPlanPeriod to PricingPeriodCreateInput for API calls.
+func (p PricingPlanPeriod) toCreateInput() admin.PricingPeriodCreateInput {
+	return admin.PricingPeriodCreateInput{
+		AllowFree:   &p.AllowFree,
+		Cadence:     p.Cadence,
+		IsActive:    p.IsActive,
+		PriceUsd:    p.PriceUsd,
+		QuotaPlanId: p.QuotaPlanId,
+		RollingDays: p.RollingDays,
+	}
+}
+
+// toInput converts PricingPlanPeriod to PricingPeriodInput for API calls.
+func (p PricingPlanPeriod) toInput() admin.PricingPeriodInput {
+	id := p.Id
+	return admin.PricingPeriodInput{
+		AllowFree:   &p.AllowFree,
+		Cadence:     p.Cadence,
+		Id:          &id,
+		IsActive:    p.IsActive,
+		PriceUsd:    p.PriceUsd,
+		QuotaPlanId: p.QuotaPlanId,
+		RollingDays: p.RollingDays,
+	}
 }
 
 // PricingPlanPeriodCreateRequest represents a request to create a new pricing plan period.

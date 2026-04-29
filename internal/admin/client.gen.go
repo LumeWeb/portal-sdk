@@ -235,16 +235,37 @@ type PriceLinesListResponse struct {
 	Total int                 `json:"total"`
 }
 
+// PricingPeriodCreateInput defines model for PricingPeriodCreateInput.
+type PricingPeriodCreateInput struct {
+	AllowFree   *bool   `json:"allow_free,omitempty"`
+	Cadence     string  `json:"cadence"`
+	IsActive    bool    `json:"is_active"`
+	PriceUsd    float32 `json:"price_usd"`
+	QuotaPlanId int     `json:"quota_plan_id"`
+	RollingDays *int    `json:"rolling_days,omitempty"`
+}
+
+// PricingPeriodInput defines model for PricingPeriodInput.
+type PricingPeriodInput struct {
+	AllowFree   *bool   `json:"allow_free,omitempty"`
+	Cadence     string  `json:"cadence"`
+	Id          *int    `json:"id,omitempty"`
+	IsActive    bool    `json:"is_active"`
+	PriceUsd    float32 `json:"price_usd"`
+	QuotaPlanId int     `json:"quota_plan_id"`
+	RollingDays *int    `json:"rolling_days,omitempty"`
+}
+
 // PricingPlanCreateRequest defines model for PricingPlanCreateRequest.
 type PricingPlanCreateRequest struct {
-	Currency       string                 `json:"currency"`
-	Description    string                 `json:"description"`
-	IsActive       bool                   `json:"is_active"`
-	IsPublic       bool                   `json:"is_public"`
-	Name           string                 `json:"name"`
-	Position       *int                   `json:"position,omitempty"`
-	PricelineId    *int                   `json:"priceline_id,omitempty"`
-	PricingPeriods []PricingPlanPeriodDTO `json:"pricing_periods"`
+	Currency       string                     `json:"currency"`
+	Description    string                     `json:"description"`
+	IsActive       bool                       `json:"is_active"`
+	IsPublic       bool                       `json:"is_public"`
+	Name           string                     `json:"name"`
+	Position       *int                       `json:"position,omitempty"`
+	PricelineId    *int                       `json:"priceline_id,omitempty"`
+	PricingPeriods []PricingPeriodCreateInput `json:"pricing_periods"`
 }
 
 // PricingPlanItem defines model for PricingPlanItem.
@@ -271,6 +292,7 @@ type PricingPlanPeriodCreateRequest struct {
 
 // PricingPlanPeriodDTO defines model for PricingPlanPeriodDTO.
 type PricingPlanPeriodDTO struct {
+	AllowFree     bool      `json:"allow_free"`
 	Cadence       string    `json:"cadence"`
 	CreatedAt     time.Time `json:"created_at"`
 	Id            int       `json:"id"`
@@ -312,12 +334,12 @@ type PricingPlanResponse struct {
 
 // PricingPlanUpdateRequest defines model for PricingPlanUpdateRequest.
 type PricingPlanUpdateRequest struct {
-	Currency       string                 `json:"currency"`
-	Description    string                 `json:"description"`
-	IsActive       bool                   `json:"is_active"`
-	IsPublic       bool                   `json:"is_public"`
-	Name           string                 `json:"name"`
-	PricingPeriods []PricingPlanPeriodDTO `json:"pricing_periods"`
+	Currency       string               `json:"currency"`
+	Description    string               `json:"description"`
+	IsActive       bool                 `json:"is_active"`
+	IsPublic       bool                 `json:"is_public"`
+	Name           string               `json:"name"`
+	PricingPeriods []PricingPeriodInput `json:"pricing_periods"`
 }
 
 // PricingPlansListResponse defines model for PricingPlansListResponse.
