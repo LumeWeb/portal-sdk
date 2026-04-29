@@ -1,3 +1,9 @@
+## 0.1.48 (2026-04-29)
+
+### Features
+
+- update swagger specs and add DRY error sentinels
+
 ## 0.1.47 (2026-04-29)
 
 ### Fixes
