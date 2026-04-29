@@ -1,3 +1,9 @@
+## 0.1.47 (2026-04-29)
+
+### Fixes
+
+- add allow_free field to pricing plan period
+
 ## 0.1.46 (2026-04-29)
 
 ### Fixes
