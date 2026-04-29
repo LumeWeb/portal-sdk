@@ -1,3 +1,9 @@
+## 0.1.46 (2026-04-29)
+
+### Fixes
+
+- update admin quota spec and regenerate client
+
 ## 0.1.45 (2026-04-28)
 
 ### Fixes
