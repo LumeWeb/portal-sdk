@@ -2975,3 +2975,121 @@ func TestBillingService_GetPriceLineDetail(t *testing.T) {
 		})
 	}
 }
+
+func TestBillingService_SyncPricingPlan(t *testing.T) {
+	tests := []struct {
+		name       string
+		planID     string
+		statusCode int
+		wantErr    bool
+		errMsg     string
+	}{
+		{
+			name:       "successful sync",
+			planID:     "1",
+			statusCode: http.StatusOK,
+			wantErr:    false,
+		},
+		{
+			name:       "not found",
+			planID:     "999",
+			statusCode: http.StatusNotFound,
+			wantErr:    true,
+			errMsg:     "pricing plan not found",
+		},
+		{
+			name:       "unauthorized",
+			planID:     "1",
+			statusCode: http.StatusUnauthorized,
+			wantErr:    true,
+			errMsg:     "authentication required",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "POST" {
+					t.Errorf("expected POST request, got %s", r.Method)
+				}
+				if r.URL.Path != "/api/billing/plans/"+tt.planID+"/sync" {
+					t.Errorf("expected /api/billing/plans/%s/sync path, got %s", tt.planID, r.URL.Path)
+				}
+
+				w.WriteHeader(tt.statusCode)
+				if tt.statusCode != http.StatusOK {
+					w.Header().Set("Content-Type", "application/json")
+					json.NewEncoder(w).Encode(admin.ErrorResponse{Error: tt.errMsg})
+				}
+			}))
+			defer server.Close()
+
+			client := NewClient(WithEndpoint(server.URL))
+			err := client.Billing().SyncPricingPlan(context.Background(), tt.planID)
+
+			if tt.wantErr {
+				require.Error(t, err)
+				require.ErrorContains(t, err, tt.errMsg)
+			} else {
+				require.NoError(t, err)
+			}
+		})
+	}
+}
+
+func TestBillingService_SyncAllPricingPlans(t *testing.T) {
+	tests := []struct {
+		name       string
+		statusCode int
+		wantErr    bool
+		errMsg     string
+	}{
+		{
+			name:       "successful sync all",
+			statusCode: http.StatusOK,
+			wantErr:    false,
+		},
+		{
+			name:       "unauthorized",
+			statusCode: http.StatusUnauthorized,
+			wantErr:    true,
+			errMsg:     "authentication required",
+		},
+		{
+			name:       "forbidden",
+			statusCode: http.StatusForbidden,
+			wantErr:    true,
+			errMsg:     "insufficient permissions",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "POST" {
+					t.Errorf("expected POST request, got %s", r.Method)
+				}
+				if r.URL.Path != "/api/billing/pricing-plans/sync-all" {
+					t.Errorf("expected /api/billing/pricing-plans/sync-all path, got %s", r.URL.Path)
+				}
+
+				w.WriteHeader(tt.statusCode)
+				if tt.statusCode != http.StatusOK {
+					w.Header().Set("Content-Type", "application/json")
+					json.NewEncoder(w).Encode(admin.ErrorResponse{Error: tt.errMsg})
+				}
+			}))
+			defer server.Close()
+
+			client := NewClient(WithEndpoint(server.URL))
+			err := client.Billing().SyncAllPricingPlans(context.Background())
+
+			if tt.wantErr {
+				require.Error(t, err)
+				require.ErrorContains(t, err, tt.errMsg)
+			} else {
+				require.NoError(t, err)
+			}
+		})
+	}
+}

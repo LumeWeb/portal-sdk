@@ -98,6 +98,8 @@ const (
 	OpBillingAddPlanToPriceLine
 	OpBillingDeletePlanFromPriceLine
 	OpBillingUpdatePlanPosition
+	OpBillingSyncPricingPlan
+	OpBillingSyncAllPricingPlans
 )
 
 const defaultBillingOperationName = "billing operation"
@@ -139,6 +141,8 @@ var billingOperationString = map[int]string{
 	OpBillingAddPlanToPriceLine:       "add plan to price line",
 	OpBillingDeletePlanFromPriceLine:  "delete plan from price line",
 	OpBillingUpdatePlanPosition:       "update plan position",
+	OpBillingSyncPricingPlan:          "sync pricing plan to gateway",
+	OpBillingSyncAllPricingPlans:      "sync all pricing plans to gateways",
 }
 
 // httpErrorMessages maps billing operation IDs to their custom status code error messages.
@@ -324,6 +328,16 @@ var billingHTTPErrorMessages = map[int]map[int]internalhttp.ErrorFactoryError{
 		stdhttp.StatusForbidden:    errInsufficientPermissions,
 		stdhttp.StatusNotFound:     errPriceLineOrPlanNotFound,
 		stdhttp.StatusBadRequest:   errInvalidPositionData,
+	},
+	OpBillingSyncPricingPlan: {
+		stdhttp.StatusUnauthorized: errAuthRequired,
+		stdhttp.StatusForbidden:    errInsufficientPermissions,
+		stdhttp.StatusNotFound:     errPricingPlanNotFound,
+		stdhttp.StatusBadRequest:   errInvalidPricingPlanData,
+	},
+	OpBillingSyncAllPricingPlans: {
+		stdhttp.StatusUnauthorized: errAuthRequired,
+		stdhttp.StatusForbidden:    errInsufficientPermissions,
 	},
 }
 
@@ -847,6 +861,26 @@ func (b *BillingService) GetPriceLine(ctx context.Context, priceLineID string) (
 		Plans:       plans,
 		UpdatedAt:   data.UpdatedAt,
 	}, nil
+}
+
+// SyncPricingPlan triggers immediate synchronization of a pricing plan with payment gateway.
+func (b *BillingService) SyncPricingPlan(ctx context.Context, planID string) error {
+	resp, err := b.client.PostApiBillingPlansIdSyncWithResponse(ctx, planID)
+	if err != nil {
+		return fmt.Errorf("failed to sync pricing plan: %w", err)
+	}
+
+	return handleBillingResponse(resp.StatusCode(), resp.Body, OpBillingSyncPricingPlan, []int{stdhttp.StatusOK})
+}
+
+// SyncAllPricingPlans triggers synchronization of all pricing plans with payment gateways.
+func (b *BillingService) SyncAllPricingPlans(ctx context.Context) error {
+	resp, err := b.client.PostApiBillingPricingPlansSyncAllWithResponse(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to sync all pricing plans: %w", err)
+	}
+
+	return handleBillingResponse(resp.StatusCode(), resp.Body, OpBillingSyncAllPricingPlans, []int{stdhttp.StatusOK})
 }
 
 // UpdatePriceLine updates an existing price line.
