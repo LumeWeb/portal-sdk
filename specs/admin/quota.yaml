@@ -557,6 +557,10 @@ components:
           type: string
         position:
           type: integer
+        pricing_periods:
+          items:
+            $ref: '#/components/schemas/PricingPlanPeriodDTO'
+          type: array
         yearly_price:
           type: number
       required:
@@ -566,6 +570,7 @@ components:
       - currency
       - is_active
       - position
+      - pricing_periods
       type: object
     PricingPlanPeriodCreateRequest:
       additionalProperties: false
@@ -2626,6 +2631,46 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Internal server error
       summary: Update Pricing Plan
+      tags:
+      - Billing Admin
+  /api/billing/pricing-plans/sync-all:
+    post:
+      description: Triggers synchronization of all pricing plans with payment gateways
+        and returns results
+      responses:
+        "200":
+          description: Sync results
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Sync All Pricing Plans to Gateways
       tags:
       - Billing Admin
   /api/billing/subscribers:

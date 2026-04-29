@@ -270,14 +270,15 @@ type PricingPlanCreateRequest struct {
 
 // PricingPlanItem defines model for PricingPlanItem.
 type PricingPlanItem struct {
-	Currency     string   `json:"currency"`
-	Description  string   `json:"description"`
-	Id           int      `json:"id"`
-	IsActive     bool     `json:"is_active"`
-	MonthlyPrice *float32 `json:"monthly_price,omitempty"`
-	Name         string   `json:"name"`
-	Position     int      `json:"position"`
-	YearlyPrice  *float32 `json:"yearly_price,omitempty"`
+	Currency       string                 `json:"currency"`
+	Description    string                 `json:"description"`
+	Id             int                    `json:"id"`
+	IsActive       bool                   `json:"is_active"`
+	MonthlyPrice   *float32               `json:"monthly_price,omitempty"`
+	Name           string                 `json:"name"`
+	Position       int                    `json:"position"`
+	PricingPeriods []PricingPlanPeriodDTO `json:"pricing_periods"`
+	YearlyPrice    *float32               `json:"yearly_price,omitempty"`
 }
 
 // PricingPlanPeriodCreateRequest defines model for PricingPlanPeriodCreateRequest.
@@ -957,6 +958,9 @@ type ClientInterface interface {
 
 	PostApiBillingPricingPlans(ctx context.Context, body PostApiBillingPricingPlansJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// PostApiBillingPricingPlansSyncAll request
+	PostApiBillingPricingPlansSyncAll(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// DeleteApiBillingPricingPlansId request
 	DeleteApiBillingPricingPlansId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -1445,6 +1449,18 @@ func (c *Client) PostApiBillingPricingPlansWithBody(ctx context.Context, content
 
 func (c *Client) PostApiBillingPricingPlans(ctx context.Context, body PostApiBillingPricingPlansJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPostApiBillingPricingPlansRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiBillingPricingPlansSyncAll(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiBillingPricingPlansSyncAllRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -3331,6 +3347,33 @@ func NewPostApiBillingPricingPlansRequestWithBody(server string, contentType str
 	return req, nil
 }
 
+// NewPostApiBillingPricingPlansSyncAllRequest generates requests for PostApiBillingPricingPlansSyncAll
+func NewPostApiBillingPricingPlansSyncAllRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/billing/pricing-plans/sync-all")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewDeleteApiBillingPricingPlansIdRequest generates requests for DeleteApiBillingPricingPlansId
 func NewDeleteApiBillingPricingPlansIdRequest(server string, id string) (*http.Request, error) {
 	var err error
@@ -5116,6 +5159,9 @@ type ClientWithResponsesInterface interface {
 
 	PostApiBillingPricingPlansWithResponse(ctx context.Context, body PostApiBillingPricingPlansJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiBillingPricingPlansResponse, error)
 
+	// PostApiBillingPricingPlansSyncAllWithResponse request
+	PostApiBillingPricingPlansSyncAllWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*PostApiBillingPricingPlansSyncAllResponse, error)
+
 	// DeleteApiBillingPricingPlansIdWithResponse request
 	DeleteApiBillingPricingPlansIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteApiBillingPricingPlansIdResponse, error)
 
@@ -5841,6 +5887,32 @@ func (r PostApiBillingPricingPlansResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r PostApiBillingPricingPlansResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PostApiBillingPricingPlansSyncAllResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiBillingPricingPlansSyncAllResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiBillingPricingPlansSyncAllResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -6926,6 +6998,15 @@ func (c *ClientWithResponses) PostApiBillingPricingPlansWithResponse(ctx context
 		return nil, err
 	}
 	return ParsePostApiBillingPricingPlansResponse(rsp)
+}
+
+// PostApiBillingPricingPlansSyncAllWithResponse request returning *PostApiBillingPricingPlansSyncAllResponse
+func (c *ClientWithResponses) PostApiBillingPricingPlansSyncAllWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*PostApiBillingPricingPlansSyncAllResponse, error) {
+	rsp, err := c.PostApiBillingPricingPlansSyncAll(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiBillingPricingPlansSyncAllResponse(rsp)
 }
 
 // DeleteApiBillingPricingPlansIdWithResponse request returning *DeleteApiBillingPricingPlansIdResponse
@@ -8622,6 +8703,60 @@ func ParsePostApiBillingPricingPlansResponse(rsp *http.Response) (*PostApiBillin
 		}
 		response.JSON201 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiBillingPricingPlansSyncAllResponse parses an HTTP response from a PostApiBillingPricingPlansSyncAllWithResponse call
+func ParsePostApiBillingPricingPlansSyncAllResponse(rsp *http.Response) (*PostApiBillingPricingPlansSyncAllResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiBillingPricingPlansSyncAllResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
