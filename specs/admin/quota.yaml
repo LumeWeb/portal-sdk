@@ -467,6 +467,50 @@ components:
       - data
       - total
       type: object
+    PricingPeriodCreateInput:
+      additionalProperties: false
+      properties:
+        allow_free:
+          type: boolean
+        cadence:
+          type: string
+        is_active:
+          type: boolean
+        price_usd:
+          type: number
+        quota_plan_id:
+          type: integer
+        rolling_days:
+          type: integer
+      required:
+      - cadence
+      - price_usd
+      - quota_plan_id
+      - is_active
+      type: object
+    PricingPeriodInput:
+      additionalProperties: false
+      properties:
+        allow_free:
+          type: boolean
+        cadence:
+          type: string
+        id:
+          type: integer
+        is_active:
+          type: boolean
+        price_usd:
+          type: number
+        quota_plan_id:
+          type: integer
+        rolling_days:
+          type: integer
+      required:
+      - cadence
+      - price_usd
+      - quota_plan_id
+      - is_active
+      type: object
     PricingPlanCreateRequest:
       additionalProperties: false
       properties:
@@ -486,7 +530,7 @@ components:
           type: integer
         pricing_periods:
           items:
-            $ref: '#/components/schemas/PricingPlanPeriodDTO'
+            $ref: '#/components/schemas/PricingPeriodCreateInput'
           type: array
       required:
       - name
@@ -547,6 +591,8 @@ components:
     PricingPlanPeriodDTO:
       additionalProperties: false
       properties:
+        allow_free:
+          type: boolean
         cadence:
           type: string
         created_at:
@@ -573,6 +619,7 @@ components:
       - cadence
       - price_usd
       - quota_plan_id
+      - allow_free
       - is_active
       - created_at
       - updated_at
@@ -659,7 +706,7 @@ components:
           type: string
         pricing_periods:
           items:
-            $ref: '#/components/schemas/PricingPlanPeriodDTO'
+            $ref: '#/components/schemas/PricingPeriodInput'
           type: array
       required:
       - name
