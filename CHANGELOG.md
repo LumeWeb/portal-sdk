@@ -1,3 +1,9 @@
+## 0.1.49 (2026-04-29)
+
+### Features
+
+- add billing sync APIs for pricing plans
+
 ## 0.1.48 (2026-04-29)
 
 ### Features
