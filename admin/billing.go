@@ -560,6 +560,7 @@ type Subscriber struct {
 	Id                  int        `json:"id"`
 	IsActive            bool       `json:"is_active"`
 	PaymentStatus       *string    `json:"payment_status"`
+	PausedAt            *time.Time `json:"paused_at"`
 	PreviousPlanId      *int       `json:"previous_plan_id"`
 	PricingPlanPeriodId *int       `json:"pricing_plan_period_id"`
 	SubscriptionId      string     `json:"subscription_id"`
@@ -579,6 +580,7 @@ func (s *Subscriber) fromInternal(item admin.SubscriberItem) {
 	s.Id = item.Id
 	s.IsActive = item.IsActive
 	s.PaymentStatus = item.PaymentStatus
+	s.PausedAt = item.PausedAt
 	s.PreviousPlanId = item.PreviousPlanId
 	s.PricingPlanPeriodId = item.PricingPlanPeriodId
 	s.SubscriptionId = item.SubscriptionId
