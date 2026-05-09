@@ -1,3 +1,9 @@
+## 0.1.52 (2026-05-09)
+
+### Fixes
+
+- add PausedAt field to Subscriber type
+
 ## 0.1.51 (2026-05-09)
 
 ### Fixes
