@@ -1,3 +1,9 @@
+## 0.1.51 (2026-05-09)
+
+### Fixes
+
+- add StatusConflict to OpDeleteAccount error map
+
 ## 0.1.50 (2026-05-09)
 
 ### Features
