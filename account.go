@@ -64,6 +64,7 @@ var (
 	errInvalidVerificationToken  = internalhttp.PlainError("invalid verification token or email")
 	errInvalidEmailAddress       = internalhttp.PlainError("invalid email address")
 	errCannotDeleteAccount       = internalhttp.PlainError("cannot delete account")
+	errAccountDeleteConflict     = internalhttp.PlainError("account delete conflict")
 	errAccountNotFound           = internalhttp.PlainError("account not found")
 	errInvalidResetToken         = internalhttp.PlainError("invalid or expired reset token")
 	errInvalidPassword           = internalhttp.PlainError("invalid password")
@@ -266,6 +267,7 @@ var httpErrorMessages = map[int]map[int]internalhttp.ErrorFactoryError{
 		http.StatusUnauthorized: errAuthRequired,
 		http.StatusBadRequest:   errCannotDeleteAccount,
 		http.StatusNotFound:     errAccountNotFound,
+		http.StatusConflict:     errAccountDeleteConflict,
 	},
 	OpPasswordResetRequest: {
 		http.StatusBadRequest: errInvalidEmailAddress,
