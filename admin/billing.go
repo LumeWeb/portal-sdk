@@ -54,6 +54,8 @@ var (
 	errInvalidPlanChangeRequest      = internalhttp.PlainError("invalid plan change request")
 	errCannotPauseSubscription       = internalhttp.PlainError("subscription cannot be paused")
 	errCannotResumeSubscription      = internalhttp.PlainError("subscription cannot be resumed")
+	errNoActiveSubscription          = internalhttp.PlainError("no active subscription found")
+	errNoPausedSubscription          = internalhttp.PlainError("no paused subscription found")
 
 	// Plan errors
 	errInvalidPlanData         = internalhttp.PlainError("invalid plan data")
@@ -302,13 +304,13 @@ var billingHTTPErrorMessages = map[int]map[int]internalhttp.ErrorFactoryError{
 	OpBillingPauseUserSubscription: {
 		stdhttp.StatusUnauthorized: errAuthRequired,
 		stdhttp.StatusForbidden:    errInsufficientPermissions,
-		stdhttp.StatusNotFound:     errUserNotFound,
+		stdhttp.StatusNotFound:     errNoActiveSubscription,
 		stdhttp.StatusBadRequest:   errCannotPauseSubscription,
 	},
 	OpBillingResumeUserSubscription: {
 		stdhttp.StatusUnauthorized: errAuthRequired,
 		stdhttp.StatusForbidden:    errInsufficientPermissions,
-		stdhttp.StatusNotFound:     errUserNotFound,
+		stdhttp.StatusNotFound:     errNoPausedSubscription,
 		stdhttp.StatusBadRequest:   errCannotResumeSubscription,
 	},
 	OpBillingAddPlanToPriceLine: {
