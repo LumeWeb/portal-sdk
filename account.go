@@ -95,6 +95,7 @@ var (
 	errCannotPauseBilling        = internalhttp.PlainError("cannot pause billing")
 	errCannotResumeBilling       = internalhttp.PlainError("cannot resume billing")
 	errNoPausedSubscription      = internalhttp.PlainError("no paused subscription")
+	errCheckoutSessionNotFound   = internalhttp.PlainError("checkout session not found")
 
 	// Generic/shared error sentinels (from internalhttp)
 	errAuthRequired            = internalhttp.FactoryErrAuthRequired
@@ -176,6 +177,9 @@ const (
 	OpListPricingPlans
 	OpPauseBilling
 	OpResumeBilling
+	OpGetCheckoutSessionStatus
+	OpGetCustomerPortalURL
+	OpGetSubscriptionEvents
 )
 
 const defaultOperationName = "operation"
@@ -222,6 +226,9 @@ var operationString = map[int]string{
 	OpListPricingPlans:        "list pricing plans",
 	OpPauseBilling:            "pause billing",
 	OpResumeBilling:           "resume billing",
+	OpGetCheckoutSessionStatus: "get checkout session status",
+	OpGetCustomerPortalURL:     "get customer portal URL",
+	OpGetSubscriptionEvents:    "get subscription events",
 }
 
 // httpErrorMessages maps operation IDs to their custom status code error messages.
@@ -391,6 +398,20 @@ var httpErrorMessages = map[int]map[int]internalhttp.ErrorFactoryError{
 		http.StatusBadRequest:   errCannotResumeBilling,
 		http.StatusNotFound:     errNoPausedSubscription,
 	},
+	OpGetCheckoutSessionStatus: {
+		http.StatusUnauthorized: errAuthRequired,
+		http.StatusNotFound:     errCheckoutSessionNotFound,
+		http.StatusBadRequest:   errBadRequest,
+	},
+	OpGetCustomerPortalURL: {
+		http.StatusUnauthorized: errAuthRequired,
+		http.StatusBadRequest:   errInvalidRequest,
+		http.StatusNotFound:     errResourceNotFound,
+	},
+	OpGetSubscriptionEvents: {
+		http.StatusUnauthorized: errAuthRequired,
+		http.StatusNotFound:     errSubscriptionStatusNotFound,
+	},
 }
 
 // IsSettled returns true if the operation is in a settled state (finished, no longer being processed).
@@ -550,6 +571,27 @@ type ManagementCapabilities struct {
 // Embeds the generated client.SubscriptionStatusResponse to reuse all fields.
 type SubscriptionStatus struct {
 	client.SubscriptionStatusResponse
+}
+
+// CheckoutSessionStatus represents the status of a checkout session.
+// Embeds the generated client.CheckoutSessionStatusResponse to reuse all fields.
+type CheckoutSessionStatus struct {
+	client.CheckoutSessionStatusResponse
+}
+
+// CheckoutSessionStatusOptions provides options for GetCheckoutSessionStatus.
+type CheckoutSessionStatusOptions struct {
+	gateway *string
+}
+
+// CheckoutSessionStatusOption is a function that modifies CheckoutSessionStatusOptions.
+type CheckoutSessionStatusOption func(*CheckoutSessionStatusOptions)
+
+// WithCheckoutSessionGateway specifies the payment gateway type for the checkout session status query.
+func WithCheckoutSessionGateway(gateway string) CheckoutSessionStatusOption {
+	return func(opts *CheckoutSessionStatusOptions) {
+		opts.gateway = &gateway
+	}
 }
 
 // ManagementRequest represents a billing management operation request.
@@ -879,6 +921,15 @@ type AccountAPI interface {
 
 	// ResumeBilling resumes the user's billing/subscription.
 	ResumeBilling(ctx context.Context) (*ManagementResult, error)
+
+	// GetCheckoutSessionStatus retrieves the status of a checkout session.
+	GetCheckoutSessionStatus(ctx context.Context, sessionID string, opts ...CheckoutSessionStatusOption) (*CheckoutSessionStatus, error)
+
+	// GetCustomerPortalURL retrieves the customer portal URL for managing billing.
+	GetCustomerPortalURL(ctx context.Context) (*ManagementResult, error)
+
+	// GetSubscriptionEvents retrieves the user's subscription events.
+	GetSubscriptionEvents(ctx context.Context) error
 
 	// HandleWebhook handles a webhook event from a billing gateway.
 	HandleWebhook(ctx context.Context, gatewayType string, webhookData map[string]interface{}) error
@@ -2000,6 +2051,59 @@ func (c *Client) ResumeBilling(ctx context.Context) (*ManagementResult, error) {
 	}
 
 	return &ManagementResult{ManagementResultResponse: *resp.JSON200}, nil
+}
+
+// GetCheckoutSessionStatus retrieves the status of a checkout session.
+func (c *Client) GetCheckoutSessionStatus(ctx context.Context, sessionID string, opts ...CheckoutSessionStatusOption) (*CheckoutSessionStatus, error) {
+	options := &CheckoutSessionStatusOptions{}
+	for _, opt := range opts {
+		opt(options)
+	}
+	params := &client.GetApiAccountBillingCheckoutSessionSessionIdStatusParams{
+		Gateway: options.gateway,
+	}
+	resp, err := c.client.GetApiAccountBillingCheckoutSessionSessionIdStatusWithResponse(ctx, sessionID, params)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get checkout session status: %w", err)
+	}
+
+	if err := handleResponse(resp.StatusCode(), resp.Body, OpGetCheckoutSessionStatus, []int{http.StatusOK}); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, fmt.Errorf("get checkout session status response did not contain data")
+	}
+
+	return &CheckoutSessionStatus{CheckoutSessionStatusResponse: *resp.JSON200}, nil
+}
+
+// GetCustomerPortalURL retrieves the customer portal URL for managing billing.
+func (c *Client) GetCustomerPortalURL(ctx context.Context) (*ManagementResult, error) {
+	resp, err := c.client.PostApiAccountBillingCustomerPortalWithResponse(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get customer portal URL: %w", err)
+	}
+
+	if err := handleResponse(resp.StatusCode(), resp.Body, OpGetCustomerPortalURL, []int{http.StatusOK}); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, fmt.Errorf("get customer portal URL response did not contain data")
+	}
+
+	return &ManagementResult{ManagementResultResponse: *resp.JSON200}, nil
+}
+
+// GetSubscriptionEvents retrieves the user's subscription events.
+func (c *Client) GetSubscriptionEvents(ctx context.Context) error {
+	resp, err := c.client.GetApiAccountBillingSubscriptionEventsWithResponse(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to get subscription events: %w", err)
+	}
+
+	return handleResponse(resp.StatusCode(), resp.Body, OpGetSubscriptionEvents, []int{http.StatusOK})
 }
 
 // HandleWebhook handles a webhook event from a billing gateway.

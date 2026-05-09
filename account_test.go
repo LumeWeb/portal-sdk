@@ -5273,3 +5273,363 @@ func TestGetCheckoutUI(t *testing.T) {
 		})
 	}
 }
+
+func TestGetCheckoutSessionStatus(t *testing.T) {
+	tests := []struct {
+		name       string
+		sessionID  string
+		jwt        string
+		statusCode int
+		response   interface{}
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:       "successful get checkout session status",
+			sessionID:  "sess-123",
+			jwt:        "test-jwt-token",
+			statusCode: http.StatusOK,
+			response: client.CheckoutSessionStatusResponse{
+				CustomerEmail: "user@example.com",
+				SessionId:     "sess-123",
+				Status:        "completed",
+				UserId:        42,
+			},
+			wantErr: false,
+		},
+		{
+			name:       "unauthorized - missing JWT",
+			sessionID:  "sess-123",
+			jwt:        "",
+			statusCode: http.StatusUnauthorized,
+			response:   client.ErrorResponse{Error: "unauthorized"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorIs(t, err, ErrUnauthorized)
+			},
+		},
+		{
+			name:       "checkout session not found",
+			sessionID:  "sess-nonexistent",
+			jwt:        "test-jwt-token",
+			statusCode: http.StatusNotFound,
+			response:   client.ErrorResponse{Error: "checkout session not found"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "checkout session not found")
+			},
+		},
+		{
+			name:       "bad request",
+			sessionID:  "sess-123",
+			jwt:        "test-jwt-token",
+			statusCode: http.StatusBadRequest,
+			response:   client.ErrorResponse{Error: "bad request"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "bad request")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "GET" {
+					t.Errorf("expected GET request, got %s", r.Method)
+				}
+
+				expectedPath := "/api/account/billing/checkout/session/" + tt.sessionID + "/status"
+				if r.URL.Path != expectedPath {
+					t.Errorf("expected %s path, got %s", expectedPath, r.URL.Path)
+				}
+
+				authHeader := r.Header.Get("Authorization")
+				if tt.jwt != "" {
+					require.Equal(t, "Bearer "+tt.jwt, authHeader)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				require.NoError(t, json.NewEncoder(w).Encode(tt.response))
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithEndpoint(server.URL), WithJWT(tt.jwt))
+			result, err := acc.GetCheckoutSessionStatus(context.Background(), tt.sessionID)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetCheckoutSessionStatus() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.NotNil(t, result)
+				require.Equal(t, "user@example.com", result.CustomerEmail)
+				require.Equal(t, "sess-123", result.SessionId)
+				require.Equal(t, "completed", result.Status)
+				require.Equal(t, 42, result.UserId)
+			}
+		})
+	}
+}
+
+func TestGetCheckoutSessionStatusWithGateway(t *testing.T) {
+	tests := []struct {
+		name        string
+		sessionID   string
+		queryParams map[string]string
+		statusCode  int
+		response    interface{}
+		wantErr     bool
+	}{
+		{
+			name:        "with gateway parameter",
+			sessionID:   "sess-123",
+			queryParams: map[string]string{"gateway": "stripe"},
+			statusCode:  http.StatusOK,
+			response: client.CheckoutSessionStatusResponse{
+				CustomerEmail: "user@example.com",
+				SessionId:     "sess-123",
+				Status:        "completed",
+				UserId:        42,
+			},
+			wantErr: false,
+		},
+		{
+			name:       "without gateway parameter",
+			sessionID:  "sess-456",
+			statusCode: http.StatusOK,
+			response: client.CheckoutSessionStatusResponse{
+				CustomerEmail: "other@example.com",
+				SessionId:     "sess-456",
+				Status:        "pending",
+				UserId:        99,
+			},
+			wantErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "GET" {
+					t.Errorf("expected GET request, got %s", r.Method)
+				}
+
+				expectedPath := "/api/account/billing/checkout/session/" + tt.sessionID + "/status"
+				if r.URL.Path != expectedPath {
+					t.Errorf("expected %s path, got %s", expectedPath, r.URL.Path)
+				}
+
+				if tt.queryParams != nil {
+					for key, expectedValue := range tt.queryParams {
+						actualValue := r.URL.Query().Get(key)
+						if actualValue != expectedValue {
+							t.Errorf("expected %s=%s, got %s", key, expectedValue, actualValue)
+						}
+					}
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				require.NoError(t, json.NewEncoder(w).Encode(tt.response))
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithEndpoint(server.URL), WithJWT("test-jwt-token"))
+
+			var opts []CheckoutSessionStatusOption
+			if tt.queryParams != nil {
+				if g, ok := tt.queryParams["gateway"]; ok {
+					opts = append(opts, WithCheckoutSessionGateway(g))
+				}
+			}
+
+			result, err := acc.GetCheckoutSessionStatus(context.Background(), tt.sessionID, opts...)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetCheckoutSessionStatus() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if !tt.wantErr {
+				require.NotNil(t, result)
+			}
+		})
+	}
+}
+
+func TestGetCustomerPortalURL(t *testing.T) {
+	tests := []struct {
+		name       string
+		jwt        string
+		statusCode int
+		response   interface{}
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:       "successful get customer portal URL",
+			jwt:        "test-jwt-token",
+			statusCode: http.StatusOK,
+			response: client.ManagementResultResponse{
+				Action:              "customer_portal",
+				ConfirmationMessage: stringPtr("https://billing.example.com/portal"),
+			},
+			wantErr: false,
+		},
+		{
+			name:       "unauthorized - missing JWT",
+			jwt:        "",
+			statusCode: http.StatusUnauthorized,
+			response:   client.ErrorResponse{Error: "unauthorized"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorIs(t, err, ErrUnauthorized)
+			},
+		},
+		{
+			name:       "invalid request",
+			jwt:        "test-jwt-token",
+			statusCode: http.StatusBadRequest,
+			response:   client.ErrorResponse{Error: "invalid request"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "invalid request")
+			},
+		},
+		{
+			name:       "resource not found",
+			jwt:        "test-jwt-token",
+			statusCode: http.StatusNotFound,
+			response:   client.ErrorResponse{Error: "resource not found"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "resource not found")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "POST" {
+					t.Errorf("expected POST request, got %s", r.Method)
+				}
+
+				if r.URL.Path != "/api/account/billing/customer-portal" {
+					t.Errorf("expected /api/account/billing/customer-portal path, got %s", r.URL.Path)
+				}
+
+				authHeader := r.Header.Get("Authorization")
+				if tt.jwt != "" {
+					require.Equal(t, "Bearer "+tt.jwt, authHeader)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				require.NoError(t, json.NewEncoder(w).Encode(tt.response))
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithEndpoint(server.URL), WithJWT(tt.jwt))
+			result, err := acc.GetCustomerPortalURL(context.Background())
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetCustomerPortalURL() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.NotNil(t, result)
+				require.Equal(t, "customer_portal", result.Action)
+				require.NotNil(t, result.ConfirmationMessage)
+				require.Equal(t, "https://billing.example.com/portal", *result.ConfirmationMessage)
+			}
+		})
+	}
+}
+
+func TestGetSubscriptionEvents(t *testing.T) {
+	tests := []struct {
+		name       string
+		jwt        string
+		statusCode int
+		response   interface{}
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:       "successful get subscription events",
+			jwt:        "test-jwt-token",
+			statusCode: http.StatusOK,
+			response:   map[string]interface{}{},
+			wantErr:    false,
+		},
+		{
+			name:       "unauthorized - missing JWT",
+			jwt:        "",
+			statusCode: http.StatusUnauthorized,
+			response:   client.ErrorResponse{Error: "unauthorized"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorIs(t, err, ErrUnauthorized)
+			},
+		},
+		{
+			name:       "subscription status not found",
+			jwt:        "test-jwt-token",
+			statusCode: http.StatusNotFound,
+			response:   client.ErrorResponse{Error: "subscription status not found"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "subscription status not found")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "GET" {
+					t.Errorf("expected GET request, got %s", r.Method)
+				}
+
+				if r.URL.Path != "/api/account/billing/subscription/events" {
+					t.Errorf("expected /api/account/billing/subscription/events path, got %s", r.URL.Path)
+				}
+
+				authHeader := r.Header.Get("Authorization")
+				if tt.jwt != "" {
+					require.Equal(t, "Bearer "+tt.jwt, authHeader)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				require.NoError(t, json.NewEncoder(w).Encode(tt.response))
+			}))
+			defer server.Close()
+
+			acc := NewClient(WithEndpoint(server.URL), WithJWT(tt.jwt))
+			err := acc.GetSubscriptionEvents(context.Background())
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetSubscriptionEvents() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+		})
+	}
+}

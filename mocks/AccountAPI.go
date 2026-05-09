@@ -778,6 +778,93 @@ func (_c *MockAccountAPI_GetBalance_Call) RunAndReturn(run func(ctx context.Cont
 	return _c
 }
 
+// GetCheckoutSessionStatus provides a mock function for the type MockAccountAPI
+func (_mock *MockAccountAPI) GetCheckoutSessionStatus(ctx context.Context, sessionID string, opts ...account.CheckoutSessionStatusOption) (*account.CheckoutSessionStatus, error) {
+	// account.CheckoutSessionStatusOption
+	_va := make([]interface{}, len(opts))
+	for _i := range opts {
+		_va[_i] = opts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, sessionID)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetCheckoutSessionStatus")
+	}
+
+	var r0 *account.CheckoutSessionStatus
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, ...account.CheckoutSessionStatusOption) (*account.CheckoutSessionStatus, error)); ok {
+		return returnFunc(ctx, sessionID, opts...)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, ...account.CheckoutSessionStatusOption) *account.CheckoutSessionStatus); ok {
+		r0 = returnFunc(ctx, sessionID, opts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*account.CheckoutSessionStatus)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string, ...account.CheckoutSessionStatusOption) error); ok {
+		r1 = returnFunc(ctx, sessionID, opts...)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockAccountAPI_GetCheckoutSessionStatus_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetCheckoutSessionStatus'
+type MockAccountAPI_GetCheckoutSessionStatus_Call struct {
+	*mock.Call
+}
+
+// GetCheckoutSessionStatus is a helper method to define mock.On call
+//   - ctx context.Context
+//   - sessionID string
+//   - opts ...account.CheckoutSessionStatusOption
+func (_e *MockAccountAPI_Expecter) GetCheckoutSessionStatus(ctx interface{}, sessionID interface{}, opts ...interface{}) *MockAccountAPI_GetCheckoutSessionStatus_Call {
+	return &MockAccountAPI_GetCheckoutSessionStatus_Call{Call: _e.mock.On("GetCheckoutSessionStatus",
+		append([]interface{}{ctx, sessionID}, opts...)...)}
+}
+
+func (_c *MockAccountAPI_GetCheckoutSessionStatus_Call) Run(run func(ctx context.Context, sessionID string, opts ...account.CheckoutSessionStatusOption)) *MockAccountAPI_GetCheckoutSessionStatus_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 []account.CheckoutSessionStatusOption
+		variadicArgs := make([]account.CheckoutSessionStatusOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(account.CheckoutSessionStatusOption)
+			}
+		}
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
+	})
+	return _c
+}
+
+func (_c *MockAccountAPI_GetCheckoutSessionStatus_Call) Return(checkoutSessionStatus *account.CheckoutSessionStatus, err error) *MockAccountAPI_GetCheckoutSessionStatus_Call {
+	_c.Call.Return(checkoutSessionStatus, err)
+	return _c
+}
+
+func (_c *MockAccountAPI_GetCheckoutSessionStatus_Call) RunAndReturn(run func(ctx context.Context, sessionID string, opts ...account.CheckoutSessionStatusOption) (*account.CheckoutSessionStatus, error)) *MockAccountAPI_GetCheckoutSessionStatus_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetCheckoutUI provides a mock function for the type MockAccountAPI
 func (_mock *MockAccountAPI) GetCheckoutUI(ctx context.Context, planID string, opts ...account.CheckoutUIOption) (*account.CheckoutUI, error) {
 	// account.CheckoutUIOption
@@ -861,6 +948,68 @@ func (_c *MockAccountAPI_GetCheckoutUI_Call) Return(checkoutUI *account.Checkout
 }
 
 func (_c *MockAccountAPI_GetCheckoutUI_Call) RunAndReturn(run func(ctx context.Context, planID string, opts ...account.CheckoutUIOption) (*account.CheckoutUI, error)) *MockAccountAPI_GetCheckoutUI_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetCustomerPortalURL provides a mock function for the type MockAccountAPI
+func (_mock *MockAccountAPI) GetCustomerPortalURL(ctx context.Context) (*account.ManagementResult, error) {
+	ret := _mock.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetCustomerPortalURL")
+	}
+
+	var r0 *account.ManagementResult
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context) (*account.ManagementResult, error)); ok {
+		return returnFunc(ctx)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context) *account.ManagementResult); ok {
+		r0 = returnFunc(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*account.ManagementResult)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = returnFunc(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockAccountAPI_GetCustomerPortalURL_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetCustomerPortalURL'
+type MockAccountAPI_GetCustomerPortalURL_Call struct {
+	*mock.Call
+}
+
+// GetCustomerPortalURL is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockAccountAPI_Expecter) GetCustomerPortalURL(ctx interface{}) *MockAccountAPI_GetCustomerPortalURL_Call {
+	return &MockAccountAPI_GetCustomerPortalURL_Call{Call: _e.mock.On("GetCustomerPortalURL", ctx)}
+}
+
+func (_c *MockAccountAPI_GetCustomerPortalURL_Call) Run(run func(ctx context.Context)) *MockAccountAPI_GetCustomerPortalURL_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockAccountAPI_GetCustomerPortalURL_Call) Return(managementResult *account.ManagementResult, err error) *MockAccountAPI_GetCustomerPortalURL_Call {
+	_c.Call.Return(managementResult, err)
+	return _c
+}
+
+func (_c *MockAccountAPI_GetCustomerPortalURL_Call) RunAndReturn(run func(ctx context.Context) (*account.ManagementResult, error)) *MockAccountAPI_GetCustomerPortalURL_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -1325,6 +1474,57 @@ func (_c *MockAccountAPI_GetQuotaHistory_Call) Return(quotaHistory *account.Quot
 }
 
 func (_c *MockAccountAPI_GetQuotaHistory_Call) RunAndReturn(run func(ctx context.Context, startDate string, endDate string, usageType string) (*account.QuotaHistory, error)) *MockAccountAPI_GetQuotaHistory_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetSubscriptionEvents provides a mock function for the type MockAccountAPI
+func (_mock *MockAccountAPI) GetSubscriptionEvents(ctx context.Context) error {
+	ret := _mock.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetSubscriptionEvents")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context) error); ok {
+		r0 = returnFunc(ctx)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockAccountAPI_GetSubscriptionEvents_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetSubscriptionEvents'
+type MockAccountAPI_GetSubscriptionEvents_Call struct {
+	*mock.Call
+}
+
+// GetSubscriptionEvents is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockAccountAPI_Expecter) GetSubscriptionEvents(ctx interface{}) *MockAccountAPI_GetSubscriptionEvents_Call {
+	return &MockAccountAPI_GetSubscriptionEvents_Call{Call: _e.mock.On("GetSubscriptionEvents", ctx)}
+}
+
+func (_c *MockAccountAPI_GetSubscriptionEvents_Call) Run(run func(ctx context.Context)) *MockAccountAPI_GetSubscriptionEvents_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockAccountAPI_GetSubscriptionEvents_Call) Return(err error) *MockAccountAPI_GetSubscriptionEvents_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockAccountAPI_GetSubscriptionEvents_Call) RunAndReturn(run func(ctx context.Context) error) *MockAccountAPI_GetSubscriptionEvents_Call {
 	_c.Call.Return(run)
 	return _c
 }
