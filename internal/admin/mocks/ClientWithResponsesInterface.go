@@ -1338,6 +1338,93 @@ func (_c *MockClientWithResponsesInterface_GetApiBillingPricingPlanPeriodsWithRe
 	return _c
 }
 
+// GetApiBillingPricingPlansIdWithResponse provides a mock function for the type MockClientWithResponsesInterface
+func (_mock *MockClientWithResponsesInterface) GetApiBillingPricingPlansIdWithResponse(ctx context.Context, id string, reqEditors ...admin.RequestEditorFn) (*admin.GetApiBillingPricingPlansIdResponse, error) {
+	// admin.RequestEditorFn
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, id)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetApiBillingPricingPlansIdWithResponse")
+	}
+
+	var r0 *admin.GetApiBillingPricingPlansIdResponse
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, ...admin.RequestEditorFn) (*admin.GetApiBillingPricingPlansIdResponse, error)); ok {
+		return returnFunc(ctx, id, reqEditors...)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, ...admin.RequestEditorFn) *admin.GetApiBillingPricingPlansIdResponse); ok {
+		r0 = returnFunc(ctx, id, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*admin.GetApiBillingPricingPlansIdResponse)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string, ...admin.RequestEditorFn) error); ok {
+		r1 = returnFunc(ctx, id, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_GetApiBillingPricingPlansIdWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetApiBillingPricingPlansIdWithResponse'
+type MockClientWithResponsesInterface_GetApiBillingPricingPlansIdWithResponse_Call struct {
+	*mock.Call
+}
+
+// GetApiBillingPricingPlansIdWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id string
+//   - reqEditors ...admin.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) GetApiBillingPricingPlansIdWithResponse(ctx interface{}, id interface{}, reqEditors ...interface{}) *MockClientWithResponsesInterface_GetApiBillingPricingPlansIdWithResponse_Call {
+	return &MockClientWithResponsesInterface_GetApiBillingPricingPlansIdWithResponse_Call{Call: _e.mock.On("GetApiBillingPricingPlansIdWithResponse",
+		append([]interface{}{ctx, id}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiBillingPricingPlansIdWithResponse_Call) Run(run func(ctx context.Context, id string, reqEditors ...admin.RequestEditorFn)) *MockClientWithResponsesInterface_GetApiBillingPricingPlansIdWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 []admin.RequestEditorFn
+		variadicArgs := make([]admin.RequestEditorFn, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(admin.RequestEditorFn)
+			}
+		}
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiBillingPricingPlansIdWithResponse_Call) Return(getApiBillingPricingPlansIdResponse *admin.GetApiBillingPricingPlansIdResponse, err error) *MockClientWithResponsesInterface_GetApiBillingPricingPlansIdWithResponse_Call {
+	_c.Call.Return(getApiBillingPricingPlansIdResponse, err)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiBillingPricingPlansIdWithResponse_Call) RunAndReturn(run func(ctx context.Context, id string, reqEditors ...admin.RequestEditorFn) (*admin.GetApiBillingPricingPlansIdResponse, error)) *MockClientWithResponsesInterface_GetApiBillingPricingPlansIdWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetApiBillingPricingPlansWithResponse provides a mock function for the type MockClientWithResponsesInterface
 func (_mock *MockClientWithResponsesInterface) GetApiBillingPricingPlansWithResponse(ctx context.Context, reqEditors ...admin.RequestEditorFn) (*admin.GetApiBillingPricingPlansResponse, error) {
 	// admin.RequestEditorFn
@@ -3347,6 +3434,87 @@ func (_c *MockClientWithResponsesInterface_PostApiBillingPricingPlanPeriodsWithR
 }
 
 func (_c *MockClientWithResponsesInterface_PostApiBillingPricingPlanPeriodsWithResponse_Call) RunAndReturn(run func(ctx context.Context, body admin.PostApiBillingPricingPlanPeriodsJSONRequestBody, reqEditors ...admin.RequestEditorFn) (*admin.PostApiBillingPricingPlanPeriodsResponse, error)) *MockClientWithResponsesInterface_PostApiBillingPricingPlanPeriodsWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// PostApiBillingPricingPlansSyncAllWithResponse provides a mock function for the type MockClientWithResponsesInterface
+func (_mock *MockClientWithResponsesInterface) PostApiBillingPricingPlansSyncAllWithResponse(ctx context.Context, reqEditors ...admin.RequestEditorFn) (*admin.PostApiBillingPricingPlansSyncAllResponse, error) {
+	// admin.RequestEditorFn
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PostApiBillingPricingPlansSyncAllWithResponse")
+	}
+
+	var r0 *admin.PostApiBillingPricingPlansSyncAllResponse
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ...admin.RequestEditorFn) (*admin.PostApiBillingPricingPlansSyncAllResponse, error)); ok {
+		return returnFunc(ctx, reqEditors...)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ...admin.RequestEditorFn) *admin.PostApiBillingPricingPlansSyncAllResponse); ok {
+		r0 = returnFunc(ctx, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*admin.PostApiBillingPricingPlansSyncAllResponse)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, ...admin.RequestEditorFn) error); ok {
+		r1 = returnFunc(ctx, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_PostApiBillingPricingPlansSyncAllWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PostApiBillingPricingPlansSyncAllWithResponse'
+type MockClientWithResponsesInterface_PostApiBillingPricingPlansSyncAllWithResponse_Call struct {
+	*mock.Call
+}
+
+// PostApiBillingPricingPlansSyncAllWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - reqEditors ...admin.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) PostApiBillingPricingPlansSyncAllWithResponse(ctx interface{}, reqEditors ...interface{}) *MockClientWithResponsesInterface_PostApiBillingPricingPlansSyncAllWithResponse_Call {
+	return &MockClientWithResponsesInterface_PostApiBillingPricingPlansSyncAllWithResponse_Call{Call: _e.mock.On("PostApiBillingPricingPlansSyncAllWithResponse",
+		append([]interface{}{ctx}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiBillingPricingPlansSyncAllWithResponse_Call) Run(run func(ctx context.Context, reqEditors ...admin.RequestEditorFn)) *MockClientWithResponsesInterface_PostApiBillingPricingPlansSyncAllWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 []admin.RequestEditorFn
+		variadicArgs := make([]admin.RequestEditorFn, len(args)-1)
+		for i, a := range args[1:] {
+			if a != nil {
+				variadicArgs[i] = a.(admin.RequestEditorFn)
+			}
+		}
+		arg1 = variadicArgs
+		run(
+			arg0,
+			arg1...,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiBillingPricingPlansSyncAllWithResponse_Call) Return(postApiBillingPricingPlansSyncAllResponse *admin.PostApiBillingPricingPlansSyncAllResponse, err error) *MockClientWithResponsesInterface_PostApiBillingPricingPlansSyncAllWithResponse_Call {
+	_c.Call.Return(postApiBillingPricingPlansSyncAllResponse, err)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiBillingPricingPlansSyncAllWithResponse_Call) RunAndReturn(run func(ctx context.Context, reqEditors ...admin.RequestEditorFn) (*admin.PostApiBillingPricingPlansSyncAllResponse, error)) *MockClientWithResponsesInterface_PostApiBillingPricingPlansSyncAllWithResponse_Call {
 	_c.Call.Return(run)
 	return _c
 }
