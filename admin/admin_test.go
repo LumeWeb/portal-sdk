@@ -2470,13 +2470,13 @@ func TestBillingService_PauseUserSubscription(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name:       "user not found",
+			name:       "no active subscription found",
 			userID:     "999",
 			statusCode: http.StatusNotFound,
-			response:   admin.ErrorResponse{Error: "user not found"},
+			response:   admin.ErrorResponse{Error: "no active subscription found"},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
-				require.ErrorContains(t, err, "not found")
+				require.ErrorContains(t, err, "no active subscription found")
 			},
 		},
 		{
@@ -2561,13 +2561,13 @@ func TestBillingService_ResumeUserSubscription(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name:       "user not found",
+			name:       "no paused subscription found",
 			userID:     "999",
 			statusCode: http.StatusNotFound,
-			response:   admin.ErrorResponse{Error: "user not found"},
+			response:   admin.ErrorResponse{Error: "no paused subscription found"},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
-				require.ErrorContains(t, err, "not found")
+				require.ErrorContains(t, err, "no paused subscription found")
 			},
 		},
 		{
