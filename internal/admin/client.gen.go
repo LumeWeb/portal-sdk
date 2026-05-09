@@ -80,6 +80,16 @@ type BalanceResponse struct {
 	UserId  int     `json:"user_id"`
 }
 
+// CheckoutUIFragmentResponse defines model for CheckoutUIFragmentResponse.
+type CheckoutUIFragmentResponse struct {
+	Css      *string                 `json:"css,omitempty"`
+	Html     *string                 `json:"html,omitempty"`
+	Link     *string                 `json:"link,omitempty"`
+	Metadata *map[string]interface{} `json:"metadata,omitempty"`
+	Script   *string                 `json:"script,omitempty"`
+	Type     string                  `json:"type"`
+}
+
 // CleanupRequest defines model for CleanupRequest.
 type CleanupRequest struct {
 	RetentionDays int `json:"retention_days"`
@@ -177,11 +187,12 @@ type ManagementResultResponse struct {
 
 // PlanChangeResultResponse defines model for PlanChangeResultResponse.
 type PlanChangeResultResponse struct {
-	Action        string     `json:"action"`
-	ChargeDue     Decimal    `json:"charge_due"`
-	CheckoutLink  *string    `json:"checkout_link,omitempty"`
-	CreditApplied Decimal    `json:"credit_applied"`
-	EffectiveDate *time.Time `json:"effective_date,omitempty"`
+	Action        string                        `json:"action"`
+	ChargeDue     Decimal                       `json:"charge_due"`
+	CheckoutLink  *string                       `json:"checkout_link,omitempty"`
+	CreditApplied Decimal                       `json:"credit_applied"`
+	EffectiveDate *time.Time                    `json:"effective_date,omitempty"`
+	Fragments     *[]CheckoutUIFragmentResponse `json:"fragments,omitempty"`
 }
 
 // PlanListResponse defines model for PlanListResponse.
@@ -325,6 +336,7 @@ type PricingPlanResponse struct {
 	CreatedAt      time.Time              `json:"created_at"`
 	Currency       string                 `json:"currency"`
 	Description    string                 `json:"description"`
+	Features       []string               `json:"features"`
 	Id             int                    `json:"id"`
 	IsActive       bool                   `json:"is_active"`
 	IsPublic       bool                   `json:"is_public"`
@@ -416,6 +428,7 @@ type SubscriberItem struct {
 	GatewayType         string     `json:"gateway_type"`
 	Id                  int        `json:"id"`
 	IsActive            bool       `json:"is_active"`
+	PausedAt            *time.Time `json:"paused_at,omitempty"`
 	PaymentStatus       *string    `json:"payment_status,omitempty"`
 	PreviousPlanId      *int       `json:"previous_plan_id,omitempty"`
 	PricingPlanPeriodId *int       `json:"pricing_plan_period_id,omitempty"`
@@ -435,6 +448,7 @@ type SubscriberResponse struct {
 	GatewayType         string     `json:"gateway_type"`
 	Id                  int        `json:"id"`
 	IsActive            bool       `json:"is_active"`
+	PausedAt            *time.Time `json:"paused_at,omitempty"`
 	PaymentStatus       *string    `json:"payment_status,omitempty"`
 	PreviousPlanId      *int       `json:"previous_plan_id,omitempty"`
 	PricingPlanPeriodId *int       `json:"pricing_plan_period_id,omitempty"`

@@ -99,6 +99,14 @@ type ChangePlanRequest struct {
 	PeriodId int `json:"period_id"`
 }
 
+// CheckoutSessionStatusResponse defines model for CheckoutSessionStatusResponse.
+type CheckoutSessionStatusResponse struct {
+	CustomerEmail string `json:"customer_email"`
+	SessionId     string `json:"session_id"`
+	Status        string `json:"status"`
+	UserId        int    `json:"user_id"`
+}
+
 // CheckoutUIFragment defines model for CheckoutUIFragment.
 type CheckoutUIFragment struct {
 	Css      *string                 `json:"css,omitempty"`
@@ -139,16 +147,24 @@ type ErrorResponse struct {
 	Error string `json:"error"`
 }
 
+// GatewayAbilities defines model for GatewayAbilities.
+type GatewayAbilities struct {
+	Checkout       bool `json:"checkout"`
+	CustomerPortal bool `json:"customer_portal"`
+	SessionStatus  bool `json:"session_status"`
+}
+
 // GatewayListResponse defines model for GatewayListResponse.
 type GatewayListResponse = []GatewayPublicInfo
 
 // GatewayPublicInfo defines model for GatewayPublicInfo.
 type GatewayPublicInfo struct {
-	Description string `json:"description"`
-	Id          string `json:"id"`
-	IsActive    bool   `json:"is_active"`
-	LogoUrl     string `json:"logo_url"`
-	Name        string `json:"name"`
+	Abilities   GatewayAbilities `json:"abilities"`
+	Description string           `json:"description"`
+	Id          string           `json:"id"`
+	IsActive    bool             `json:"is_active"`
+	LogoUrl     string           `json:"logo_url"`
+	Name        string           `json:"name"`
 }
 
 // LoginRequest defines model for LoginRequest.
@@ -311,6 +327,7 @@ type PublicPricingPlanPeriodDTO struct {
 type PublicPricingPlanResponse struct {
 	Currency       string                       `json:"currency"`
 	Description    string                       `json:"description"`
+	Features       []string                     `json:"features"`
 	Id             int                          `json:"id"`
 	Name           string                       `json:"name"`
 	PricingPeriods []PublicPricingPlanPeriodDTO `json:"pricing_periods"`
@@ -364,6 +381,7 @@ type SubscriptionStatusResponse struct {
 	CreatedAt           *time.Time `json:"created_at,omitempty"`
 	GatewayType         *string    `json:"gateway_type,omitempty"`
 	IsSubscribed        bool       `json:"is_subscribed"`
+	PausedAt            *time.Time `json:"paused_at,omitempty"`
 	PricingPlanPeriodId *int       `json:"pricing_plan_period_id,omitempty"`
 	UpdatedAt           *time.Time `json:"updated_at,omitempty"`
 	WillCancelAt        *time.Time `json:"will_cancel_at,omitempty"`
@@ -438,6 +456,12 @@ type StringUUIDSchema = openapi_types.UUID
 // PostApiAccountAvatarMultipartBody defines parameters for PostApiAccountAvatar.
 type PostApiAccountAvatarMultipartBody struct {
 	File openapi_types.File `json:"file"`
+}
+
+// GetApiAccountBillingCheckoutSessionSessionIdStatusParams defines parameters for GetApiAccountBillingCheckoutSessionSessionIdStatus.
+type GetApiAccountBillingCheckoutSessionSessionIdStatusParams struct {
+	// Gateway Payment gateway type (defaults to Stripe if not specified)
+	Gateway *string `form:"gateway,omitempty" json:"gateway,omitempty"`
 }
 
 // GetApiAccountBillingCheckoutUiPlanIdParams defines parameters for GetApiAccountBillingCheckoutUiPlanId.
@@ -832,11 +856,17 @@ type ClientInterface interface {
 
 	PostApiAccountBillingChangePlan(ctx context.Context, body PostApiAccountBillingChangePlanJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetApiAccountBillingCheckoutSessionSessionIdStatus request
+	GetApiAccountBillingCheckoutSessionSessionIdStatus(ctx context.Context, sessionId string, params *GetApiAccountBillingCheckoutSessionSessionIdStatusParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetApiAccountBillingCheckoutUiPlanId request
 	GetApiAccountBillingCheckoutUiPlanId(ctx context.Context, planId string, params *GetApiAccountBillingCheckoutUiPlanIdParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetApiAccountBillingCredits request
 	GetApiAccountBillingCredits(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiAccountBillingCustomerPortal request
+	PostApiAccountBillingCustomerPortal(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// PostApiAccountBillingManagementWithBody request with any body
 	PostApiAccountBillingManagementWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1104,6 +1134,18 @@ func (c *Client) PostApiAccountBillingChangePlan(ctx context.Context, body PostA
 	return c.Client.Do(req)
 }
 
+func (c *Client) GetApiAccountBillingCheckoutSessionSessionIdStatus(ctx context.Context, sessionId string, params *GetApiAccountBillingCheckoutSessionSessionIdStatusParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiAccountBillingCheckoutSessionSessionIdStatusRequest(c.Server, sessionId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) GetApiAccountBillingCheckoutUiPlanId(ctx context.Context, planId string, params *GetApiAccountBillingCheckoutUiPlanIdParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetApiAccountBillingCheckoutUiPlanIdRequest(c.Server, planId, params)
 	if err != nil {
@@ -1118,6 +1160,18 @@ func (c *Client) GetApiAccountBillingCheckoutUiPlanId(ctx context.Context, planI
 
 func (c *Client) GetApiAccountBillingCredits(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetApiAccountBillingCreditsRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiAccountBillingCustomerPortal(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiAccountBillingCustomerPortalRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -1987,6 +2041,62 @@ func NewPostApiAccountBillingChangePlanRequestWithBody(server string, contentTyp
 	return req, nil
 }
 
+// NewGetApiAccountBillingCheckoutSessionSessionIdStatusRequest generates requests for GetApiAccountBillingCheckoutSessionSessionIdStatus
+func NewGetApiAccountBillingCheckoutSessionSessionIdStatusRequest(server string, sessionId string, params *GetApiAccountBillingCheckoutSessionSessionIdStatusParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "sessionId", runtime.ParamLocationPath, sessionId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/account/billing/checkout/session/%s/status", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Gateway != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "gateway", runtime.ParamLocationQuery, *params.Gateway); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewGetApiAccountBillingCheckoutUiPlanIdRequest generates requests for GetApiAccountBillingCheckoutUiPlanId
 func NewGetApiAccountBillingCheckoutUiPlanIdRequest(server string, planId string, params *GetApiAccountBillingCheckoutUiPlanIdParams) (*http.Request, error) {
 	var err error
@@ -2079,6 +2189,33 @@ func NewGetApiAccountBillingCreditsRequest(server string) (*http.Request, error)
 	}
 
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPostApiAccountBillingCustomerPortalRequest generates requests for PostApiAccountBillingCustomerPortal
+func NewPostApiAccountBillingCustomerPortalRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/account/billing/customer-portal")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -4458,11 +4595,17 @@ type ClientWithResponsesInterface interface {
 
 	PostApiAccountBillingChangePlanWithResponse(ctx context.Context, body PostApiAccountBillingChangePlanJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiAccountBillingChangePlanResponse, error)
 
+	// GetApiAccountBillingCheckoutSessionSessionIdStatusWithResponse request
+	GetApiAccountBillingCheckoutSessionSessionIdStatusWithResponse(ctx context.Context, sessionId string, params *GetApiAccountBillingCheckoutSessionSessionIdStatusParams, reqEditors ...RequestEditorFn) (*GetApiAccountBillingCheckoutSessionSessionIdStatusResponse, error)
+
 	// GetApiAccountBillingCheckoutUiPlanIdWithResponse request
 	GetApiAccountBillingCheckoutUiPlanIdWithResponse(ctx context.Context, planId string, params *GetApiAccountBillingCheckoutUiPlanIdParams, reqEditors ...RequestEditorFn) (*GetApiAccountBillingCheckoutUiPlanIdResponse, error)
 
 	// GetApiAccountBillingCreditsWithResponse request
 	GetApiAccountBillingCreditsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiAccountBillingCreditsResponse, error)
+
+	// PostApiAccountBillingCustomerPortalWithResponse request
+	PostApiAccountBillingCustomerPortalWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*PostApiAccountBillingCustomerPortalResponse, error)
 
 	// PostApiAccountBillingManagementWithBodyWithResponse request with any body
 	PostApiAccountBillingManagementWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAccountBillingManagementResponse, error)
@@ -4832,6 +4975,34 @@ func (r PostApiAccountBillingChangePlanResponse) StatusCode() int {
 	return 0
 }
 
+type GetApiAccountBillingCheckoutSessionSessionIdStatusResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *CheckoutSessionStatusResponse
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+	JSON501      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiAccountBillingCheckoutSessionSessionIdStatusResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiAccountBillingCheckoutSessionSessionIdStatusResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type GetApiAccountBillingCheckoutUiPlanIdResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -4881,6 +5052,33 @@ func (r GetApiAccountBillingCreditsResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetApiAccountBillingCreditsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PostApiAccountBillingCustomerPortalResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ManagementResultResponse
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiAccountBillingCustomerPortalResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiAccountBillingCustomerPortalResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -5885,6 +6083,15 @@ func (c *ClientWithResponses) PostApiAccountBillingChangePlanWithResponse(ctx co
 	return ParsePostApiAccountBillingChangePlanResponse(rsp)
 }
 
+// GetApiAccountBillingCheckoutSessionSessionIdStatusWithResponse request returning *GetApiAccountBillingCheckoutSessionSessionIdStatusResponse
+func (c *ClientWithResponses) GetApiAccountBillingCheckoutSessionSessionIdStatusWithResponse(ctx context.Context, sessionId string, params *GetApiAccountBillingCheckoutSessionSessionIdStatusParams, reqEditors ...RequestEditorFn) (*GetApiAccountBillingCheckoutSessionSessionIdStatusResponse, error) {
+	rsp, err := c.GetApiAccountBillingCheckoutSessionSessionIdStatus(ctx, sessionId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiAccountBillingCheckoutSessionSessionIdStatusResponse(rsp)
+}
+
 // GetApiAccountBillingCheckoutUiPlanIdWithResponse request returning *GetApiAccountBillingCheckoutUiPlanIdResponse
 func (c *ClientWithResponses) GetApiAccountBillingCheckoutUiPlanIdWithResponse(ctx context.Context, planId string, params *GetApiAccountBillingCheckoutUiPlanIdParams, reqEditors ...RequestEditorFn) (*GetApiAccountBillingCheckoutUiPlanIdResponse, error) {
 	rsp, err := c.GetApiAccountBillingCheckoutUiPlanId(ctx, planId, params, reqEditors...)
@@ -5901,6 +6108,15 @@ func (c *ClientWithResponses) GetApiAccountBillingCreditsWithResponse(ctx contex
 		return nil, err
 	}
 	return ParseGetApiAccountBillingCreditsResponse(rsp)
+}
+
+// PostApiAccountBillingCustomerPortalWithResponse request returning *PostApiAccountBillingCustomerPortalResponse
+func (c *ClientWithResponses) PostApiAccountBillingCustomerPortalWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*PostApiAccountBillingCustomerPortalResponse, error) {
+	rsp, err := c.PostApiAccountBillingCustomerPortal(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiAccountBillingCustomerPortalResponse(rsp)
 }
 
 // PostApiAccountBillingManagementWithBodyWithResponse request with arbitrary body returning *PostApiAccountBillingManagementResponse
@@ -6816,6 +7032,74 @@ func ParsePostApiAccountBillingChangePlanResponse(rsp *http.Response) (*PostApiA
 	return response, nil
 }
 
+// ParseGetApiAccountBillingCheckoutSessionSessionIdStatusResponse parses an HTTP response from a GetApiAccountBillingCheckoutSessionSessionIdStatusWithResponse call
+func ParseGetApiAccountBillingCheckoutSessionSessionIdStatusResponse(rsp *http.Response) (*GetApiAccountBillingCheckoutSessionSessionIdStatusResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiAccountBillingCheckoutSessionSessionIdStatusResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest CheckoutSessionStatusResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 501:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON501 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseGetApiAccountBillingCheckoutUiPlanIdResponse parses an HTTP response from a GetApiAccountBillingCheckoutUiPlanIdWithResponse call
 func ParseGetApiAccountBillingCheckoutUiPlanIdResponse(rsp *http.Response) (*GetApiAccountBillingCheckoutUiPlanIdResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -6900,6 +7184,67 @@ func ParseGetApiAccountBillingCreditsResponse(rsp *http.Response) (*GetApiAccoun
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest UserCreditsListResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiAccountBillingCustomerPortalResponse parses an HTTP response from a PostApiAccountBillingCustomerPortalWithResponse call
+func ParsePostApiAccountBillingCustomerPortalResponse(rsp *http.Response) (*PostApiAccountBillingCustomerPortalResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiAccountBillingCustomerPortalResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ManagementResultResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

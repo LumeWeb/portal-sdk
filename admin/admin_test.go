@@ -3093,3 +3093,213 @@ func TestBillingService_SyncAllPricingPlans(t *testing.T) {
 		})
 	}
 }
+
+// === Website Service Tests ===
+
+func TestWebsiteService_BlockWebsite(t *testing.T) {
+	now := time.Now()
+
+	tests := []struct {
+		name       string
+		websiteID  string
+		statusCode int
+		response   interface{}
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:       "successful block website",
+			websiteID:  "1",
+			statusCode: http.StatusOK,
+			response: admin.WebsiteResponse{
+				Id:                1,
+				Domain:            "example.com",
+				Status:            "blocked",
+				TargetHash:        "QmHash123",
+				TargetType:        "ipfs",
+				Created:           now,
+				Updated:           now,
+				DnsHostingEnabled: true,
+				Expired:           false,
+				ValidationToken:   "token123",
+			},
+			wantErr: false,
+		},
+		{
+			name:       "unauthorized",
+			websiteID:  "1",
+			statusCode: http.StatusUnauthorized,
+			response:   admin.ErrorResponse{Error: "unauthorized"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "unauthorized")
+			},
+		},
+		{
+			name:       "website not found",
+			websiteID:  "999",
+			statusCode: http.StatusNotFound,
+			response:   admin.ErrorResponse{Error: "website not found"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "website not found")
+			},
+		},
+		{
+			name:       "cannot block website",
+			websiteID:  "1",
+			statusCode: http.StatusBadRequest,
+			response:   admin.ErrorResponse{Error: "cannot block website"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "cannot block website")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "POST" {
+					t.Errorf("expected POST request, got %s", r.Method)
+				}
+				expectedPath := fmt.Sprintf("/api/ipfs/websites/%s/block", tt.websiteID)
+				if r.URL.Path != expectedPath {
+					t.Errorf("expected %s path, got %s", expectedPath, r.URL.Path)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				require.NoError(t, json.NewEncoder(w).Encode(tt.response))
+			}))
+			defer server.Close()
+
+			client := NewClient(WithEndpoint(server.URL))
+			website, err := client.Website().BlockWebsite(context.Background(), tt.websiteID)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("BlockWebsite() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.NotNil(t, website)
+				require.Equal(t, 1, website.Id)
+				require.Equal(t, "example.com", website.Domain)
+				require.Equal(t, "blocked", website.Status)
+				require.Equal(t, "QmHash123", website.TargetHash)
+				require.Equal(t, "ipfs", website.TargetType)
+				require.True(t, website.DnsHostingEnabled)
+				require.False(t, website.Expired)
+			}
+		})
+	}
+}
+
+func TestWebsiteService_UnblockWebsite(t *testing.T) {
+	now := time.Now()
+
+	tests := []struct {
+		name       string
+		websiteID  string
+		statusCode int
+		response   interface{}
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:       "successful unblock website",
+			websiteID:  "1",
+			statusCode: http.StatusOK,
+			response: admin.WebsiteResponse{
+				Id:                1,
+				Domain:            "example.com",
+				Status:            "active",
+				TargetHash:        "QmHash123",
+				TargetType:        "ipfs",
+				Created:           now,
+				Updated:           now,
+				DnsHostingEnabled: true,
+				Expired:           false,
+				ValidationToken:   "token123",
+			},
+			wantErr: false,
+		},
+		{
+			name:       "unauthorized",
+			websiteID:  "1",
+			statusCode: http.StatusUnauthorized,
+			response:   admin.ErrorResponse{Error: "unauthorized"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "unauthorized")
+			},
+		},
+		{
+			name:       "website not found",
+			websiteID:  "999",
+			statusCode: http.StatusNotFound,
+			response:   admin.ErrorResponse{Error: "website not found"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "website not found")
+			},
+		},
+		{
+			name:       "cannot unblock website",
+			websiteID:  "1",
+			statusCode: http.StatusBadRequest,
+			response:   admin.ErrorResponse{Error: "cannot unblock website"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "cannot unblock website")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "POST" {
+					t.Errorf("expected POST request, got %s", r.Method)
+				}
+				expectedPath := fmt.Sprintf("/api/ipfs/websites/%s/unblock", tt.websiteID)
+				if r.URL.Path != expectedPath {
+					t.Errorf("expected %s path, got %s", expectedPath, r.URL.Path)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				require.NoError(t, json.NewEncoder(w).Encode(tt.response))
+			}))
+			defer server.Close()
+
+			client := NewClient(WithEndpoint(server.URL))
+			website, err := client.Website().UnblockWebsite(context.Background(), tt.websiteID)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("UnblockWebsite() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.NotNil(t, website)
+				require.Equal(t, 1, website.Id)
+				require.Equal(t, "example.com", website.Domain)
+				require.Equal(t, "active", website.Status)
+				require.Equal(t, "QmHash123", website.TargetHash)
+				require.Equal(t, "ipfs", website.TargetType)
+				require.True(t, website.DnsHostingEnabled)
+				require.False(t, website.Expired)
+			}
+		})
+	}
+}

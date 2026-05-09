@@ -7,8 +7,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	sseClient "github.com/apt304/sse-go/client"
+	sse "github.com/apt304/sse-go/server"
 	"net/http"
 	"net/url"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -95,6 +98,7 @@ var (
 	errCannotPauseBilling        = internalhttp.PlainError("cannot pause billing")
 	errCannotResumeBilling       = internalhttp.PlainError("cannot resume billing")
 	errNoPausedSubscription      = internalhttp.PlainError("no paused subscription")
+	errCheckoutSessionNotFound   = internalhttp.PlainError("checkout session not found")
 
 	// Generic/shared error sentinels (from internalhttp)
 	errAuthRequired            = internalhttp.FactoryErrAuthRequired
@@ -176,6 +180,8 @@ const (
 	OpListPricingPlans
 	OpPauseBilling
 	OpResumeBilling
+	OpGetCheckoutSessionStatus
+	OpGetCustomerPortalURL
 )
 
 const defaultOperationName = "operation"
@@ -222,6 +228,8 @@ var operationString = map[int]string{
 	OpListPricingPlans:        "list pricing plans",
 	OpPauseBilling:            "pause billing",
 	OpResumeBilling:           "resume billing",
+	OpGetCheckoutSessionStatus: "get checkout session status",
+	OpGetCustomerPortalURL:     "get customer portal URL",
 }
 
 // httpErrorMessages maps operation IDs to their custom status code error messages.
@@ -391,6 +399,16 @@ var httpErrorMessages = map[int]map[int]internalhttp.ErrorFactoryError{
 		http.StatusBadRequest:   errCannotResumeBilling,
 		http.StatusNotFound:     errNoPausedSubscription,
 	},
+	OpGetCheckoutSessionStatus: {
+		http.StatusUnauthorized: errAuthRequired,
+		http.StatusNotFound:     errCheckoutSessionNotFound,
+		http.StatusBadRequest:   errBadRequest,
+	},
+	OpGetCustomerPortalURL: {
+		http.StatusUnauthorized: errAuthRequired,
+		http.StatusBadRequest:   errInvalidRequest,
+		http.StatusNotFound:     errResourceNotFound,
+	},
 }
 
 // IsSettled returns true if the operation is in a settled state (finished, no longer being processed).
@@ -551,6 +569,120 @@ type ManagementCapabilities struct {
 type SubscriptionStatus struct {
 	client.SubscriptionStatusResponse
 }
+
+// CheckoutSessionStatus represents the status of a checkout session.
+// Embeds the generated client.CheckoutSessionStatusResponse to reuse all fields.
+type CheckoutSessionStatus struct {
+	client.CheckoutSessionStatusResponse
+}
+
+// CheckoutSessionStatusOptions provides options for GetCheckoutSessionStatus.
+type CheckoutSessionStatusOptions struct {
+	gateway *string
+}
+
+// CheckoutSessionStatusOption is a function that modifies CheckoutSessionStatusOptions.
+type CheckoutSessionStatusOption func(*CheckoutSessionStatusOptions)
+
+// WithCheckoutSessionGateway specifies the payment gateway type for the checkout session status query.
+func WithCheckoutSessionGateway(gateway string) CheckoutSessionStatusOption {
+	return func(opts *CheckoutSessionStatusOptions) {
+		opts.gateway = &gateway
+	}
+}
+
+// SSE event type constants for billing subscription events.
+const (
+	SSEEventTypePaymentCompleted      = "payment.completed"
+	SSEEventTypeSubscriptionActive    = "subscription.active"
+	SSEEventTypeSubscriptionCreated   = "subscription.created"
+	SSEEventTypeSubscriptionUpdated   = "subscription.updated"
+	SSEEventTypeSubscriptionCancelled = "subscription.cancelled"
+	SSEEventTypePlanChanged           = "plan.changed"
+	SSEEventTypePlanChangedCreditOnly = "plan.changed.credit_only"
+	SSEEventTypePlanChangedZeroAmount = "plan.changed.zero_amount"
+)
+
+// SubscriptionEventStream wraps an SSE connection for receiving real-time billing events.
+type SubscriptionEventStream struct {
+	conn         *sseClient.Connection
+	eventChan    <-chan sse.Event
+	eventHandlers map[string][]func([]byte)
+	messageHandler func(string, []byte)
+	opts        sseClient.Options
+	url         string
+	jwt         string
+	mu          sync.RWMutex
+}
+
+// OnEvent registers a handler for a specific SSE event type.
+// Use the SSEEventType* constants for eventType (e.g., SSEEventTypePaymentCompleted).
+func (s *SubscriptionEventStream) OnEvent(eventType string, handler func(data []byte)) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.eventHandlers == nil {
+		s.eventHandlers = make(map[string][]func([]byte))
+	}
+	s.eventHandlers[eventType] = append(s.eventHandlers[eventType], handler)
+}
+
+// OnMessage registers a handler for all SSE events.
+func (s *SubscriptionEventStream) OnMessage(handler func(eventType string, data []byte)) {
+	s.messageHandler = handler
+}
+
+// Connect establishes the SSE connection and begins dispatching events.
+func (s *SubscriptionEventStream) Connect() error {
+	s.conn = sseClient.NewConnection(s.url, nil)
+	if s.jwt != "" {
+		s.conn.SetHeader("Authorization", "Bearer "+s.jwt)
+	}
+
+	eventChan, err := s.conn.Connect()
+	if err != nil {
+		return fmt.Errorf("failed to connect to SSE stream: %w", err)
+	}
+	s.eventChan = eventChan
+
+	go s.dispatchEvents()
+
+	return nil
+}
+
+func (s *SubscriptionEventStream) dispatchEvents() {
+	for event := range s.eventChan {
+		if event.IsHeartbeat() {
+			continue
+		}
+
+		s.mu.RLock()
+		handlers := s.eventHandlers[event.Type]
+		msgHandler := s.messageHandler
+		s.mu.RUnlock()
+
+		for _, handler := range handlers {
+			handler(event.Data)
+		}
+
+		if msgHandler != nil {
+			msgHandler(event.Type, event.Data)
+		}
+	}
+}
+
+// Disconnect closes the SSE connection.
+func (s *SubscriptionEventStream) Disconnect() {
+	if s.conn != nil {
+		s.conn.Close()
+	}
+}
+
+// SSEOptions configures the SSE client behavior.
+type SSEOptions struct {
+}
+
+// SSEOption is a function that modifies SSEOptions.
+type SSEOption func(*SSEOptions)
 
 // ManagementRequest represents a billing management operation request.
 type ManagementRequest struct {
@@ -880,6 +1012,15 @@ type AccountAPI interface {
 	// ResumeBilling resumes the user's billing/subscription.
 	ResumeBilling(ctx context.Context) (*ManagementResult, error)
 
+	// GetCheckoutSessionStatus retrieves the status of a checkout session.
+	GetCheckoutSessionStatus(ctx context.Context, sessionID string, opts ...CheckoutSessionStatusOption) (*CheckoutSessionStatus, error)
+
+	// GetCustomerPortalURL retrieves the customer portal URL for managing billing.
+	GetCustomerPortalURL(ctx context.Context) (*ManagementResult, error)
+
+	// SubscribeBillingEvents opens an SSE connection for real-time billing events.
+	SubscribeBillingEvents(ctx context.Context, opts ...SSEOption) (*SubscriptionEventStream, error)
+
 	// HandleWebhook handles a webhook event from a billing gateway.
 	HandleWebhook(ctx context.Context, gatewayType string, webhookData map[string]interface{}) error
 
@@ -897,8 +1038,9 @@ type AccountAPI interface {
 
 // Client implements AccountAPI using the generated OpenAPI client.
 type Client struct {
-	client         client.ClientWithResponsesInterface
-	jwt            string
+	client          client.ClientWithResponsesInterface
+	jwt             string
+	endpoint        string
 	disableRedirect bool
 }
 
@@ -978,8 +1120,9 @@ func NewClient(opts ...ClientOption) AccountAPI {
 
 	// Create the Client first so we can reference it in the CheckRedirect closure
 	clientWrapper := &Client{
-		client:         nil,
-		jwt:            cfg.jwt,
+		client:          nil,
+		jwt:             cfg.jwt,
+		endpoint:        cfg.endpoint,
 		disableRedirect: cfg.disableRedirect,
 	}
 
@@ -2000,6 +2143,72 @@ func (c *Client) ResumeBilling(ctx context.Context) (*ManagementResult, error) {
 	}
 
 	return &ManagementResult{ManagementResultResponse: *resp.JSON200}, nil
+}
+
+// GetCheckoutSessionStatus retrieves the status of a checkout session.
+func (c *Client) GetCheckoutSessionStatus(ctx context.Context, sessionID string, opts ...CheckoutSessionStatusOption) (*CheckoutSessionStatus, error) {
+	options := &CheckoutSessionStatusOptions{}
+	for _, opt := range opts {
+		opt(options)
+	}
+	params := &client.GetApiAccountBillingCheckoutSessionSessionIdStatusParams{
+		Gateway: options.gateway,
+	}
+	resp, err := c.client.GetApiAccountBillingCheckoutSessionSessionIdStatusWithResponse(ctx, sessionID, params)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get checkout session status: %w", err)
+	}
+
+	if err := handleResponse(resp.StatusCode(), resp.Body, OpGetCheckoutSessionStatus, []int{http.StatusOK}); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, fmt.Errorf("get checkout session status response did not contain data")
+	}
+
+	return &CheckoutSessionStatus{CheckoutSessionStatusResponse: *resp.JSON200}, nil
+}
+
+// GetCustomerPortalURL retrieves the customer portal URL for managing billing.
+func (c *Client) GetCustomerPortalURL(ctx context.Context) (*ManagementResult, error) {
+	resp, err := c.client.PostApiAccountBillingCustomerPortalWithResponse(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get customer portal URL: %w", err)
+	}
+
+	if err := handleResponse(resp.StatusCode(), resp.Body, OpGetCustomerPortalURL, []int{http.StatusOK}); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, fmt.Errorf("get customer portal URL response did not contain data")
+	}
+
+	return &ManagementResult{ManagementResultResponse: *resp.JSON200}, nil
+}
+
+// SubscribeBillingEvents opens an SSE connection for real-time billing events.
+func (c *Client) SubscribeBillingEvents(ctx context.Context, opts ...SSEOption) (*SubscriptionEventStream, error) {
+	options := SSEOptions{}
+	for _, opt := range opts {
+		opt(&options)
+	}
+
+	sseURL, err := url.Parse(c.endpoint)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse endpoint URL: %w", err)
+	}
+
+	if sseURL.Scheme == "" {
+		sseURL.Scheme = "https"
+	}
+	sseURL.Path = "/api/account/billing/subscription/events"
+
+	return &SubscriptionEventStream{
+		url:  sseURL.String(),
+		jwt:  c.jwt,
+	}, nil
 }
 
 // HandleWebhook handles a webhook event from a billing gateway.
