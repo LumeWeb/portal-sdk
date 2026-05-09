@@ -130,6 +130,24 @@ components:
       - user_id
       - balance
       type: object
+    CheckoutUIFragmentResponse:
+      additionalProperties: false
+      properties:
+        css:
+          type: string
+        html:
+          type: string
+        link:
+          type: string
+        metadata:
+          type: object
+        script:
+          type: string
+        type:
+          type: string
+      required:
+      - type
+      type: object
     CleanupRequest:
       additionalProperties: false
       properties:
@@ -342,6 +360,10 @@ components:
         effective_date:
           format: date-time
           type: string
+        fragments:
+          items:
+            $ref: '#/components/schemas/CheckoutUIFragmentResponse'
+          type: array
       required:
       - action
       - credit_applied
@@ -670,6 +692,10 @@ components:
           type: string
         description:
           type: string
+        features:
+          items:
+            type: string
+          type: array
         id:
           type: integer
         is_active:
@@ -692,6 +718,7 @@ components:
       - currency
       - is_active
       - is_public
+      - features
       - pricing_periods
       - created_at
       - updated_at
@@ -892,6 +919,9 @@ components:
           type: integer
         is_active:
           type: boolean
+        paused_at:
+          format: date-time
+          type: string
         payment_status:
           type: string
         previous_plan_id:
@@ -941,6 +971,9 @@ components:
           type: integer
         is_active:
           type: boolean
+        paused_at:
+          format: date-time
+          type: string
         payment_status:
           type: string
         previous_plan_id:
