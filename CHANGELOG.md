@@ -1,3 +1,16 @@
+## 0.1.50 (2026-05-09)
+
+### Features
+
+- regenerate client code and mocks from updated specs
+- add checkout session status, customer portal, and subscription events endpoints
+- add WebsiteService with BlockWebsite and UnblockWebsite endpoints
+- replace GetSubscriptionEvents with SSE-based SubscribeBillingEvents
+
+### Fixes
+
+- update swagger specs from running services
+
 ## 0.1.49 (2026-04-29)
 
 ### Features
