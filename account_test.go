@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -5559,40 +5560,36 @@ func TestGetCustomerPortalURL(t *testing.T) {
 	}
 }
 
-func TestGetSubscriptionEvents(t *testing.T) {
+func TestSubscribeBillingEvents(t *testing.T) {
 	tests := []struct {
 		name       string
 		jwt        string
 		statusCode int
-		response   interface{}
 		wantErr    bool
 		errCheck   func(*testing.T, error)
 	}{
 		{
-			name:       "successful get subscription events",
+			name:       "successful SSE connection",
 			jwt:        "test-jwt-token",
 			statusCode: http.StatusOK,
-			response:   map[string]interface{}{},
 			wantErr:    false,
 		},
 		{
 			name:       "unauthorized - missing JWT",
 			jwt:        "",
 			statusCode: http.StatusUnauthorized,
-			response:   client.ErrorResponse{Error: "unauthorized"},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
-				require.ErrorIs(t, err, ErrUnauthorized)
+				require.ErrorContains(t, err, "unexpected status code")
 			},
 		},
 		{
-			name:       "subscription status not found",
+			name:       "not found",
 			jwt:        "test-jwt-token",
 			statusCode: http.StatusNotFound,
-			response:   client.ErrorResponse{Error: "subscription status not found"},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
-				require.ErrorContains(t, err, "subscription status not found")
+				require.ErrorContains(t, err, "unexpected status code")
 			},
 		},
 	}
@@ -5608,28 +5605,81 @@ func TestGetSubscriptionEvents(t *testing.T) {
 					t.Errorf("expected /api/account/billing/subscription/events path, got %s", r.URL.Path)
 				}
 
+				if r.Header.Get("Accept") != "text/event-stream" {
+					t.Errorf("expected Accept: text/event-stream header, got %s", r.Header.Get("Accept"))
+				}
+
 				authHeader := r.Header.Get("Authorization")
 				if tt.jwt != "" {
 					require.Equal(t, "Bearer "+tt.jwt, authHeader)
 				}
 
+				if tt.statusCode == http.StatusOK {
+					w.Header().Set("Content-Type", "text/event-stream")
+					w.WriteHeader(http.StatusOK)
+					fmt.Fprintf(w, "event: heartbeat\ndata: \n\n")
+					return
+				}
+
 				w.Header().Set("Content-Type", "application/json")
 				w.WriteHeader(tt.statusCode)
-				require.NoError(t, json.NewEncoder(w).Encode(tt.response))
+				json.NewEncoder(w).Encode(map[string]string{"error": "unauthorized"})
 			}))
 			defer server.Close()
 
 			acc := NewClient(WithEndpoint(server.URL), WithJWT(tt.jwt))
-			err := acc.GetSubscriptionEvents(context.Background())
+			stream, err := acc.SubscribeBillingEvents(context.Background())
 
-			if (err != nil) != tt.wantErr {
-				t.Errorf("GetSubscriptionEvents() error = %v, wantErr %v", err, tt.wantErr)
+			if err != nil {
+				t.Fatalf("SubscribeBillingEvents() returned unexpected error: %v", err)
+			}
+
+			connectErr := stream.Connect()
+
+			if (connectErr != nil) != tt.wantErr {
+				t.Errorf("Connect() error = %v, wantErr %v", connectErr, tt.wantErr)
 				return
 			}
 
 			if tt.wantErr && tt.errCheck != nil {
-				tt.errCheck(t, err)
+				tt.errCheck(t, connectErr)
+			}
+
+			if !tt.wantErr {
+				stream.Disconnect()
 			}
 		})
+	}
+}
+
+func TestSubscribeBillingEvents_DispatchesTypedEvents(t *testing.T) {
+	received := make(chan []byte, 1)
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/event-stream")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintf(w, "event: payment.completed\ndata: {\"amount\":\"10.00\"}\nid: evt-1\n\n")
+	}))
+	defer server.Close()
+
+	acc := NewClient(WithEndpoint(server.URL), WithJWT("test-jwt"))
+	stream, err := acc.SubscribeBillingEvents(context.Background())
+	require.NoError(t, err)
+
+	stream.OnEvent(SSEEventTypePaymentCompleted, func(data []byte) {
+		select {
+		case received <- data:
+		default:
+		}
+	})
+
+	require.NoError(t, stream.Connect())
+	defer stream.Disconnect()
+
+	select {
+	case data := <-received:
+		require.Contains(t, string(data), "amount")
+	case <-time.After(2 * time.Second):
+		t.Fatal("timed out waiting for event")
 	}
 }

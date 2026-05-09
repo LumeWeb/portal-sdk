@@ -7,8 +7,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	sseClient "github.com/apt304/sse-go/client"
+	sse "github.com/apt304/sse-go/server"
 	"net/http"
 	"net/url"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -179,7 +182,6 @@ const (
 	OpResumeBilling
 	OpGetCheckoutSessionStatus
 	OpGetCustomerPortalURL
-	OpGetSubscriptionEvents
 )
 
 const defaultOperationName = "operation"
@@ -228,7 +230,6 @@ var operationString = map[int]string{
 	OpResumeBilling:           "resume billing",
 	OpGetCheckoutSessionStatus: "get checkout session status",
 	OpGetCustomerPortalURL:     "get customer portal URL",
-	OpGetSubscriptionEvents:    "get subscription events",
 }
 
 // httpErrorMessages maps operation IDs to their custom status code error messages.
@@ -407,10 +408,6 @@ var httpErrorMessages = map[int]map[int]internalhttp.ErrorFactoryError{
 		http.StatusUnauthorized: errAuthRequired,
 		http.StatusBadRequest:   errInvalidRequest,
 		http.StatusNotFound:     errResourceNotFound,
-	},
-	OpGetSubscriptionEvents: {
-		http.StatusUnauthorized: errAuthRequired,
-		http.StatusNotFound:     errSubscriptionStatusNotFound,
 	},
 }
 
@@ -593,6 +590,99 @@ func WithCheckoutSessionGateway(gateway string) CheckoutSessionStatusOption {
 		opts.gateway = &gateway
 	}
 }
+
+// SSE event type constants for billing subscription events.
+const (
+	SSEEventTypePaymentCompleted      = "payment.completed"
+	SSEEventTypeSubscriptionActive    = "subscription.active"
+	SSEEventTypeSubscriptionCreated   = "subscription.created"
+	SSEEventTypeSubscriptionUpdated   = "subscription.updated"
+	SSEEventTypeSubscriptionCancelled = "subscription.cancelled"
+	SSEEventTypePlanChanged           = "plan.changed"
+	SSEEventTypePlanChangedCreditOnly = "plan.changed.credit_only"
+	SSEEventTypePlanChangedZeroAmount = "plan.changed.zero_amount"
+)
+
+// SubscriptionEventStream wraps an SSE connection for receiving real-time billing events.
+type SubscriptionEventStream struct {
+	conn         *sseClient.Connection
+	eventChan    <-chan sse.Event
+	eventHandlers map[string][]func([]byte)
+	messageHandler func(string, []byte)
+	opts        sseClient.Options
+	url         string
+	jwt         string
+	mu          sync.RWMutex
+}
+
+// OnEvent registers a handler for a specific SSE event type.
+// Use the SSEEventType* constants for eventType (e.g., SSEEventTypePaymentCompleted).
+func (s *SubscriptionEventStream) OnEvent(eventType string, handler func(data []byte)) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.eventHandlers == nil {
+		s.eventHandlers = make(map[string][]func([]byte))
+	}
+	s.eventHandlers[eventType] = append(s.eventHandlers[eventType], handler)
+}
+
+// OnMessage registers a handler for all SSE events.
+func (s *SubscriptionEventStream) OnMessage(handler func(eventType string, data []byte)) {
+	s.messageHandler = handler
+}
+
+// Connect establishes the SSE connection and begins dispatching events.
+func (s *SubscriptionEventStream) Connect() error {
+	s.conn = sseClient.NewConnection(s.url, nil)
+	if s.jwt != "" {
+		s.conn.SetHeader("Authorization", "Bearer "+s.jwt)
+	}
+
+	eventChan, err := s.conn.Connect()
+	if err != nil {
+		return fmt.Errorf("failed to connect to SSE stream: %w", err)
+	}
+	s.eventChan = eventChan
+
+	go s.dispatchEvents()
+
+	return nil
+}
+
+func (s *SubscriptionEventStream) dispatchEvents() {
+	for event := range s.eventChan {
+		if event.IsHeartbeat() {
+			continue
+		}
+
+		s.mu.RLock()
+		handlers := s.eventHandlers[event.Type]
+		msgHandler := s.messageHandler
+		s.mu.RUnlock()
+
+		for _, handler := range handlers {
+			handler(event.Data)
+		}
+
+		if msgHandler != nil {
+			msgHandler(event.Type, event.Data)
+		}
+	}
+}
+
+// Disconnect closes the SSE connection.
+func (s *SubscriptionEventStream) Disconnect() {
+	if s.conn != nil {
+		s.conn.Close()
+	}
+}
+
+// SSEOptions configures the SSE client behavior.
+type SSEOptions struct {
+}
+
+// SSEOption is a function that modifies SSEOptions.
+type SSEOption func(*SSEOptions)
 
 // ManagementRequest represents a billing management operation request.
 type ManagementRequest struct {
@@ -928,8 +1018,8 @@ type AccountAPI interface {
 	// GetCustomerPortalURL retrieves the customer portal URL for managing billing.
 	GetCustomerPortalURL(ctx context.Context) (*ManagementResult, error)
 
-	// GetSubscriptionEvents retrieves the user's subscription events.
-	GetSubscriptionEvents(ctx context.Context) error
+	// SubscribeBillingEvents opens an SSE connection for real-time billing events.
+	SubscribeBillingEvents(ctx context.Context, opts ...SSEOption) (*SubscriptionEventStream, error)
 
 	// HandleWebhook handles a webhook event from a billing gateway.
 	HandleWebhook(ctx context.Context, gatewayType string, webhookData map[string]interface{}) error
@@ -948,8 +1038,9 @@ type AccountAPI interface {
 
 // Client implements AccountAPI using the generated OpenAPI client.
 type Client struct {
-	client         client.ClientWithResponsesInterface
-	jwt            string
+	client          client.ClientWithResponsesInterface
+	jwt             string
+	endpoint        string
 	disableRedirect bool
 }
 
@@ -1029,8 +1120,9 @@ func NewClient(opts ...ClientOption) AccountAPI {
 
 	// Create the Client first so we can reference it in the CheckRedirect closure
 	clientWrapper := &Client{
-		client:         nil,
-		jwt:            cfg.jwt,
+		client:          nil,
+		jwt:             cfg.jwt,
+		endpoint:        cfg.endpoint,
 		disableRedirect: cfg.disableRedirect,
 	}
 
@@ -2096,14 +2188,27 @@ func (c *Client) GetCustomerPortalURL(ctx context.Context) (*ManagementResult, e
 	return &ManagementResult{ManagementResultResponse: *resp.JSON200}, nil
 }
 
-// GetSubscriptionEvents retrieves the user's subscription events.
-func (c *Client) GetSubscriptionEvents(ctx context.Context) error {
-	resp, err := c.client.GetApiAccountBillingSubscriptionEventsWithResponse(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to get subscription events: %w", err)
+// SubscribeBillingEvents opens an SSE connection for real-time billing events.
+func (c *Client) SubscribeBillingEvents(ctx context.Context, opts ...SSEOption) (*SubscriptionEventStream, error) {
+	options := SSEOptions{}
+	for _, opt := range opts {
+		opt(&options)
 	}
 
-	return handleResponse(resp.StatusCode(), resp.Body, OpGetSubscriptionEvents, []int{http.StatusOK})
+	sseURL, err := url.Parse(c.endpoint)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse endpoint URL: %w", err)
+	}
+
+	if sseURL.Scheme == "" {
+		sseURL.Scheme = "https"
+	}
+	sseURL.Path = "/api/account/billing/subscription/events"
+
+	return &SubscriptionEventStream{
+		url:  sseURL.String(),
+		jwt:  c.jwt,
+	}, nil
 }
 
 // HandleWebhook handles a webhook event from a billing gateway.

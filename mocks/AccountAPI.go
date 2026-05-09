@@ -1478,57 +1478,6 @@ func (_c *MockAccountAPI_GetQuotaHistory_Call) RunAndReturn(run func(ctx context
 	return _c
 }
 
-// GetSubscriptionEvents provides a mock function for the type MockAccountAPI
-func (_mock *MockAccountAPI) GetSubscriptionEvents(ctx context.Context) error {
-	ret := _mock.Called(ctx)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetSubscriptionEvents")
-	}
-
-	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context) error); ok {
-		r0 = returnFunc(ctx)
-	} else {
-		r0 = ret.Error(0)
-	}
-	return r0
-}
-
-// MockAccountAPI_GetSubscriptionEvents_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetSubscriptionEvents'
-type MockAccountAPI_GetSubscriptionEvents_Call struct {
-	*mock.Call
-}
-
-// GetSubscriptionEvents is a helper method to define mock.On call
-//   - ctx context.Context
-func (_e *MockAccountAPI_Expecter) GetSubscriptionEvents(ctx interface{}) *MockAccountAPI_GetSubscriptionEvents_Call {
-	return &MockAccountAPI_GetSubscriptionEvents_Call{Call: _e.mock.On("GetSubscriptionEvents", ctx)}
-}
-
-func (_c *MockAccountAPI_GetSubscriptionEvents_Call) Run(run func(ctx context.Context)) *MockAccountAPI_GetSubscriptionEvents_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 context.Context
-		if args[0] != nil {
-			arg0 = args[0].(context.Context)
-		}
-		run(
-			arg0,
-		)
-	})
-	return _c
-}
-
-func (_c *MockAccountAPI_GetSubscriptionEvents_Call) Return(err error) *MockAccountAPI_GetSubscriptionEvents_Call {
-	_c.Call.Return(err)
-	return _c
-}
-
-func (_c *MockAccountAPI_GetSubscriptionEvents_Call) RunAndReturn(run func(ctx context.Context) error) *MockAccountAPI_GetSubscriptionEvents_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // GetSubscriptionStatus provides a mock function for the type MockAccountAPI
 func (_mock *MockAccountAPI) GetSubscriptionStatus(ctx context.Context) (*account.SubscriptionStatus, error) {
 	ret := _mock.Called(ctx)
@@ -2588,6 +2537,87 @@ func (_c *MockAccountAPI_ResumeBilling_Call) Return(managementResult *account.Ma
 }
 
 func (_c *MockAccountAPI_ResumeBilling_Call) RunAndReturn(run func(ctx context.Context) (*account.ManagementResult, error)) *MockAccountAPI_ResumeBilling_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SubscribeBillingEvents provides a mock function for the type MockAccountAPI
+func (_mock *MockAccountAPI) SubscribeBillingEvents(ctx context.Context, opts ...account.SSEOption) (*account.SubscriptionEventStream, error) {
+	// account.SSEOption
+	_va := make([]interface{}, len(opts))
+	for _i := range opts {
+		_va[_i] = opts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SubscribeBillingEvents")
+	}
+
+	var r0 *account.SubscriptionEventStream
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ...account.SSEOption) (*account.SubscriptionEventStream, error)); ok {
+		return returnFunc(ctx, opts...)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ...account.SSEOption) *account.SubscriptionEventStream); ok {
+		r0 = returnFunc(ctx, opts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*account.SubscriptionEventStream)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, ...account.SSEOption) error); ok {
+		r1 = returnFunc(ctx, opts...)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockAccountAPI_SubscribeBillingEvents_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SubscribeBillingEvents'
+type MockAccountAPI_SubscribeBillingEvents_Call struct {
+	*mock.Call
+}
+
+// SubscribeBillingEvents is a helper method to define mock.On call
+//   - ctx context.Context
+//   - opts ...account.SSEOption
+func (_e *MockAccountAPI_Expecter) SubscribeBillingEvents(ctx interface{}, opts ...interface{}) *MockAccountAPI_SubscribeBillingEvents_Call {
+	return &MockAccountAPI_SubscribeBillingEvents_Call{Call: _e.mock.On("SubscribeBillingEvents",
+		append([]interface{}{ctx}, opts...)...)}
+}
+
+func (_c *MockAccountAPI_SubscribeBillingEvents_Call) Run(run func(ctx context.Context, opts ...account.SSEOption)) *MockAccountAPI_SubscribeBillingEvents_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 []account.SSEOption
+		variadicArgs := make([]account.SSEOption, len(args)-1)
+		for i, a := range args[1:] {
+			if a != nil {
+				variadicArgs[i] = a.(account.SSEOption)
+			}
+		}
+		arg1 = variadicArgs
+		run(
+			arg0,
+			arg1...,
+		)
+	})
+	return _c
+}
+
+func (_c *MockAccountAPI_SubscribeBillingEvents_Call) Return(subscriptionEventStream *account.SubscriptionEventStream, err error) *MockAccountAPI_SubscribeBillingEvents_Call {
+	_c.Call.Return(subscriptionEventStream, err)
+	return _c
+}
+
+func (_c *MockAccountAPI_SubscribeBillingEvents_Call) RunAndReturn(run func(ctx context.Context, opts ...account.SSEOption) (*account.SubscriptionEventStream, error)) *MockAccountAPI_SubscribeBillingEvents_Call {
 	_c.Call.Return(run)
 	return _c
 }
