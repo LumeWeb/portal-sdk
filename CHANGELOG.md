@@ -1,3 +1,9 @@
+## 0.1.53 (2026-05-09)
+
+### Fixes
+
+- correct 404 error mapping for pause/resume subscription ops
+
 ## 0.1.52 (2026-05-09)
 
 ### Fixes
