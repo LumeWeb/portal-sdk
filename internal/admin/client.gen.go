@@ -271,6 +271,7 @@ type PricingPeriodInput struct {
 type PricingPlanCreateRequest struct {
 	Currency       string                     `json:"currency"`
 	Description    string                     `json:"description"`
+	Features       []string                   `json:"features"`
 	IsActive       bool                       `json:"is_active"`
 	IsPublic       bool                       `json:"is_public"`
 	Name           string                     `json:"name"`
@@ -349,6 +350,7 @@ type PricingPlanResponse struct {
 type PricingPlanUpdateRequest struct {
 	Currency       string               `json:"currency"`
 	Description    string               `json:"description"`
+	Features       []string             `json:"features"`
 	IsActive       bool                 `json:"is_active"`
 	IsPublic       bool                 `json:"is_public"`
 	Name           string               `json:"name"`
