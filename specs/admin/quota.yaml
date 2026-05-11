@@ -540,6 +540,10 @@ components:
           type: string
         description:
           type: string
+        features:
+          items:
+            type: string
+          type: array
         is_active:
           type: boolean
         is_public:
@@ -557,6 +561,7 @@ components:
       required:
       - name
       - description
+      - features
       - pricing_periods
       - currency
       - is_active
@@ -730,6 +735,10 @@ components:
           type: string
         description:
           type: string
+        features:
+          items:
+            type: string
+          type: array
         is_active:
           type: boolean
         is_public:
@@ -743,6 +752,7 @@ components:
       required:
       - name
       - description
+      - features
       - pricing_periods
       - currency
       - is_active

@@ -451,6 +451,7 @@ type PricingPlan struct {
 type PricingPlanCreateRequest struct {
 	Name           string              `json:"name"`
 	Description    string              `json:"description"`
+	Features       []string            `json:"features"`
 	Currency       string              `json:"currency"`
 	IsActive       bool                `json:"is_active"`
 	IsPublic       bool                `json:"is_public"`
@@ -464,6 +465,7 @@ func (r *PricingPlanCreateRequest) toInternal() admin.PricingPlanCreateRequest {
 	return admin.PricingPlanCreateRequest{
 		Name:           r.Name,
 		Description:    r.Description,
+		Features:       r.Features,
 		Currency:       r.Currency,
 		IsActive:       r.IsActive,
 		IsPublic:       r.IsPublic,
@@ -485,6 +487,7 @@ type PricingPlanItem struct {
 type PricingPlanUpdateRequest struct {
 	Name           string              `json:"name"`
 	Description    string              `json:"description"`
+	Features       []string            `json:"features"`
 	Currency       string              `json:"currency"`
 	IsActive       bool                `json:"is_active"`
 	IsPublic       bool                `json:"is_public"`
@@ -496,6 +499,7 @@ func (r *PricingPlanUpdateRequest) toInternal() admin.PricingPlanUpdateRequest {
 	return admin.PricingPlanUpdateRequest{
 		Name:           r.Name,
 		Description:    r.Description,
+		Features:       r.Features,
 		Currency:       r.Currency,
 		IsActive:       r.IsActive,
 		IsPublic:       r.IsPublic,

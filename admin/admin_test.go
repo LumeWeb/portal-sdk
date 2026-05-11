@@ -515,6 +515,7 @@ func TestBillingService_CreatePricingPlan(t *testing.T) {
 			request: &PricingPlanCreateRequest{
 				Name:           "Basic",
 				Description:    "Basic plan",
+				Features:       []string{"storage", "bandwidth"},
 				Currency:       "USD",
 				IsActive:       true,
 				IsPublic:       true,
@@ -536,6 +537,7 @@ func TestBillingService_CreatePricingPlan(t *testing.T) {
 			request: &PricingPlanCreateRequest{
 				Name:           "Premium",
 				Description:    "Premium plan",
+				Features:       []string{"storage", "bandwidth", "priority"},
 				Currency:       "USD",
 				IsActive:       true,
 				IsPublic:       true,
@@ -556,7 +558,7 @@ func TestBillingService_CreatePricingPlan(t *testing.T) {
 		},
 		{
 			name:       "unauthorized",
-			request:    &PricingPlanCreateRequest{},
+			request:    &PricingPlanCreateRequest{Features: []string{}},
 			statusCode: http.StatusUnauthorized,
 			response:   admin.ErrorResponse{Error: "unauthorized"},
 			wantErr:    true,
