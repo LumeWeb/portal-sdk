@@ -1,3 +1,9 @@
+## 0.1.54 (2026-05-11)
+
+### Features
+
+- add features field to pricing plan create/update requests
+
 ## 0.1.53 (2026-05-09)
 
 ### Fixes
