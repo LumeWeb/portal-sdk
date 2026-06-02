@@ -1,3 +1,9 @@
+## 0.1.55 (2026-06-02)
+
+### Features
+
+- add ProfilingService and update admin spec with pprof and website fields
+
 ## 0.1.54 (2026-05-11)
 
 ### Features
