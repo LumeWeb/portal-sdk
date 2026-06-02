@@ -130,6 +130,14 @@ components:
       - user_id
       - balance
       type: object
+    BlockProfileRequest:
+      additionalProperties: false
+      properties:
+        rate:
+          type: integer
+      required:
+      - rate
+      type: object
     CheckoutUIFragmentResponse:
       additionalProperties: false
       properties:
@@ -345,6 +353,14 @@ components:
       - requires_confirmation
       - status
       - can_abort
+      type: object
+    MutexProfileRequest:
+      additionalProperties: false
+      properties:
+        fraction:
+          type: integer
+      required:
+      - fraction
       type: object
     PlanChangeResultResponse:
       additionalProperties: false
@@ -771,6 +787,17 @@ components:
       - data
       - total
       type: object
+    ProfilingStatusResponse:
+      additionalProperties: false
+      properties:
+        block_profile_rate:
+          type: integer
+        mutex_fraction:
+          type: integer
+      required:
+      - block_profile_rate
+      - mutex_fraction
+      type: object
     QuotaPlanRequest:
       additionalProperties: false
       properties:
@@ -1168,6 +1195,8 @@ components:
     WebsiteResponse:
       additionalProperties: false
       properties:
+        active_cid:
+          type: string
         created:
           format: date-time
           type: string
@@ -1179,8 +1208,14 @@ components:
           type: string
         expired:
           type: boolean
+        gateway_domain:
+          type: string
         id:
           type: integer
+        ipns_key_id:
+          type: integer
+        is_subdomain:
+          type: boolean
         last_checked_at:
           format: date-time
           type: string
@@ -1198,6 +1233,8 @@ components:
         validation_expires_at:
           format: date-time
           type: string
+        validation_record_host:
+          type: string
         validation_token:
           type: string
       required:
@@ -1208,6 +1245,7 @@ components:
       - status
       - validation_token
       - dns_hosting_enabled
+      - is_subdomain
       - created
       - updated
       - expired
@@ -3391,6 +3429,388 @@ paths:
       summary: Resume User Subscription
       tags:
       - Billing Admin
+  /api/debug/pprof:
+    get:
+      description: Returns a page listing available pprof profiles.
+      responses:
+        "200":
+          description: HTML index of available profiles
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: pprof index
+      tags:
+      - Profiling
+  /api/debug/pprof/block:
+    get:
+      description: Returns stack traces that led to blocking on synchronization primitives.
+      responses:
+        "200":
+          description: Block profile data
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Block profile
+      tags:
+      - Profiling
+    put:
+      description: Sets the block profiling rate. 0 disables, 1 captures all, higher
+        values sample.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BlockProfileRequest'
+        description: Block profile rate
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Success
+        "204":
+          description: Block profile rate updated
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Set block profile rate
+      tags:
+      - Profiling
+  /api/debug/pprof/cmdline:
+    get:
+      description: Returns the command line of the running program.
+      responses:
+        "200":
+          description: Command line output
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Command line
+      tags:
+      - Profiling
+  /api/debug/pprof/goroutine:
+    get:
+      description: Returns stack traces of all current goroutines.
+      responses:
+        "200":
+          description: Goroutine profile data
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Goroutine profile
+      tags:
+      - Profiling
+  /api/debug/pprof/heap:
+    get:
+      description: Returns a sampling of memory allocations.
+      responses:
+        "200":
+          description: Heap profile data
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Heap profile
+      tags:
+      - Profiling
+  /api/debug/pprof/mutex:
+    get:
+      description: Returns stack traces of holders of contended mutexes.
+      responses:
+        "200":
+          description: Mutex profile data
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Mutex profile
+      tags:
+      - Profiling
+    put:
+      description: Sets the mutex profiling fraction. 0 disables, 1 captures all,
+        100 samples 1%.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MutexProfileRequest'
+        description: Mutex profile fraction
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Success
+        "204":
+          description: Mutex profile fraction updated
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Set mutex profile fraction
+      tags:
+      - Profiling
+  /api/debug/pprof/profile:
+    get:
+      description: Returns a CPU profile for the specified duration. Supports 'seconds'
+        and 'debug' query parameters.
+      responses:
+        "200":
+          description: CPU profile data
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: CPU profile
+      tags:
+      - Profiling
+  /api/debug/pprof/status:
+    get:
+      description: Returns the current block and mutex profiling rates.
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfilingStatusResponse'
+          description: Current profiling status
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Profiling status
+      tags:
+      - Profiling
+  /api/debug/pprof/symbol:
+    get:
+      description: Looks up program counters and returns function names.
+      responses:
+        "200":
+          description: Symbol lookup results
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Symbol lookup
+      tags:
+      - Profiling
+  /api/debug/pprof/threadcreate:
+    get:
+      description: Returns stack traces that led to the creation of new OS threads.
+      responses:
+        "200":
+          description: Thread creation profile data
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Thread creation profile
+      tags:
+      - Profiling
+  /api/debug/pprof/trace:
+    get:
+      description: Returns an execution trace. Supports 'seconds' query parameter.
+      responses:
+        "200":
+          description: Execution trace data
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Execution trace
+      tags:
+      - Profiling
   /api/ipfs/websites/{id}/block:
     post:
       description: |-

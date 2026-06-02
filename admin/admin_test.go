@@ -3305,3 +3305,816 @@ func TestWebsiteService_UnblockWebsite(t *testing.T) {
 		})
 	}
 }
+
+// === Profiling Service Tests ===
+
+func TestNewClient_Profiling(t *testing.T) {
+	client := NewClient()
+	require.NotNil(t, client)
+	require.NotNil(t, client.Profiling())
+}
+
+func TestProfilingService_GetProfileIndex(t *testing.T) {
+	tests := []struct {
+		name       string
+		statusCode int
+		response   []byte
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:       "successful get profile index",
+			statusCode: http.StatusOK,
+			response:   []byte("profile-index-data"),
+			wantErr:    false,
+		},
+		{
+			name:       "unauthorized",
+			statusCode: http.StatusUnauthorized,
+			response:   []byte(`{"error":"unauthorized"}`),
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "unauthorized")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "GET" {
+					t.Errorf("expected GET request, got %s", r.Method)
+				}
+				if r.URL.Path != "/api/debug/pprof" {
+					t.Errorf("expected /api/debug/pprof path, got %s", r.URL.Path)
+				}
+
+				w.WriteHeader(tt.statusCode)
+				w.Write(tt.response)
+			}))
+			defer server.Close()
+
+			client := NewClient(WithEndpoint(server.URL))
+			data, err := client.Profiling().GetProfileIndex(context.Background())
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetProfileIndex() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.Equal(t, tt.response, data)
+			}
+		})
+	}
+}
+
+func TestProfilingService_GetBlockProfile(t *testing.T) {
+	tests := []struct {
+		name       string
+		statusCode int
+		response   []byte
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:       "successful get block profile",
+			statusCode: http.StatusOK,
+			response:   []byte("block-profile-data"),
+			wantErr:    false,
+		},
+		{
+			name:       "unauthorized",
+			statusCode: http.StatusUnauthorized,
+			response:   []byte(`{"error":"unauthorized"}`),
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "unauthorized")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "GET" {
+					t.Errorf("expected GET request, got %s", r.Method)
+				}
+				if r.URL.Path != "/api/debug/pprof/block" {
+					t.Errorf("expected /api/debug/pprof/block path, got %s", r.URL.Path)
+				}
+
+				w.WriteHeader(tt.statusCode)
+				w.Write(tt.response)
+			}))
+			defer server.Close()
+
+			client := NewClient(WithEndpoint(server.URL))
+			data, err := client.Profiling().GetBlockProfile(context.Background())
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetBlockProfile() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.Equal(t, tt.response, data)
+			}
+		})
+	}
+}
+
+func TestProfilingService_SetBlockProfileRate(t *testing.T) {
+	tests := []struct {
+		name       string
+		rate       int
+		statusCode int
+		response   interface{}
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:       "successful set block profile rate",
+			rate:       5,
+			statusCode: http.StatusNoContent,
+			response:   nil,
+			wantErr:    false,
+		},
+		{
+			name:       "unauthorized",
+			rate:       5,
+			statusCode: http.StatusUnauthorized,
+			response:   admin.ErrorResponse{Error: "unauthorized"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "unauthorized")
+			},
+		},
+		{
+			name:       "invalid rate",
+			rate:       -1,
+			statusCode: http.StatusBadRequest,
+			response:   admin.ErrorResponse{Error: "invalid profiling rate"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "invalid profiling rate")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "PUT" {
+					t.Errorf("expected PUT request, got %s", r.Method)
+				}
+				if r.URL.Path != "/api/debug/pprof/block" {
+					t.Errorf("expected /api/debug/pprof/block path, got %s", r.URL.Path)
+				}
+
+				var reqBody admin.BlockProfileRequest
+				require.NoError(t, json.NewDecoder(r.Body).Decode(&reqBody))
+				require.Equal(t, tt.rate, reqBody.Rate)
+
+				w.WriteHeader(tt.statusCode)
+				if tt.response != nil {
+					w.Header().Set("Content-Type", "application/json")
+					require.NoError(t, json.NewEncoder(w).Encode(tt.response))
+				}
+			}))
+			defer server.Close()
+
+			client := NewClient(WithEndpoint(server.URL))
+			err := client.Profiling().SetBlockProfileRate(context.Background(), tt.rate)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("SetBlockProfileRate() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+		})
+	}
+}
+
+func TestProfilingService_GetCmdline(t *testing.T) {
+	tests := []struct {
+		name       string
+		statusCode int
+		response   []byte
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:       "successful get cmdline",
+			statusCode: http.StatusOK,
+			response:   []byte("cmdline-data"),
+			wantErr:    false,
+		},
+		{
+			name:       "unauthorized",
+			statusCode: http.StatusUnauthorized,
+			response:   []byte(`{"error":"unauthorized"}`),
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "unauthorized")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "GET" {
+					t.Errorf("expected GET request, got %s", r.Method)
+				}
+				if r.URL.Path != "/api/debug/pprof/cmdline" {
+					t.Errorf("expected /api/debug/pprof/cmdline path, got %s", r.URL.Path)
+				}
+
+				w.WriteHeader(tt.statusCode)
+				w.Write(tt.response)
+			}))
+			defer server.Close()
+
+			client := NewClient(WithEndpoint(server.URL))
+			data, err := client.Profiling().GetCmdline(context.Background())
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetCmdline() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.Equal(t, tt.response, data)
+			}
+		})
+	}
+}
+
+func TestProfilingService_GetGoroutineProfile(t *testing.T) {
+	tests := []struct {
+		name       string
+		statusCode int
+		response   []byte
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:       "successful get goroutine profile",
+			statusCode: http.StatusOK,
+			response:   []byte("goroutine-profile-data"),
+			wantErr:    false,
+		},
+		{
+			name:       "unauthorized",
+			statusCode: http.StatusUnauthorized,
+			response:   []byte(`{"error":"unauthorized"}`),
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "unauthorized")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "GET" {
+					t.Errorf("expected GET request, got %s", r.Method)
+				}
+				if r.URL.Path != "/api/debug/pprof/goroutine" {
+					t.Errorf("expected /api/debug/pprof/goroutine path, got %s", r.URL.Path)
+				}
+
+				w.WriteHeader(tt.statusCode)
+				w.Write(tt.response)
+			}))
+			defer server.Close()
+
+			client := NewClient(WithEndpoint(server.URL))
+			data, err := client.Profiling().GetGoroutineProfile(context.Background())
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetGoroutineProfile() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.Equal(t, tt.response, data)
+			}
+		})
+	}
+}
+
+func TestProfilingService_GetHeapProfile(t *testing.T) {
+	tests := []struct {
+		name       string
+		statusCode int
+		response   []byte
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:       "successful get heap profile",
+			statusCode: http.StatusOK,
+			response:   []byte("heap-profile-data"),
+			wantErr:    false,
+		},
+		{
+			name:       "unauthorized",
+			statusCode: http.StatusUnauthorized,
+			response:   []byte(`{"error":"unauthorized"}`),
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "unauthorized")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "GET" {
+					t.Errorf("expected GET request, got %s", r.Method)
+				}
+				if r.URL.Path != "/api/debug/pprof/heap" {
+					t.Errorf("expected /api/debug/pprof/heap path, got %s", r.URL.Path)
+				}
+
+				w.WriteHeader(tt.statusCode)
+				w.Write(tt.response)
+			}))
+			defer server.Close()
+
+			client := NewClient(WithEndpoint(server.URL))
+			data, err := client.Profiling().GetHeapProfile(context.Background())
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetHeapProfile() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.Equal(t, tt.response, data)
+			}
+		})
+	}
+}
+
+func TestProfilingService_GetMutexProfile(t *testing.T) {
+	tests := []struct {
+		name       string
+		statusCode int
+		response   []byte
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:       "successful get mutex profile",
+			statusCode: http.StatusOK,
+			response:   []byte("mutex-profile-data"),
+			wantErr:    false,
+		},
+		{
+			name:       "unauthorized",
+			statusCode: http.StatusUnauthorized,
+			response:   []byte(`{"error":"unauthorized"}`),
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "unauthorized")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "GET" {
+					t.Errorf("expected GET request, got %s", r.Method)
+				}
+				if r.URL.Path != "/api/debug/pprof/mutex" {
+					t.Errorf("expected /api/debug/pprof/mutex path, got %s", r.URL.Path)
+				}
+
+				w.WriteHeader(tt.statusCode)
+				w.Write(tt.response)
+			}))
+			defer server.Close()
+
+			client := NewClient(WithEndpoint(server.URL))
+			data, err := client.Profiling().GetMutexProfile(context.Background())
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetMutexProfile() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.Equal(t, tt.response, data)
+			}
+		})
+	}
+}
+
+func TestProfilingService_SetMutexProfileFraction(t *testing.T) {
+	tests := []struct {
+		name       string
+		fraction   int
+		statusCode int
+		response   interface{}
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:       "successful set mutex profile fraction",
+			fraction:   100,
+			statusCode: http.StatusNoContent,
+			response:   nil,
+			wantErr:    false,
+		},
+		{
+			name:       "unauthorized",
+			fraction:   100,
+			statusCode: http.StatusUnauthorized,
+			response:   admin.ErrorResponse{Error: "unauthorized"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "unauthorized")
+			},
+		},
+		{
+			name:       "invalid fraction",
+			fraction:   -1,
+			statusCode: http.StatusBadRequest,
+			response:   admin.ErrorResponse{Error: "invalid profiling rate"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "invalid profiling rate")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "PUT" {
+					t.Errorf("expected PUT request, got %s", r.Method)
+				}
+				if r.URL.Path != "/api/debug/pprof/mutex" {
+					t.Errorf("expected /api/debug/pprof/mutex path, got %s", r.URL.Path)
+				}
+
+				var reqBody admin.MutexProfileRequest
+				require.NoError(t, json.NewDecoder(r.Body).Decode(&reqBody))
+				require.Equal(t, tt.fraction, reqBody.Fraction)
+
+				w.WriteHeader(tt.statusCode)
+				if tt.response != nil {
+					w.Header().Set("Content-Type", "application/json")
+					require.NoError(t, json.NewEncoder(w).Encode(tt.response))
+				}
+			}))
+			defer server.Close()
+
+			client := NewClient(WithEndpoint(server.URL))
+			err := client.Profiling().SetMutexProfileFraction(context.Background(), tt.fraction)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("SetMutexProfileFraction() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+		})
+	}
+}
+
+func TestProfilingService_GetCPUProfile(t *testing.T) {
+	tests := []struct {
+		name       string
+		statusCode int
+		response   []byte
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:       "successful get cpu profile",
+			statusCode: http.StatusOK,
+			response:   []byte("cpu-profile-data"),
+			wantErr:    false,
+		},
+		{
+			name:       "unauthorized",
+			statusCode: http.StatusUnauthorized,
+			response:   []byte(`{"error":"unauthorized"}`),
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "unauthorized")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "GET" {
+					t.Errorf("expected GET request, got %s", r.Method)
+				}
+				if r.URL.Path != "/api/debug/pprof/profile" {
+					t.Errorf("expected /api/debug/pprof/profile path, got %s", r.URL.Path)
+				}
+
+				w.WriteHeader(tt.statusCode)
+				w.Write(tt.response)
+			}))
+			defer server.Close()
+
+			client := NewClient(WithEndpoint(server.URL))
+			data, err := client.Profiling().GetCPUProfile(context.Background())
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetCPUProfile() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.Equal(t, tt.response, data)
+			}
+		})
+	}
+}
+
+func TestProfilingService_GetStatus(t *testing.T) {
+	tests := []struct {
+		name       string
+		statusCode int
+		response   interface{}
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:       "successful get status",
+			statusCode: http.StatusOK,
+			response: admin.ProfilingStatusResponse{
+				BlockProfileRate: 1,
+				MutexFraction:    0,
+			},
+			wantErr: false,
+		},
+		{
+			name:       "unauthorized",
+			statusCode: http.StatusUnauthorized,
+			response:   admin.ErrorResponse{Error: "unauthorized"},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "unauthorized")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "GET" {
+					t.Errorf("expected GET request, got %s", r.Method)
+				}
+				if r.URL.Path != "/api/debug/pprof/status" {
+					t.Errorf("expected /api/debug/pprof/status path, got %s", r.URL.Path)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				require.NoError(t, json.NewEncoder(w).Encode(tt.response))
+			}))
+			defer server.Close()
+
+			client := NewClient(WithEndpoint(server.URL))
+			status, err := client.Profiling().GetStatus(context.Background())
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetStatus() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.NotNil(t, status)
+				require.Equal(t, 1, status.BlockProfileRate)
+				require.Equal(t, 0, status.MutexFraction)
+			}
+		})
+	}
+}
+
+func TestProfilingService_GetSymbol(t *testing.T) {
+	tests := []struct {
+		name       string
+		statusCode int
+		response   []byte
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:       "successful get symbol",
+			statusCode: http.StatusOK,
+			response:   []byte("symbol-data"),
+			wantErr:    false,
+		},
+		{
+			name:       "unauthorized",
+			statusCode: http.StatusUnauthorized,
+			response:   []byte(`{"error":"unauthorized"}`),
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "unauthorized")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "GET" {
+					t.Errorf("expected GET request, got %s", r.Method)
+				}
+				if r.URL.Path != "/api/debug/pprof/symbol" {
+					t.Errorf("expected /api/debug/pprof/symbol path, got %s", r.URL.Path)
+				}
+
+				w.WriteHeader(tt.statusCode)
+				w.Write(tt.response)
+			}))
+			defer server.Close()
+
+			client := NewClient(WithEndpoint(server.URL))
+			data, err := client.Profiling().GetSymbol(context.Background())
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetSymbol() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.Equal(t, tt.response, data)
+			}
+		})
+	}
+}
+
+func TestProfilingService_GetThreadcreate(t *testing.T) {
+	tests := []struct {
+		name       string
+		statusCode int
+		response   []byte
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:       "successful get threadcreate",
+			statusCode: http.StatusOK,
+			response:   []byte("threadcreate-data"),
+			wantErr:    false,
+		},
+		{
+			name:       "unauthorized",
+			statusCode: http.StatusUnauthorized,
+			response:   []byte(`{"error":"unauthorized"}`),
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "unauthorized")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "GET" {
+					t.Errorf("expected GET request, got %s", r.Method)
+				}
+				if r.URL.Path != "/api/debug/pprof/threadcreate" {
+					t.Errorf("expected /api/debug/pprof/threadcreate path, got %s", r.URL.Path)
+				}
+
+				w.WriteHeader(tt.statusCode)
+				w.Write(tt.response)
+			}))
+			defer server.Close()
+
+			client := NewClient(WithEndpoint(server.URL))
+			data, err := client.Profiling().GetThreadcreate(context.Background())
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetThreadcreate() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.Equal(t, tt.response, data)
+			}
+		})
+	}
+}
+
+func TestProfilingService_GetTrace(t *testing.T) {
+	tests := []struct {
+		name       string
+		statusCode int
+		response   []byte
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:       "successful get trace",
+			statusCode: http.StatusOK,
+			response:   []byte("trace-data"),
+			wantErr:    false,
+		},
+		{
+			name:       "unauthorized",
+			statusCode: http.StatusUnauthorized,
+			response:   []byte(`{"error":"unauthorized"}`),
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "unauthorized")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != "GET" {
+					t.Errorf("expected GET request, got %s", r.Method)
+				}
+				if r.URL.Path != "/api/debug/pprof/trace" {
+					t.Errorf("expected /api/debug/pprof/trace path, got %s", r.URL.Path)
+				}
+
+				w.WriteHeader(tt.statusCode)
+				w.Write(tt.response)
+			}))
+			defer server.Close()
+
+			client := NewClient(WithEndpoint(server.URL))
+			data, err := client.Profiling().GetTrace(context.Background())
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetTrace() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.Equal(t, tt.response, data)
+			}
+		})
+	}
+}
