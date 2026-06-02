@@ -80,6 +80,11 @@ type BalanceResponse struct {
 	UserId  int     `json:"user_id"`
 }
 
+// BlockProfileRequest defines model for BlockProfileRequest.
+type BlockProfileRequest struct {
+	Rate int `json:"rate"`
+}
+
 // CheckoutUIFragmentResponse defines model for CheckoutUIFragmentResponse.
 type CheckoutUIFragmentResponse struct {
 	Css      *string                 `json:"css,omitempty"`
@@ -183,6 +188,11 @@ type ManagementResultResponse struct {
 	RequiresConfirmation bool                     `json:"requires_confirmation"`
 	Status               string                   `json:"status"`
 	Url                  *string                  `json:"url,omitempty"`
+}
+
+// MutexProfileRequest defines model for MutexProfileRequest.
+type MutexProfileRequest struct {
+	Fraction int `json:"fraction"`
 }
 
 // PlanChangeResultResponse defines model for PlanChangeResultResponse.
@@ -363,6 +373,12 @@ type PricingPlansListResponse struct {
 	Total int               `json:"total"`
 }
 
+// ProfilingStatusResponse defines model for ProfilingStatusResponse.
+type ProfilingStatusResponse struct {
+	BlockProfileRate int `json:"block_profile_rate"`
+	MutexFraction    int `json:"mutex_fraction"`
+}
+
 // QuotaPlanRequest defines model for QuotaPlanRequest.
 type QuotaPlanRequest struct {
 	Description        string `json:"description"`
@@ -537,20 +553,25 @@ type UserQuotaConfigUpdateRequest struct {
 
 // WebsiteResponse defines model for WebsiteResponse.
 type WebsiteResponse struct {
-	Created             time.Time      `json:"created"`
-	DnsHostingEnabled   bool           `json:"dns_hosting_enabled"`
-	DnsZoneId           *int           `json:"dns_zone_id,omitempty"`
-	Domain              string         `json:"domain"`
-	Expired             bool           `json:"expired"`
-	Id                  int            `json:"id"`
-	LastCheckedAt       *time.Time     `json:"last_checked_at,omitempty"`
-	Ssl                 *SSLStatusInfo `json:"ssl,omitempty"`
-	Status              string         `json:"status"`
-	TargetHash          string         `json:"target_hash"`
-	TargetType          string         `json:"target_type"`
-	Updated             time.Time      `json:"updated"`
-	ValidationExpiresAt *time.Time     `json:"validation_expires_at,omitempty"`
-	ValidationToken     string         `json:"validation_token"`
+	ActiveCid            *string        `json:"active_cid,omitempty"`
+	Created              time.Time      `json:"created"`
+	DnsHostingEnabled    bool           `json:"dns_hosting_enabled"`
+	DnsZoneId            *int           `json:"dns_zone_id,omitempty"`
+	Domain               string         `json:"domain"`
+	Expired              bool           `json:"expired"`
+	GatewayDomain        *string        `json:"gateway_domain,omitempty"`
+	Id                   int            `json:"id"`
+	IpnsKeyId            *int           `json:"ipns_key_id,omitempty"`
+	IsSubdomain          bool           `json:"is_subdomain"`
+	LastCheckedAt        *time.Time     `json:"last_checked_at,omitempty"`
+	Ssl                  *SSLStatusInfo `json:"ssl,omitempty"`
+	Status               string         `json:"status"`
+	TargetHash           string         `json:"target_hash"`
+	TargetType           string         `json:"target_type"`
+	Updated              time.Time      `json:"updated"`
+	ValidationExpiresAt  *time.Time     `json:"validation_expires_at,omitempty"`
+	ValidationRecordHost *string        `json:"validation_record_host,omitempty"`
+	ValidationToken      string         `json:"validation_token"`
 }
 
 // GetApiBillingCreditsParams defines parameters for GetApiBillingCredits.
@@ -793,6 +814,12 @@ type PostApiBillingUsersUserIdSubscriptionsCancelJSONRequestBody = AdminCancelSu
 // PostApiBillingUsersUserIdSubscriptionsChangePlanJSONRequestBody defines body for PostApiBillingUsersUserIdSubscriptionsChangePlan for application/json ContentType.
 type PostApiBillingUsersUserIdSubscriptionsChangePlanJSONRequestBody = AdminChangePlanRequest
 
+// PutApiDebugPprofBlockJSONRequestBody defines body for PutApiDebugPprofBlock for application/json ContentType.
+type PutApiDebugPprofBlockJSONRequestBody = BlockProfileRequest
+
+// PutApiDebugPprofMutexJSONRequestBody defines body for PutApiDebugPprofMutex for application/json ContentType.
+type PutApiDebugPprofMutexJSONRequestBody = MutexProfileRequest
+
 // PostApiQuotaAllowancesJSONRequestBody defines body for PostApiQuotaAllowances for application/json ContentType.
 type PostApiQuotaAllowancesJSONRequestBody = AllowanceGrantRequest
 
@@ -1021,6 +1048,49 @@ type ClientInterface interface {
 
 	// PostApiBillingUsersUserIdSubscriptionsResume request
 	PostApiBillingUsersUserIdSubscriptionsResume(ctx context.Context, userId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiDebugPprof request
+	GetApiDebugPprof(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiDebugPprofBlock request
+	GetApiDebugPprofBlock(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PutApiDebugPprofBlockWithBody request with any body
+	PutApiDebugPprofBlockWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PutApiDebugPprofBlock(ctx context.Context, body PutApiDebugPprofBlockJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiDebugPprofCmdline request
+	GetApiDebugPprofCmdline(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiDebugPprofGoroutine request
+	GetApiDebugPprofGoroutine(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiDebugPprofHeap request
+	GetApiDebugPprofHeap(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiDebugPprofMutex request
+	GetApiDebugPprofMutex(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PutApiDebugPprofMutexWithBody request with any body
+	PutApiDebugPprofMutexWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PutApiDebugPprofMutex(ctx context.Context, body PutApiDebugPprofMutexJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiDebugPprofProfile request
+	GetApiDebugPprofProfile(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiDebugPprofStatus request
+	GetApiDebugPprofStatus(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiDebugPprofSymbol request
+	GetApiDebugPprofSymbol(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiDebugPprofThreadcreate request
+	GetApiDebugPprofThreadcreate(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiDebugPprofTrace request
+	GetApiDebugPprofTrace(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// PostApiIpfsWebsitesIdBlock request
 	PostApiIpfsWebsitesIdBlock(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1669,6 +1739,186 @@ func (c *Client) PostApiBillingUsersUserIdSubscriptionsPause(ctx context.Context
 
 func (c *Client) PostApiBillingUsersUserIdSubscriptionsResume(ctx context.Context, userId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPostApiBillingUsersUserIdSubscriptionsResumeRequest(c.Server, userId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetApiDebugPprof(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiDebugPprofRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetApiDebugPprofBlock(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiDebugPprofBlockRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutApiDebugPprofBlockWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutApiDebugPprofBlockRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutApiDebugPprofBlock(ctx context.Context, body PutApiDebugPprofBlockJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutApiDebugPprofBlockRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetApiDebugPprofCmdline(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiDebugPprofCmdlineRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetApiDebugPprofGoroutine(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiDebugPprofGoroutineRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetApiDebugPprofHeap(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiDebugPprofHeapRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetApiDebugPprofMutex(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiDebugPprofMutexRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutApiDebugPprofMutexWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutApiDebugPprofMutexRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutApiDebugPprofMutex(ctx context.Context, body PutApiDebugPprofMutexJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutApiDebugPprofMutexRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetApiDebugPprofProfile(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiDebugPprofProfileRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetApiDebugPprofStatus(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiDebugPprofStatusRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetApiDebugPprofSymbol(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiDebugPprofSymbolRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetApiDebugPprofThreadcreate(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiDebugPprofThreadcreateRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetApiDebugPprofTrace(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiDebugPprofTraceRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -4398,6 +4648,383 @@ func NewPostApiBillingUsersUserIdSubscriptionsResumeRequest(server string, userI
 	return req, nil
 }
 
+// NewGetApiDebugPprofRequest generates requests for GetApiDebugPprof
+func NewGetApiDebugPprofRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/debug/pprof")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetApiDebugPprofBlockRequest generates requests for GetApiDebugPprofBlock
+func NewGetApiDebugPprofBlockRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/debug/pprof/block")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPutApiDebugPprofBlockRequest calls the generic PutApiDebugPprofBlock builder with application/json body
+func NewPutApiDebugPprofBlockRequest(server string, body PutApiDebugPprofBlockJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPutApiDebugPprofBlockRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPutApiDebugPprofBlockRequestWithBody generates requests for PutApiDebugPprofBlock with any type of body
+func NewPutApiDebugPprofBlockRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/debug/pprof/block")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetApiDebugPprofCmdlineRequest generates requests for GetApiDebugPprofCmdline
+func NewGetApiDebugPprofCmdlineRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/debug/pprof/cmdline")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetApiDebugPprofGoroutineRequest generates requests for GetApiDebugPprofGoroutine
+func NewGetApiDebugPprofGoroutineRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/debug/pprof/goroutine")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetApiDebugPprofHeapRequest generates requests for GetApiDebugPprofHeap
+func NewGetApiDebugPprofHeapRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/debug/pprof/heap")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetApiDebugPprofMutexRequest generates requests for GetApiDebugPprofMutex
+func NewGetApiDebugPprofMutexRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/debug/pprof/mutex")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPutApiDebugPprofMutexRequest calls the generic PutApiDebugPprofMutex builder with application/json body
+func NewPutApiDebugPprofMutexRequest(server string, body PutApiDebugPprofMutexJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPutApiDebugPprofMutexRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPutApiDebugPprofMutexRequestWithBody generates requests for PutApiDebugPprofMutex with any type of body
+func NewPutApiDebugPprofMutexRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/debug/pprof/mutex")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetApiDebugPprofProfileRequest generates requests for GetApiDebugPprofProfile
+func NewGetApiDebugPprofProfileRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/debug/pprof/profile")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetApiDebugPprofStatusRequest generates requests for GetApiDebugPprofStatus
+func NewGetApiDebugPprofStatusRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/debug/pprof/status")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetApiDebugPprofSymbolRequest generates requests for GetApiDebugPprofSymbol
+func NewGetApiDebugPprofSymbolRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/debug/pprof/symbol")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetApiDebugPprofThreadcreateRequest generates requests for GetApiDebugPprofThreadcreate
+func NewGetApiDebugPprofThreadcreateRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/debug/pprof/threadcreate")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetApiDebugPprofTraceRequest generates requests for GetApiDebugPprofTrace
+func NewGetApiDebugPprofTraceRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/debug/pprof/trace")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewPostApiIpfsWebsitesIdBlockRequest generates requests for PostApiIpfsWebsitesIdBlock
 func NewPostApiIpfsWebsitesIdBlockRequest(server string, id string) (*http.Request, error) {
 	var err error
@@ -5222,6 +5849,49 @@ type ClientWithResponsesInterface interface {
 
 	// PostApiBillingUsersUserIdSubscriptionsResumeWithResponse request
 	PostApiBillingUsersUserIdSubscriptionsResumeWithResponse(ctx context.Context, userId string, reqEditors ...RequestEditorFn) (*PostApiBillingUsersUserIdSubscriptionsResumeResponse, error)
+
+	// GetApiDebugPprofWithResponse request
+	GetApiDebugPprofWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiDebugPprofResponse, error)
+
+	// GetApiDebugPprofBlockWithResponse request
+	GetApiDebugPprofBlockWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiDebugPprofBlockResponse, error)
+
+	// PutApiDebugPprofBlockWithBodyWithResponse request with any body
+	PutApiDebugPprofBlockWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutApiDebugPprofBlockResponse, error)
+
+	PutApiDebugPprofBlockWithResponse(ctx context.Context, body PutApiDebugPprofBlockJSONRequestBody, reqEditors ...RequestEditorFn) (*PutApiDebugPprofBlockResponse, error)
+
+	// GetApiDebugPprofCmdlineWithResponse request
+	GetApiDebugPprofCmdlineWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiDebugPprofCmdlineResponse, error)
+
+	// GetApiDebugPprofGoroutineWithResponse request
+	GetApiDebugPprofGoroutineWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiDebugPprofGoroutineResponse, error)
+
+	// GetApiDebugPprofHeapWithResponse request
+	GetApiDebugPprofHeapWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiDebugPprofHeapResponse, error)
+
+	// GetApiDebugPprofMutexWithResponse request
+	GetApiDebugPprofMutexWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiDebugPprofMutexResponse, error)
+
+	// PutApiDebugPprofMutexWithBodyWithResponse request with any body
+	PutApiDebugPprofMutexWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutApiDebugPprofMutexResponse, error)
+
+	PutApiDebugPprofMutexWithResponse(ctx context.Context, body PutApiDebugPprofMutexJSONRequestBody, reqEditors ...RequestEditorFn) (*PutApiDebugPprofMutexResponse, error)
+
+	// GetApiDebugPprofProfileWithResponse request
+	GetApiDebugPprofProfileWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiDebugPprofProfileResponse, error)
+
+	// GetApiDebugPprofStatusWithResponse request
+	GetApiDebugPprofStatusWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiDebugPprofStatusResponse, error)
+
+	// GetApiDebugPprofSymbolWithResponse request
+	GetApiDebugPprofSymbolWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiDebugPprofSymbolResponse, error)
+
+	// GetApiDebugPprofThreadcreateWithResponse request
+	GetApiDebugPprofThreadcreateWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiDebugPprofThreadcreateResponse, error)
+
+	// GetApiDebugPprofTraceWithResponse request
+	GetApiDebugPprofTraceWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiDebugPprofTraceResponse, error)
 
 	// PostApiIpfsWebsitesIdBlockWithResponse request
 	PostApiIpfsWebsitesIdBlockWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*PostApiIpfsWebsitesIdBlockResponse, error)
@@ -6285,6 +6955,321 @@ func (r PostApiBillingUsersUserIdSubscriptionsResumeResponse) StatusCode() int {
 	return 0
 }
 
+type GetApiDebugPprofResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiDebugPprofResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiDebugPprofResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetApiDebugPprofBlockResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiDebugPprofBlockResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiDebugPprofBlockResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PutApiDebugPprofBlockResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ErrorResponse
+	JSON400      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PutApiDebugPprofBlockResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PutApiDebugPprofBlockResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetApiDebugPprofCmdlineResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiDebugPprofCmdlineResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiDebugPprofCmdlineResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetApiDebugPprofGoroutineResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiDebugPprofGoroutineResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiDebugPprofGoroutineResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetApiDebugPprofHeapResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiDebugPprofHeapResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiDebugPprofHeapResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetApiDebugPprofMutexResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiDebugPprofMutexResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiDebugPprofMutexResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PutApiDebugPprofMutexResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ErrorResponse
+	JSON400      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PutApiDebugPprofMutexResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PutApiDebugPprofMutexResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetApiDebugPprofProfileResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiDebugPprofProfileResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiDebugPprofProfileResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetApiDebugPprofStatusResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ProfilingStatusResponse
+	JSON400      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiDebugPprofStatusResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiDebugPprofStatusResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetApiDebugPprofSymbolResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiDebugPprofSymbolResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiDebugPprofSymbolResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetApiDebugPprofThreadcreateResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiDebugPprofThreadcreateResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiDebugPprofThreadcreateResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetApiDebugPprofTraceResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiDebugPprofTraceResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiDebugPprofTraceResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type PostApiIpfsWebsitesIdBlockResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -7164,6 +8149,139 @@ func (c *ClientWithResponses) PostApiBillingUsersUserIdSubscriptionsResumeWithRe
 		return nil, err
 	}
 	return ParsePostApiBillingUsersUserIdSubscriptionsResumeResponse(rsp)
+}
+
+// GetApiDebugPprofWithResponse request returning *GetApiDebugPprofResponse
+func (c *ClientWithResponses) GetApiDebugPprofWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiDebugPprofResponse, error) {
+	rsp, err := c.GetApiDebugPprof(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiDebugPprofResponse(rsp)
+}
+
+// GetApiDebugPprofBlockWithResponse request returning *GetApiDebugPprofBlockResponse
+func (c *ClientWithResponses) GetApiDebugPprofBlockWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiDebugPprofBlockResponse, error) {
+	rsp, err := c.GetApiDebugPprofBlock(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiDebugPprofBlockResponse(rsp)
+}
+
+// PutApiDebugPprofBlockWithBodyWithResponse request with arbitrary body returning *PutApiDebugPprofBlockResponse
+func (c *ClientWithResponses) PutApiDebugPprofBlockWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutApiDebugPprofBlockResponse, error) {
+	rsp, err := c.PutApiDebugPprofBlockWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutApiDebugPprofBlockResponse(rsp)
+}
+
+func (c *ClientWithResponses) PutApiDebugPprofBlockWithResponse(ctx context.Context, body PutApiDebugPprofBlockJSONRequestBody, reqEditors ...RequestEditorFn) (*PutApiDebugPprofBlockResponse, error) {
+	rsp, err := c.PutApiDebugPprofBlock(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutApiDebugPprofBlockResponse(rsp)
+}
+
+// GetApiDebugPprofCmdlineWithResponse request returning *GetApiDebugPprofCmdlineResponse
+func (c *ClientWithResponses) GetApiDebugPprofCmdlineWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiDebugPprofCmdlineResponse, error) {
+	rsp, err := c.GetApiDebugPprofCmdline(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiDebugPprofCmdlineResponse(rsp)
+}
+
+// GetApiDebugPprofGoroutineWithResponse request returning *GetApiDebugPprofGoroutineResponse
+func (c *ClientWithResponses) GetApiDebugPprofGoroutineWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiDebugPprofGoroutineResponse, error) {
+	rsp, err := c.GetApiDebugPprofGoroutine(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiDebugPprofGoroutineResponse(rsp)
+}
+
+// GetApiDebugPprofHeapWithResponse request returning *GetApiDebugPprofHeapResponse
+func (c *ClientWithResponses) GetApiDebugPprofHeapWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiDebugPprofHeapResponse, error) {
+	rsp, err := c.GetApiDebugPprofHeap(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiDebugPprofHeapResponse(rsp)
+}
+
+// GetApiDebugPprofMutexWithResponse request returning *GetApiDebugPprofMutexResponse
+func (c *ClientWithResponses) GetApiDebugPprofMutexWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiDebugPprofMutexResponse, error) {
+	rsp, err := c.GetApiDebugPprofMutex(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiDebugPprofMutexResponse(rsp)
+}
+
+// PutApiDebugPprofMutexWithBodyWithResponse request with arbitrary body returning *PutApiDebugPprofMutexResponse
+func (c *ClientWithResponses) PutApiDebugPprofMutexWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutApiDebugPprofMutexResponse, error) {
+	rsp, err := c.PutApiDebugPprofMutexWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutApiDebugPprofMutexResponse(rsp)
+}
+
+func (c *ClientWithResponses) PutApiDebugPprofMutexWithResponse(ctx context.Context, body PutApiDebugPprofMutexJSONRequestBody, reqEditors ...RequestEditorFn) (*PutApiDebugPprofMutexResponse, error) {
+	rsp, err := c.PutApiDebugPprofMutex(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutApiDebugPprofMutexResponse(rsp)
+}
+
+// GetApiDebugPprofProfileWithResponse request returning *GetApiDebugPprofProfileResponse
+func (c *ClientWithResponses) GetApiDebugPprofProfileWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiDebugPprofProfileResponse, error) {
+	rsp, err := c.GetApiDebugPprofProfile(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiDebugPprofProfileResponse(rsp)
+}
+
+// GetApiDebugPprofStatusWithResponse request returning *GetApiDebugPprofStatusResponse
+func (c *ClientWithResponses) GetApiDebugPprofStatusWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiDebugPprofStatusResponse, error) {
+	rsp, err := c.GetApiDebugPprofStatus(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiDebugPprofStatusResponse(rsp)
+}
+
+// GetApiDebugPprofSymbolWithResponse request returning *GetApiDebugPprofSymbolResponse
+func (c *ClientWithResponses) GetApiDebugPprofSymbolWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiDebugPprofSymbolResponse, error) {
+	rsp, err := c.GetApiDebugPprofSymbol(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiDebugPprofSymbolResponse(rsp)
+}
+
+// GetApiDebugPprofThreadcreateWithResponse request returning *GetApiDebugPprofThreadcreateResponse
+func (c *ClientWithResponses) GetApiDebugPprofThreadcreateWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiDebugPprofThreadcreateResponse, error) {
+	rsp, err := c.GetApiDebugPprofThreadcreate(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiDebugPprofThreadcreateResponse(rsp)
+}
+
+// GetApiDebugPprofTraceWithResponse request returning *GetApiDebugPprofTraceResponse
+func (c *ClientWithResponses) GetApiDebugPprofTraceWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiDebugPprofTraceResponse, error) {
+	rsp, err := c.GetApiDebugPprofTrace(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiDebugPprofTraceResponse(rsp)
 }
 
 // PostApiIpfsWebsitesIdBlockWithResponse request returning *PostApiIpfsWebsitesIdBlockResponse
@@ -9579,6 +10697,547 @@ func ParsePostApiBillingUsersUserIdSubscriptionsResumeResponse(rsp *http.Respons
 			return nil, err
 		}
 		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiDebugPprofResponse parses an HTTP response from a GetApiDebugPprofWithResponse call
+func ParseGetApiDebugPprofResponse(rsp *http.Response) (*GetApiDebugPprofResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiDebugPprofResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiDebugPprofBlockResponse parses an HTTP response from a GetApiDebugPprofBlockWithResponse call
+func ParseGetApiDebugPprofBlockResponse(rsp *http.Response) (*GetApiDebugPprofBlockResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiDebugPprofBlockResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePutApiDebugPprofBlockResponse parses an HTTP response from a PutApiDebugPprofBlockWithResponse call
+func ParsePutApiDebugPprofBlockResponse(rsp *http.Response) (*PutApiDebugPprofBlockResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PutApiDebugPprofBlockResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiDebugPprofCmdlineResponse parses an HTTP response from a GetApiDebugPprofCmdlineWithResponse call
+func ParseGetApiDebugPprofCmdlineResponse(rsp *http.Response) (*GetApiDebugPprofCmdlineResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiDebugPprofCmdlineResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiDebugPprofGoroutineResponse parses an HTTP response from a GetApiDebugPprofGoroutineWithResponse call
+func ParseGetApiDebugPprofGoroutineResponse(rsp *http.Response) (*GetApiDebugPprofGoroutineResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiDebugPprofGoroutineResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiDebugPprofHeapResponse parses an HTTP response from a GetApiDebugPprofHeapWithResponse call
+func ParseGetApiDebugPprofHeapResponse(rsp *http.Response) (*GetApiDebugPprofHeapResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiDebugPprofHeapResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiDebugPprofMutexResponse parses an HTTP response from a GetApiDebugPprofMutexWithResponse call
+func ParseGetApiDebugPprofMutexResponse(rsp *http.Response) (*GetApiDebugPprofMutexResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiDebugPprofMutexResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePutApiDebugPprofMutexResponse parses an HTTP response from a PutApiDebugPprofMutexWithResponse call
+func ParsePutApiDebugPprofMutexResponse(rsp *http.Response) (*PutApiDebugPprofMutexResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PutApiDebugPprofMutexResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiDebugPprofProfileResponse parses an HTTP response from a GetApiDebugPprofProfileWithResponse call
+func ParseGetApiDebugPprofProfileResponse(rsp *http.Response) (*GetApiDebugPprofProfileResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiDebugPprofProfileResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiDebugPprofStatusResponse parses an HTTP response from a GetApiDebugPprofStatusWithResponse call
+func ParseGetApiDebugPprofStatusResponse(rsp *http.Response) (*GetApiDebugPprofStatusResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiDebugPprofStatusResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ProfilingStatusResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiDebugPprofSymbolResponse parses an HTTP response from a GetApiDebugPprofSymbolWithResponse call
+func ParseGetApiDebugPprofSymbolResponse(rsp *http.Response) (*GetApiDebugPprofSymbolResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiDebugPprofSymbolResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiDebugPprofThreadcreateResponse parses an HTTP response from a GetApiDebugPprofThreadcreateWithResponse call
+func ParseGetApiDebugPprofThreadcreateResponse(rsp *http.Response) (*GetApiDebugPprofThreadcreateResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiDebugPprofThreadcreateResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiDebugPprofTraceResponse parses an HTTP response from a GetApiDebugPprofTraceWithResponse call
+func ParseGetApiDebugPprofTraceResponse(rsp *http.Response) (*GetApiDebugPprofTraceResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiDebugPprofTraceResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
 		var dest ErrorResponse

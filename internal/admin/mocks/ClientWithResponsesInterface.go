@@ -1941,6 +1941,897 @@ func (_c *MockClientWithResponsesInterface_GetApiBillingUsersUserIdSubscribersWi
 	return _c
 }
 
+// GetApiDebugPprofBlockWithResponse provides a mock function for the type MockClientWithResponsesInterface
+func (_mock *MockClientWithResponsesInterface) GetApiDebugPprofBlockWithResponse(ctx context.Context, reqEditors ...admin.RequestEditorFn) (*admin.GetApiDebugPprofBlockResponse, error) {
+	// admin.RequestEditorFn
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetApiDebugPprofBlockWithResponse")
+	}
+
+	var r0 *admin.GetApiDebugPprofBlockResponse
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ...admin.RequestEditorFn) (*admin.GetApiDebugPprofBlockResponse, error)); ok {
+		return returnFunc(ctx, reqEditors...)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ...admin.RequestEditorFn) *admin.GetApiDebugPprofBlockResponse); ok {
+		r0 = returnFunc(ctx, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*admin.GetApiDebugPprofBlockResponse)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, ...admin.RequestEditorFn) error); ok {
+		r1 = returnFunc(ctx, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_GetApiDebugPprofBlockWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetApiDebugPprofBlockWithResponse'
+type MockClientWithResponsesInterface_GetApiDebugPprofBlockWithResponse_Call struct {
+	*mock.Call
+}
+
+// GetApiDebugPprofBlockWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - reqEditors ...admin.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) GetApiDebugPprofBlockWithResponse(ctx interface{}, reqEditors ...interface{}) *MockClientWithResponsesInterface_GetApiDebugPprofBlockWithResponse_Call {
+	return &MockClientWithResponsesInterface_GetApiDebugPprofBlockWithResponse_Call{Call: _e.mock.On("GetApiDebugPprofBlockWithResponse",
+		append([]interface{}{ctx}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiDebugPprofBlockWithResponse_Call) Run(run func(ctx context.Context, reqEditors ...admin.RequestEditorFn)) *MockClientWithResponsesInterface_GetApiDebugPprofBlockWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 []admin.RequestEditorFn
+		variadicArgs := make([]admin.RequestEditorFn, len(args)-1)
+		for i, a := range args[1:] {
+			if a != nil {
+				variadicArgs[i] = a.(admin.RequestEditorFn)
+			}
+		}
+		arg1 = variadicArgs
+		run(
+			arg0,
+			arg1...,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiDebugPprofBlockWithResponse_Call) Return(getApiDebugPprofBlockResponse *admin.GetApiDebugPprofBlockResponse, err error) *MockClientWithResponsesInterface_GetApiDebugPprofBlockWithResponse_Call {
+	_c.Call.Return(getApiDebugPprofBlockResponse, err)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiDebugPprofBlockWithResponse_Call) RunAndReturn(run func(ctx context.Context, reqEditors ...admin.RequestEditorFn) (*admin.GetApiDebugPprofBlockResponse, error)) *MockClientWithResponsesInterface_GetApiDebugPprofBlockWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetApiDebugPprofCmdlineWithResponse provides a mock function for the type MockClientWithResponsesInterface
+func (_mock *MockClientWithResponsesInterface) GetApiDebugPprofCmdlineWithResponse(ctx context.Context, reqEditors ...admin.RequestEditorFn) (*admin.GetApiDebugPprofCmdlineResponse, error) {
+	// admin.RequestEditorFn
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetApiDebugPprofCmdlineWithResponse")
+	}
+
+	var r0 *admin.GetApiDebugPprofCmdlineResponse
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ...admin.RequestEditorFn) (*admin.GetApiDebugPprofCmdlineResponse, error)); ok {
+		return returnFunc(ctx, reqEditors...)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ...admin.RequestEditorFn) *admin.GetApiDebugPprofCmdlineResponse); ok {
+		r0 = returnFunc(ctx, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*admin.GetApiDebugPprofCmdlineResponse)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, ...admin.RequestEditorFn) error); ok {
+		r1 = returnFunc(ctx, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_GetApiDebugPprofCmdlineWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetApiDebugPprofCmdlineWithResponse'
+type MockClientWithResponsesInterface_GetApiDebugPprofCmdlineWithResponse_Call struct {
+	*mock.Call
+}
+
+// GetApiDebugPprofCmdlineWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - reqEditors ...admin.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) GetApiDebugPprofCmdlineWithResponse(ctx interface{}, reqEditors ...interface{}) *MockClientWithResponsesInterface_GetApiDebugPprofCmdlineWithResponse_Call {
+	return &MockClientWithResponsesInterface_GetApiDebugPprofCmdlineWithResponse_Call{Call: _e.mock.On("GetApiDebugPprofCmdlineWithResponse",
+		append([]interface{}{ctx}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiDebugPprofCmdlineWithResponse_Call) Run(run func(ctx context.Context, reqEditors ...admin.RequestEditorFn)) *MockClientWithResponsesInterface_GetApiDebugPprofCmdlineWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 []admin.RequestEditorFn
+		variadicArgs := make([]admin.RequestEditorFn, len(args)-1)
+		for i, a := range args[1:] {
+			if a != nil {
+				variadicArgs[i] = a.(admin.RequestEditorFn)
+			}
+		}
+		arg1 = variadicArgs
+		run(
+			arg0,
+			arg1...,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiDebugPprofCmdlineWithResponse_Call) Return(getApiDebugPprofCmdlineResponse *admin.GetApiDebugPprofCmdlineResponse, err error) *MockClientWithResponsesInterface_GetApiDebugPprofCmdlineWithResponse_Call {
+	_c.Call.Return(getApiDebugPprofCmdlineResponse, err)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiDebugPprofCmdlineWithResponse_Call) RunAndReturn(run func(ctx context.Context, reqEditors ...admin.RequestEditorFn) (*admin.GetApiDebugPprofCmdlineResponse, error)) *MockClientWithResponsesInterface_GetApiDebugPprofCmdlineWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetApiDebugPprofGoroutineWithResponse provides a mock function for the type MockClientWithResponsesInterface
+func (_mock *MockClientWithResponsesInterface) GetApiDebugPprofGoroutineWithResponse(ctx context.Context, reqEditors ...admin.RequestEditorFn) (*admin.GetApiDebugPprofGoroutineResponse, error) {
+	// admin.RequestEditorFn
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetApiDebugPprofGoroutineWithResponse")
+	}
+
+	var r0 *admin.GetApiDebugPprofGoroutineResponse
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ...admin.RequestEditorFn) (*admin.GetApiDebugPprofGoroutineResponse, error)); ok {
+		return returnFunc(ctx, reqEditors...)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ...admin.RequestEditorFn) *admin.GetApiDebugPprofGoroutineResponse); ok {
+		r0 = returnFunc(ctx, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*admin.GetApiDebugPprofGoroutineResponse)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, ...admin.RequestEditorFn) error); ok {
+		r1 = returnFunc(ctx, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_GetApiDebugPprofGoroutineWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetApiDebugPprofGoroutineWithResponse'
+type MockClientWithResponsesInterface_GetApiDebugPprofGoroutineWithResponse_Call struct {
+	*mock.Call
+}
+
+// GetApiDebugPprofGoroutineWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - reqEditors ...admin.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) GetApiDebugPprofGoroutineWithResponse(ctx interface{}, reqEditors ...interface{}) *MockClientWithResponsesInterface_GetApiDebugPprofGoroutineWithResponse_Call {
+	return &MockClientWithResponsesInterface_GetApiDebugPprofGoroutineWithResponse_Call{Call: _e.mock.On("GetApiDebugPprofGoroutineWithResponse",
+		append([]interface{}{ctx}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiDebugPprofGoroutineWithResponse_Call) Run(run func(ctx context.Context, reqEditors ...admin.RequestEditorFn)) *MockClientWithResponsesInterface_GetApiDebugPprofGoroutineWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 []admin.RequestEditorFn
+		variadicArgs := make([]admin.RequestEditorFn, len(args)-1)
+		for i, a := range args[1:] {
+			if a != nil {
+				variadicArgs[i] = a.(admin.RequestEditorFn)
+			}
+		}
+		arg1 = variadicArgs
+		run(
+			arg0,
+			arg1...,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiDebugPprofGoroutineWithResponse_Call) Return(getApiDebugPprofGoroutineResponse *admin.GetApiDebugPprofGoroutineResponse, err error) *MockClientWithResponsesInterface_GetApiDebugPprofGoroutineWithResponse_Call {
+	_c.Call.Return(getApiDebugPprofGoroutineResponse, err)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiDebugPprofGoroutineWithResponse_Call) RunAndReturn(run func(ctx context.Context, reqEditors ...admin.RequestEditorFn) (*admin.GetApiDebugPprofGoroutineResponse, error)) *MockClientWithResponsesInterface_GetApiDebugPprofGoroutineWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetApiDebugPprofHeapWithResponse provides a mock function for the type MockClientWithResponsesInterface
+func (_mock *MockClientWithResponsesInterface) GetApiDebugPprofHeapWithResponse(ctx context.Context, reqEditors ...admin.RequestEditorFn) (*admin.GetApiDebugPprofHeapResponse, error) {
+	// admin.RequestEditorFn
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetApiDebugPprofHeapWithResponse")
+	}
+
+	var r0 *admin.GetApiDebugPprofHeapResponse
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ...admin.RequestEditorFn) (*admin.GetApiDebugPprofHeapResponse, error)); ok {
+		return returnFunc(ctx, reqEditors...)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ...admin.RequestEditorFn) *admin.GetApiDebugPprofHeapResponse); ok {
+		r0 = returnFunc(ctx, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*admin.GetApiDebugPprofHeapResponse)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, ...admin.RequestEditorFn) error); ok {
+		r1 = returnFunc(ctx, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_GetApiDebugPprofHeapWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetApiDebugPprofHeapWithResponse'
+type MockClientWithResponsesInterface_GetApiDebugPprofHeapWithResponse_Call struct {
+	*mock.Call
+}
+
+// GetApiDebugPprofHeapWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - reqEditors ...admin.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) GetApiDebugPprofHeapWithResponse(ctx interface{}, reqEditors ...interface{}) *MockClientWithResponsesInterface_GetApiDebugPprofHeapWithResponse_Call {
+	return &MockClientWithResponsesInterface_GetApiDebugPprofHeapWithResponse_Call{Call: _e.mock.On("GetApiDebugPprofHeapWithResponse",
+		append([]interface{}{ctx}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiDebugPprofHeapWithResponse_Call) Run(run func(ctx context.Context, reqEditors ...admin.RequestEditorFn)) *MockClientWithResponsesInterface_GetApiDebugPprofHeapWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 []admin.RequestEditorFn
+		variadicArgs := make([]admin.RequestEditorFn, len(args)-1)
+		for i, a := range args[1:] {
+			if a != nil {
+				variadicArgs[i] = a.(admin.RequestEditorFn)
+			}
+		}
+		arg1 = variadicArgs
+		run(
+			arg0,
+			arg1...,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiDebugPprofHeapWithResponse_Call) Return(getApiDebugPprofHeapResponse *admin.GetApiDebugPprofHeapResponse, err error) *MockClientWithResponsesInterface_GetApiDebugPprofHeapWithResponse_Call {
+	_c.Call.Return(getApiDebugPprofHeapResponse, err)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiDebugPprofHeapWithResponse_Call) RunAndReturn(run func(ctx context.Context, reqEditors ...admin.RequestEditorFn) (*admin.GetApiDebugPprofHeapResponse, error)) *MockClientWithResponsesInterface_GetApiDebugPprofHeapWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetApiDebugPprofMutexWithResponse provides a mock function for the type MockClientWithResponsesInterface
+func (_mock *MockClientWithResponsesInterface) GetApiDebugPprofMutexWithResponse(ctx context.Context, reqEditors ...admin.RequestEditorFn) (*admin.GetApiDebugPprofMutexResponse, error) {
+	// admin.RequestEditorFn
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetApiDebugPprofMutexWithResponse")
+	}
+
+	var r0 *admin.GetApiDebugPprofMutexResponse
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ...admin.RequestEditorFn) (*admin.GetApiDebugPprofMutexResponse, error)); ok {
+		return returnFunc(ctx, reqEditors...)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ...admin.RequestEditorFn) *admin.GetApiDebugPprofMutexResponse); ok {
+		r0 = returnFunc(ctx, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*admin.GetApiDebugPprofMutexResponse)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, ...admin.RequestEditorFn) error); ok {
+		r1 = returnFunc(ctx, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_GetApiDebugPprofMutexWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetApiDebugPprofMutexWithResponse'
+type MockClientWithResponsesInterface_GetApiDebugPprofMutexWithResponse_Call struct {
+	*mock.Call
+}
+
+// GetApiDebugPprofMutexWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - reqEditors ...admin.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) GetApiDebugPprofMutexWithResponse(ctx interface{}, reqEditors ...interface{}) *MockClientWithResponsesInterface_GetApiDebugPprofMutexWithResponse_Call {
+	return &MockClientWithResponsesInterface_GetApiDebugPprofMutexWithResponse_Call{Call: _e.mock.On("GetApiDebugPprofMutexWithResponse",
+		append([]interface{}{ctx}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiDebugPprofMutexWithResponse_Call) Run(run func(ctx context.Context, reqEditors ...admin.RequestEditorFn)) *MockClientWithResponsesInterface_GetApiDebugPprofMutexWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 []admin.RequestEditorFn
+		variadicArgs := make([]admin.RequestEditorFn, len(args)-1)
+		for i, a := range args[1:] {
+			if a != nil {
+				variadicArgs[i] = a.(admin.RequestEditorFn)
+			}
+		}
+		arg1 = variadicArgs
+		run(
+			arg0,
+			arg1...,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiDebugPprofMutexWithResponse_Call) Return(getApiDebugPprofMutexResponse *admin.GetApiDebugPprofMutexResponse, err error) *MockClientWithResponsesInterface_GetApiDebugPprofMutexWithResponse_Call {
+	_c.Call.Return(getApiDebugPprofMutexResponse, err)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiDebugPprofMutexWithResponse_Call) RunAndReturn(run func(ctx context.Context, reqEditors ...admin.RequestEditorFn) (*admin.GetApiDebugPprofMutexResponse, error)) *MockClientWithResponsesInterface_GetApiDebugPprofMutexWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetApiDebugPprofProfileWithResponse provides a mock function for the type MockClientWithResponsesInterface
+func (_mock *MockClientWithResponsesInterface) GetApiDebugPprofProfileWithResponse(ctx context.Context, reqEditors ...admin.RequestEditorFn) (*admin.GetApiDebugPprofProfileResponse, error) {
+	// admin.RequestEditorFn
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetApiDebugPprofProfileWithResponse")
+	}
+
+	var r0 *admin.GetApiDebugPprofProfileResponse
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ...admin.RequestEditorFn) (*admin.GetApiDebugPprofProfileResponse, error)); ok {
+		return returnFunc(ctx, reqEditors...)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ...admin.RequestEditorFn) *admin.GetApiDebugPprofProfileResponse); ok {
+		r0 = returnFunc(ctx, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*admin.GetApiDebugPprofProfileResponse)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, ...admin.RequestEditorFn) error); ok {
+		r1 = returnFunc(ctx, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_GetApiDebugPprofProfileWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetApiDebugPprofProfileWithResponse'
+type MockClientWithResponsesInterface_GetApiDebugPprofProfileWithResponse_Call struct {
+	*mock.Call
+}
+
+// GetApiDebugPprofProfileWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - reqEditors ...admin.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) GetApiDebugPprofProfileWithResponse(ctx interface{}, reqEditors ...interface{}) *MockClientWithResponsesInterface_GetApiDebugPprofProfileWithResponse_Call {
+	return &MockClientWithResponsesInterface_GetApiDebugPprofProfileWithResponse_Call{Call: _e.mock.On("GetApiDebugPprofProfileWithResponse",
+		append([]interface{}{ctx}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiDebugPprofProfileWithResponse_Call) Run(run func(ctx context.Context, reqEditors ...admin.RequestEditorFn)) *MockClientWithResponsesInterface_GetApiDebugPprofProfileWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 []admin.RequestEditorFn
+		variadicArgs := make([]admin.RequestEditorFn, len(args)-1)
+		for i, a := range args[1:] {
+			if a != nil {
+				variadicArgs[i] = a.(admin.RequestEditorFn)
+			}
+		}
+		arg1 = variadicArgs
+		run(
+			arg0,
+			arg1...,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiDebugPprofProfileWithResponse_Call) Return(getApiDebugPprofProfileResponse *admin.GetApiDebugPprofProfileResponse, err error) *MockClientWithResponsesInterface_GetApiDebugPprofProfileWithResponse_Call {
+	_c.Call.Return(getApiDebugPprofProfileResponse, err)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiDebugPprofProfileWithResponse_Call) RunAndReturn(run func(ctx context.Context, reqEditors ...admin.RequestEditorFn) (*admin.GetApiDebugPprofProfileResponse, error)) *MockClientWithResponsesInterface_GetApiDebugPprofProfileWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetApiDebugPprofStatusWithResponse provides a mock function for the type MockClientWithResponsesInterface
+func (_mock *MockClientWithResponsesInterface) GetApiDebugPprofStatusWithResponse(ctx context.Context, reqEditors ...admin.RequestEditorFn) (*admin.GetApiDebugPprofStatusResponse, error) {
+	// admin.RequestEditorFn
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetApiDebugPprofStatusWithResponse")
+	}
+
+	var r0 *admin.GetApiDebugPprofStatusResponse
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ...admin.RequestEditorFn) (*admin.GetApiDebugPprofStatusResponse, error)); ok {
+		return returnFunc(ctx, reqEditors...)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ...admin.RequestEditorFn) *admin.GetApiDebugPprofStatusResponse); ok {
+		r0 = returnFunc(ctx, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*admin.GetApiDebugPprofStatusResponse)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, ...admin.RequestEditorFn) error); ok {
+		r1 = returnFunc(ctx, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_GetApiDebugPprofStatusWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetApiDebugPprofStatusWithResponse'
+type MockClientWithResponsesInterface_GetApiDebugPprofStatusWithResponse_Call struct {
+	*mock.Call
+}
+
+// GetApiDebugPprofStatusWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - reqEditors ...admin.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) GetApiDebugPprofStatusWithResponse(ctx interface{}, reqEditors ...interface{}) *MockClientWithResponsesInterface_GetApiDebugPprofStatusWithResponse_Call {
+	return &MockClientWithResponsesInterface_GetApiDebugPprofStatusWithResponse_Call{Call: _e.mock.On("GetApiDebugPprofStatusWithResponse",
+		append([]interface{}{ctx}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiDebugPprofStatusWithResponse_Call) Run(run func(ctx context.Context, reqEditors ...admin.RequestEditorFn)) *MockClientWithResponsesInterface_GetApiDebugPprofStatusWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 []admin.RequestEditorFn
+		variadicArgs := make([]admin.RequestEditorFn, len(args)-1)
+		for i, a := range args[1:] {
+			if a != nil {
+				variadicArgs[i] = a.(admin.RequestEditorFn)
+			}
+		}
+		arg1 = variadicArgs
+		run(
+			arg0,
+			arg1...,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiDebugPprofStatusWithResponse_Call) Return(getApiDebugPprofStatusResponse *admin.GetApiDebugPprofStatusResponse, err error) *MockClientWithResponsesInterface_GetApiDebugPprofStatusWithResponse_Call {
+	_c.Call.Return(getApiDebugPprofStatusResponse, err)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiDebugPprofStatusWithResponse_Call) RunAndReturn(run func(ctx context.Context, reqEditors ...admin.RequestEditorFn) (*admin.GetApiDebugPprofStatusResponse, error)) *MockClientWithResponsesInterface_GetApiDebugPprofStatusWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetApiDebugPprofSymbolWithResponse provides a mock function for the type MockClientWithResponsesInterface
+func (_mock *MockClientWithResponsesInterface) GetApiDebugPprofSymbolWithResponse(ctx context.Context, reqEditors ...admin.RequestEditorFn) (*admin.GetApiDebugPprofSymbolResponse, error) {
+	// admin.RequestEditorFn
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetApiDebugPprofSymbolWithResponse")
+	}
+
+	var r0 *admin.GetApiDebugPprofSymbolResponse
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ...admin.RequestEditorFn) (*admin.GetApiDebugPprofSymbolResponse, error)); ok {
+		return returnFunc(ctx, reqEditors...)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ...admin.RequestEditorFn) *admin.GetApiDebugPprofSymbolResponse); ok {
+		r0 = returnFunc(ctx, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*admin.GetApiDebugPprofSymbolResponse)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, ...admin.RequestEditorFn) error); ok {
+		r1 = returnFunc(ctx, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_GetApiDebugPprofSymbolWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetApiDebugPprofSymbolWithResponse'
+type MockClientWithResponsesInterface_GetApiDebugPprofSymbolWithResponse_Call struct {
+	*mock.Call
+}
+
+// GetApiDebugPprofSymbolWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - reqEditors ...admin.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) GetApiDebugPprofSymbolWithResponse(ctx interface{}, reqEditors ...interface{}) *MockClientWithResponsesInterface_GetApiDebugPprofSymbolWithResponse_Call {
+	return &MockClientWithResponsesInterface_GetApiDebugPprofSymbolWithResponse_Call{Call: _e.mock.On("GetApiDebugPprofSymbolWithResponse",
+		append([]interface{}{ctx}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiDebugPprofSymbolWithResponse_Call) Run(run func(ctx context.Context, reqEditors ...admin.RequestEditorFn)) *MockClientWithResponsesInterface_GetApiDebugPprofSymbolWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 []admin.RequestEditorFn
+		variadicArgs := make([]admin.RequestEditorFn, len(args)-1)
+		for i, a := range args[1:] {
+			if a != nil {
+				variadicArgs[i] = a.(admin.RequestEditorFn)
+			}
+		}
+		arg1 = variadicArgs
+		run(
+			arg0,
+			arg1...,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiDebugPprofSymbolWithResponse_Call) Return(getApiDebugPprofSymbolResponse *admin.GetApiDebugPprofSymbolResponse, err error) *MockClientWithResponsesInterface_GetApiDebugPprofSymbolWithResponse_Call {
+	_c.Call.Return(getApiDebugPprofSymbolResponse, err)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiDebugPprofSymbolWithResponse_Call) RunAndReturn(run func(ctx context.Context, reqEditors ...admin.RequestEditorFn) (*admin.GetApiDebugPprofSymbolResponse, error)) *MockClientWithResponsesInterface_GetApiDebugPprofSymbolWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetApiDebugPprofThreadcreateWithResponse provides a mock function for the type MockClientWithResponsesInterface
+func (_mock *MockClientWithResponsesInterface) GetApiDebugPprofThreadcreateWithResponse(ctx context.Context, reqEditors ...admin.RequestEditorFn) (*admin.GetApiDebugPprofThreadcreateResponse, error) {
+	// admin.RequestEditorFn
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetApiDebugPprofThreadcreateWithResponse")
+	}
+
+	var r0 *admin.GetApiDebugPprofThreadcreateResponse
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ...admin.RequestEditorFn) (*admin.GetApiDebugPprofThreadcreateResponse, error)); ok {
+		return returnFunc(ctx, reqEditors...)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ...admin.RequestEditorFn) *admin.GetApiDebugPprofThreadcreateResponse); ok {
+		r0 = returnFunc(ctx, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*admin.GetApiDebugPprofThreadcreateResponse)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, ...admin.RequestEditorFn) error); ok {
+		r1 = returnFunc(ctx, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_GetApiDebugPprofThreadcreateWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetApiDebugPprofThreadcreateWithResponse'
+type MockClientWithResponsesInterface_GetApiDebugPprofThreadcreateWithResponse_Call struct {
+	*mock.Call
+}
+
+// GetApiDebugPprofThreadcreateWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - reqEditors ...admin.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) GetApiDebugPprofThreadcreateWithResponse(ctx interface{}, reqEditors ...interface{}) *MockClientWithResponsesInterface_GetApiDebugPprofThreadcreateWithResponse_Call {
+	return &MockClientWithResponsesInterface_GetApiDebugPprofThreadcreateWithResponse_Call{Call: _e.mock.On("GetApiDebugPprofThreadcreateWithResponse",
+		append([]interface{}{ctx}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiDebugPprofThreadcreateWithResponse_Call) Run(run func(ctx context.Context, reqEditors ...admin.RequestEditorFn)) *MockClientWithResponsesInterface_GetApiDebugPprofThreadcreateWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 []admin.RequestEditorFn
+		variadicArgs := make([]admin.RequestEditorFn, len(args)-1)
+		for i, a := range args[1:] {
+			if a != nil {
+				variadicArgs[i] = a.(admin.RequestEditorFn)
+			}
+		}
+		arg1 = variadicArgs
+		run(
+			arg0,
+			arg1...,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiDebugPprofThreadcreateWithResponse_Call) Return(getApiDebugPprofThreadcreateResponse *admin.GetApiDebugPprofThreadcreateResponse, err error) *MockClientWithResponsesInterface_GetApiDebugPprofThreadcreateWithResponse_Call {
+	_c.Call.Return(getApiDebugPprofThreadcreateResponse, err)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiDebugPprofThreadcreateWithResponse_Call) RunAndReturn(run func(ctx context.Context, reqEditors ...admin.RequestEditorFn) (*admin.GetApiDebugPprofThreadcreateResponse, error)) *MockClientWithResponsesInterface_GetApiDebugPprofThreadcreateWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetApiDebugPprofTraceWithResponse provides a mock function for the type MockClientWithResponsesInterface
+func (_mock *MockClientWithResponsesInterface) GetApiDebugPprofTraceWithResponse(ctx context.Context, reqEditors ...admin.RequestEditorFn) (*admin.GetApiDebugPprofTraceResponse, error) {
+	// admin.RequestEditorFn
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetApiDebugPprofTraceWithResponse")
+	}
+
+	var r0 *admin.GetApiDebugPprofTraceResponse
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ...admin.RequestEditorFn) (*admin.GetApiDebugPprofTraceResponse, error)); ok {
+		return returnFunc(ctx, reqEditors...)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ...admin.RequestEditorFn) *admin.GetApiDebugPprofTraceResponse); ok {
+		r0 = returnFunc(ctx, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*admin.GetApiDebugPprofTraceResponse)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, ...admin.RequestEditorFn) error); ok {
+		r1 = returnFunc(ctx, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_GetApiDebugPprofTraceWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetApiDebugPprofTraceWithResponse'
+type MockClientWithResponsesInterface_GetApiDebugPprofTraceWithResponse_Call struct {
+	*mock.Call
+}
+
+// GetApiDebugPprofTraceWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - reqEditors ...admin.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) GetApiDebugPprofTraceWithResponse(ctx interface{}, reqEditors ...interface{}) *MockClientWithResponsesInterface_GetApiDebugPprofTraceWithResponse_Call {
+	return &MockClientWithResponsesInterface_GetApiDebugPprofTraceWithResponse_Call{Call: _e.mock.On("GetApiDebugPprofTraceWithResponse",
+		append([]interface{}{ctx}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiDebugPprofTraceWithResponse_Call) Run(run func(ctx context.Context, reqEditors ...admin.RequestEditorFn)) *MockClientWithResponsesInterface_GetApiDebugPprofTraceWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 []admin.RequestEditorFn
+		variadicArgs := make([]admin.RequestEditorFn, len(args)-1)
+		for i, a := range args[1:] {
+			if a != nil {
+				variadicArgs[i] = a.(admin.RequestEditorFn)
+			}
+		}
+		arg1 = variadicArgs
+		run(
+			arg0,
+			arg1...,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiDebugPprofTraceWithResponse_Call) Return(getApiDebugPprofTraceResponse *admin.GetApiDebugPprofTraceResponse, err error) *MockClientWithResponsesInterface_GetApiDebugPprofTraceWithResponse_Call {
+	_c.Call.Return(getApiDebugPprofTraceResponse, err)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiDebugPprofTraceWithResponse_Call) RunAndReturn(run func(ctx context.Context, reqEditors ...admin.RequestEditorFn) (*admin.GetApiDebugPprofTraceResponse, error)) *MockClientWithResponsesInterface_GetApiDebugPprofTraceWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetApiDebugPprofWithResponse provides a mock function for the type MockClientWithResponsesInterface
+func (_mock *MockClientWithResponsesInterface) GetApiDebugPprofWithResponse(ctx context.Context, reqEditors ...admin.RequestEditorFn) (*admin.GetApiDebugPprofResponse, error) {
+	// admin.RequestEditorFn
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetApiDebugPprofWithResponse")
+	}
+
+	var r0 *admin.GetApiDebugPprofResponse
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ...admin.RequestEditorFn) (*admin.GetApiDebugPprofResponse, error)); ok {
+		return returnFunc(ctx, reqEditors...)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ...admin.RequestEditorFn) *admin.GetApiDebugPprofResponse); ok {
+		r0 = returnFunc(ctx, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*admin.GetApiDebugPprofResponse)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, ...admin.RequestEditorFn) error); ok {
+		r1 = returnFunc(ctx, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_GetApiDebugPprofWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetApiDebugPprofWithResponse'
+type MockClientWithResponsesInterface_GetApiDebugPprofWithResponse_Call struct {
+	*mock.Call
+}
+
+// GetApiDebugPprofWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - reqEditors ...admin.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) GetApiDebugPprofWithResponse(ctx interface{}, reqEditors ...interface{}) *MockClientWithResponsesInterface_GetApiDebugPprofWithResponse_Call {
+	return &MockClientWithResponsesInterface_GetApiDebugPprofWithResponse_Call{Call: _e.mock.On("GetApiDebugPprofWithResponse",
+		append([]interface{}{ctx}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiDebugPprofWithResponse_Call) Run(run func(ctx context.Context, reqEditors ...admin.RequestEditorFn)) *MockClientWithResponsesInterface_GetApiDebugPprofWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 []admin.RequestEditorFn
+		variadicArgs := make([]admin.RequestEditorFn, len(args)-1)
+		for i, a := range args[1:] {
+			if a != nil {
+				variadicArgs[i] = a.(admin.RequestEditorFn)
+			}
+		}
+		arg1 = variadicArgs
+		run(
+			arg0,
+			arg1...,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiDebugPprofWithResponse_Call) Return(getApiDebugPprofResponse *admin.GetApiDebugPprofResponse, err error) *MockClientWithResponsesInterface_GetApiDebugPprofWithResponse_Call {
+	_c.Call.Return(getApiDebugPprofResponse, err)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiDebugPprofWithResponse_Call) RunAndReturn(run func(ctx context.Context, reqEditors ...admin.RequestEditorFn) (*admin.GetApiDebugPprofResponse, error)) *MockClientWithResponsesInterface_GetApiDebugPprofWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetApiQuotaAllowancesWithResponse provides a mock function for the type MockClientWithResponsesInterface
 func (_mock *MockClientWithResponsesInterface) GetApiQuotaAllowancesWithResponse(ctx context.Context, reqEditors ...admin.RequestEditorFn) (*admin.GetApiQuotaAllowancesResponse, error) {
 	// admin.RequestEditorFn
@@ -6101,6 +6992,366 @@ func (_c *MockClientWithResponsesInterface_PutApiBillingPricingPlansIdWithRespon
 }
 
 func (_c *MockClientWithResponsesInterface_PutApiBillingPricingPlansIdWithResponse_Call) RunAndReturn(run func(ctx context.Context, id string, body admin.PutApiBillingPricingPlansIdJSONRequestBody, reqEditors ...admin.RequestEditorFn) (*admin.PutApiBillingPricingPlansIdResponse, error)) *MockClientWithResponsesInterface_PutApiBillingPricingPlansIdWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// PutApiDebugPprofBlockWithBodyWithResponse provides a mock function for the type MockClientWithResponsesInterface
+func (_mock *MockClientWithResponsesInterface) PutApiDebugPprofBlockWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...admin.RequestEditorFn) (*admin.PutApiDebugPprofBlockResponse, error) {
+	// admin.RequestEditorFn
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, contentType, body)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PutApiDebugPprofBlockWithBodyWithResponse")
+	}
+
+	var r0 *admin.PutApiDebugPprofBlockResponse
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, io.Reader, ...admin.RequestEditorFn) (*admin.PutApiDebugPprofBlockResponse, error)); ok {
+		return returnFunc(ctx, contentType, body, reqEditors...)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, io.Reader, ...admin.RequestEditorFn) *admin.PutApiDebugPprofBlockResponse); ok {
+		r0 = returnFunc(ctx, contentType, body, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*admin.PutApiDebugPprofBlockResponse)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string, io.Reader, ...admin.RequestEditorFn) error); ok {
+		r1 = returnFunc(ctx, contentType, body, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_PutApiDebugPprofBlockWithBodyWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PutApiDebugPprofBlockWithBodyWithResponse'
+type MockClientWithResponsesInterface_PutApiDebugPprofBlockWithBodyWithResponse_Call struct {
+	*mock.Call
+}
+
+// PutApiDebugPprofBlockWithBodyWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - contentType string
+//   - body io.Reader
+//   - reqEditors ...admin.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) PutApiDebugPprofBlockWithBodyWithResponse(ctx interface{}, contentType interface{}, body interface{}, reqEditors ...interface{}) *MockClientWithResponsesInterface_PutApiDebugPprofBlockWithBodyWithResponse_Call {
+	return &MockClientWithResponsesInterface_PutApiDebugPprofBlockWithBodyWithResponse_Call{Call: _e.mock.On("PutApiDebugPprofBlockWithBodyWithResponse",
+		append([]interface{}{ctx, contentType, body}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_PutApiDebugPprofBlockWithBodyWithResponse_Call) Run(run func(ctx context.Context, contentType string, body io.Reader, reqEditors ...admin.RequestEditorFn)) *MockClientWithResponsesInterface_PutApiDebugPprofBlockWithBodyWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 io.Reader
+		if args[2] != nil {
+			arg2 = args[2].(io.Reader)
+		}
+		var arg3 []admin.RequestEditorFn
+		variadicArgs := make([]admin.RequestEditorFn, len(args)-3)
+		for i, a := range args[3:] {
+			if a != nil {
+				variadicArgs[i] = a.(admin.RequestEditorFn)
+			}
+		}
+		arg3 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3...,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PutApiDebugPprofBlockWithBodyWithResponse_Call) Return(putApiDebugPprofBlockResponse *admin.PutApiDebugPprofBlockResponse, err error) *MockClientWithResponsesInterface_PutApiDebugPprofBlockWithBodyWithResponse_Call {
+	_c.Call.Return(putApiDebugPprofBlockResponse, err)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PutApiDebugPprofBlockWithBodyWithResponse_Call) RunAndReturn(run func(ctx context.Context, contentType string, body io.Reader, reqEditors ...admin.RequestEditorFn) (*admin.PutApiDebugPprofBlockResponse, error)) *MockClientWithResponsesInterface_PutApiDebugPprofBlockWithBodyWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// PutApiDebugPprofBlockWithResponse provides a mock function for the type MockClientWithResponsesInterface
+func (_mock *MockClientWithResponsesInterface) PutApiDebugPprofBlockWithResponse(ctx context.Context, body admin.PutApiDebugPprofBlockJSONRequestBody, reqEditors ...admin.RequestEditorFn) (*admin.PutApiDebugPprofBlockResponse, error) {
+	// admin.RequestEditorFn
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, body)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PutApiDebugPprofBlockWithResponse")
+	}
+
+	var r0 *admin.PutApiDebugPprofBlockResponse
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, admin.PutApiDebugPprofBlockJSONRequestBody, ...admin.RequestEditorFn) (*admin.PutApiDebugPprofBlockResponse, error)); ok {
+		return returnFunc(ctx, body, reqEditors...)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, admin.PutApiDebugPprofBlockJSONRequestBody, ...admin.RequestEditorFn) *admin.PutApiDebugPprofBlockResponse); ok {
+		r0 = returnFunc(ctx, body, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*admin.PutApiDebugPprofBlockResponse)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, admin.PutApiDebugPprofBlockJSONRequestBody, ...admin.RequestEditorFn) error); ok {
+		r1 = returnFunc(ctx, body, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_PutApiDebugPprofBlockWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PutApiDebugPprofBlockWithResponse'
+type MockClientWithResponsesInterface_PutApiDebugPprofBlockWithResponse_Call struct {
+	*mock.Call
+}
+
+// PutApiDebugPprofBlockWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - body admin.PutApiDebugPprofBlockJSONRequestBody
+//   - reqEditors ...admin.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) PutApiDebugPprofBlockWithResponse(ctx interface{}, body interface{}, reqEditors ...interface{}) *MockClientWithResponsesInterface_PutApiDebugPprofBlockWithResponse_Call {
+	return &MockClientWithResponsesInterface_PutApiDebugPprofBlockWithResponse_Call{Call: _e.mock.On("PutApiDebugPprofBlockWithResponse",
+		append([]interface{}{ctx, body}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_PutApiDebugPprofBlockWithResponse_Call) Run(run func(ctx context.Context, body admin.PutApiDebugPprofBlockJSONRequestBody, reqEditors ...admin.RequestEditorFn)) *MockClientWithResponsesInterface_PutApiDebugPprofBlockWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 admin.PutApiDebugPprofBlockJSONRequestBody
+		if args[1] != nil {
+			arg1 = args[1].(admin.PutApiDebugPprofBlockJSONRequestBody)
+		}
+		var arg2 []admin.RequestEditorFn
+		variadicArgs := make([]admin.RequestEditorFn, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(admin.RequestEditorFn)
+			}
+		}
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PutApiDebugPprofBlockWithResponse_Call) Return(putApiDebugPprofBlockResponse *admin.PutApiDebugPprofBlockResponse, err error) *MockClientWithResponsesInterface_PutApiDebugPprofBlockWithResponse_Call {
+	_c.Call.Return(putApiDebugPprofBlockResponse, err)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PutApiDebugPprofBlockWithResponse_Call) RunAndReturn(run func(ctx context.Context, body admin.PutApiDebugPprofBlockJSONRequestBody, reqEditors ...admin.RequestEditorFn) (*admin.PutApiDebugPprofBlockResponse, error)) *MockClientWithResponsesInterface_PutApiDebugPprofBlockWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// PutApiDebugPprofMutexWithBodyWithResponse provides a mock function for the type MockClientWithResponsesInterface
+func (_mock *MockClientWithResponsesInterface) PutApiDebugPprofMutexWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...admin.RequestEditorFn) (*admin.PutApiDebugPprofMutexResponse, error) {
+	// admin.RequestEditorFn
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, contentType, body)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PutApiDebugPprofMutexWithBodyWithResponse")
+	}
+
+	var r0 *admin.PutApiDebugPprofMutexResponse
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, io.Reader, ...admin.RequestEditorFn) (*admin.PutApiDebugPprofMutexResponse, error)); ok {
+		return returnFunc(ctx, contentType, body, reqEditors...)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, io.Reader, ...admin.RequestEditorFn) *admin.PutApiDebugPprofMutexResponse); ok {
+		r0 = returnFunc(ctx, contentType, body, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*admin.PutApiDebugPprofMutexResponse)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string, io.Reader, ...admin.RequestEditorFn) error); ok {
+		r1 = returnFunc(ctx, contentType, body, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_PutApiDebugPprofMutexWithBodyWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PutApiDebugPprofMutexWithBodyWithResponse'
+type MockClientWithResponsesInterface_PutApiDebugPprofMutexWithBodyWithResponse_Call struct {
+	*mock.Call
+}
+
+// PutApiDebugPprofMutexWithBodyWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - contentType string
+//   - body io.Reader
+//   - reqEditors ...admin.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) PutApiDebugPprofMutexWithBodyWithResponse(ctx interface{}, contentType interface{}, body interface{}, reqEditors ...interface{}) *MockClientWithResponsesInterface_PutApiDebugPprofMutexWithBodyWithResponse_Call {
+	return &MockClientWithResponsesInterface_PutApiDebugPprofMutexWithBodyWithResponse_Call{Call: _e.mock.On("PutApiDebugPprofMutexWithBodyWithResponse",
+		append([]interface{}{ctx, contentType, body}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_PutApiDebugPprofMutexWithBodyWithResponse_Call) Run(run func(ctx context.Context, contentType string, body io.Reader, reqEditors ...admin.RequestEditorFn)) *MockClientWithResponsesInterface_PutApiDebugPprofMutexWithBodyWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 io.Reader
+		if args[2] != nil {
+			arg2 = args[2].(io.Reader)
+		}
+		var arg3 []admin.RequestEditorFn
+		variadicArgs := make([]admin.RequestEditorFn, len(args)-3)
+		for i, a := range args[3:] {
+			if a != nil {
+				variadicArgs[i] = a.(admin.RequestEditorFn)
+			}
+		}
+		arg3 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3...,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PutApiDebugPprofMutexWithBodyWithResponse_Call) Return(putApiDebugPprofMutexResponse *admin.PutApiDebugPprofMutexResponse, err error) *MockClientWithResponsesInterface_PutApiDebugPprofMutexWithBodyWithResponse_Call {
+	_c.Call.Return(putApiDebugPprofMutexResponse, err)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PutApiDebugPprofMutexWithBodyWithResponse_Call) RunAndReturn(run func(ctx context.Context, contentType string, body io.Reader, reqEditors ...admin.RequestEditorFn) (*admin.PutApiDebugPprofMutexResponse, error)) *MockClientWithResponsesInterface_PutApiDebugPprofMutexWithBodyWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// PutApiDebugPprofMutexWithResponse provides a mock function for the type MockClientWithResponsesInterface
+func (_mock *MockClientWithResponsesInterface) PutApiDebugPprofMutexWithResponse(ctx context.Context, body admin.PutApiDebugPprofMutexJSONRequestBody, reqEditors ...admin.RequestEditorFn) (*admin.PutApiDebugPprofMutexResponse, error) {
+	// admin.RequestEditorFn
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, body)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PutApiDebugPprofMutexWithResponse")
+	}
+
+	var r0 *admin.PutApiDebugPprofMutexResponse
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, admin.PutApiDebugPprofMutexJSONRequestBody, ...admin.RequestEditorFn) (*admin.PutApiDebugPprofMutexResponse, error)); ok {
+		return returnFunc(ctx, body, reqEditors...)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, admin.PutApiDebugPprofMutexJSONRequestBody, ...admin.RequestEditorFn) *admin.PutApiDebugPprofMutexResponse); ok {
+		r0 = returnFunc(ctx, body, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*admin.PutApiDebugPprofMutexResponse)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, admin.PutApiDebugPprofMutexJSONRequestBody, ...admin.RequestEditorFn) error); ok {
+		r1 = returnFunc(ctx, body, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_PutApiDebugPprofMutexWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PutApiDebugPprofMutexWithResponse'
+type MockClientWithResponsesInterface_PutApiDebugPprofMutexWithResponse_Call struct {
+	*mock.Call
+}
+
+// PutApiDebugPprofMutexWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - body admin.PutApiDebugPprofMutexJSONRequestBody
+//   - reqEditors ...admin.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) PutApiDebugPprofMutexWithResponse(ctx interface{}, body interface{}, reqEditors ...interface{}) *MockClientWithResponsesInterface_PutApiDebugPprofMutexWithResponse_Call {
+	return &MockClientWithResponsesInterface_PutApiDebugPprofMutexWithResponse_Call{Call: _e.mock.On("PutApiDebugPprofMutexWithResponse",
+		append([]interface{}{ctx, body}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_PutApiDebugPprofMutexWithResponse_Call) Run(run func(ctx context.Context, body admin.PutApiDebugPprofMutexJSONRequestBody, reqEditors ...admin.RequestEditorFn)) *MockClientWithResponsesInterface_PutApiDebugPprofMutexWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 admin.PutApiDebugPprofMutexJSONRequestBody
+		if args[1] != nil {
+			arg1 = args[1].(admin.PutApiDebugPprofMutexJSONRequestBody)
+		}
+		var arg2 []admin.RequestEditorFn
+		variadicArgs := make([]admin.RequestEditorFn, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(admin.RequestEditorFn)
+			}
+		}
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PutApiDebugPprofMutexWithResponse_Call) Return(putApiDebugPprofMutexResponse *admin.PutApiDebugPprofMutexResponse, err error) *MockClientWithResponsesInterface_PutApiDebugPprofMutexWithResponse_Call {
+	_c.Call.Return(putApiDebugPprofMutexResponse, err)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PutApiDebugPprofMutexWithResponse_Call) RunAndReturn(run func(ctx context.Context, body admin.PutApiDebugPprofMutexJSONRequestBody, reqEditors ...admin.RequestEditorFn) (*admin.PutApiDebugPprofMutexResponse, error)) *MockClientWithResponsesInterface_PutApiDebugPprofMutexWithResponse_Call {
 	_c.Call.Return(run)
 	return _c
 }

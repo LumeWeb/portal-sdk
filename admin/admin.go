@@ -42,6 +42,7 @@ type AdminAPI interface {
 	Quota() *QuotaService
 	Billing() *BillingService
 	Website() *WebsiteService
+	Profiling() *ProfilingService
 }
 
 // AdminClient provides access to admin APIs for managing quotas, billing, and users.
@@ -50,6 +51,7 @@ type AdminClient struct {
 	quota           *QuotaService
 	billing         *BillingService
 	website         *WebsiteService
+	profiling       *ProfilingService
 	config          *clientConfig
 	jwt             string
 	apiKey          string
@@ -180,10 +182,15 @@ func NewClient(opts ...ClientOption) *AdminClient {
 		client: c,
 	}
 
+	profilingService := &ProfilingService{
+		client: c,
+	}
+
 	clientWrapper.client = c
 	clientWrapper.quota = quotaService
 	clientWrapper.billing = billingService
 	clientWrapper.website = websiteService
+	clientWrapper.profiling = profilingService
 	clientWrapper.config = cfg
 	return clientWrapper
 }
@@ -201,6 +208,11 @@ func (a *AdminClient) Billing() *BillingService {
 // Website returns the website service for managing IPFS websites.
 func (a *AdminClient) Website() *WebsiteService {
 	return a.website
+}
+
+// Profiling returns the profiling service for managing Go runtime profiling.
+func (a *AdminClient) Profiling() *ProfilingService {
+	return a.profiling
 }
 
 // RequestExecutor provides a method to execute requests with the admin client's configuration.
