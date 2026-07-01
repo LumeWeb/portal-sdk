@@ -1,3 +1,9 @@
+## 0.1.57 (2026-07-01)
+
+### Features
+
+- return total count from ListOperations
+
 ## 0.1.56 (2026-07-01)
 
 ### Fixes
