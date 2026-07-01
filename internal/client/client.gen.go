@@ -20,6 +20,15 @@ import (
 	"go.lumeweb.com/portal/db/types"
 )
 
+// Defines values for OperationListItemStatus.
+const (
+	Completed  OperationListItemStatus = "completed"
+	Duplicate  OperationListItemStatus = "duplicate"
+	Failed     OperationListItemStatus = "failed"
+	Pending    OperationListItemStatus = "pending"
+	Processing OperationListItemStatus = "processing"
+)
+
 // APIEndpointInfoResponse defines model for APIEndpointInfoResponse.
 type APIEndpointInfoResponse struct {
 	Method string `json:"method"`
@@ -272,23 +281,26 @@ type OperationFiltersResponseResponse struct {
 
 // OperationListItem defines model for OperationListItem.
 type OperationListItem struct {
-	Cid                   *string    `json:"cid,omitempty"`
-	CurrentStep           *int       `json:"current_step,omitempty"`
-	Error                 *string    `json:"error,omitempty"`
-	EstimatedCompletionAt *time.Time `json:"estimated_completion_at,omitempty"`
-	Id                    int        `json:"id"`
-	Operation             string     `json:"operation"`
-	OperationDisplayName  string     `json:"operation_display_name"`
-	ProgressPercent       float32    `json:"progress_percent"`
-	Protocol              string     `json:"protocol"`
-	ProtocolDisplayName   string     `json:"protocol_display_name"`
-	StartedAt             time.Time  `json:"started_at"`
-	Status                string     `json:"status"`
-	StatusDisplayName     string     `json:"status_display_name"`
-	StatusMessage         string     `json:"status_message"`
-	TotalSteps            *int       `json:"total_steps,omitempty"`
-	UpdatedAt             time.Time  `json:"updated_at"`
+	Cid                   *string                 `json:"cid,omitempty"`
+	CurrentStep           *int                    `json:"current_step,omitempty"`
+	Error                 *string                 `json:"error,omitempty"`
+	EstimatedCompletionAt *time.Time              `json:"estimated_completion_at,omitempty"`
+	Id                    int                     `json:"id"`
+	Operation             string                  `json:"operation"`
+	OperationDisplayName  string                  `json:"operation_display_name"`
+	ProgressPercent       float32                 `json:"progress_percent"`
+	Protocol              string                  `json:"protocol"`
+	ProtocolDisplayName   string                  `json:"protocol_display_name"`
+	StartedAt             time.Time               `json:"started_at"`
+	Status                OperationListItemStatus `json:"status"`
+	StatusDisplayName     string                  `json:"status_display_name"`
+	StatusMessage         string                  `json:"status_message"`
+	TotalSteps            *int                    `json:"total_steps,omitempty"`
+	UpdatedAt             time.Time               `json:"updated_at"`
 }
+
+// OperationListItemStatus defines model for OperationListItem.Status.
+type OperationListItemStatus string
 
 // OperationListItemResponse defines model for OperationListItemResponse.
 type OperationListItemResponse struct {
@@ -553,7 +565,7 @@ type GetApiOperationsParams struct {
 	// UnderscoreOrder Comma-separated list of sort orders ('asc' or 'desc') corresponding to _sort fields. Defaults to 'asc'.
 	UnderscoreOrder *string `form:"_order,omitempty" json:"_order,omitempty"`
 
-	// UnderscoreSort Comma-separated list of fields to sort by. Available fields: id, operation, protocol, status, status_message, progress_percent, cid, total_steps, current_step, error
+	// UnderscoreSort Comma-separated list of fields to sort by. Available fields: id, operation, protocol, status, status_message
 	UnderscoreSort *string `form:"_sort,omitempty" json:"_sort,omitempty"`
 
 	// UnderscoreStart Starting index of the items to return (0-based). Defaults to 0.
@@ -625,26 +637,92 @@ type GetApiOperationsParams struct {
 	// FiltersOperationStartswith Filter by operation startswith
 	FiltersOperationStartswith *string `form:"filters[operation][startswith],omitempty" json:"filters[operation][startswith],omitempty"`
 
-	// FiltersProgressPercentBetween Filter by progress_percent between
-	FiltersProgressPercentBetween *string `form:"filters[progress_percent][between],omitempty" json:"filters[progress_percent][between],omitempty"`
+	// FiltersProtocolContains Filter by protocol contains
+	FiltersProtocolContains *string `form:"filters[protocol][contains],omitempty" json:"filters[protocol][contains],omitempty"`
 
-	// FiltersProgressPercentEq Filter by progress_percent eq
-	FiltersProgressPercentEq *string `form:"filters[progress_percent][eq],omitempty" json:"filters[progress_percent][eq],omitempty"`
+	// FiltersProtocolEndswith Filter by protocol endswith
+	FiltersProtocolEndswith *string `form:"filters[protocol][endswith],omitempty" json:"filters[protocol][endswith],omitempty"`
 
-	// FiltersProgressPercentGt Filter by progress_percent gt
-	FiltersProgressPercentGt *string `form:"filters[progress_percent][gt],omitempty" json:"filters[progress_percent][gt],omitempty"`
+	// FiltersProtocolEq Filter by protocol eq
+	FiltersProtocolEq *string `form:"filters[protocol][eq],omitempty" json:"filters[protocol][eq],omitempty"`
 
-	// FiltersProgressPercentGte Filter by progress_percent gte
-	FiltersProgressPercentGte *string `form:"filters[progress_percent][gte],omitempty" json:"filters[progress_percent][gte],omitempty"`
+	// FiltersProtocolNe Filter by protocol ne
+	FiltersProtocolNe *string `form:"filters[protocol][ne],omitempty" json:"filters[protocol][ne],omitempty"`
 
-	// FiltersProgressPercentLt Filter by progress_percent lt
-	FiltersProgressPercentLt *string `form:"filters[progress_percent][lt],omitempty" json:"filters[progress_percent][lt],omitempty"`
+	// FiltersProtocolStartswith Filter by protocol startswith
+	FiltersProtocolStartswith *string `form:"filters[protocol][startswith],omitempty" json:"filters[protocol][startswith],omitempty"`
 
-	// FiltersProgressPercentLte Filter by progress_percent lte
-	FiltersProgressPercentLte *string `form:"filters[progress_percent][lte],omitempty" json:"filters[progress_percent][lte],omitempty"`
+	// FiltersStartedAtBetween Filter by started_at between
+	FiltersStartedAtBetween *string `form:"filters[started_at][between],omitempty" json:"filters[started_at][between],omitempty"`
 
-	// FiltersProgressPercentNe Filter by progress_percent ne
-	FiltersProgressPercentNe *string `form:"filters[progress_percent][ne],omitempty" json:"filters[progress_percent][ne],omitempty"`
+	// FiltersStartedAtEq Filter by started_at eq
+	FiltersStartedAtEq *string `form:"filters[started_at][eq],omitempty" json:"filters[started_at][eq],omitempty"`
+
+	// FiltersStartedAtGt Filter by started_at gt
+	FiltersStartedAtGt *string `form:"filters[started_at][gt],omitempty" json:"filters[started_at][gt],omitempty"`
+
+	// FiltersStartedAtGte Filter by started_at gte
+	FiltersStartedAtGte *string `form:"filters[started_at][gte],omitempty" json:"filters[started_at][gte],omitempty"`
+
+	// FiltersStartedAtLt Filter by started_at lt
+	FiltersStartedAtLt *string `form:"filters[started_at][lt],omitempty" json:"filters[started_at][lt],omitempty"`
+
+	// FiltersStartedAtLte Filter by started_at lte
+	FiltersStartedAtLte *string `form:"filters[started_at][lte],omitempty" json:"filters[started_at][lte],omitempty"`
+
+	// FiltersStartedAtNe Filter by started_at ne
+	FiltersStartedAtNe *string `form:"filters[started_at][ne],omitempty" json:"filters[started_at][ne],omitempty"`
+
+	// FiltersStatusContains Filter by status contains
+	FiltersStatusContains *map[string]interface{} `form:"filters[status][contains],omitempty" json:"filters[status][contains],omitempty"`
+
+	// FiltersStatusEndswith Filter by status endswith
+	FiltersStatusEndswith *map[string]interface{} `form:"filters[status][endswith],omitempty" json:"filters[status][endswith],omitempty"`
+
+	// FiltersStatusEq Filter by status eq
+	FiltersStatusEq *map[string]interface{} `form:"filters[status][eq],omitempty" json:"filters[status][eq],omitempty"`
+
+	// FiltersStatusNe Filter by status ne
+	FiltersStatusNe *map[string]interface{} `form:"filters[status][ne],omitempty" json:"filters[status][ne],omitempty"`
+
+	// FiltersStatusStartswith Filter by status startswith
+	FiltersStatusStartswith *map[string]interface{} `form:"filters[status][startswith],omitempty" json:"filters[status][startswith],omitempty"`
+
+	// FiltersStatusMessageContains Filter by status_message contains
+	FiltersStatusMessageContains *string `form:"filters[status_message][contains],omitempty" json:"filters[status_message][contains],omitempty"`
+
+	// FiltersStatusMessageEndswith Filter by status_message endswith
+	FiltersStatusMessageEndswith *string `form:"filters[status_message][endswith],omitempty" json:"filters[status_message][endswith],omitempty"`
+
+	// FiltersStatusMessageEq Filter by status_message eq
+	FiltersStatusMessageEq *string `form:"filters[status_message][eq],omitempty" json:"filters[status_message][eq],omitempty"`
+
+	// FiltersStatusMessageNe Filter by status_message ne
+	FiltersStatusMessageNe *string `form:"filters[status_message][ne],omitempty" json:"filters[status_message][ne],omitempty"`
+
+	// FiltersStatusMessageStartswith Filter by status_message startswith
+	FiltersStatusMessageStartswith *string `form:"filters[status_message][startswith],omitempty" json:"filters[status_message][startswith],omitempty"`
+
+	// FiltersUpdatedAtBetween Filter by updated_at between
+	FiltersUpdatedAtBetween *string `form:"filters[updated_at][between],omitempty" json:"filters[updated_at][between],omitempty"`
+
+	// FiltersUpdatedAtEq Filter by updated_at eq
+	FiltersUpdatedAtEq *string `form:"filters[updated_at][eq],omitempty" json:"filters[updated_at][eq],omitempty"`
+
+	// FiltersUpdatedAtGt Filter by updated_at gt
+	FiltersUpdatedAtGt *string `form:"filters[updated_at][gt],omitempty" json:"filters[updated_at][gt],omitempty"`
+
+	// FiltersUpdatedAtGte Filter by updated_at gte
+	FiltersUpdatedAtGte *string `form:"filters[updated_at][gte],omitempty" json:"filters[updated_at][gte],omitempty"`
+
+	// FiltersUpdatedAtLt Filter by updated_at lt
+	FiltersUpdatedAtLt *string `form:"filters[updated_at][lt],omitempty" json:"filters[updated_at][lt],omitempty"`
+
+	// FiltersUpdatedAtLte Filter by updated_at lte
+	FiltersUpdatedAtLte *string `form:"filters[updated_at][lte],omitempty" json:"filters[updated_at][lte],omitempty"`
+
+	// FiltersUpdatedAtNe Filter by updated_at ne
+	FiltersUpdatedAtNe *string `form:"filters[updated_at][ne],omitempty" json:"filters[updated_at][ne],omitempty"`
 
 	// IdEq Filter by id eq
 	IdEq *string `form:"id_eq,omitempty" json:"id_eq,omitempty"`
@@ -679,26 +757,89 @@ type GetApiOperationsParams struct {
 	// OperationStartswith Filter by operation startswith
 	OperationStartswith *string `form:"operation_startswith,omitempty" json:"operation_startswith,omitempty"`
 
-	// ProgressPercentEq Filter by progress_percent eq
-	ProgressPercentEq *string `form:"progress_percent_eq,omitempty" json:"progress_percent_eq,omitempty"`
+	// ProtocolContains Filter by protocol contains
+	ProtocolContains *string `form:"protocol_contains,omitempty" json:"protocol_contains,omitempty"`
 
-	// ProgressPercentGt Filter by progress_percent gt
-	ProgressPercentGt *string `form:"progress_percent_gt,omitempty" json:"progress_percent_gt,omitempty"`
+	// ProtocolEndswith Filter by protocol endswith
+	ProtocolEndswith *string `form:"protocol_endswith,omitempty" json:"protocol_endswith,omitempty"`
 
-	// ProgressPercentGte Filter by progress_percent gte
-	ProgressPercentGte *string `form:"progress_percent_gte,omitempty" json:"progress_percent_gte,omitempty"`
+	// ProtocolEq Filter by protocol eq
+	ProtocolEq *string `form:"protocol_eq,omitempty" json:"protocol_eq,omitempty"`
 
-	// ProgressPercentLt Filter by progress_percent lt
-	ProgressPercentLt *string `form:"progress_percent_lt,omitempty" json:"progress_percent_lt,omitempty"`
+	// ProtocolNe Filter by protocol ne
+	ProtocolNe *string `form:"protocol_ne,omitempty" json:"protocol_ne,omitempty"`
 
-	// ProgressPercentLte Filter by progress_percent lte
-	ProgressPercentLte *string `form:"progress_percent_lte,omitempty" json:"progress_percent_lte,omitempty"`
-
-	// ProgressPercentNe Filter by progress_percent ne
-	ProgressPercentNe *string `form:"progress_percent_ne,omitempty" json:"progress_percent_ne,omitempty"`
+	// ProtocolStartswith Filter by protocol startswith
+	ProtocolStartswith *string `form:"protocol_startswith,omitempty" json:"protocol_startswith,omitempty"`
 
 	// Search Search term for filename or other relevant operation data
 	Search *string `form:"search,omitempty" json:"search,omitempty"`
+
+	// StartedAtEq Filter by started_at eq
+	StartedAtEq *string `form:"started_at_eq,omitempty" json:"started_at_eq,omitempty"`
+
+	// StartedAtGt Filter by started_at gt
+	StartedAtGt *string `form:"started_at_gt,omitempty" json:"started_at_gt,omitempty"`
+
+	// StartedAtGte Filter by started_at gte
+	StartedAtGte *string `form:"started_at_gte,omitempty" json:"started_at_gte,omitempty"`
+
+	// StartedAtLt Filter by started_at lt
+	StartedAtLt *string `form:"started_at_lt,omitempty" json:"started_at_lt,omitempty"`
+
+	// StartedAtLte Filter by started_at lte
+	StartedAtLte *string `form:"started_at_lte,omitempty" json:"started_at_lte,omitempty"`
+
+	// StartedAtNe Filter by started_at ne
+	StartedAtNe *string `form:"started_at_ne,omitempty" json:"started_at_ne,omitempty"`
+
+	// StatusContains Filter by status contains
+	StatusContains *map[string]interface{} `form:"status_contains,omitempty" json:"status_contains,omitempty"`
+
+	// StatusEndswith Filter by status endswith
+	StatusEndswith *map[string]interface{} `form:"status_endswith,omitempty" json:"status_endswith,omitempty"`
+
+	// StatusEq Filter by status eq
+	StatusEq *map[string]interface{} `form:"status_eq,omitempty" json:"status_eq,omitempty"`
+
+	// StatusMessageContains Filter by status_message contains
+	StatusMessageContains *string `form:"status_message_contains,omitempty" json:"status_message_contains,omitempty"`
+
+	// StatusMessageEndswith Filter by status_message endswith
+	StatusMessageEndswith *string `form:"status_message_endswith,omitempty" json:"status_message_endswith,omitempty"`
+
+	// StatusMessageEq Filter by status_message eq
+	StatusMessageEq *string `form:"status_message_eq,omitempty" json:"status_message_eq,omitempty"`
+
+	// StatusMessageNe Filter by status_message ne
+	StatusMessageNe *string `form:"status_message_ne,omitempty" json:"status_message_ne,omitempty"`
+
+	// StatusMessageStartswith Filter by status_message startswith
+	StatusMessageStartswith *string `form:"status_message_startswith,omitempty" json:"status_message_startswith,omitempty"`
+
+	// StatusNe Filter by status ne
+	StatusNe *map[string]interface{} `form:"status_ne,omitempty" json:"status_ne,omitempty"`
+
+	// StatusStartswith Filter by status startswith
+	StatusStartswith *map[string]interface{} `form:"status_startswith,omitempty" json:"status_startswith,omitempty"`
+
+	// UpdatedAtEq Filter by updated_at eq
+	UpdatedAtEq *string `form:"updated_at_eq,omitempty" json:"updated_at_eq,omitempty"`
+
+	// UpdatedAtGt Filter by updated_at gt
+	UpdatedAtGt *string `form:"updated_at_gt,omitempty" json:"updated_at_gt,omitempty"`
+
+	// UpdatedAtGte Filter by updated_at gte
+	UpdatedAtGte *string `form:"updated_at_gte,omitempty" json:"updated_at_gte,omitempty"`
+
+	// UpdatedAtLt Filter by updated_at lt
+	UpdatedAtLt *string `form:"updated_at_lt,omitempty" json:"updated_at_lt,omitempty"`
+
+	// UpdatedAtLte Filter by updated_at lte
+	UpdatedAtLte *string `form:"updated_at_lte,omitempty" json:"updated_at_lte,omitempty"`
+
+	// UpdatedAtNe Filter by updated_at ne
+	UpdatedAtNe *string `form:"updated_at_ne,omitempty" json:"updated_at_ne,omitempty"`
 }
 
 // PatchApiAccountJSONRequestBody defines body for PatchApiAccount for application/json ContentType.
@@ -4022,9 +4163,9 @@ func NewGetApiOperationsRequest(server string, params *GetApiOperationsParams) (
 
 		}
 
-		if params.FiltersProgressPercentBetween != nil {
+		if params.FiltersProtocolContains != nil {
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[progress_percent][between]", runtime.ParamLocationQuery, *params.FiltersProgressPercentBetween); err != nil {
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[protocol][contains]", runtime.ParamLocationQuery, *params.FiltersProtocolContains); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -4038,9 +4179,9 @@ func NewGetApiOperationsRequest(server string, params *GetApiOperationsParams) (
 
 		}
 
-		if params.FiltersProgressPercentEq != nil {
+		if params.FiltersProtocolEndswith != nil {
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[progress_percent][eq]", runtime.ParamLocationQuery, *params.FiltersProgressPercentEq); err != nil {
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[protocol][endswith]", runtime.ParamLocationQuery, *params.FiltersProtocolEndswith); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -4054,9 +4195,9 @@ func NewGetApiOperationsRequest(server string, params *GetApiOperationsParams) (
 
 		}
 
-		if params.FiltersProgressPercentGt != nil {
+		if params.FiltersProtocolEq != nil {
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[progress_percent][gt]", runtime.ParamLocationQuery, *params.FiltersProgressPercentGt); err != nil {
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[protocol][eq]", runtime.ParamLocationQuery, *params.FiltersProtocolEq); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -4070,9 +4211,9 @@ func NewGetApiOperationsRequest(server string, params *GetApiOperationsParams) (
 
 		}
 
-		if params.FiltersProgressPercentGte != nil {
+		if params.FiltersProtocolNe != nil {
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[progress_percent][gte]", runtime.ParamLocationQuery, *params.FiltersProgressPercentGte); err != nil {
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[protocol][ne]", runtime.ParamLocationQuery, *params.FiltersProtocolNe); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -4086,9 +4227,9 @@ func NewGetApiOperationsRequest(server string, params *GetApiOperationsParams) (
 
 		}
 
-		if params.FiltersProgressPercentLt != nil {
+		if params.FiltersProtocolStartswith != nil {
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[progress_percent][lt]", runtime.ParamLocationQuery, *params.FiltersProgressPercentLt); err != nil {
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[protocol][startswith]", runtime.ParamLocationQuery, *params.FiltersProtocolStartswith); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -4102,9 +4243,9 @@ func NewGetApiOperationsRequest(server string, params *GetApiOperationsParams) (
 
 		}
 
-		if params.FiltersProgressPercentLte != nil {
+		if params.FiltersStartedAtBetween != nil {
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[progress_percent][lte]", runtime.ParamLocationQuery, *params.FiltersProgressPercentLte); err != nil {
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[started_at][between]", runtime.ParamLocationQuery, *params.FiltersStartedAtBetween); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -4118,9 +4259,361 @@ func NewGetApiOperationsRequest(server string, params *GetApiOperationsParams) (
 
 		}
 
-		if params.FiltersProgressPercentNe != nil {
+		if params.FiltersStartedAtEq != nil {
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[progress_percent][ne]", runtime.ParamLocationQuery, *params.FiltersProgressPercentNe); err != nil {
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[started_at][eq]", runtime.ParamLocationQuery, *params.FiltersStartedAtEq); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersStartedAtGt != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[started_at][gt]", runtime.ParamLocationQuery, *params.FiltersStartedAtGt); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersStartedAtGte != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[started_at][gte]", runtime.ParamLocationQuery, *params.FiltersStartedAtGte); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersStartedAtLt != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[started_at][lt]", runtime.ParamLocationQuery, *params.FiltersStartedAtLt); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersStartedAtLte != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[started_at][lte]", runtime.ParamLocationQuery, *params.FiltersStartedAtLte); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersStartedAtNe != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[started_at][ne]", runtime.ParamLocationQuery, *params.FiltersStartedAtNe); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersStatusContains != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[status][contains]", runtime.ParamLocationQuery, *params.FiltersStatusContains); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersStatusEndswith != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[status][endswith]", runtime.ParamLocationQuery, *params.FiltersStatusEndswith); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersStatusEq != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[status][eq]", runtime.ParamLocationQuery, *params.FiltersStatusEq); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersStatusNe != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[status][ne]", runtime.ParamLocationQuery, *params.FiltersStatusNe); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersStatusStartswith != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[status][startswith]", runtime.ParamLocationQuery, *params.FiltersStatusStartswith); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersStatusMessageContains != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[status_message][contains]", runtime.ParamLocationQuery, *params.FiltersStatusMessageContains); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersStatusMessageEndswith != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[status_message][endswith]", runtime.ParamLocationQuery, *params.FiltersStatusMessageEndswith); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersStatusMessageEq != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[status_message][eq]", runtime.ParamLocationQuery, *params.FiltersStatusMessageEq); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersStatusMessageNe != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[status_message][ne]", runtime.ParamLocationQuery, *params.FiltersStatusMessageNe); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersStatusMessageStartswith != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[status_message][startswith]", runtime.ParamLocationQuery, *params.FiltersStatusMessageStartswith); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersUpdatedAtBetween != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[updated_at][between]", runtime.ParamLocationQuery, *params.FiltersUpdatedAtBetween); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersUpdatedAtEq != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[updated_at][eq]", runtime.ParamLocationQuery, *params.FiltersUpdatedAtEq); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersUpdatedAtGt != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[updated_at][gt]", runtime.ParamLocationQuery, *params.FiltersUpdatedAtGt); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersUpdatedAtGte != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[updated_at][gte]", runtime.ParamLocationQuery, *params.FiltersUpdatedAtGte); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersUpdatedAtLt != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[updated_at][lt]", runtime.ParamLocationQuery, *params.FiltersUpdatedAtLt); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersUpdatedAtLte != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[updated_at][lte]", runtime.ParamLocationQuery, *params.FiltersUpdatedAtLte); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.FiltersUpdatedAtNe != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "filters[updated_at][ne]", runtime.ParamLocationQuery, *params.FiltersUpdatedAtNe); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -4310,9 +4803,9 @@ func NewGetApiOperationsRequest(server string, params *GetApiOperationsParams) (
 
 		}
 
-		if params.ProgressPercentEq != nil {
+		if params.ProtocolContains != nil {
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "progress_percent_eq", runtime.ParamLocationQuery, *params.ProgressPercentEq); err != nil {
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "protocol_contains", runtime.ParamLocationQuery, *params.ProtocolContains); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -4326,9 +4819,9 @@ func NewGetApiOperationsRequest(server string, params *GetApiOperationsParams) (
 
 		}
 
-		if params.ProgressPercentGt != nil {
+		if params.ProtocolEndswith != nil {
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "progress_percent_gt", runtime.ParamLocationQuery, *params.ProgressPercentGt); err != nil {
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "protocol_endswith", runtime.ParamLocationQuery, *params.ProtocolEndswith); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -4342,9 +4835,9 @@ func NewGetApiOperationsRequest(server string, params *GetApiOperationsParams) (
 
 		}
 
-		if params.ProgressPercentGte != nil {
+		if params.ProtocolEq != nil {
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "progress_percent_gte", runtime.ParamLocationQuery, *params.ProgressPercentGte); err != nil {
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "protocol_eq", runtime.ParamLocationQuery, *params.ProtocolEq); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -4358,9 +4851,9 @@ func NewGetApiOperationsRequest(server string, params *GetApiOperationsParams) (
 
 		}
 
-		if params.ProgressPercentLt != nil {
+		if params.ProtocolNe != nil {
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "progress_percent_lt", runtime.ParamLocationQuery, *params.ProgressPercentLt); err != nil {
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "protocol_ne", runtime.ParamLocationQuery, *params.ProtocolNe); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -4374,25 +4867,9 @@ func NewGetApiOperationsRequest(server string, params *GetApiOperationsParams) (
 
 		}
 
-		if params.ProgressPercentLte != nil {
+		if params.ProtocolStartswith != nil {
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "progress_percent_lte", runtime.ParamLocationQuery, *params.ProgressPercentLte); err != nil {
-				return nil, err
-			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-				return nil, err
-			} else {
-				for k, v := range parsed {
-					for _, v2 := range v {
-						queryValues.Add(k, v2)
-					}
-				}
-			}
-
-		}
-
-		if params.ProgressPercentNe != nil {
-
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "progress_percent_ne", runtime.ParamLocationQuery, *params.ProgressPercentNe); err != nil {
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "protocol_startswith", runtime.ParamLocationQuery, *params.ProtocolStartswith); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -4409,6 +4886,358 @@ func NewGetApiOperationsRequest(server string, params *GetApiOperationsParams) (
 		if params.Search != nil {
 
 			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "search", runtime.ParamLocationQuery, *params.Search); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.StartedAtEq != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "started_at_eq", runtime.ParamLocationQuery, *params.StartedAtEq); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.StartedAtGt != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "started_at_gt", runtime.ParamLocationQuery, *params.StartedAtGt); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.StartedAtGte != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "started_at_gte", runtime.ParamLocationQuery, *params.StartedAtGte); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.StartedAtLt != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "started_at_lt", runtime.ParamLocationQuery, *params.StartedAtLt); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.StartedAtLte != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "started_at_lte", runtime.ParamLocationQuery, *params.StartedAtLte); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.StartedAtNe != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "started_at_ne", runtime.ParamLocationQuery, *params.StartedAtNe); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.StatusContains != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "status_contains", runtime.ParamLocationQuery, *params.StatusContains); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.StatusEndswith != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "status_endswith", runtime.ParamLocationQuery, *params.StatusEndswith); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.StatusEq != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "status_eq", runtime.ParamLocationQuery, *params.StatusEq); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.StatusMessageContains != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "status_message_contains", runtime.ParamLocationQuery, *params.StatusMessageContains); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.StatusMessageEndswith != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "status_message_endswith", runtime.ParamLocationQuery, *params.StatusMessageEndswith); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.StatusMessageEq != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "status_message_eq", runtime.ParamLocationQuery, *params.StatusMessageEq); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.StatusMessageNe != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "status_message_ne", runtime.ParamLocationQuery, *params.StatusMessageNe); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.StatusMessageStartswith != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "status_message_startswith", runtime.ParamLocationQuery, *params.StatusMessageStartswith); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.StatusNe != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "status_ne", runtime.ParamLocationQuery, *params.StatusNe); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.StatusStartswith != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "status_startswith", runtime.ParamLocationQuery, *params.StatusStartswith); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.UpdatedAtEq != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "updated_at_eq", runtime.ParamLocationQuery, *params.UpdatedAtEq); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.UpdatedAtGt != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "updated_at_gt", runtime.ParamLocationQuery, *params.UpdatedAtGt); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.UpdatedAtGte != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "updated_at_gte", runtime.ParamLocationQuery, *params.UpdatedAtGte); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.UpdatedAtLt != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "updated_at_lt", runtime.ParamLocationQuery, *params.UpdatedAtLt); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.UpdatedAtLte != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "updated_at_lte", runtime.ParamLocationQuery, *params.UpdatedAtLte); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.UpdatedAtNe != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "updated_at_ne", runtime.ParamLocationQuery, *params.UpdatedAtNe); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err

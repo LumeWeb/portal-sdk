@@ -2780,7 +2780,7 @@ func TestListOperations(t *testing.T) {
 								OperationDisplayName: "Upload",
 								Protocol:             "ipfs",
 								ProtocolDisplayName:  "IPFS",
-								Status:               OperationStatusCompleted.String(),
+								Status:               client.OperationListItemStatus(OperationStatusCompleted.String()),
 								StatusDisplayName:    "Completed",
 								StatusMessage:        "Done",
 								ProgressPercent:      100.0,
@@ -2796,7 +2796,7 @@ func TestListOperations(t *testing.T) {
 								OperationDisplayName: "Download",
 								Protocol:             "ipfs",
 								ProtocolDisplayName:  "IPFS",
-								Status:               OperationStatusRunning.String(),
+								Status:               client.OperationListItemStatus(OperationStatusRunning.String()),
 								StatusDisplayName:    "Running",
 								StatusMessage:        "In progress",
 								ProgressPercent:      50.0,
@@ -2872,7 +2872,7 @@ func TestOperationListItemToDetail(t *testing.T) {
 		OperationDisplayName:  "Upload",
 		Protocol:              "ipfs",
 		ProtocolDisplayName:   "IPFS",
-		Status:                OperationStatusCompleted.String(),
+		Status:                client.OperationListItemStatus(OperationStatusCompleted.String()),
 		StatusDisplayName:     "Completed",
 		StatusMessage:         "Done",
 		ProgressPercent:       100.0,
@@ -2890,7 +2890,7 @@ func TestOperationListItemToDetail(t *testing.T) {
 	require.Equal(t, listItem.Id, detail.Id)
 	require.Equal(t, listItem.Operation, detail.Operation)
 	require.Equal(t, listItem.Protocol, detail.Protocol)
-	require.Equal(t, listItem.Status, detail.Status)
+	require.Equal(t, string(listItem.Status), detail.Status)
 	require.Equal(t, listItem.Cid, detail.Cid)
 	require.Equal(t, listItem.CurrentStep, detail.CurrentStep)
 	require.Equal(t, listItem.TotalSteps, detail.TotalSteps)
