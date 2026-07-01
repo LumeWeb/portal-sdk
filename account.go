@@ -1598,7 +1598,7 @@ func operationListItemToDetail(op client.OperationListItem) client.OperationDeta
 		Protocol:              op.Protocol,
 		ProtocolDisplayName:   op.ProtocolDisplayName,
 		StartedAt:             op.StartedAt,
-		Status:                op.Status,
+		Status:                string(op.Status),
 		StatusDisplayName:     op.StatusDisplayName,
 		StatusMessage:         op.StatusMessage,
 		TotalSteps:            op.TotalSteps,
