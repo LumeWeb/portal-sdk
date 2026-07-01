@@ -2815,7 +2815,7 @@ func TestListOperations(t *testing.T) {
 			defer server.Close()
 
 			acc := NewClient(WithEndpoint(server.URL), WithJWT(tt.jwt))
-			ops, err := acc.ListOperations(context.Background(), tt.opts...)
+			ops, total, err := acc.ListOperations(context.Background(), tt.opts...)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ListOperations() error = %v, wantErr %v", err, tt.wantErr)
@@ -2834,6 +2834,9 @@ func TestListOperations(t *testing.T) {
 				}
 				if len(ops) != 2 {
 					t.Errorf("expected 2 operations, got %d", len(ops))
+				}
+				if total != 2 {
+					t.Errorf("expected total 2, got %d", total)
 				}
 			}
 		})
@@ -2857,7 +2860,7 @@ func TestListOperations_NetworkError(t *testing.T) {
 	defer server.Close()
 
 	acc := NewClient(WithEndpoint(server.URL), WithJWT("valid-token"))
-	_, err := acc.ListOperations(context.Background())
+	_, _, err := acc.ListOperations(context.Background())
 
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "failed to list operations")

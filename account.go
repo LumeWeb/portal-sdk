@@ -932,7 +932,8 @@ type AccountAPI interface {
 	GetOperation(ctx context.Context, id int64) (*Operation, error)
 
 	// ListOperations lists operations with optional filters, sorting, and pagination.
-	ListOperations(ctx context.Context, opts ...ListOption) ([]*Operation, error)
+	// Returns the operations on the current page and the total count matching the query.
+	ListOperations(ctx context.Context, opts ...ListOption) ([]*Operation, int, error)
 
 	// GetOperationFilters retrieves available filter values for operations.
 	GetOperationFilters(ctx context.Context) (*OperationFilters, error)
@@ -1497,7 +1498,8 @@ func (c *Client) GetOperation(ctx context.Context, id int64) (*Operation, error)
 }
 
 // ListOperations lists operations with optional filters, sorting, and pagination.
-func (c *Client) ListOperations(ctx context.Context, opts ...ListOption) ([]*Operation, error) {
+// Returns the operations on the current page and the total count matching the query.
+func (c *Client) ListOperations(ctx context.Context, opts ...ListOption) ([]*Operation, int, error) {
 	options := &ListOptions{}
 	for _, opt := range opts {
 		opt(options)
@@ -1555,18 +1557,18 @@ func (c *Client) ListOperations(ctx context.Context, opts ...ListOption) ([]*Ope
 
 	resp, err := c.client.GetApiOperationsWithResponse(ctx, &client.GetApiOperationsParams{}, reqEditor)
 	if err != nil {
-		return nil, fmt.Errorf("failed to list operations: %w", err)
+		return nil, 0, fmt.Errorf("failed to list operations: %w", err)
 	}
 
 	data, err := validateJSON200(resp.StatusCode(), resp.Body, resp.JSON200, "operations response did not contain data")
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	ops := lo.Map(data.Data, func(op client.OperationListItem, _ int) *Operation {
 		return newOperation(operationListItemToDetail(op))
 	})
-	return ops, nil
+	return ops, data.Total, nil
 }
 
 // GetOperationFilters retrieves available filter values for operations.

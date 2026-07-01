@@ -1603,7 +1603,7 @@ func (_c *MockAccountAPI_ListCredits_Call) RunAndReturn(run func(context.Context
 }
 
 // ListOperations provides a mock function with given fields: ctx, opts
-func (_m *MockAccountAPI) ListOperations(ctx context.Context, opts ...account.ListOption) ([]*account.Operation, error) {
+func (_m *MockAccountAPI) ListOperations(ctx context.Context, opts ...account.ListOption) ([]*account.Operation, int, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -1618,8 +1618,9 @@ func (_m *MockAccountAPI) ListOperations(ctx context.Context, opts ...account.Li
 	}
 
 	var r0 []*account.Operation
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, ...account.ListOption) ([]*account.Operation, error)); ok {
+	var r1 int
+	var r2 error
+	if rf, ok := ret.Get(0).(func(context.Context, ...account.ListOption) ([]*account.Operation, int, error)); ok {
 		return rf(ctx, opts...)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context, ...account.ListOption) []*account.Operation); ok {
@@ -1630,13 +1631,19 @@ func (_m *MockAccountAPI) ListOperations(ctx context.Context, opts ...account.Li
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, ...account.ListOption) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, ...account.ListOption) int); ok {
 		r1 = rf(ctx, opts...)
 	} else {
-		r1 = ret.Error(1)
+		r1 = ret.Get(1).(int)
 	}
 
-	return r0, r1
+	if rf, ok := ret.Get(2).(func(context.Context, ...account.ListOption) error); ok {
+		r2 = rf(ctx, opts...)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
 }
 
 // MockAccountAPI_ListOperations_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListOperations'
@@ -1665,12 +1672,12 @@ func (_c *MockAccountAPI_ListOperations_Call) Run(run func(ctx context.Context, 
 	return _c
 }
 
-func (_c *MockAccountAPI_ListOperations_Call) Return(_a0 []*account.Operation, _a1 error) *MockAccountAPI_ListOperations_Call {
-	_c.Call.Return(_a0, _a1)
+func (_c *MockAccountAPI_ListOperations_Call) Return(_a0 []*account.Operation, _a1 int, _a2 error) *MockAccountAPI_ListOperations_Call {
+	_c.Call.Return(_a0, _a1, _a2)
 	return _c
 }
 
-func (_c *MockAccountAPI_ListOperations_Call) RunAndReturn(run func(context.Context, ...account.ListOption) ([]*account.Operation, error)) *MockAccountAPI_ListOperations_Call {
+func (_c *MockAccountAPI_ListOperations_Call) RunAndReturn(run func(context.Context, ...account.ListOption) ([]*account.Operation, int, error)) *MockAccountAPI_ListOperations_Call {
 	_c.Call.Return(run)
 	return _c
 }
