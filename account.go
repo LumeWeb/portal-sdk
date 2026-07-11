@@ -1187,6 +1187,19 @@ func (c *Client) Login(ctx context.Context, email, password string) (*LoginResul
 		return nil, err
 	}
 
+	// Non-OTP login returns 302 with Location header containing the JWT as auth_token query param
+	if resp.StatusCode() == http.StatusFound {
+		token, err := extractTokenFromRedirect(resp.HTTPResponse)
+		if err != nil {
+			return nil, fmt.Errorf("login redirect response: %w", err)
+		}
+		return &LoginResult{
+			Token:           token,
+			OTPRequired:     false,
+			IntermediateJWT: token,
+		}, nil
+	}
+
 	if resp.JSON200 == nil || resp.JSON200.Token == "" {
 		return nil, fmt.Errorf("login response did not contain a token")
 	}
@@ -1251,31 +1264,40 @@ func (c *Client) ValidateOTP(ctx context.Context, intermediateJWT, otp string) (
 		return "", err
 	}
 
-	location := resp.HTTPResponse.Header.Get("Location")
-	if location == "" {
-		return "", fmt.Errorf("OTP validation successful but no redirect location provided")
+	token, err := extractTokenFromRedirect(resp.HTTPResponse)
+	if err != nil {
+		return "", fmt.Errorf("OTP validation: %w", err)
 	}
+	return token, nil
+}
 
-	// The portal sets the final JWT in a cookie. For CLI, we need to extract it.
-	// The cookie name is typically "auth" or similar. We'll look for JWT in Set-Cookie.
-	cookies := resp.HTTPResponse.Cookies()
+// extractTokenFromRedirect extracts the JWT token from a 302 redirect response.
+// It checks for the token in Set-Cookie headers first, then falls back to
+// the auth_token query parameter in the Location header.
+func extractTokenFromRedirect(httpResp *http.Response) (string, error) {
+	cookies := httpResp.Cookies()
 	for _, cookie := range cookies {
 		if cookie.Name == AuthTokenCookie && cookie.Value != "" {
 			return cookie.Value, nil
 		}
 	}
 
-	// If no cookie found, try to extract from Location header (may contain JWT as query param)
+	location := httpResp.Header.Get("Location")
+	if location == "" {
+		return "", fmt.Errorf("no redirect location provided")
+	}
+
 	parsedURL, err := url.Parse(location)
 	if err != nil {
 		return "", fmt.Errorf("failed to parse redirect location: %w", err)
 	}
+
 	token := parsedURL.Query().Get(AuthTokenQueryParam)
 	if token != "" {
 		return token, nil
 	}
 
-	return "", fmt.Errorf("OTP validation successful but unable to extract final JWT from response")
+	return "", fmt.Errorf("no auth token found in cookies or redirect location")
 }
 
 // Ping verifies the JWT token is valid.

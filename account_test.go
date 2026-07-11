@@ -124,6 +124,78 @@ func TestLogin(t *testing.T) {
 	}
 }
 
+// TestLogin_NonOTPRedirect is a regression test for the non-OTP login path where
+// the server returns 302 Found with the JWT in the Location header's auth_token
+// query parameter. Previously, Login() always read resp.JSON200 which is nil for
+// 302 responses, causing a "did not contain a token" error.
+func TestLogin_NonOTPRedirect(t *testing.T) {
+	expectedToken := "jwt-from-redirect"
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "POST" {
+			t.Errorf("expected POST, got %s", r.Method)
+		}
+		if r.URL.Path != "/api/auth/login" {
+			t.Errorf("expected /api/auth/login, got %s", r.URL.Path)
+		}
+
+		redirectURL := fmt.Sprintf("http://%s/api/auth/complete?%s=%s",
+			r.Host, AuthTokenQueryParam, url.QueryEscape(expectedToken))
+		w.Header().Set("Location", redirectURL)
+		w.WriteHeader(http.StatusFound)
+	}))
+	defer server.Close()
+
+	acc := NewClient(WithEndpoint(server.URL), WithDisableFollowRedirect())
+	result, err := acc.Login(context.Background(), "user@example.com", "password")
+	require.NoError(t, err)
+	require.NotNil(t, result)
+
+	assert.Equal(t, expectedToken, result.Token)
+	assert.False(t, result.OTPRequired)
+	assert.Equal(t, expectedToken, result.IntermediateJWT)
+}
+
+// TestLogin_NonOTPRedirect_CookieToken tests the non-OTP 302 path where the JWT
+// is delivered via Set-Cookie rather than the Location query param.
+func TestLogin_NonOTPRedirect_CookieToken(t *testing.T) {
+	expectedToken := "jwt-from-cookie"
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.SetCookie(w, &http.Cookie{
+			Name:  AuthTokenCookie,
+			Value: expectedToken,
+		})
+		w.Header().Set("Location", "http://"+r.Host+"/api/auth/complete")
+		w.WriteHeader(http.StatusFound)
+	}))
+	defer server.Close()
+
+	acc := NewClient(WithEndpoint(server.URL), WithDisableFollowRedirect())
+	result, err := acc.Login(context.Background(), "user@example.com", "password")
+	require.NoError(t, err)
+	require.NotNil(t, result)
+
+	assert.Equal(t, expectedToken, result.Token)
+	assert.False(t, result.OTPRequired)
+}
+
+// TestLogin_NonOTPRedirect_MissingToken tests that Login returns an error when
+// the 302 redirect has no token in either cookies or the Location header.
+func TestLogin_NonOTPRedirect_MissingToken(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Location", "http://"+r.Host+"/api/auth/complete")
+		w.WriteHeader(http.StatusFound)
+	}))
+	defer server.Close()
+
+	acc := NewClient(WithEndpoint(server.URL), WithDisableFollowRedirect())
+	result, err := acc.Login(context.Background(), "user@example.com", "password")
+	require.Error(t, err)
+	assert.Nil(t, result)
+	assert.Contains(t, err.Error(), "no auth token found")
+}
+
 func TestCreateDownloadPercentLimitedRateLimiter(t *testing.T) {
 	tests := []struct {
 		name           string
@@ -944,7 +1016,7 @@ func TestValidateOTP_UnableToExtractJWT(t *testing.T) {
 	_, err := acc.ValidateOTP(context.Background(), "intermediate-jwt", "123456")
 
 	require.Error(t, err)
-	require.Contains(t, err.Error(), "unable to extract final JWT")
+	require.Contains(t, err.Error(), "no auth token found")
 }
 
 func TestValidateOTP_EmptyTokenWithOtherParams(t *testing.T) {
@@ -971,7 +1043,7 @@ func TestValidateOTP_EmptyTokenWithOtherParams(t *testing.T) {
 
 	// Should return an error since token is empty, not extract "&other=abc&session=xyz"
 	require.Error(t, err)
-	require.Contains(t, err.Error(), "unable to extract final JWT")
+	require.Contains(t, err.Error(), "no auth token found")
 	require.Empty(t, token)
 }
 
