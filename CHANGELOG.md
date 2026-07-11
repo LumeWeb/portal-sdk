@@ -1,3 +1,9 @@
+## 0.1.58 (2026-07-11)
+
+### Fixes
+
+- handle 302 redirect in Login for non-OTP accounts
+
 ## 0.1.57 (2026-07-01)
 
 ### Features
