@@ -228,25 +228,21 @@ components:
     Decimal:
       additionalProperties: false
       type: object
-    Error:
+    ErrorDetail:
       additionalProperties: false
       properties:
-        error:
+        details:
           type: string
-        message:
-          type: string
-        namespace:
+        reason:
           type: string
       required:
-      - error
-      - message
-      - namespace
+      - reason
       type: object
     ErrorResponse:
       additionalProperties: false
       properties:
         error:
-          type: string
+          $ref: '#/components/schemas/ErrorDetail'
       required:
       - error
       type: object
@@ -887,7 +883,7 @@ components:
 info:
   description: API endpoints for managing user accounts, authentication, and API keys.
   title: Account API
-  version: v0.3.1-0.20260701000712-73bd83c753ad
+  version: v0.3.1-0.20260708232039-b4aebacb9791
 openapi: 3.0.0
 paths:
   /api/account:
@@ -978,7 +974,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/ErrorResponse'
           description: The login credentials provided are invalid.
         "403":
           content:
@@ -990,13 +986,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/ErrorResponse'
           description: The requested user was not found.
         "500":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/ErrorResponse'
           description: A database operation failed.
       summary: Update profile information
   /api/account/avatar:
@@ -2384,13 +2380,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/ErrorResponse'
           description: The login credentials provided are invalid.
         "403":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/ErrorResponse'
           description: This account is pending deletion.
         "404":
           content:
@@ -2402,7 +2398,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/ErrorResponse'
           description: Login failed due to an internal error.
       summary: Login with email and password
   /api/auth/logout:
@@ -2628,7 +2624,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/ErrorResponse'
           description: The login credentials provided are invalid.
         "403":
           content:
@@ -2646,7 +2642,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/ErrorResponse'
           description: A database operation failed.
       summary: Ping authenticated endpoint
   /api/auth/register:
@@ -2690,13 +2686,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/ErrorResponse'
           description: The email address provided is already in use.
         "500":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/ErrorResponse'
           description: A database operation failed.
       summary: Register a new account
   /api/billing/gateways:

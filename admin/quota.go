@@ -395,8 +395,8 @@ func (q *QuotaService) ListAllowances(ctx context.Context) ([]*QuotaAllowance, i
 func (q *QuotaService) CreateAllowance(ctx context.Context, userID int, source, allowanceType string, upload, download, storage int, expiryDate time.Time) (*QuotaAllowance, error) {
 	reqBody := admin.AllowanceGrantRequest{
 		UserId:     userID,
-		Source:     source,
-		Type:       allowanceType,
+		Source:     admin.AllowanceGrantRequestSource(source),
+		Type:       admin.AllowanceGrantRequestType(allowanceType),
 		Upload:     upload,
 		Download:   download,
 		Storage:    storage,
@@ -420,8 +420,8 @@ func (q *QuotaService) CreateAllowance(ctx context.Context, userID int, source, 
 func (q *QuotaService) UpdateAllowance(ctx context.Context, grantID string, userID int, source, allowanceType string, upload, download, storage int, expiryDate time.Time) (*QuotaAllowance, error) {
 	reqBody := admin.AllowanceGrantRequest{
 		UserId:     userID,
-		Source:     source,
-		Type:       allowanceType,
+		Source:     admin.AllowanceGrantRequestSource(source),
+		Type:       admin.AllowanceGrantRequestType(allowanceType),
 		Upload:     upload,
 		Download:   download,
 		Storage:    storage,

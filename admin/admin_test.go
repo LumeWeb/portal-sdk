@@ -80,7 +80,7 @@ func TestQuotaService_ListPlans(t *testing.T) {
 		{
 			name:       "unauthorized",
 			statusCode: http.StatusUnauthorized,
-			response:   admin.ErrorResponse{Error: "unauthorized"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "unauthorized"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "unauthorized")
@@ -157,7 +157,7 @@ func TestBillingService_CreatePriceLine(t *testing.T) {
 			name:       "unauthorized",
 			request:    &PriceLineCreateRequest{},
 			statusCode: http.StatusUnauthorized,
-			response:   admin.ErrorResponse{Error: "unauthorized"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "unauthorized"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "unauthorized")
@@ -235,7 +235,7 @@ func TestBillingService_UpdatePriceLine(t *testing.T) {
 			priceLineID: "999",
 			request:     &PriceLineUpdateRequest{},
 			statusCode:  http.StatusNotFound,
-			response:    admin.ErrorResponse{Error: "price line not found"},
+			response:    admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "price line not found"}},
 			wantErr:     true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "price line not found")
@@ -305,7 +305,7 @@ func TestBillingService_GetPriceLine(t *testing.T) {
 			name:        "not found",
 			priceLineID: "999",
 			statusCode:  http.StatusNotFound,
-			response:     admin.ErrorResponse{Error: "price line not found"},
+			response:     admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "price line not found"}},
 			wantErr:      true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "price line not found")
@@ -315,7 +315,7 @@ func TestBillingService_GetPriceLine(t *testing.T) {
 			name:        "unauthorized",
 			priceLineID: "1",
 			statusCode:  http.StatusUnauthorized,
-			response:     admin.ErrorResponse{Error: "unauthorized"},
+			response:     admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "unauthorized"}},
 			wantErr:      true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "unauthorized")
@@ -379,7 +379,7 @@ func TestBillingService_DeletePriceLine(t *testing.T) {
 			name:        "not found",
 			priceLineID: "999",
 			statusCode:  http.StatusNotFound,
-			response:    admin.ErrorResponse{Error: "price line not found"},
+			response:    admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "price line not found"}},
 			wantErr:     true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "price line not found")
@@ -455,7 +455,7 @@ func TestBillingService_ListPricingPlans(t *testing.T) {
 		{
 			name:       "unauthorized",
 			statusCode: http.StatusUnauthorized,
-			response:   admin.ErrorResponse{Error: "unauthorized"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "unauthorized"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "unauthorized")
@@ -560,7 +560,7 @@ func TestBillingService_CreatePricingPlan(t *testing.T) {
 			name:       "unauthorized",
 			request:    &PricingPlanCreateRequest{Features: []string{}},
 			statusCode: http.StatusUnauthorized,
-			response:   admin.ErrorResponse{Error: "unauthorized"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "unauthorized"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "unauthorized")
@@ -641,7 +641,7 @@ func TestBillingService_GetPricingPlan(t *testing.T) {
 			name:       "plan not found",
 			planID:     "999",
 			statusCode: http.StatusNotFound,
-			response:   admin.ErrorResponse{Error: "pricing plan not found"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "pricing plan not found"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "pricing plan not found")
@@ -651,7 +651,7 @@ func TestBillingService_GetPricingPlan(t *testing.T) {
 			name:       "unauthorized",
 			planID:     "1",
 			statusCode: http.StatusUnauthorized,
-			response:   admin.ErrorResponse{Error: "unauthorized"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "unauthorized"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "unauthorized")
@@ -727,7 +727,7 @@ func TestBillingService_DeletePricingPlan(t *testing.T) {
 				if tt.respErr {
 					w.WriteHeader(http.StatusNotFound)
 					w.Header().Set("Content-Type", "application/json")
-					json.NewEncoder(w).Encode(admin.ErrorResponse{Error: "pricing plan not found"})
+					json.NewEncoder(w).Encode(admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "pricing plan not found"}})
 				} else {
 					w.WriteHeader(http.StatusNoContent)
 				}
@@ -782,7 +782,7 @@ func TestBillingService_ListPricingPlanPeriods(t *testing.T) {
 		{
 			name:       "unauthorized",
 			statusCode: http.StatusUnauthorized,
-			response:   admin.ErrorResponse{Error: "unauthorized"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "unauthorized"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "unauthorized")
@@ -866,7 +866,7 @@ func TestBillingService_ListPriceLines(t *testing.T) {
 		{
 			name:       "unauthorized",
 			statusCode: http.StatusUnauthorized,
-			response:   admin.ErrorResponse{Error: "unauthorized"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "unauthorized"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "unauthorized")
@@ -933,7 +933,7 @@ func TestQuotaService_ListUserConfigs(t *testing.T) {
 						UploadLimitBytes:   new(100),
 						DownloadLimitBytes: new(1000),
 						StorageLimitBytes:       new(10000),
-						EnforcementPolicy:  "strict",
+						EnforcementPolicy: admin.UserQuotaConfigResponseEnforcementPolicy("strict"),
 						CreatedAt: now,
 						UpdatedAt: now,
 					},
@@ -955,7 +955,7 @@ func TestQuotaService_ListUserConfigs(t *testing.T) {
 		{
 			name:       "unauthorized",
 			statusCode: http.StatusUnauthorized,
-			response:   admin.ErrorResponse{Error: "unauthorized"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "unauthorized"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "unauthorized")
@@ -964,7 +964,7 @@ func TestQuotaService_ListUserConfigs(t *testing.T) {
 		{
 			name:       "bad request",
 			statusCode: http.StatusBadRequest,
-			response:   admin.ErrorResponse{Error: "invalid request"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "invalid request"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "invalid request")
@@ -1004,9 +1004,9 @@ func TestQuotaService_ListUserConfigs(t *testing.T) {
 				require.Equal(t, 2, total)
 				require.Len(t, configs, 2)
 				require.Equal(t, int(100), configs[0].UserId)
-				require.Equal(t, "strict", configs[0].EnforcementPolicy)
+				require.Equal(t, admin.UserQuotaConfigResponseEnforcementPolicy("strict"), configs[0].EnforcementPolicy)
 				require.Equal(t, int(200), configs[1].UserId)
-				require.Equal(t, "lenient", configs[1].EnforcementPolicy)
+				require.Equal(t, admin.UserQuotaConfigResponseEnforcementPolicy("lenient"), configs[1].EnforcementPolicy)
 			}
 		})
 	}
@@ -1030,7 +1030,7 @@ func TestQuotaService_UpdateUserConfig(t *testing.T) {
 				UploadLimitBytes:   new(1000),
 				DownloadLimitBytes: new(10000),
 				StorageLimitBytes:  new(100000),
-				EnforcementPolicy:  new("strict"),
+				EnforcementPolicy:  new(admin.UserQuotaConfigUpdateRequestEnforcementPolicy("strict")),
 			},
 			statusCode: http.StatusOK,
 			response: admin.UserQuotaConfigResponse{
@@ -1039,7 +1039,7 @@ func TestQuotaService_UpdateUserConfig(t *testing.T) {
 				UploadLimitBytes:  new(1000),
 				DownloadLimitBytes: new(10000),
 				StorageLimitBytes:      new(100000),
-				EnforcementPolicy: "strict",
+				EnforcementPolicy: admin.UserQuotaConfigResponseEnforcementPolicy("strict"),
 				CreatedAt:         now,
 				UpdatedAt:         now,
 			},
@@ -1050,7 +1050,7 @@ func TestQuotaService_UpdateUserConfig(t *testing.T) {
 			userID: 100,
 			update: &admin.UserQuotaConfigUpdateRequest{},
 			statusCode: http.StatusUnauthorized,
-			response:   admin.ErrorResponse{Error: "unauthorized"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "unauthorized"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "unauthorized")
@@ -1061,7 +1061,7 @@ func TestQuotaService_UpdateUserConfig(t *testing.T) {
 			userID: 999,
 			update: &admin.UserQuotaConfigUpdateRequest{},
 			statusCode: http.StatusNotFound,
-			response:   admin.ErrorResponse{Error: "user not found"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "user not found"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "not found")
@@ -1072,7 +1072,7 @@ func TestQuotaService_UpdateUserConfig(t *testing.T) {
 			userID: 100,
 			update: &admin.UserQuotaConfigUpdateRequest{},
 			statusCode: http.StatusBadRequest,
-			response:   admin.ErrorResponse{Error: "invalid configuration"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "invalid configuration"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "configuration")
@@ -1113,7 +1113,7 @@ func TestQuotaService_UpdateUserConfig(t *testing.T) {
 				require.Equal(t, int(1000), *config.UploadLimitBytes)
 				require.Equal(t, int(10000), *config.DownloadLimitBytes)
 				require.Equal(t, int(100000), *config.StorageLimitBytes)
-				require.Equal(t, "strict", config.EnforcementPolicy)
+				require.Equal(t, admin.UserQuotaConfigResponseEnforcementPolicy("strict"), config.EnforcementPolicy)
 			}
 		})
 	}
@@ -1168,9 +1168,9 @@ func TestQuotaService_ResetUserPlan(t *testing.T) {
 				
 				// Add response body for error cases
 				if tt.statusCode == http.StatusNotFound {
-					json.NewEncoder(w).Encode(admin.ErrorResponse{Error: "user not found"})
+					json.NewEncoder(w).Encode(admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "user not found"}})
 				} else if tt.statusCode == http.StatusUnauthorized {
-					json.NewEncoder(w).Encode(admin.ErrorResponse{Error: "unauthorized"})
+					json.NewEncoder(w).Encode(admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "unauthorized"}})
 				}
 			}))
 			defer server.Close()
@@ -1235,7 +1235,7 @@ func TestQuotaService_CreatePlan(t *testing.T) {
 				},
 			},
 			statusCode: http.StatusUnauthorized,
-			response:   admin.ErrorResponse{Error: "unauthorized"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "unauthorized"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "unauthorized")
@@ -1320,7 +1320,7 @@ func TestQuotaService_UpdatePlan(t *testing.T) {
 				},
 			},
 			statusCode: http.StatusNotFound,
-			response:   admin.ErrorResponse{Error: "plan not found"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "plan not found"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "plan not found")
@@ -1383,7 +1383,7 @@ func TestQuotaService_DeletePlan(t *testing.T) {
 			name:       "plan not found",
 			planID:     "nonexistent",
 			statusCode: http.StatusNotFound,
-			response:   admin.ErrorResponse{Error: "plan not found"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "plan not found"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "plan not found")
@@ -1451,7 +1451,7 @@ func TestQuotaService_GetPlan(t *testing.T) {
 			name:       "plan not found",
 			planID:     "nonexistent",
 			statusCode: http.StatusNotFound,
-			response:   admin.ErrorResponse{Error: "plan not found"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "plan not found"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "plan not found")
@@ -1524,7 +1524,7 @@ func TestQuotaService_ListAllowances(t *testing.T) {
 		{
 			name:       "unauthorized",
 			statusCode: http.StatusUnauthorized,
-			response:   admin.ErrorResponse{Error: "unauthorized"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "unauthorized"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "unauthorized")
@@ -1614,7 +1614,7 @@ func TestQuotaService_CreateAllowance(t *testing.T) {
 			storage:    10000,
 			expiryDate: expiry,
 			statusCode: http.StatusUnauthorized,
-			response:   admin.ErrorResponse{Error: "unauthorized"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "unauthorized"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "unauthorized")
@@ -1706,7 +1706,7 @@ func TestQuotaService_UpdateAllowance(t *testing.T) {
 			storage:    10000,
 			expiryDate: expiry,
 			statusCode: http.StatusNotFound,
-			response:   admin.ErrorResponse{Error: "allowance not found"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "allowance not found"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "allowance not found")
@@ -1769,7 +1769,7 @@ func TestQuotaService_DeleteAllowance(t *testing.T) {
 			name:        "allowance not found",
 			allowanceID: "nonexistent",
 			statusCode:  http.StatusNotFound,
-			response:    admin.ErrorResponse{Error: "allowance not found"},
+			response:    admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "allowance not found"}},
 			wantErr:     true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "allowance not found")
@@ -1838,7 +1838,7 @@ func TestQuotaService_GetStats(t *testing.T) {
 		{
 			name:       "unauthorized",
 			statusCode: http.StatusUnauthorized,
-			response:   admin.ErrorResponse{Error: "unauthorized"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "unauthorized"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "unauthorized")
@@ -1926,7 +1926,7 @@ func TestBillingService_ListSubscribers(t *testing.T) {
 		{
 			name:       "unauthorized",
 			statusCode: http.StatusUnauthorized,
-			response:   admin.ErrorResponse{Error: "unauthorized"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "unauthorized"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "unauthorized")
@@ -2006,7 +2006,7 @@ func TestBillingService_GetSubscriber(t *testing.T) {
 			name:        "subscriber not found",
 			subscriberID: "999",
 			statusCode:  http.StatusNotFound,
-			response:    admin.ErrorResponse{Error: "not found"},
+			response:    admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "not found"}},
 			wantErr:     true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "not found")
@@ -2087,7 +2087,7 @@ func TestBillingService_ListGatewaySubscribers(t *testing.T) {
 			name:       "gateway not found",
 			gatewayID:  "unknown",
 			statusCode: http.StatusNotFound,
-			response:   admin.ErrorResponse{Error: "gateway not found"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "gateway not found"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "not found")
@@ -2167,7 +2167,7 @@ func TestBillingService_GetUserSubscribers(t *testing.T) {
 			name:       "user not found",
 			userID:     "999",
 			statusCode: http.StatusNotFound,
-			response:   admin.ErrorResponse{Error: "user not found"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "user not found"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "not found")
@@ -2244,7 +2244,7 @@ func TestBillingService_CancelUserSubscription(t *testing.T) {
 				Mode: lo.ToPtr("end_of_period"),
 			},
 			statusCode: http.StatusNotFound,
-			response:   admin.ErrorResponse{Error: "user not found"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "user not found"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "not found")
@@ -2316,7 +2316,7 @@ func TestBillingService_AbortUserSubscriptionCancellation(t *testing.T) {
 			name:       "user not found",
 			userID:     "999",
 			statusCode: http.StatusNotFound,
-			response:   admin.ErrorResponse{Error: "no scheduled cancellation found"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "no scheduled cancellation found"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "no scheduled cancellation found")
@@ -2326,14 +2326,14 @@ func TestBillingService_AbortUserSubscriptionCancellation(t *testing.T) {
 			name:       "unauthorized",
 			userID:     "100",
 			statusCode: http.StatusUnauthorized,
-			response:   admin.ErrorResponse{Error: "unauthorized"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "unauthorized"}},
 			wantErr:    true,
 		},
 		{
 			name:       "forbidden - insufficient permissions",
 			userID:     "100",
 			statusCode: http.StatusForbidden,
-			response:   admin.ErrorResponse{Error: "insufficient permissions"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "insufficient permissions"}},
 			wantErr:    true,
 		},
 	}
@@ -2405,7 +2405,7 @@ func TestBillingService_ChangeUserPlan(t *testing.T) {
 				PeriodId: 0,
 			},
 			statusCode: http.StatusBadRequest,
-			response:   admin.ErrorResponse{Error: "invalid plan change request"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "invalid plan change request"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "invalid")
@@ -2475,7 +2475,7 @@ func TestBillingService_PauseUserSubscription(t *testing.T) {
 			name:       "no active subscription found",
 			userID:     "999",
 			statusCode: http.StatusNotFound,
-			response:   admin.ErrorResponse{Error: "no active subscription found"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "no active subscription found"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "no active subscription found")
@@ -2485,7 +2485,7 @@ func TestBillingService_PauseUserSubscription(t *testing.T) {
 			name:       "subscription cannot be paused",
 			userID:     "100",
 			statusCode: http.StatusBadRequest,
-			response:   admin.ErrorResponse{Error: "subscription cannot be paused"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "subscription cannot be paused"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "cannot be paused")
@@ -2495,7 +2495,7 @@ func TestBillingService_PauseUserSubscription(t *testing.T) {
 			name:       "unauthorized",
 			userID:     "100",
 			statusCode: http.StatusUnauthorized,
-			response:   admin.ErrorResponse{Error: "unauthorized"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "unauthorized"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "unauthorized")
@@ -2566,7 +2566,7 @@ func TestBillingService_ResumeUserSubscription(t *testing.T) {
 			name:       "no paused subscription found",
 			userID:     "999",
 			statusCode: http.StatusNotFound,
-			response:   admin.ErrorResponse{Error: "no paused subscription found"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "no paused subscription found"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "no paused subscription found")
@@ -2576,7 +2576,7 @@ func TestBillingService_ResumeUserSubscription(t *testing.T) {
 			name:       "subscription cannot be resumed",
 			userID:     "100",
 			statusCode: http.StatusBadRequest,
-			response:   admin.ErrorResponse{Error: "subscription cannot be resumed"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "subscription cannot be resumed"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "cannot be resumed")
@@ -2586,7 +2586,7 @@ func TestBillingService_ResumeUserSubscription(t *testing.T) {
 			name:       "unauthorized",
 			userID:     "100",
 			statusCode: http.StatusUnauthorized,
-			response:   admin.ErrorResponse{Error: "unauthorized"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "unauthorized"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "unauthorized")
@@ -2688,7 +2688,7 @@ func TestBillingService_AddPlanToPriceLine(t *testing.T) {
 				w.Header().Set("Content-Type", "application/json")
 				w.WriteHeader(tt.statusCode)
 				if tt.wantErr {
-					json.NewEncoder(w).Encode(admin.ErrorResponse{Error: "test error"})
+					json.NewEncoder(w).Encode(admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "test error"}})
 				} else {
 					json.NewEncoder(w).Encode(tt.response)
 				}
@@ -2847,7 +2847,7 @@ func TestBillingService_UpdatePlanPosition(t *testing.T) {
 				w.Header().Set("Content-Type", "application/json")
 				w.WriteHeader(tt.statusCode)
 				if tt.wantErr {
-					json.NewEncoder(w).Encode(admin.ErrorResponse{Error: "test error"})
+					json.NewEncoder(w).Encode(admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "test error"}})
 				} else {
 					json.NewEncoder(w).Encode(tt.response)
 				}
@@ -2945,7 +2945,7 @@ func TestBillingService_GetPriceLineDetail(t *testing.T) {
 				if tt.statusCode == http.StatusOK {
 					require.NoError(t, json.NewEncoder(w).Encode(tt.response))
 				} else if tt.statusCode == http.StatusNotFound {
-					json.NewEncoder(w).Encode(admin.ErrorResponse{Error: "price line not found"})
+					json.NewEncoder(w).Encode(admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "price line not found"}})
 				}
 			}))
 			defer server.Close()
@@ -3021,7 +3021,7 @@ func TestBillingService_SyncPricingPlan(t *testing.T) {
 				w.WriteHeader(tt.statusCode)
 				if tt.statusCode != http.StatusOK {
 					w.Header().Set("Content-Type", "application/json")
-					json.NewEncoder(w).Encode(admin.ErrorResponse{Error: tt.errMsg})
+					json.NewEncoder(w).Encode(admin.ErrorResponse{Error: admin.ErrorDetail{Reason: tt.errMsg}})
 				}
 			}))
 			defer server.Close()
@@ -3078,7 +3078,7 @@ func TestBillingService_SyncAllPricingPlans(t *testing.T) {
 				w.WriteHeader(tt.statusCode)
 				if tt.statusCode != http.StatusOK {
 					w.Header().Set("Content-Type", "application/json")
-					json.NewEncoder(w).Encode(admin.ErrorResponse{Error: tt.errMsg})
+					json.NewEncoder(w).Encode(admin.ErrorResponse{Error: admin.ErrorDetail{Reason: tt.errMsg}})
 				}
 			}))
 			defer server.Close()
@@ -3131,7 +3131,7 @@ func TestWebsiteService_BlockWebsite(t *testing.T) {
 			name:       "unauthorized",
 			websiteID:  "1",
 			statusCode: http.StatusUnauthorized,
-			response:   admin.ErrorResponse{Error: "unauthorized"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "unauthorized"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "unauthorized")
@@ -3141,7 +3141,7 @@ func TestWebsiteService_BlockWebsite(t *testing.T) {
 			name:       "website not found",
 			websiteID:  "999",
 			statusCode: http.StatusNotFound,
-			response:   admin.ErrorResponse{Error: "website not found"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "website not found"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "website not found")
@@ -3151,7 +3151,7 @@ func TestWebsiteService_BlockWebsite(t *testing.T) {
 			name:       "cannot block website",
 			websiteID:  "1",
 			statusCode: http.StatusBadRequest,
-			response:   admin.ErrorResponse{Error: "cannot block website"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "cannot block website"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "cannot block website")
@@ -3235,7 +3235,7 @@ func TestWebsiteService_UnblockWebsite(t *testing.T) {
 			name:       "unauthorized",
 			websiteID:  "1",
 			statusCode: http.StatusUnauthorized,
-			response:   admin.ErrorResponse{Error: "unauthorized"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "unauthorized"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "unauthorized")
@@ -3245,7 +3245,7 @@ func TestWebsiteService_UnblockWebsite(t *testing.T) {
 			name:       "website not found",
 			websiteID:  "999",
 			statusCode: http.StatusNotFound,
-			response:   admin.ErrorResponse{Error: "website not found"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "website not found"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "website not found")
@@ -3255,7 +3255,7 @@ func TestWebsiteService_UnblockWebsite(t *testing.T) {
 			name:       "cannot unblock website",
 			websiteID:  "1",
 			statusCode: http.StatusBadRequest,
-			response:   admin.ErrorResponse{Error: "cannot unblock website"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "cannot unblock website"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "cannot unblock website")
@@ -3331,7 +3331,7 @@ func TestProfilingService_GetProfileIndex(t *testing.T) {
 		{
 			name:       "unauthorized",
 			statusCode: http.StatusUnauthorized,
-			response:   []byte(`{"error":"unauthorized"}`),
+			response:   []byte(`{"error":{"reason":"Unauthorized"}}`),
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "unauthorized")
@@ -3390,7 +3390,7 @@ func TestProfilingService_GetBlockProfile(t *testing.T) {
 		{
 			name:       "unauthorized",
 			statusCode: http.StatusUnauthorized,
-			response:   []byte(`{"error":"unauthorized"}`),
+			response:   []byte(`{"error":{"reason":"Unauthorized"}}`),
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "unauthorized")
@@ -3452,7 +3452,7 @@ func TestProfilingService_SetBlockProfileRate(t *testing.T) {
 			name:       "unauthorized",
 			rate:       5,
 			statusCode: http.StatusUnauthorized,
-			response:   admin.ErrorResponse{Error: "unauthorized"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "unauthorized"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "unauthorized")
@@ -3462,7 +3462,7 @@ func TestProfilingService_SetBlockProfileRate(t *testing.T) {
 			name:       "invalid rate",
 			rate:       -1,
 			statusCode: http.StatusBadRequest,
-			response:   admin.ErrorResponse{Error: "invalid profiling rate"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "invalid profiling rate"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "invalid profiling rate")
@@ -3524,7 +3524,7 @@ func TestProfilingService_GetCmdline(t *testing.T) {
 		{
 			name:       "unauthorized",
 			statusCode: http.StatusUnauthorized,
-			response:   []byte(`{"error":"unauthorized"}`),
+			response:   []byte(`{"error":{"reason":"Unauthorized"}}`),
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "unauthorized")
@@ -3583,7 +3583,7 @@ func TestProfilingService_GetGoroutineProfile(t *testing.T) {
 		{
 			name:       "unauthorized",
 			statusCode: http.StatusUnauthorized,
-			response:   []byte(`{"error":"unauthorized"}`),
+			response:   []byte(`{"error":{"reason":"Unauthorized"}}`),
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "unauthorized")
@@ -3642,7 +3642,7 @@ func TestProfilingService_GetHeapProfile(t *testing.T) {
 		{
 			name:       "unauthorized",
 			statusCode: http.StatusUnauthorized,
-			response:   []byte(`{"error":"unauthorized"}`),
+			response:   []byte(`{"error":{"reason":"Unauthorized"}}`),
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "unauthorized")
@@ -3701,7 +3701,7 @@ func TestProfilingService_GetMutexProfile(t *testing.T) {
 		{
 			name:       "unauthorized",
 			statusCode: http.StatusUnauthorized,
-			response:   []byte(`{"error":"unauthorized"}`),
+			response:   []byte(`{"error":{"reason":"Unauthorized"}}`),
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "unauthorized")
@@ -3763,7 +3763,7 @@ func TestProfilingService_SetMutexProfileFraction(t *testing.T) {
 			name:       "unauthorized",
 			fraction:   100,
 			statusCode: http.StatusUnauthorized,
-			response:   admin.ErrorResponse{Error: "unauthorized"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "unauthorized"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "unauthorized")
@@ -3773,7 +3773,7 @@ func TestProfilingService_SetMutexProfileFraction(t *testing.T) {
 			name:       "invalid fraction",
 			fraction:   -1,
 			statusCode: http.StatusBadRequest,
-			response:   admin.ErrorResponse{Error: "invalid profiling rate"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "invalid profiling rate"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "invalid profiling rate")
@@ -3835,7 +3835,7 @@ func TestProfilingService_GetCPUProfile(t *testing.T) {
 		{
 			name:       "unauthorized",
 			statusCode: http.StatusUnauthorized,
-			response:   []byte(`{"error":"unauthorized"}`),
+			response:   []byte(`{"error":{"reason":"Unauthorized"}}`),
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "unauthorized")
@@ -3897,7 +3897,7 @@ func TestProfilingService_GetStatus(t *testing.T) {
 		{
 			name:       "unauthorized",
 			statusCode: http.StatusUnauthorized,
-			response:   admin.ErrorResponse{Error: "unauthorized"},
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "unauthorized"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "unauthorized")
@@ -3959,7 +3959,7 @@ func TestProfilingService_GetSymbol(t *testing.T) {
 		{
 			name:       "unauthorized",
 			statusCode: http.StatusUnauthorized,
-			response:   []byte(`{"error":"unauthorized"}`),
+			response:   []byte(`{"error":{"reason":"Unauthorized"}}`),
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "unauthorized")
@@ -4018,7 +4018,7 @@ func TestProfilingService_GetThreadcreate(t *testing.T) {
 		{
 			name:       "unauthorized",
 			statusCode: http.StatusUnauthorized,
-			response:   []byte(`{"error":"unauthorized"}`),
+			response:   []byte(`{"error":{"reason":"Unauthorized"}}`),
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "unauthorized")
@@ -4077,7 +4077,7 @@ func TestProfilingService_GetTrace(t *testing.T) {
 		{
 			name:       "unauthorized",
 			statusCode: http.StatusUnauthorized,
-			response:   []byte(`{"error":"unauthorized"}`),
+			response:   []byte(`{"error":{"reason":"Unauthorized"}}`),
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "unauthorized")
