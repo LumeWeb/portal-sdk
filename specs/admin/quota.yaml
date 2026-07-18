@@ -336,11 +336,21 @@ components:
       - data
       - total
       type: object
+    ErrorDetail:
+      additionalProperties: false
+      properties:
+        details:
+          type: string
+        reason:
+          type: string
+      required:
+      - reason
+      type: object
     ErrorResponse:
       additionalProperties: false
       properties:
         error:
-          type: string
+          $ref: '#/components/schemas/ErrorDetail'
       required:
       - error
       type: object

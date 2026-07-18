@@ -83,7 +83,7 @@ func TestLogin(t *testing.T) {
 				w.Header().Set("Content-Type", "application/json")
 				w.WriteHeader(tt.statusCode)
 				if tt.statusCode == http.StatusConflict {
-					resp := client.Error{Error: "user already exists"}
+					resp := client.ErrorResponse{Error: client.ErrorDetail{Reason: "user already exists"}}
 					require.NoError(t, json.NewEncoder(w).Encode(resp))
 				}
 				if tt.statusCode == http.StatusOK {
@@ -92,7 +92,7 @@ func TestLogin(t *testing.T) {
 					require.NoError(t, json.NewEncoder(w).Encode(resp))
 				} else if tt.statusCode == http.StatusUnauthorized {
 					// Write error response for 401
-					resp := client.ErrorResponse{Error: "unauthorized"}
+					resp := client.ErrorResponse{Error: client.ErrorDetail{Reason: "unauthorized"}}
 					require.NoError(t, json.NewEncoder(w).Encode(resp))
 				}
 			}))
@@ -401,7 +401,7 @@ func TestCreateDownloadPercentLimitedRateLimiter(t *testing.T) {
 			statusCode: http.StatusUnauthorized,
 			requestedSize: 500000,
 			threshold: 90.0,
-			response:   client.ErrorResponse{Error: "unauthorized"},
+			response:   client.ErrorResponse{Error: client.ErrorDetail{Reason: "unauthorized"}},
 			wantAllowed: false,
 			wantErr:     true,
 			errCheck: func(t *testing.T, err error) {
@@ -740,7 +740,7 @@ func TestGenerateOTP(t *testing.T) {
 					w.WriteHeader(tt.statusCode)
 					w.Write(body)
 				case http.StatusUnauthorized:
-					resp := client.ErrorResponse{Error: "unauthorized"}
+					resp := client.ErrorResponse{Error: client.ErrorDetail{Reason: "unauthorized"}}
 					body, _ := json.Marshal(resp)
 					w.Header().Set("Content-Type", "application/json")
 					w.WriteHeader(tt.statusCode)
@@ -1220,7 +1220,7 @@ func TestLoginWithAPIKey(t *testing.T) {
 					resp := client.LoginResponse{Token: tt.token}
 					require.NoError(t, json.NewEncoder(w).Encode(resp))
 				} else if tt.statusCode == http.StatusUnauthorized || tt.statusCode == http.StatusForbidden {
-					resp := client.ErrorResponse{Error: "unauthorized"}
+					resp := client.ErrorResponse{Error: client.ErrorDetail{Reason: "unauthorized"}}
 					require.NoError(t, json.NewEncoder(w).Encode(resp))
 				}
 			}))
@@ -2339,7 +2339,7 @@ func TestDeleteAccount(t *testing.T) {
 
 				w.WriteHeader(tt.statusCode)
 				if tt.statusCode == http.StatusUnauthorized {
-					resp := client.ErrorResponse{Error: "unauthorized"}
+					resp := client.ErrorResponse{Error: client.ErrorDetail{Reason: "unauthorized"}}
 					require.NoError(t, json.NewEncoder(w).Encode(resp))
 				}
 			}))
@@ -3436,7 +3436,7 @@ func TestGetAccount(t *testing.T) {
 					}
 					require.NoError(t, json.NewEncoder(w).Encode(resp))
 				} else if tt.statusCode == http.StatusUnauthorized {
-					resp := client.ErrorResponse{Error: "unauthorized"}
+					resp := client.ErrorResponse{Error: client.ErrorDetail{Reason: "unauthorized"}}
 					require.NoError(t, json.NewEncoder(w).Encode(resp))
 				}
 			}))
@@ -3512,7 +3512,7 @@ func TestUpdateProfile(t *testing.T) {
 				if tt.statusCode == http.StatusOK {
 					w.Write([]byte(`{"message":"updated"}`))
 				} else if tt.statusCode == http.StatusUnauthorized {
-					resp := client.ErrorResponse{Error: "unauthorized"}
+					resp := client.ErrorResponse{Error: client.ErrorDetail{Reason: "unauthorized"}}
 					require.NoError(t, json.NewEncoder(w).Encode(resp))
 				}
 			}))
@@ -3566,7 +3566,7 @@ func TestGetAvatar(t *testing.T) {
 				if tt.statusCode == http.StatusOK {
 					w.Write([]byte("fake-image-data"))
 				} else {
-					resp := client.ErrorResponse{Error: "error"}
+					resp := client.ErrorResponse{Error: client.ErrorDetail{Reason: "error"}}
 					require.NoError(t, json.NewEncoder(w).Encode(resp))
 				}
 			}))
@@ -3630,7 +3630,7 @@ func TestUploadAvatar(t *testing.T) {
 				if tt.statusCode == http.StatusOK {
 					w.Write([]byte(`{"message":"uploaded"}`))
 				} else if tt.statusCode != http.StatusNoContent {
-					resp := client.ErrorResponse{Error: "error"}
+					resp := client.ErrorResponse{Error: client.ErrorDetail{Reason: "error"}}
 					require.NoError(t, json.NewEncoder(w).Encode(resp))
 				}
 			}))
@@ -3692,7 +3692,7 @@ func TestUpdateEmail(t *testing.T) {
 				if tt.statusCode == http.StatusOK {
 					w.Write([]byte(`{"message":"updated"}`))
 				} else if tt.statusCode == http.StatusUnauthorized {
-					resp := client.ErrorResponse{Error: "unauthorized"}
+					resp := client.ErrorResponse{Error: client.ErrorDetail{Reason: "unauthorized"}}
 					require.NoError(t, json.NewEncoder(w).Encode(resp))
 				}
 			}))
@@ -3763,7 +3763,7 @@ func TestGetPermissions(t *testing.T) {
 					}
 					require.NoError(t, json.NewEncoder(w).Encode(resp))
 				} else if tt.statusCode == http.StatusUnauthorized {
-					resp := client.ErrorResponse{Error: "unauthorized"}
+					resp := client.ErrorResponse{Error: client.ErrorDetail{Reason: "unauthorized"}}
 					require.NoError(t, json.NewEncoder(w).Encode(resp))
 				}
 			}))
@@ -3825,7 +3825,7 @@ func TestGetQuota(t *testing.T) {
 			name:       "unauthorized",
 			jwt:        "invalid-token",
 			statusCode: http.StatusUnauthorized,
-			response:   client.ErrorResponse{Error: "unauthorized"},
+			response:   client.ErrorResponse{Error: client.ErrorDetail{Reason: "unauthorized"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorIs(t, err, ErrUnauthorized)
@@ -3943,7 +3943,7 @@ func TestGetQuotaHistory(t *testing.T) {
 			endDate:   endDate,
 			usageType: "upload",
 			statusCode: http.StatusUnauthorized,
-			response:  client.ErrorResponse{Error: "unauthorized"},
+			response:  client.ErrorResponse{Error: client.ErrorDetail{Reason: "unauthorized"}},
 			wantErr:   true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorIs(t, err, ErrUnauthorized)
@@ -3956,7 +3956,7 @@ func TestGetQuotaHistory(t *testing.T) {
 			endDate:   endDate,
 			usageType: "upload",
 			statusCode: http.StatusBadRequest,
-			response:  client.ErrorResponse{Error: "invalid date parameters"},
+			response:  client.ErrorResponse{Error: client.ErrorDetail{Reason: "invalid date parameters"}},
 			wantErr:   true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "invalid date")
@@ -3969,7 +3969,7 @@ func TestGetQuotaHistory(t *testing.T) {
 			endDate:   "2099-12-31T23:59:59Z",
 			usageType: "upload",
 			statusCode: http.StatusNotFound,
-			response:  client.ErrorResponse{Error: "quota history not found"},
+			response:  client.ErrorResponse{Error: client.ErrorDetail{Reason: "quota history not found"}},
 			wantErr:   true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "not found")
@@ -4168,7 +4168,7 @@ func TestCreateDownloadRateLimiter(t *testing.T) {
 			jwt:           "invalid-token",
 			statusCode:    http.StatusUnauthorized,
 			requestedSize: 500000,
-			response:      client.ErrorResponse{Error: "unauthorized"},
+			response:      client.ErrorResponse{Error: client.ErrorDetail{Reason: "unauthorized"}},
 			wantAllowed:   false,
 			wantErr:       true,
 			errCheck: func(t *testing.T, err error) {
@@ -4256,7 +4256,7 @@ func TestManageBilling(t *testing.T) {
 			},
 			jwt:        "",
 			statusCode: http.StatusUnauthorized,
-			response:   client.ErrorResponse{Error: "unauthorized"},
+			response:   client.ErrorResponse{Error: client.ErrorDetail{Reason: "unauthorized"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorIs(t, err, ErrUnauthorized)
@@ -4269,7 +4269,7 @@ func TestManageBilling(t *testing.T) {
 			},
 			jwt:        "test-jwt-token",
 			statusCode: http.StatusBadRequest,
-			response:   client.ErrorResponse{Error: "invalid request"},
+			response:   client.ErrorResponse{Error: client.ErrorDetail{Reason: "invalid request"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "invalid request")
@@ -4350,7 +4350,7 @@ func TestCancelSubscription(t *testing.T) {
 			name:       "unauthorized - missing JWT",
 			jwt:        "",
 			statusCode: http.StatusUnauthorized,
-			response:   client.ErrorResponse{Error: "unauthorized"},
+			response:   client.ErrorResponse{Error: client.ErrorDetail{Reason: "unauthorized"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorIs(t, err, ErrUnauthorized)
@@ -4360,7 +4360,7 @@ func TestCancelSubscription(t *testing.T) {
 			name:       "no active subscription",
 			jwt:        "test-jwt-token",
 			statusCode: http.StatusNotFound,
-			response:   client.ErrorResponse{Error: "no active subscription"},
+			response:   client.ErrorResponse{Error: client.ErrorDetail{Reason: "no active subscription"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "no active subscription")
@@ -4436,7 +4436,7 @@ func TestPauseBilling(t *testing.T) {
 			name:       "unauthorized - missing JWT",
 			jwt:        "",
 			statusCode: http.StatusUnauthorized,
-			response:   client.ErrorResponse{Error: "unauthorized"},
+			response:   client.ErrorResponse{Error: client.ErrorDetail{Reason: "unauthorized"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorIs(t, err, ErrUnauthorized)
@@ -4446,7 +4446,7 @@ func TestPauseBilling(t *testing.T) {
 			name:       "no active subscription",
 			jwt:        "test-jwt-token",
 			statusCode: http.StatusNotFound,
-			response:   client.ErrorResponse{Error: "no active subscription"},
+			response:   client.ErrorResponse{Error: client.ErrorDetail{Reason: "no active subscription"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "no active subscription")
@@ -4456,7 +4456,7 @@ func TestPauseBilling(t *testing.T) {
 			name:       "cannot pause billing",
 			jwt:        "test-jwt-token",
 			statusCode: http.StatusBadRequest,
-			response:   client.ErrorResponse{Error: "cannot pause billing"},
+			response:   client.ErrorResponse{Error: client.ErrorDetail{Reason: "cannot pause billing"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "cannot pause billing")
@@ -4532,7 +4532,7 @@ func TestResumeBilling(t *testing.T) {
 			name:       "unauthorized - missing JWT",
 			jwt:        "",
 			statusCode: http.StatusUnauthorized,
-			response:   client.ErrorResponse{Error: "unauthorized"},
+			response:   client.ErrorResponse{Error: client.ErrorDetail{Reason: "unauthorized"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorIs(t, err, ErrUnauthorized)
@@ -4542,7 +4542,7 @@ func TestResumeBilling(t *testing.T) {
 			name:       "no paused subscription",
 			jwt:        "test-jwt-token",
 			statusCode: http.StatusNotFound,
-			response:   client.ErrorResponse{Error: "no paused subscription"},
+			response:   client.ErrorResponse{Error: client.ErrorDetail{Reason: "no paused subscription"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "no paused subscription")
@@ -4552,7 +4552,7 @@ func TestResumeBilling(t *testing.T) {
 			name:       "cannot resume billing",
 			jwt:        "test-jwt-token",
 			statusCode: http.StatusBadRequest,
-			response:   client.ErrorResponse{Error: "cannot resume billing"},
+			response:   client.ErrorResponse{Error: client.ErrorDetail{Reason: "cannot resume billing"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "cannot resume billing")
@@ -4630,7 +4630,7 @@ func TestAbortSubscriptionCancellation(t *testing.T) {
 			name:       "unauthorized - missing JWT",
 			jwt:        "",
 			statusCode: http.StatusUnauthorized,
-			response:   client.ErrorResponse{Error: "unauthorized"},
+			response:   client.ErrorResponse{Error: client.ErrorDetail{Reason: "unauthorized"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.Error(t, err)
@@ -4641,7 +4641,7 @@ func TestAbortSubscriptionCancellation(t *testing.T) {
 			name:       "no scheduled cancellation found",
 			jwt:        "test-jwt-token",
 			statusCode: http.StatusNotFound,
-			response:   client.ErrorResponse{Error: "no scheduled cancellation found"},
+			response:   client.ErrorResponse{Error: client.ErrorDetail{Reason: "no scheduled cancellation found"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "no scheduled cancellation found")
@@ -4651,7 +4651,7 @@ func TestAbortSubscriptionCancellation(t *testing.T) {
 			name:       "abort not supported by gateway",
 			jwt:        "test-jwt-token",
 			statusCode: http.StatusBadRequest,
-			response:   client.ErrorResponse{Error: "abort is not supported by this gateway"},
+			response:   client.ErrorResponse{Error: client.ErrorDetail{Reason: "abort is not supported by this gateway"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "cannot abort cancellation")
@@ -4661,7 +4661,7 @@ func TestAbortSubscriptionCancellation(t *testing.T) {
 			name:       "forbidden - insufficient permissions",
 			jwt:        "test-jwt-token",
 			statusCode: http.StatusForbidden,
-			response:   client.ErrorResponse{Error: "insufficient permissions"},
+			response:   client.ErrorResponse{Error: client.ErrorDetail{Reason: "insufficient permissions"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "insufficient permissions")
@@ -4738,7 +4738,7 @@ func TestChangePlan(t *testing.T) {
 			periodID:   123,
 			jwt:        "",
 			statusCode: http.StatusUnauthorized,
-			response:   client.ErrorResponse{Error: "unauthorized"},
+			response:   client.ErrorResponse{Error: client.ErrorDetail{Reason: "unauthorized"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorIs(t, err, ErrUnauthorized)
@@ -4749,7 +4749,7 @@ func TestChangePlan(t *testing.T) {
 			periodID:   999,
 			jwt:        "test-jwt-token",
 			statusCode: http.StatusNotFound,
-			response:   client.ErrorResponse{Error: "plan not found"},
+			response:   client.ErrorResponse{Error: client.ErrorDetail{Reason: "plan not found"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "plan not found")
@@ -4828,7 +4828,7 @@ func TestHandleWebhook(t *testing.T) {
 				"amount": 5000,
 			},
 			statusCode: http.StatusOK,
-			response:   client.ErrorResponse{Error: ""}, // Empty error means success
+			response:   client.ErrorResponse{Error: client.ErrorDetail{Reason: ""}}, // Empty error means success
 			wantErr:    false,
 		},
 		{
@@ -4838,7 +4838,7 @@ func TestHandleWebhook(t *testing.T) {
 				"invalid": "data",
 			},
 			statusCode: http.StatusBadRequest,
-			response:   client.ErrorResponse{Error: "invalid webhook data"},
+			response:   client.ErrorResponse{Error: client.ErrorDetail{Reason: "invalid webhook data"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "invalid webhook data")
@@ -4852,7 +4852,7 @@ func TestHandleWebhook(t *testing.T) {
 				"event_type": "PAYMENT.CAPTURE.COMPLETED",
 			},
 			statusCode: http.StatusOK,
-			response:   client.ErrorResponse{Error: ""},
+			response:   client.ErrorResponse{Error: client.ErrorDetail{Reason: ""}},
 			wantErr:    false,
 		},
 	}
@@ -4937,7 +4937,7 @@ func TestListBillingGateways(t *testing.T) {
 		{
 			name:       "unauthorized - missing JWT",
 			statusCode: http.StatusUnauthorized,
-			response:   client.ErrorResponse{Error: "unauthorized"},
+			response:   client.ErrorResponse{Error: client.ErrorDetail{Reason: "unauthorized"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorIs(t, err, ErrUnauthorized)
@@ -4946,7 +4946,7 @@ func TestListBillingGateways(t *testing.T) {
 		{
 			name:       "service not initialized",
 			statusCode: http.StatusInternalServerError,
-			response:   client.ErrorResponse{Error: "gateway registry not initialized"},
+			response:   client.ErrorResponse{Error: client.ErrorDetail{Reason: "gateway registry not initialized"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "gateway registry not initialized")
@@ -5025,7 +5025,7 @@ func TestGetGatewayLogo(t *testing.T) {
 			gatewayID:   "stripe",
 			statusCode:  http.StatusUnauthorized,
 			contentType: "application/json",
-			response:    []byte(`{"error":"unauthorized"}`),
+			response:    []byte(`{"error":{"reason":"Unauthorized"}}`),
 			wantErr:     true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorIs(t, err, ErrUnauthorized)
@@ -5036,7 +5036,7 @@ func TestGetGatewayLogo(t *testing.T) {
 			gatewayID:   "stripe",
 			statusCode:  http.StatusForbidden,
 			contentType: "application/json",
-			response:    []byte(`{"error":"insufficient permissions"}`),
+			response:    []byte(`{"error":{"reason":"Forbidden","details":"insufficient permissions"}}`),
 			wantErr:     true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "insufficient permissions")
@@ -5047,7 +5047,7 @@ func TestGetGatewayLogo(t *testing.T) {
 			gatewayID:   "nonexistent",
 			statusCode:  http.StatusNotFound,
 			contentType: "application/json",
-			response:    []byte(`{"error":"gateway logo not found"}`),
+			response:    []byte(`{"error":{"reason":"NotFound","details":"gateway logo not found"}}`),
 			wantErr:     true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "gateway logo not found")
@@ -5144,7 +5144,7 @@ func TestListPricingPlans(t *testing.T) {
 		{
 			name:       "unauthorized",
 			statusCode: http.StatusUnauthorized,
-			response:   client.ErrorResponse{Error: "unauthorized"},
+			response:   client.ErrorResponse{Error: client.ErrorDetail{Reason: "unauthorized"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorIs(t, err, ErrUnauthorized)
@@ -5153,7 +5153,7 @@ func TestListPricingPlans(t *testing.T) {
 		{
 			name:       "forbidden",
 			statusCode: http.StatusForbidden,
-			response:   client.ErrorResponse{Error: "insufficient permissions"},
+			response:   client.ErrorResponse{Error: client.ErrorDetail{Reason: "insufficient permissions"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "insufficient permissions")
@@ -5162,7 +5162,7 @@ func TestListPricingPlans(t *testing.T) {
 		{
 			name:       "not found",
 			statusCode: http.StatusNotFound,
-			response:   client.ErrorResponse{Error: "not found"},
+			response:   client.ErrorResponse{Error: client.ErrorDetail{Reason: "not found"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "not found")
@@ -5378,7 +5378,7 @@ func TestGetCheckoutSessionStatus(t *testing.T) {
 			sessionID:  "sess-123",
 			jwt:        "",
 			statusCode: http.StatusUnauthorized,
-			response:   client.ErrorResponse{Error: "unauthorized"},
+			response:   client.ErrorResponse{Error: client.ErrorDetail{Reason: "unauthorized"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorIs(t, err, ErrUnauthorized)
@@ -5389,7 +5389,7 @@ func TestGetCheckoutSessionStatus(t *testing.T) {
 			sessionID:  "sess-nonexistent",
 			jwt:        "test-jwt-token",
 			statusCode: http.StatusNotFound,
-			response:   client.ErrorResponse{Error: "checkout session not found"},
+			response:   client.ErrorResponse{Error: client.ErrorDetail{Reason: "checkout session not found"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "checkout session not found")
@@ -5400,7 +5400,7 @@ func TestGetCheckoutSessionStatus(t *testing.T) {
 			sessionID:  "sess-123",
 			jwt:        "test-jwt-token",
 			statusCode: http.StatusBadRequest,
-			response:   client.ErrorResponse{Error: "bad request"},
+			response:   client.ErrorResponse{Error: client.ErrorDetail{Reason: "bad request"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "bad request")
@@ -5563,7 +5563,7 @@ func TestGetCustomerPortalURL(t *testing.T) {
 			name:       "unauthorized - missing JWT",
 			jwt:        "",
 			statusCode: http.StatusUnauthorized,
-			response:   client.ErrorResponse{Error: "unauthorized"},
+			response:   client.ErrorResponse{Error: client.ErrorDetail{Reason: "unauthorized"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorIs(t, err, ErrUnauthorized)
@@ -5573,7 +5573,7 @@ func TestGetCustomerPortalURL(t *testing.T) {
 			name:       "invalid request",
 			jwt:        "test-jwt-token",
 			statusCode: http.StatusBadRequest,
-			response:   client.ErrorResponse{Error: "invalid request"},
+			response:   client.ErrorResponse{Error: client.ErrorDetail{Reason: "invalid request"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "invalid request")
@@ -5583,7 +5583,7 @@ func TestGetCustomerPortalURL(t *testing.T) {
 			name:       "resource not found",
 			jwt:        "test-jwt-token",
 			statusCode: http.StatusNotFound,
-			response:   client.ErrorResponse{Error: "resource not found"},
+			response:   client.ErrorResponse{Error: client.ErrorDetail{Reason: "resource not found"}},
 			wantErr:    true,
 			errCheck: func(t *testing.T, err error) {
 				require.ErrorContains(t, err, "resource not found")
