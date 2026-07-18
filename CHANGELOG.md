@@ -1,3 +1,9 @@
+## 0.1.59 (2026-07-18)
+
+### Features
+
+- regenerate SDKs from deployed swagger specs
+
 ## 0.1.58 (2026-07-11)
 
 ### Fixes
