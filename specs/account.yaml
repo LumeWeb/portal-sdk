@@ -287,6 +287,119 @@ components:
       - is_active
       - abilities
       type: object
+    JSONRawMessageSchema:
+      type: object
+    KeyIdentityChallengeRequest:
+      additionalProperties: false
+      properties:
+        key:
+          type: string
+        key_type:
+          type: string
+        metadata:
+          $ref: '#/components/schemas/JSONRawMessageSchema'
+      required:
+      - key_type
+      - key
+      type: object
+    KeyIdentityChallengeResponse:
+      additionalProperties: false
+      properties:
+        message:
+          type: string
+        nonce:
+          type: string
+      required:
+      - message
+      - nonce
+      type: object
+    KeyIdentityConnectVerifyRequest:
+      additionalProperties: false
+      properties:
+        key:
+          type: string
+        key_type:
+          type: string
+        message:
+          type: string
+        metadata:
+          $ref: '#/components/schemas/JSONRawMessageSchema'
+        signature:
+          type: string
+      required:
+      - key_type
+      - key
+      - message
+      - signature
+      type: object
+    KeyIdentityConnectVerifyResponse:
+      additionalProperties: false
+      properties:
+        key:
+          type: string
+        key_type:
+          type: string
+        metadata:
+          $ref: '#/components/schemas/JSONRawMessageSchema'
+      required:
+      - key_type
+      - key
+      type: object
+    KeyIdentityItem:
+      additionalProperties: false
+      properties:
+        key:
+          type: string
+        key_type:
+          type: string
+        metadata:
+          $ref: '#/components/schemas/JSONRawMessageSchema'
+      required:
+      - key_type
+      - key
+      type: object
+    KeyIdentityListResponse:
+      additionalProperties: false
+      properties:
+        identities:
+          items:
+            $ref: '#/components/schemas/KeyIdentityItem'
+          type: array
+      required:
+      - identities
+      type: object
+    KeyIdentityVerifyRequest:
+      additionalProperties: false
+      properties:
+        key:
+          type: string
+        key_type:
+          type: string
+        message:
+          type: string
+        metadata:
+          $ref: '#/components/schemas/JSONRawMessageSchema'
+        remember:
+          type: boolean
+        signature:
+          type: string
+      required:
+      - key_type
+      - key
+      - message
+      - signature
+      - remember
+      type: object
+    KeyIdentityVerifyResponse:
+      additionalProperties: false
+      properties:
+        otp:
+          type: boolean
+        token:
+          type: string
+      required:
+      - token
+      type: object
     LoginRequest:
       additionalProperties: false
       properties:
@@ -883,7 +996,7 @@ components:
 info:
   description: API endpoints for managing user accounts, authentication, and API keys.
   title: Account API
-  version: v0.3.1-0.20260708232039-b4aebacb9791
+  version: v0.3.1-0.20260728211030-fa71bb5211dc
 openapi: 3.0.0
 paths:
   /api/account:
@@ -2346,6 +2459,318 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
           description: A database operation failed.
       summary: Authenticate with API Key
+  /api/auth/key/{type}/{key}:
+    delete:
+      description: Unlinks a key identity from the authenticated user's account.
+      parameters:
+      - description: The base58/hex-encoded public key to disconnect
+        in: path
+        name: key
+        required: true
+        schema:
+          type: string
+      - description: The key identity type (e.g., ethereum, solana)
+        in: path
+        name: type
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Success
+        "204":
+          description: Key identity removed
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid key type or key format
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not authenticated
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Key identity not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Disconnect Key Identity
+  /api/auth/key/challenge:
+    post:
+      description: Issues a cryptographic challenge for proving ownership of a key
+        identity (e.g., SIWE message for Ethereum).
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KeyIdentityChallengeRequest'
+        description: Challenge request
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KeyIdentityChallengeResponse'
+          description: Challenge issued
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid key type or key format
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Issue Key Identity Challenge
+  /api/auth/key/connect/challenge:
+    post:
+      description: Issues a cryptographic challenge for linking a new key identity
+        to the authenticated user's account.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KeyIdentityChallengeRequest'
+        description: Challenge request
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KeyIdentityChallengeResponse'
+          description: Challenge issued
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid key type or key format
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not authenticated
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Key already linked to another account
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Issue Key Identity Connect Challenge
+  /api/auth/key/connect/verify:
+    post:
+      description: Verifies a signed challenge and links the key identity to the authenticated
+        user's account.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KeyIdentityConnectVerifyRequest'
+        description: Verification request
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KeyIdentityConnectVerifyResponse'
+          description: Key identity linked
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid request or verification failed
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not authenticated
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Key already linked to another account
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Verify and Connect Key Identity
+  /api/auth/key/identities:
+    get:
+      description: Lists all key identities linked to the authenticated user's account.
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KeyIdentityListResponse'
+          description: Key identities
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not authenticated
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: List Key Identities
+  /api/auth/key/verify:
+    post:
+      description: Verifies a signed challenge and authenticates the user via key
+        identity login.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KeyIdentityVerifyRequest'
+        description: Verification request
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KeyIdentityVerifyResponse'
+          description: Login successful
+        "302":
+          description: Redirect to auth complete (for non-OTP)
+          headers:
+            Location:
+              description: URL to redirect to
+              schema:
+                type: string
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid request or verification failed
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid key or proof
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Verify Key Identity and Login
   /api/auth/login:
     post:
       description: Authenticates a user using email and password.
@@ -2695,6 +3120,75 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
           description: A database operation failed.
       summary: Register a new account
+  /api/billing/credits/purchase:
+    post:
+      description: Initiates or completes an x402 crypto payment for credits. First
+        call returns 402 Payment Required with a challenge. Client pays via ATLOS
+        and then calls again with PAYMENT-SIGNATURE header containing the payload.
+      parameters:
+      - description: USD amount to purchase
+        in: query
+        name: amount
+        schema:
+          type: string
+      - description: Wallet address for payment
+        in: query
+        name: wallet
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Credit purchased
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid nonce or payment not confirmed
+        "402":
+          description: Payment required
+          headers:
+            Payment-Required:
+              description: x402 challenge
+              schema:
+                type: string
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Rate limit exceeded
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Failed to process payment
+      summary: Purchase credits via x402
+      tags:
+      - Billing
   /api/billing/gateways:
     get:
       description: Returns list of available payment gateways with metadata

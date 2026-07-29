@@ -193,6 +193,66 @@ type GatewayPublicInfo struct {
 	Name        string           `json:"name"`
 }
 
+// JSONRawMessageSchema defines model for JSONRawMessageSchema.
+type JSONRawMessageSchema = map[string]interface{}
+
+// KeyIdentityChallengeRequest defines model for KeyIdentityChallengeRequest.
+type KeyIdentityChallengeRequest struct {
+	Key      string                `json:"key"`
+	KeyType  string                `json:"key_type"`
+	Metadata *JSONRawMessageSchema `json:"metadata,omitempty"`
+}
+
+// KeyIdentityChallengeResponse defines model for KeyIdentityChallengeResponse.
+type KeyIdentityChallengeResponse struct {
+	Message string `json:"message"`
+	Nonce   string `json:"nonce"`
+}
+
+// KeyIdentityConnectVerifyRequest defines model for KeyIdentityConnectVerifyRequest.
+type KeyIdentityConnectVerifyRequest struct {
+	Key       string                `json:"key"`
+	KeyType   string                `json:"key_type"`
+	Message   string                `json:"message"`
+	Metadata  *JSONRawMessageSchema `json:"metadata,omitempty"`
+	Signature string                `json:"signature"`
+}
+
+// KeyIdentityConnectVerifyResponse defines model for KeyIdentityConnectVerifyResponse.
+type KeyIdentityConnectVerifyResponse struct {
+	Key      string                `json:"key"`
+	KeyType  string                `json:"key_type"`
+	Metadata *JSONRawMessageSchema `json:"metadata,omitempty"`
+}
+
+// KeyIdentityItem defines model for KeyIdentityItem.
+type KeyIdentityItem struct {
+	Key      string                `json:"key"`
+	KeyType  string                `json:"key_type"`
+	Metadata *JSONRawMessageSchema `json:"metadata,omitempty"`
+}
+
+// KeyIdentityListResponse defines model for KeyIdentityListResponse.
+type KeyIdentityListResponse struct {
+	Identities []KeyIdentityItem `json:"identities"`
+}
+
+// KeyIdentityVerifyRequest defines model for KeyIdentityVerifyRequest.
+type KeyIdentityVerifyRequest struct {
+	Key       string                `json:"key"`
+	KeyType   string                `json:"key_type"`
+	Message   string                `json:"message"`
+	Metadata  *JSONRawMessageSchema `json:"metadata,omitempty"`
+	Remember  bool                  `json:"remember"`
+	Signature string                `json:"signature"`
+}
+
+// KeyIdentityVerifyResponse defines model for KeyIdentityVerifyResponse.
+type KeyIdentityVerifyResponse struct {
+	Otp   *bool  `json:"otp,omitempty"`
+	Token string `json:"token"`
+}
+
 // LoginRequest defines model for LoginRequest.
 type LoginRequest struct {
 	Email    string `json:"email"`
@@ -574,6 +634,15 @@ type PostApiAuthKeyParams struct {
 	Authorization *string `json:"Authorization,omitempty"`
 }
 
+// PostApiBillingCreditsPurchaseParams defines parameters for PostApiBillingCreditsPurchase.
+type PostApiBillingCreditsPurchaseParams struct {
+	// Amount USD amount to purchase
+	Amount *string `form:"amount,omitempty" json:"amount,omitempty"`
+
+	// Wallet Wallet address for payment
+	Wallet *string `form:"wallet,omitempty" json:"wallet,omitempty"`
+}
+
 // GetApiOperationsParams defines parameters for GetApiOperations.
 type GetApiOperationsParams struct {
 	// UnderscoreEnd Ending index of the items to return (exclusive). Defaults to 10.
@@ -895,6 +964,18 @@ type PostApiAccountVerifyEmailJSONRequestBody = VerifyEmailRequest
 // PostApiAccountVerifyEmailResendJSONRequestBody defines body for PostApiAccountVerifyEmailResend for application/json ContentType.
 type PostApiAccountVerifyEmailResendJSONRequestBody = ResendVerifyEmailRequest
 
+// PostApiAuthKeyChallengeJSONRequestBody defines body for PostApiAuthKeyChallenge for application/json ContentType.
+type PostApiAuthKeyChallengeJSONRequestBody = KeyIdentityChallengeRequest
+
+// PostApiAuthKeyConnectChallengeJSONRequestBody defines body for PostApiAuthKeyConnectChallenge for application/json ContentType.
+type PostApiAuthKeyConnectChallengeJSONRequestBody = KeyIdentityChallengeRequest
+
+// PostApiAuthKeyConnectVerifyJSONRequestBody defines body for PostApiAuthKeyConnectVerify for application/json ContentType.
+type PostApiAuthKeyConnectVerifyJSONRequestBody = KeyIdentityConnectVerifyRequest
+
+// PostApiAuthKeyVerifyJSONRequestBody defines body for PostApiAuthKeyVerify for application/json ContentType.
+type PostApiAuthKeyVerifyJSONRequestBody = KeyIdentityVerifyRequest
+
 // PostApiAuthLoginJSONRequestBody defines body for PostApiAuthLogin for application/json ContentType.
 type PostApiAuthLoginJSONRequestBody = LoginRequest
 
@@ -1104,6 +1185,32 @@ type ClientInterface interface {
 	// PostApiAuthKey request
 	PostApiAuthKey(ctx context.Context, params *PostApiAuthKeyParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// PostApiAuthKeyChallengeWithBody request with any body
+	PostApiAuthKeyChallengeWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PostApiAuthKeyChallenge(ctx context.Context, body PostApiAuthKeyChallengeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiAuthKeyConnectChallengeWithBody request with any body
+	PostApiAuthKeyConnectChallengeWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PostApiAuthKeyConnectChallenge(ctx context.Context, body PostApiAuthKeyConnectChallengeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiAuthKeyConnectVerifyWithBody request with any body
+	PostApiAuthKeyConnectVerifyWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PostApiAuthKeyConnectVerify(ctx context.Context, body PostApiAuthKeyConnectVerifyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiAuthKeyIdentities request
+	GetApiAuthKeyIdentities(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiAuthKeyVerifyWithBody request with any body
+	PostApiAuthKeyVerifyWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PostApiAuthKeyVerify(ctx context.Context, body PostApiAuthKeyVerifyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteApiAuthKeyTypeKey request
+	DeleteApiAuthKeyTypeKey(ctx context.Context, pType string, key string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// PostApiAuthLoginWithBody request with any body
 	PostApiAuthLoginWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -1137,6 +1244,9 @@ type ClientInterface interface {
 	PostApiAuthRegisterWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	PostApiAuthRegister(ctx context.Context, body PostApiAuthRegisterJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiBillingCreditsPurchase request
+	PostApiBillingCreditsPurchase(ctx context.Context, params *PostApiBillingCreditsPurchaseParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetApiBillingGateways request
 	GetApiBillingGateways(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1688,6 +1798,126 @@ func (c *Client) PostApiAuthKey(ctx context.Context, params *PostApiAuthKeyParam
 	return c.Client.Do(req)
 }
 
+func (c *Client) PostApiAuthKeyChallengeWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiAuthKeyChallengeRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiAuthKeyChallenge(ctx context.Context, body PostApiAuthKeyChallengeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiAuthKeyChallengeRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiAuthKeyConnectChallengeWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiAuthKeyConnectChallengeRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiAuthKeyConnectChallenge(ctx context.Context, body PostApiAuthKeyConnectChallengeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiAuthKeyConnectChallengeRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiAuthKeyConnectVerifyWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiAuthKeyConnectVerifyRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiAuthKeyConnectVerify(ctx context.Context, body PostApiAuthKeyConnectVerifyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiAuthKeyConnectVerifyRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetApiAuthKeyIdentities(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiAuthKeyIdentitiesRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiAuthKeyVerifyWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiAuthKeyVerifyRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiAuthKeyVerify(ctx context.Context, body PostApiAuthKeyVerifyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiAuthKeyVerifyRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteApiAuthKeyTypeKey(ctx context.Context, pType string, key string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteApiAuthKeyTypeKeyRequest(c.Server, pType, key)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) PostApiAuthLoginWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPostApiAuthLoginRequestWithBody(c.Server, contentType, body)
 	if err != nil {
@@ -1834,6 +2064,18 @@ func (c *Client) PostApiAuthRegisterWithBody(ctx context.Context, contentType st
 
 func (c *Client) PostApiAuthRegister(ctx context.Context, body PostApiAuthRegisterJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPostApiAuthRegisterRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiBillingCreditsPurchase(ctx context.Context, params *PostApiBillingCreditsPurchaseParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiBillingCreditsPurchaseRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -3334,6 +3576,234 @@ func NewPostApiAuthKeyRequest(server string, params *PostApiAuthKeyParams) (*htt
 	return req, nil
 }
 
+// NewPostApiAuthKeyChallengeRequest calls the generic PostApiAuthKeyChallenge builder with application/json body
+func NewPostApiAuthKeyChallengeRequest(server string, body PostApiAuthKeyChallengeJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostApiAuthKeyChallengeRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPostApiAuthKeyChallengeRequestWithBody generates requests for PostApiAuthKeyChallenge with any type of body
+func NewPostApiAuthKeyChallengeRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/auth/key/challenge")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPostApiAuthKeyConnectChallengeRequest calls the generic PostApiAuthKeyConnectChallenge builder with application/json body
+func NewPostApiAuthKeyConnectChallengeRequest(server string, body PostApiAuthKeyConnectChallengeJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostApiAuthKeyConnectChallengeRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPostApiAuthKeyConnectChallengeRequestWithBody generates requests for PostApiAuthKeyConnectChallenge with any type of body
+func NewPostApiAuthKeyConnectChallengeRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/auth/key/connect/challenge")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPostApiAuthKeyConnectVerifyRequest calls the generic PostApiAuthKeyConnectVerify builder with application/json body
+func NewPostApiAuthKeyConnectVerifyRequest(server string, body PostApiAuthKeyConnectVerifyJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostApiAuthKeyConnectVerifyRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPostApiAuthKeyConnectVerifyRequestWithBody generates requests for PostApiAuthKeyConnectVerify with any type of body
+func NewPostApiAuthKeyConnectVerifyRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/auth/key/connect/verify")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetApiAuthKeyIdentitiesRequest generates requests for GetApiAuthKeyIdentities
+func NewGetApiAuthKeyIdentitiesRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/auth/key/identities")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPostApiAuthKeyVerifyRequest calls the generic PostApiAuthKeyVerify builder with application/json body
+func NewPostApiAuthKeyVerifyRequest(server string, body PostApiAuthKeyVerifyJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostApiAuthKeyVerifyRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPostApiAuthKeyVerifyRequestWithBody generates requests for PostApiAuthKeyVerify with any type of body
+func NewPostApiAuthKeyVerifyRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/auth/key/verify")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteApiAuthKeyTypeKeyRequest generates requests for DeleteApiAuthKeyTypeKey
+func NewDeleteApiAuthKeyTypeKeyRequest(server string, pType string, key string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "type", pType, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "key", key, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/auth/key/%s/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewPostApiAuthLoginRequest calls the generic PostApiAuthLogin builder with application/json body
 func NewPostApiAuthLoginRequest(server string, body PostApiAuthLoginJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -3611,6 +4081,72 @@ func NewPostApiAuthRegisterRequestWithBody(server string, contentType string, bo
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPostApiBillingCreditsPurchaseRequest generates requests for PostApiBillingCreditsPurchase
+func NewPostApiBillingCreditsPurchaseRequest(server string, params *PostApiBillingCreditsPurchaseParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/billing/credits/purchase")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Amount != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "amount", *params.Amount, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Wallet != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "wallet", *params.Wallet, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -5125,6 +5661,32 @@ type ClientWithResponsesInterface interface {
 	// PostApiAuthKeyWithResponse request
 	PostApiAuthKeyWithResponse(ctx context.Context, params *PostApiAuthKeyParams, reqEditors ...RequestEditorFn) (*PostApiAuthKeyResponse, error)
 
+	// PostApiAuthKeyChallengeWithBodyWithResponse request with any body
+	PostApiAuthKeyChallengeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAuthKeyChallengeResponse, error)
+
+	PostApiAuthKeyChallengeWithResponse(ctx context.Context, body PostApiAuthKeyChallengeJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiAuthKeyChallengeResponse, error)
+
+	// PostApiAuthKeyConnectChallengeWithBodyWithResponse request with any body
+	PostApiAuthKeyConnectChallengeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAuthKeyConnectChallengeResponse, error)
+
+	PostApiAuthKeyConnectChallengeWithResponse(ctx context.Context, body PostApiAuthKeyConnectChallengeJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiAuthKeyConnectChallengeResponse, error)
+
+	// PostApiAuthKeyConnectVerifyWithBodyWithResponse request with any body
+	PostApiAuthKeyConnectVerifyWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAuthKeyConnectVerifyResponse, error)
+
+	PostApiAuthKeyConnectVerifyWithResponse(ctx context.Context, body PostApiAuthKeyConnectVerifyJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiAuthKeyConnectVerifyResponse, error)
+
+	// GetApiAuthKeyIdentitiesWithResponse request
+	GetApiAuthKeyIdentitiesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiAuthKeyIdentitiesResponse, error)
+
+	// PostApiAuthKeyVerifyWithBodyWithResponse request with any body
+	PostApiAuthKeyVerifyWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAuthKeyVerifyResponse, error)
+
+	PostApiAuthKeyVerifyWithResponse(ctx context.Context, body PostApiAuthKeyVerifyJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiAuthKeyVerifyResponse, error)
+
+	// DeleteApiAuthKeyTypeKeyWithResponse request
+	DeleteApiAuthKeyTypeKeyWithResponse(ctx context.Context, pType string, key string, reqEditors ...RequestEditorFn) (*DeleteApiAuthKeyTypeKeyResponse, error)
+
 	// PostApiAuthLoginWithBodyWithResponse request with any body
 	PostApiAuthLoginWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAuthLoginResponse, error)
 
@@ -5158,6 +5720,9 @@ type ClientWithResponsesInterface interface {
 	PostApiAuthRegisterWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAuthRegisterResponse, error)
 
 	PostApiAuthRegisterWithResponse(ctx context.Context, body PostApiAuthRegisterJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiAuthRegisterResponse, error)
+
+	// PostApiBillingCreditsPurchaseWithResponse request
+	PostApiBillingCreditsPurchaseWithResponse(ctx context.Context, params *PostApiBillingCreditsPurchaseParams, reqEditors ...RequestEditorFn) (*PostApiBillingCreditsPurchaseResponse, error)
 
 	// GetApiBillingGatewaysWithResponse request
 	GetApiBillingGatewaysWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiBillingGatewaysResponse, error)
@@ -6300,6 +6865,218 @@ func (r PostApiAuthKeyResponse) ContentType() string {
 	return ""
 }
 
+type PostApiAuthKeyChallengeResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *KeyIdentityChallengeResponse
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiAuthKeyChallengeResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiAuthKeyChallengeResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PostApiAuthKeyChallengeResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PostApiAuthKeyConnectChallengeResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *KeyIdentityChallengeResponse
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON409      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiAuthKeyConnectChallengeResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiAuthKeyConnectChallengeResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PostApiAuthKeyConnectChallengeResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PostApiAuthKeyConnectVerifyResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *KeyIdentityConnectVerifyResponse
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON409      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiAuthKeyConnectVerifyResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiAuthKeyConnectVerifyResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PostApiAuthKeyConnectVerifyResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetApiAuthKeyIdentitiesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *KeyIdentityListResponse
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiAuthKeyIdentitiesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiAuthKeyIdentitiesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetApiAuthKeyIdentitiesResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PostApiAuthKeyVerifyResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *KeyIdentityVerifyResponse
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiAuthKeyVerifyResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiAuthKeyVerifyResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PostApiAuthKeyVerifyResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type DeleteApiAuthKeyTypeKeyResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ErrorResponse
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteApiAuthKeyTypeKeyResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteApiAuthKeyTypeKeyResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DeleteApiAuthKeyTypeKeyResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type PostApiAuthLoginResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -6568,6 +7345,42 @@ func (r PostApiAuthRegisterResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r PostApiAuthRegisterResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PostApiBillingCreditsPurchaseResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *map[string]interface{}
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON429      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiBillingCreditsPurchaseResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiBillingCreditsPurchaseResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PostApiBillingCreditsPurchaseResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -7195,6 +8008,92 @@ func (c *ClientWithResponses) PostApiAuthKeyWithResponse(ctx context.Context, pa
 	return ParsePostApiAuthKeyResponse(rsp)
 }
 
+// PostApiAuthKeyChallengeWithBodyWithResponse request with arbitrary body returning *PostApiAuthKeyChallengeResponse
+func (c *ClientWithResponses) PostApiAuthKeyChallengeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAuthKeyChallengeResponse, error) {
+	rsp, err := c.PostApiAuthKeyChallengeWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiAuthKeyChallengeResponse(rsp)
+}
+
+func (c *ClientWithResponses) PostApiAuthKeyChallengeWithResponse(ctx context.Context, body PostApiAuthKeyChallengeJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiAuthKeyChallengeResponse, error) {
+	rsp, err := c.PostApiAuthKeyChallenge(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiAuthKeyChallengeResponse(rsp)
+}
+
+// PostApiAuthKeyConnectChallengeWithBodyWithResponse request with arbitrary body returning *PostApiAuthKeyConnectChallengeResponse
+func (c *ClientWithResponses) PostApiAuthKeyConnectChallengeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAuthKeyConnectChallengeResponse, error) {
+	rsp, err := c.PostApiAuthKeyConnectChallengeWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiAuthKeyConnectChallengeResponse(rsp)
+}
+
+func (c *ClientWithResponses) PostApiAuthKeyConnectChallengeWithResponse(ctx context.Context, body PostApiAuthKeyConnectChallengeJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiAuthKeyConnectChallengeResponse, error) {
+	rsp, err := c.PostApiAuthKeyConnectChallenge(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiAuthKeyConnectChallengeResponse(rsp)
+}
+
+// PostApiAuthKeyConnectVerifyWithBodyWithResponse request with arbitrary body returning *PostApiAuthKeyConnectVerifyResponse
+func (c *ClientWithResponses) PostApiAuthKeyConnectVerifyWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAuthKeyConnectVerifyResponse, error) {
+	rsp, err := c.PostApiAuthKeyConnectVerifyWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiAuthKeyConnectVerifyResponse(rsp)
+}
+
+func (c *ClientWithResponses) PostApiAuthKeyConnectVerifyWithResponse(ctx context.Context, body PostApiAuthKeyConnectVerifyJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiAuthKeyConnectVerifyResponse, error) {
+	rsp, err := c.PostApiAuthKeyConnectVerify(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiAuthKeyConnectVerifyResponse(rsp)
+}
+
+// GetApiAuthKeyIdentitiesWithResponse request returning *GetApiAuthKeyIdentitiesResponse
+func (c *ClientWithResponses) GetApiAuthKeyIdentitiesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiAuthKeyIdentitiesResponse, error) {
+	rsp, err := c.GetApiAuthKeyIdentities(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiAuthKeyIdentitiesResponse(rsp)
+}
+
+// PostApiAuthKeyVerifyWithBodyWithResponse request with arbitrary body returning *PostApiAuthKeyVerifyResponse
+func (c *ClientWithResponses) PostApiAuthKeyVerifyWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAuthKeyVerifyResponse, error) {
+	rsp, err := c.PostApiAuthKeyVerifyWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiAuthKeyVerifyResponse(rsp)
+}
+
+func (c *ClientWithResponses) PostApiAuthKeyVerifyWithResponse(ctx context.Context, body PostApiAuthKeyVerifyJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiAuthKeyVerifyResponse, error) {
+	rsp, err := c.PostApiAuthKeyVerify(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiAuthKeyVerifyResponse(rsp)
+}
+
+// DeleteApiAuthKeyTypeKeyWithResponse request returning *DeleteApiAuthKeyTypeKeyResponse
+func (c *ClientWithResponses) DeleteApiAuthKeyTypeKeyWithResponse(ctx context.Context, pType string, key string, reqEditors ...RequestEditorFn) (*DeleteApiAuthKeyTypeKeyResponse, error) {
+	rsp, err := c.DeleteApiAuthKeyTypeKey(ctx, pType, key, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteApiAuthKeyTypeKeyResponse(rsp)
+}
+
 // PostApiAuthLoginWithBodyWithResponse request with arbitrary body returning *PostApiAuthLoginResponse
 func (c *ClientWithResponses) PostApiAuthLoginWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAuthLoginResponse, error) {
 	rsp, err := c.PostApiAuthLoginWithBody(ctx, contentType, body, reqEditors...)
@@ -7305,6 +8204,15 @@ func (c *ClientWithResponses) PostApiAuthRegisterWithResponse(ctx context.Contex
 		return nil, err
 	}
 	return ParsePostApiAuthRegisterResponse(rsp)
+}
+
+// PostApiBillingCreditsPurchaseWithResponse request returning *PostApiBillingCreditsPurchaseResponse
+func (c *ClientWithResponses) PostApiBillingCreditsPurchaseWithResponse(ctx context.Context, params *PostApiBillingCreditsPurchaseParams, reqEditors ...RequestEditorFn) (*PostApiBillingCreditsPurchaseResponse, error) {
+	rsp, err := c.PostApiBillingCreditsPurchase(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiBillingCreditsPurchaseResponse(rsp)
 }
 
 // GetApiBillingGatewaysWithResponse request returning *GetApiBillingGatewaysResponse
@@ -9131,6 +10039,386 @@ func ParsePostApiAuthKeyResponse(rsp *http.Response) (*PostApiAuthKeyResponse, e
 	return response, nil
 }
 
+// ParsePostApiAuthKeyChallengeResponse parses an HTTP response from a PostApiAuthKeyChallengeWithResponse call
+func ParsePostApiAuthKeyChallengeResponse(rsp *http.Response) (*PostApiAuthKeyChallengeResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiAuthKeyChallengeResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest KeyIdentityChallengeResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiAuthKeyConnectChallengeResponse parses an HTTP response from a PostApiAuthKeyConnectChallengeWithResponse call
+func ParsePostApiAuthKeyConnectChallengeResponse(rsp *http.Response) (*PostApiAuthKeyConnectChallengeResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiAuthKeyConnectChallengeResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest KeyIdentityChallengeResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiAuthKeyConnectVerifyResponse parses an HTTP response from a PostApiAuthKeyConnectVerifyWithResponse call
+func ParsePostApiAuthKeyConnectVerifyResponse(rsp *http.Response) (*PostApiAuthKeyConnectVerifyResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiAuthKeyConnectVerifyResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest KeyIdentityConnectVerifyResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiAuthKeyIdentitiesResponse parses an HTTP response from a GetApiAuthKeyIdentitiesWithResponse call
+func ParseGetApiAuthKeyIdentitiesResponse(rsp *http.Response) (*GetApiAuthKeyIdentitiesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiAuthKeyIdentitiesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest KeyIdentityListResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiAuthKeyVerifyResponse parses an HTTP response from a PostApiAuthKeyVerifyWithResponse call
+func ParsePostApiAuthKeyVerifyResponse(rsp *http.Response) (*PostApiAuthKeyVerifyResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiAuthKeyVerifyResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest KeyIdentityVerifyResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteApiAuthKeyTypeKeyResponse parses an HTTP response from a DeleteApiAuthKeyTypeKeyWithResponse call
+func ParseDeleteApiAuthKeyTypeKeyResponse(rsp *http.Response) (*DeleteApiAuthKeyTypeKeyResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteApiAuthKeyTypeKeyResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParsePostApiAuthLoginResponse parses an HTTP response from a PostApiAuthLoginWithResponse call
 func ParsePostApiAuthLoginResponse(rsp *http.Response) (*PostApiAuthLoginResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -9564,6 +10852,74 @@ func ParsePostApiAuthRegisterResponse(rsp *http.Response) (*PostApiAuthRegisterR
 			return nil, err
 		}
 		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiBillingCreditsPurchaseResponse parses an HTTP response from a PostApiBillingCreditsPurchaseWithResponse call
+func ParsePostApiBillingCreditsPurchaseResponse(rsp *http.Response) (*PostApiBillingCreditsPurchaseResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiBillingCreditsPurchaseResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest map[string]interface{}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse

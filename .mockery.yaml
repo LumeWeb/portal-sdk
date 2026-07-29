@@ -20,3 +20,9 @@ packages:
       outpkg: "mocks"
     interfaces:
       ClientWithResponsesInterface: {}
+  go.lumeweb.com/portal-sdk/internal/meta:
+    config:
+      dir: ./internal/meta/mocks
+      outpkg: "mocks"
+    interfaces:
+      ClientWithResponsesInterface: {}

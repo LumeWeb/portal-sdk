@@ -1,0 +1,420 @@
+components:
+  schemas:
+    AggregateStatsResponse:
+      additionalProperties: false
+      properties:
+        total_cids:
+          type: integer
+        total_pinners:
+          type: integer
+        total_storage_bytes:
+          type: integer
+      required:
+      - total_cids
+      - total_pinners
+      - total_storage_bytes
+      type: object
+    CIDExportResponse:
+      additionalProperties: false
+      properties:
+        bucket:
+          type: string
+        cid:
+          type: string
+        created_at:
+          type: string
+        object_key:
+          type: string
+        shared_object:
+          type: object
+        sia_object_id:
+          type: string
+        size_bytes:
+          type: integer
+        updated_at:
+          type: string
+      required:
+      - cid
+      - sia_object_id
+      - size_bytes
+      - bucket
+      - object_key
+      - shared_object
+      - created_at
+      - updated_at
+      type: object
+    CIDStatsResponse:
+      additionalProperties: false
+      properties:
+        cid:
+          type: string
+        first_pinned_at:
+          type: string
+        is_unlimited:
+          type: boolean
+        last_pinned_at:
+          type: string
+        pinned:
+          type: boolean
+        pinner_count:
+          type: integer
+        quota_runs_out_at:
+          type: string
+        size_bytes:
+          type: integer
+        storage_days:
+          type: number
+        total_quota_bytes:
+          type: integer
+        total_remaining_bytes:
+          type: integer
+        total_used_bytes:
+          type: integer
+      required:
+      - cid
+      - pinned
+      - pinner_count
+      - size_bytes
+      - storage_days
+      type: object
+    DAGBlock:
+      additionalProperties: false
+      properties:
+        cid:
+          type: string
+        links:
+          items:
+            $ref: '#/components/schemas/DAGLink'
+          type: array
+        sia_object:
+          $ref: '#/components/schemas/CIDExportResponse'
+        size:
+          type: integer
+      required:
+      - cid
+      - size
+      - links
+      type: object
+    DAGExportResponse:
+      additionalProperties: false
+      properties:
+        blocks:
+          items:
+            $ref: '#/components/schemas/DAGBlock'
+          type: array
+        root_cid:
+          type: string
+        total_blocks:
+          type: integer
+        total_size_bytes:
+          type: integer
+      required:
+      - root_cid
+      - total_blocks
+      - total_size_bytes
+      - blocks
+      type: object
+    DAGLink:
+      additionalProperties: false
+      properties:
+        cid:
+          type: string
+        index:
+          type: integer
+      required:
+      - cid
+      - index
+      type: object
+    ErrorDetail:
+      additionalProperties: false
+      properties:
+        details:
+          type: string
+        reason:
+          type: string
+      required:
+      - reason
+      type: object
+    ErrorResponse:
+      additionalProperties: false
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+      required:
+      - error
+      type: object
+    ProtocolStat:
+      additionalProperties: false
+      properties:
+        protocol:
+          type: string
+        total_pins:
+          type: integer
+        total_storage_bytes:
+          type: integer
+        total_uploads:
+          type: integer
+      required:
+      - protocol
+      - total_uploads
+      - total_storage_bytes
+      - total_pins
+      type: object
+    ProtocolStatsResponse:
+      additionalProperties: false
+      properties:
+        protocols:
+          items:
+            $ref: '#/components/schemas/ProtocolStat'
+          type: array
+      required:
+      - protocols
+      type: object
+info:
+  description: Public, anonymized statistics about pinned content.
+  title: Meta API
+  version: v0.0.0-20260729232409-a2af1b131f98
+openapi: 3.0.0
+paths:
+  /api/export/cid/{cid}/dag:
+    get:
+      description: Returns the full block DAG — all blocks, their parent→child relationships,
+        sizes, and per-block Sia object references.
+      parameters:
+      - description: Root content identifier (CID)
+        in: path
+        name: cid
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DAGExportResponse'
+          description: DAG export
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Export full DAG structure for a CID
+      tags:
+      - export
+  /api/export/cid/{cid}/sia-object:
+    get:
+      description: Returns the indexed SharedObject — slab layout, encryption metadata,
+        sector refs — so any Sia account holder can retrieve and decrypt the block
+        directly from the Sia network.
+      parameters:
+      - description: Content identifier (CID)
+        in: path
+        name: cid
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CIDExportResponse'
+          description: Sia object export
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Export Sia object for a CID
+      tags:
+      - export
+  /api/stats/aggregate:
+    get:
+      description: Total CIDs, pinners, storage bytes across all protocols.
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AggregateStatsResponse'
+          description: Aggregate stats
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Aggregate stats
+      tags:
+      - stats
+  /api/stats/cid/{cid}:
+    get:
+      description: 'Returns anonymized stats for a CID: pinned status, pinner count,
+        size, storage-days, and quota health (when quota plugin is available).'
+      parameters:
+      - description: Content identifier (CID)
+        in: path
+        name: cid
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CIDStatsResponse'
+          description: CID stats
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: CID stats
+      tags:
+      - stats
+  /api/stats/protocols:
+    get:
+      description: Total uploads, storage bytes, and pin counts broken down by protocol.
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProtocolStatsResponse'
+          description: Per-protocol stats
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Per-protocol stats
+      tags:
+      - stats
+servers:
+- url: /

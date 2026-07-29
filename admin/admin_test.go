@@ -19,28 +19,33 @@ import (
 
 func TestNewClient(t *testing.T) {
 	t.Run("default client", func(t *testing.T) {
-		client := NewClient()
+		client, err := NewClient()
+		require.NoError(t, err)
 		require.NotNil(t, client)
 		require.NotNil(t, client.Quota())
 	})
 
 	t.Run("with endpoint", func(t *testing.T) {
-		client := NewClient(WithEndpoint("https://admin.example.com"))
+		client, err := NewClient(WithEndpoint("https://admin.example.com"))
+		require.NoError(t, err)
 		require.NotNil(t, client)
 	})
 
 	t.Run("with host override", func(t *testing.T) {
-		client := NewClient(WithHostOverride("admin.pinner.xyz", "http://127.0.0.1:8080"))
+		client, err := NewClient(WithHostOverride("admin.pinner.xyz", "http://127.0.0.1:8080"))
+		require.NoError(t, err)
 		require.NotNil(t, client)
 	})
 
 	t.Run("with JWT", func(t *testing.T) {
-		client := NewClient(WithJWT("test-token"))
+		client, err := NewClient(WithJWT("test-token"))
+		require.NoError(t, err)
 		require.NotNil(t, client)
 	})
 
 	t.Run("with API key", func(t *testing.T) {
-		client := NewClient(WithAPIKey("test-api-key"))
+		client, err := NewClient(WithAPIKey("test-api-key"))
+		require.NoError(t, err)
 		require.NotNil(t, client)
 	})
 }
@@ -104,7 +109,8 @@ func TestQuotaService_ListPlans(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			plans, total, err := client.Quota().ListPlans(context.Background())
 
 			if (err != nil) != tt.wantErr {
@@ -181,7 +187,8 @@ func TestBillingService_CreatePriceLine(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			line, err := client.Billing().CreatePriceLine(context.Background(), tt.request)
 
 			if (err != nil) != tt.wantErr {
@@ -259,7 +266,8 @@ func TestBillingService_UpdatePriceLine(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			line, err := client.Billing().UpdatePriceLine(context.Background(), tt.priceLineID, tt.request)
 
 			if (err != nil) != tt.wantErr {
@@ -339,7 +347,8 @@ func TestBillingService_GetPriceLine(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			line, err := client.Billing().GetPriceLine(context.Background(), tt.priceLineID)
 
 			if (err != nil) != tt.wantErr {
@@ -405,8 +414,9 @@ func TestBillingService_DeletePriceLine(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
-			err := client.Billing().DeletePriceLine(context.Background(), tt.priceLineID)
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
+			err = client.Billing().DeletePriceLine(context.Background(), tt.priceLineID)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("DeletePriceLine() error = %v, wantErr %v", err, tt.wantErr)
@@ -479,7 +489,8 @@ func TestBillingService_ListPricingPlans(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			plans, total, err := client.Billing().ListPricingPlans(context.Background())
 
 			if (err != nil) != tt.wantErr {
@@ -584,7 +595,8 @@ func TestBillingService_CreatePricingPlan(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			plan, err := client.Billing().CreatePricingPlan(context.Background(), tt.request)
 
 			if (err != nil) != tt.wantErr {
@@ -676,7 +688,8 @@ func TestBillingService_GetPricingPlan(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			plan, err := client.Billing().GetPricingPlan(context.Background(), tt.planID)
 
 			if (err != nil) != tt.wantErr {
@@ -734,8 +747,9 @@ func TestBillingService_DeletePricingPlan(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
-			err := client.Billing().DeletePricingPlan(context.Background(), tt.planID)
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
+			err = client.Billing().DeletePricingPlan(context.Background(), tt.planID)
 
 			if tt.respErr {
 				require.Error(t, err)
@@ -806,7 +820,8 @@ func TestBillingService_ListPricingPlanPeriods(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			periods, total, err := client.Billing().ListPricingPlanPeriods(context.Background())
 
 			if (err != nil) != tt.wantErr {
@@ -890,7 +905,8 @@ func TestBillingService_ListPriceLines(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			lines, total, err := client.Billing().ListPriceLines(context.Background())
 
 			if (err != nil) != tt.wantErr {
@@ -988,7 +1004,8 @@ func TestQuotaService_ListUserConfigs(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			configs, total, err := client.Quota().ListUserConfigs(context.Background())
 
 			if (err != nil) != tt.wantErr {
@@ -1096,7 +1113,8 @@ func TestQuotaService_UpdateUserConfig(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			config, err := client.Quota().UpdateUserConfig(context.Background(), tt.userID, tt.update)
 
 			if (err != nil) != tt.wantErr {
@@ -1175,8 +1193,9 @@ func TestQuotaService_ResetUserPlan(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
-			err := client.Quota().ResetUserPlan(context.Background(), tt.userID)
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
+			err = client.Quota().ResetUserPlan(context.Background(), tt.userID)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ResetUserPlan() error = %v, wantErr %v", err, tt.wantErr)
@@ -1259,7 +1278,8 @@ func TestQuotaService_CreatePlan(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			plan, err := client.Quota().CreatePlan(context.Background(), tt.plan)
 
 			if (err != nil) != tt.wantErr {
@@ -1345,7 +1365,8 @@ func TestQuotaService_UpdatePlan(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			plan, err := client.Quota().UpdatePlan(context.Background(), tt.planID, tt.plan)
 
 			if (err != nil) != tt.wantErr {
@@ -1410,8 +1431,9 @@ func TestQuotaService_DeletePlan(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
-			err := client.Quota().DeletePlan(context.Background(), tt.planID)
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
+			err = client.Quota().DeletePlan(context.Background(), tt.planID)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("DeletePlan() error = %v, wantErr %v", err, tt.wantErr)
@@ -1476,7 +1498,8 @@ func TestQuotaService_GetPlan(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			plan, err := client.Quota().GetPlan(context.Background(), tt.planID)
 
 			if (err != nil) != tt.wantErr {
@@ -1548,7 +1571,8 @@ func TestQuotaService_ListAllowances(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			allowances, _, err := client.Quota().ListAllowances(context.Background())
 
 			if (err != nil) != tt.wantErr {
@@ -1638,7 +1662,8 @@ func TestQuotaService_CreateAllowance(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			allowance, err := client.Quota().CreateAllowance(context.Background(), tt.userID, tt.source, tt.allowance, tt.upload, tt.download, tt.storage, tt.expiryDate)
 
 			if (err != nil) != tt.wantErr {
@@ -1731,7 +1756,8 @@ func TestQuotaService_UpdateAllowance(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			allowance, err := client.Quota().UpdateAllowance(context.Background(), tt.grantID, tt.userID, tt.source, tt.allowance, tt.upload, tt.download, tt.storage, tt.expiryDate)
 
 			if (err != nil) != tt.wantErr {
@@ -1796,8 +1822,9 @@ func TestQuotaService_DeleteAllowance(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
-			err := client.Quota().DeleteAllowance(context.Background(), tt.allowanceID)
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
+			err = client.Quota().DeleteAllowance(context.Background(), tt.allowanceID)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("DeleteAllowance() error = %v, wantErr %v", err, tt.wantErr)
@@ -1862,7 +1889,8 @@ func TestQuotaService_GetStats(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			stats, err := client.Quota().GetStats(context.Background())
 
 			if (err != nil) != tt.wantErr {
@@ -1950,7 +1978,8 @@ func TestBillingService_ListSubscribers(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			subs, total, err := client.Billing().ListSubscribers(context.Background())
 
 			if (err != nil) != tt.wantErr {
@@ -2031,7 +2060,8 @@ func TestBillingService_GetSubscriber(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			sub, err := client.Billing().GetSubscriber(context.Background(), tt.subscriberID)
 
 			if (err != nil) != tt.wantErr {
@@ -2112,7 +2142,8 @@ func TestBillingService_ListGatewaySubscribers(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			subs, total, err := client.Billing().ListGatewaySubscribers(context.Background(), tt.gatewayID)
 
 			if (err != nil) != tt.wantErr {
@@ -2192,7 +2223,8 @@ func TestBillingService_GetUserSubscribers(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			subs, total, err := client.Billing().GetUserSubscribers(context.Background(), tt.userID)
 
 			if (err != nil) != tt.wantErr {
@@ -2269,7 +2301,8 @@ func TestBillingService_CancelUserSubscription(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			result, err := client.Billing().CancelUserSubscription(context.Background(), tt.userID, tt.request)
 
 			if (err != nil) != tt.wantErr {
@@ -2355,7 +2388,8 @@ func TestBillingService_AbortUserSubscriptionCancellation(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			result, err := client.Billing().AbortUserSubscriptionCancellation(context.Background(), tt.userID)
 
 			if (err != nil) != tt.wantErr {
@@ -2430,7 +2464,8 @@ func TestBillingService_ChangeUserPlan(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			result, err := client.Billing().ChangeUserPlan(context.Background(), tt.userID, tt.request)
 
 			if (err != nil) != tt.wantErr {
@@ -2520,7 +2555,8 @@ func TestBillingService_PauseUserSubscription(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			result, err := client.Billing().PauseUserSubscription(context.Background(), tt.userID)
 
 			if (err != nil) != tt.wantErr {
@@ -2611,7 +2647,8 @@ func TestBillingService_ResumeUserSubscription(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			result, err := client.Billing().ResumeUserSubscription(context.Background(), tt.userID)
 
 			if (err != nil) != tt.wantErr {
@@ -2695,7 +2732,8 @@ func TestBillingService_AddPlanToPriceLine(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			result, err := client.Billing().AddPlanToPriceLine(context.Background(), tt.priceLineID, tt.request)
 
 			if (err != nil) != tt.wantErr {
@@ -2769,8 +2807,9 @@ func TestBillingService_DeletePlanFromPriceLine(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
-			err := client.Billing().DeletePlanFromPriceLine(context.Background(), tt.priceLineID, tt.planID)
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
+			err = client.Billing().DeletePlanFromPriceLine(context.Background(), tt.priceLineID, tt.planID)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("DeletePlanFromPriceLine() error = %v, wantErr %v", err, tt.wantErr)
@@ -2854,7 +2893,8 @@ func TestBillingService_UpdatePlanPosition(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			result, err := client.Billing().UpdatePlanPosition(context.Background(), tt.priceLineID, tt.planID, tt.request)
 
 			if (err != nil) != tt.wantErr {
@@ -2950,7 +2990,8 @@ func TestBillingService_GetPriceLineDetail(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			line, err := client.Billing().GetPriceLine(context.Background(), tt.priceLineID)
 
 			if (err != nil) != tt.wantErr {
@@ -3026,8 +3067,9 @@ func TestBillingService_SyncPricingPlan(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
-			err := client.Billing().SyncPricingPlan(context.Background(), tt.planID)
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
+			err = client.Billing().SyncPricingPlan(context.Background(), tt.planID)
 
 			if tt.wantErr {
 				require.Error(t, err)
@@ -3083,8 +3125,9 @@ func TestBillingService_SyncAllPricingPlans(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
-			err := client.Billing().SyncAllPricingPlans(context.Background())
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
+			err = client.Billing().SyncAllPricingPlans(context.Background())
 
 			if tt.wantErr {
 				require.Error(t, err)
@@ -3176,7 +3219,8 @@ func TestWebsiteService_BlockWebsite(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			website, err := client.Website().BlockWebsite(context.Background(), tt.websiteID)
 
 			if (err != nil) != tt.wantErr {
@@ -3280,7 +3324,8 @@ func TestWebsiteService_UnblockWebsite(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			website, err := client.Website().UnblockWebsite(context.Background(), tt.websiteID)
 
 			if (err != nil) != tt.wantErr {
@@ -3309,7 +3354,8 @@ func TestWebsiteService_UnblockWebsite(t *testing.T) {
 // === Profiling Service Tests ===
 
 func TestNewClient_Profiling(t *testing.T) {
-	client := NewClient()
+	client, err := NewClient()
+	require.NoError(t, err)
 	require.NotNil(t, client)
 	require.NotNil(t, client.Profiling())
 }
@@ -3354,7 +3400,8 @@ func TestProfilingService_GetProfileIndex(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			data, err := client.Profiling().GetProfileIndex(context.Background())
 
 			if (err != nil) != tt.wantErr {
@@ -3413,7 +3460,8 @@ func TestProfilingService_GetBlockProfile(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			data, err := client.Profiling().GetBlockProfile(context.Background())
 
 			if (err != nil) != tt.wantErr {
@@ -3492,8 +3540,9 @@ func TestProfilingService_SetBlockProfileRate(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
-			err := client.Profiling().SetBlockProfileRate(context.Background(), tt.rate)
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
+			err = client.Profiling().SetBlockProfileRate(context.Background(), tt.rate)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("SetBlockProfileRate() error = %v, wantErr %v", err, tt.wantErr)
@@ -3547,7 +3596,8 @@ func TestProfilingService_GetCmdline(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			data, err := client.Profiling().GetCmdline(context.Background())
 
 			if (err != nil) != tt.wantErr {
@@ -3606,7 +3656,8 @@ func TestProfilingService_GetGoroutineProfile(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			data, err := client.Profiling().GetGoroutineProfile(context.Background())
 
 			if (err != nil) != tt.wantErr {
@@ -3665,7 +3716,8 @@ func TestProfilingService_GetHeapProfile(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			data, err := client.Profiling().GetHeapProfile(context.Background())
 
 			if (err != nil) != tt.wantErr {
@@ -3724,7 +3776,8 @@ func TestProfilingService_GetMutexProfile(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			data, err := client.Profiling().GetMutexProfile(context.Background())
 
 			if (err != nil) != tt.wantErr {
@@ -3803,8 +3856,9 @@ func TestProfilingService_SetMutexProfileFraction(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
-			err := client.Profiling().SetMutexProfileFraction(context.Background(), tt.fraction)
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
+			err = client.Profiling().SetMutexProfileFraction(context.Background(), tt.fraction)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("SetMutexProfileFraction() error = %v, wantErr %v", err, tt.wantErr)
@@ -3858,7 +3912,8 @@ func TestProfilingService_GetCPUProfile(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			data, err := client.Profiling().GetCPUProfile(context.Background())
 
 			if (err != nil) != tt.wantErr {
@@ -3921,7 +3976,8 @@ func TestProfilingService_GetStatus(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			status, err := client.Profiling().GetStatus(context.Background())
 
 			if (err != nil) != tt.wantErr {
@@ -3982,7 +4038,8 @@ func TestProfilingService_GetSymbol(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			data, err := client.Profiling().GetSymbol(context.Background())
 
 			if (err != nil) != tt.wantErr {
@@ -4041,7 +4098,8 @@ func TestProfilingService_GetThreadcreate(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			data, err := client.Profiling().GetThreadcreate(context.Background())
 
 			if (err != nil) != tt.wantErr {
@@ -4100,7 +4158,8 @@ func TestProfilingService_GetTrace(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewClient(WithEndpoint(server.URL))
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
 			data, err := client.Profiling().GetTrace(context.Background())
 
 			if (err != nil) != tt.wantErr {
