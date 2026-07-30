@@ -1,3 +1,9 @@
+## 0.1.60 (2026-07-30)
+
+### Features
+
+- update swagger specs, regenerate clients, add meta API package
+
 ## 0.1.59 (2026-07-18)
 
 ### Features
