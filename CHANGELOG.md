@@ -1,3 +1,9 @@
+## 0.1.61 (2026-07-30)
+
+### Features
+
+- update meta spec with SharedObject/SlabSlice/PinnedSector schema
+
 ## 0.1.60 (2026-07-30)
 
 ### Features
