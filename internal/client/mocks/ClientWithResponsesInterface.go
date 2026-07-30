@@ -174,6 +174,81 @@ func (_c *MockClientWithResponsesInterface_DeleteApiAccountWithResponse_Call) Ru
 	return _c
 }
 
+// DeleteApiAuthKeyTypeKeyWithResponse provides a mock function with given fields: ctx, pType, key, reqEditors
+func (_m *MockClientWithResponsesInterface) DeleteApiAuthKeyTypeKeyWithResponse(ctx context.Context, pType string, key string, reqEditors ...client.RequestEditorFn) (*client.DeleteApiAuthKeyTypeKeyResponse, error) {
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, pType, key)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteApiAuthKeyTypeKeyWithResponse")
+	}
+
+	var r0 *client.DeleteApiAuthKeyTypeKeyResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, ...client.RequestEditorFn) (*client.DeleteApiAuthKeyTypeKeyResponse, error)); ok {
+		return rf(ctx, pType, key, reqEditors...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, ...client.RequestEditorFn) *client.DeleteApiAuthKeyTypeKeyResponse); ok {
+		r0 = rf(ctx, pType, key, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*client.DeleteApiAuthKeyTypeKeyResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, string, ...client.RequestEditorFn) error); ok {
+		r1 = rf(ctx, pType, key, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_DeleteApiAuthKeyTypeKeyWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteApiAuthKeyTypeKeyWithResponse'
+type MockClientWithResponsesInterface_DeleteApiAuthKeyTypeKeyWithResponse_Call struct {
+	*mock.Call
+}
+
+// DeleteApiAuthKeyTypeKeyWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - pType string
+//   - key string
+//   - reqEditors ...client.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) DeleteApiAuthKeyTypeKeyWithResponse(ctx interface{}, pType interface{}, key interface{}, reqEditors ...interface{}) *MockClientWithResponsesInterface_DeleteApiAuthKeyTypeKeyWithResponse_Call {
+	return &MockClientWithResponsesInterface_DeleteApiAuthKeyTypeKeyWithResponse_Call{Call: _e.mock.On("DeleteApiAuthKeyTypeKeyWithResponse",
+		append([]interface{}{ctx, pType, key}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_DeleteApiAuthKeyTypeKeyWithResponse_Call) Run(run func(ctx context.Context, pType string, key string, reqEditors ...client.RequestEditorFn)) *MockClientWithResponsesInterface_DeleteApiAuthKeyTypeKeyWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]client.RequestEditorFn, len(args)-3)
+		for i, a := range args[3:] {
+			if a != nil {
+				variadicArgs[i] = a.(client.RequestEditorFn)
+			}
+		}
+		run(args[0].(context.Context), args[1].(string), args[2].(string), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_DeleteApiAuthKeyTypeKeyWithResponse_Call) Return(_a0 *client.DeleteApiAuthKeyTypeKeyResponse, _a1 error) *MockClientWithResponsesInterface_DeleteApiAuthKeyTypeKeyWithResponse_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_DeleteApiAuthKeyTypeKeyWithResponse_Call) RunAndReturn(run func(context.Context, string, string, ...client.RequestEditorFn) (*client.DeleteApiAuthKeyTypeKeyResponse, error)) *MockClientWithResponsesInterface_DeleteApiAuthKeyTypeKeyWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetApiAccountAvatarWithResponse provides a mock function with given fields: ctx, reqEditors
 func (_m *MockClientWithResponsesInterface) GetApiAccountAvatarWithResponse(ctx context.Context, reqEditors ...client.RequestEditorFn) (*client.GetApiAccountAvatarResponse, error) {
 	_va := make([]interface{}, len(reqEditors))
@@ -1125,6 +1200,79 @@ func (_c *MockClientWithResponsesInterface_GetApiAccountWithResponse_Call) Retur
 }
 
 func (_c *MockClientWithResponsesInterface_GetApiAccountWithResponse_Call) RunAndReturn(run func(context.Context, ...client.RequestEditorFn) (*client.GetApiAccountResponse, error)) *MockClientWithResponsesInterface_GetApiAccountWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetApiAuthKeyIdentitiesWithResponse provides a mock function with given fields: ctx, reqEditors
+func (_m *MockClientWithResponsesInterface) GetApiAuthKeyIdentitiesWithResponse(ctx context.Context, reqEditors ...client.RequestEditorFn) (*client.GetApiAuthKeyIdentitiesResponse, error) {
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetApiAuthKeyIdentitiesWithResponse")
+	}
+
+	var r0 *client.GetApiAuthKeyIdentitiesResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, ...client.RequestEditorFn) (*client.GetApiAuthKeyIdentitiesResponse, error)); ok {
+		return rf(ctx, reqEditors...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, ...client.RequestEditorFn) *client.GetApiAuthKeyIdentitiesResponse); ok {
+		r0 = rf(ctx, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*client.GetApiAuthKeyIdentitiesResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, ...client.RequestEditorFn) error); ok {
+		r1 = rf(ctx, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_GetApiAuthKeyIdentitiesWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetApiAuthKeyIdentitiesWithResponse'
+type MockClientWithResponsesInterface_GetApiAuthKeyIdentitiesWithResponse_Call struct {
+	*mock.Call
+}
+
+// GetApiAuthKeyIdentitiesWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - reqEditors ...client.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) GetApiAuthKeyIdentitiesWithResponse(ctx interface{}, reqEditors ...interface{}) *MockClientWithResponsesInterface_GetApiAuthKeyIdentitiesWithResponse_Call {
+	return &MockClientWithResponsesInterface_GetApiAuthKeyIdentitiesWithResponse_Call{Call: _e.mock.On("GetApiAuthKeyIdentitiesWithResponse",
+		append([]interface{}{ctx}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiAuthKeyIdentitiesWithResponse_Call) Run(run func(ctx context.Context, reqEditors ...client.RequestEditorFn)) *MockClientWithResponsesInterface_GetApiAuthKeyIdentitiesWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]client.RequestEditorFn, len(args)-1)
+		for i, a := range args[1:] {
+			if a != nil {
+				variadicArgs[i] = a.(client.RequestEditorFn)
+			}
+		}
+		run(args[0].(context.Context), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiAuthKeyIdentitiesWithResponse_Call) Return(_a0 *client.GetApiAuthKeyIdentitiesResponse, _a1 error) *MockClientWithResponsesInterface_GetApiAuthKeyIdentitiesWithResponse_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiAuthKeyIdentitiesWithResponse_Call) RunAndReturn(run func(context.Context, ...client.RequestEditorFn) (*client.GetApiAuthKeyIdentitiesResponse, error)) *MockClientWithResponsesInterface_GetApiAuthKeyIdentitiesWithResponse_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -3726,6 +3874,602 @@ func (_c *MockClientWithResponsesInterface_PostApiAccountVerifyEmailWithResponse
 	return _c
 }
 
+// PostApiAuthKeyChallengeWithBodyWithResponse provides a mock function with given fields: ctx, contentType, body, reqEditors
+func (_m *MockClientWithResponsesInterface) PostApiAuthKeyChallengeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...client.RequestEditorFn) (*client.PostApiAuthKeyChallengeResponse, error) {
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, contentType, body)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PostApiAuthKeyChallengeWithBodyWithResponse")
+	}
+
+	var r0 *client.PostApiAuthKeyChallengeResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, io.Reader, ...client.RequestEditorFn) (*client.PostApiAuthKeyChallengeResponse, error)); ok {
+		return rf(ctx, contentType, body, reqEditors...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, io.Reader, ...client.RequestEditorFn) *client.PostApiAuthKeyChallengeResponse); ok {
+		r0 = rf(ctx, contentType, body, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*client.PostApiAuthKeyChallengeResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, io.Reader, ...client.RequestEditorFn) error); ok {
+		r1 = rf(ctx, contentType, body, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_PostApiAuthKeyChallengeWithBodyWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PostApiAuthKeyChallengeWithBodyWithResponse'
+type MockClientWithResponsesInterface_PostApiAuthKeyChallengeWithBodyWithResponse_Call struct {
+	*mock.Call
+}
+
+// PostApiAuthKeyChallengeWithBodyWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - contentType string
+//   - body io.Reader
+//   - reqEditors ...client.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) PostApiAuthKeyChallengeWithBodyWithResponse(ctx interface{}, contentType interface{}, body interface{}, reqEditors ...interface{}) *MockClientWithResponsesInterface_PostApiAuthKeyChallengeWithBodyWithResponse_Call {
+	return &MockClientWithResponsesInterface_PostApiAuthKeyChallengeWithBodyWithResponse_Call{Call: _e.mock.On("PostApiAuthKeyChallengeWithBodyWithResponse",
+		append([]interface{}{ctx, contentType, body}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiAuthKeyChallengeWithBodyWithResponse_Call) Run(run func(ctx context.Context, contentType string, body io.Reader, reqEditors ...client.RequestEditorFn)) *MockClientWithResponsesInterface_PostApiAuthKeyChallengeWithBodyWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]client.RequestEditorFn, len(args)-3)
+		for i, a := range args[3:] {
+			if a != nil {
+				variadicArgs[i] = a.(client.RequestEditorFn)
+			}
+		}
+		run(args[0].(context.Context), args[1].(string), args[2].(io.Reader), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiAuthKeyChallengeWithBodyWithResponse_Call) Return(_a0 *client.PostApiAuthKeyChallengeResponse, _a1 error) *MockClientWithResponsesInterface_PostApiAuthKeyChallengeWithBodyWithResponse_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiAuthKeyChallengeWithBodyWithResponse_Call) RunAndReturn(run func(context.Context, string, io.Reader, ...client.RequestEditorFn) (*client.PostApiAuthKeyChallengeResponse, error)) *MockClientWithResponsesInterface_PostApiAuthKeyChallengeWithBodyWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// PostApiAuthKeyChallengeWithResponse provides a mock function with given fields: ctx, body, reqEditors
+func (_m *MockClientWithResponsesInterface) PostApiAuthKeyChallengeWithResponse(ctx context.Context, body client.KeyIdentityChallengeRequest, reqEditors ...client.RequestEditorFn) (*client.PostApiAuthKeyChallengeResponse, error) {
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, body)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PostApiAuthKeyChallengeWithResponse")
+	}
+
+	var r0 *client.PostApiAuthKeyChallengeResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, client.KeyIdentityChallengeRequest, ...client.RequestEditorFn) (*client.PostApiAuthKeyChallengeResponse, error)); ok {
+		return rf(ctx, body, reqEditors...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, client.KeyIdentityChallengeRequest, ...client.RequestEditorFn) *client.PostApiAuthKeyChallengeResponse); ok {
+		r0 = rf(ctx, body, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*client.PostApiAuthKeyChallengeResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, client.KeyIdentityChallengeRequest, ...client.RequestEditorFn) error); ok {
+		r1 = rf(ctx, body, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_PostApiAuthKeyChallengeWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PostApiAuthKeyChallengeWithResponse'
+type MockClientWithResponsesInterface_PostApiAuthKeyChallengeWithResponse_Call struct {
+	*mock.Call
+}
+
+// PostApiAuthKeyChallengeWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - body client.KeyIdentityChallengeRequest
+//   - reqEditors ...client.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) PostApiAuthKeyChallengeWithResponse(ctx interface{}, body interface{}, reqEditors ...interface{}) *MockClientWithResponsesInterface_PostApiAuthKeyChallengeWithResponse_Call {
+	return &MockClientWithResponsesInterface_PostApiAuthKeyChallengeWithResponse_Call{Call: _e.mock.On("PostApiAuthKeyChallengeWithResponse",
+		append([]interface{}{ctx, body}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiAuthKeyChallengeWithResponse_Call) Run(run func(ctx context.Context, body client.KeyIdentityChallengeRequest, reqEditors ...client.RequestEditorFn)) *MockClientWithResponsesInterface_PostApiAuthKeyChallengeWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]client.RequestEditorFn, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(client.RequestEditorFn)
+			}
+		}
+		run(args[0].(context.Context), args[1].(client.KeyIdentityChallengeRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiAuthKeyChallengeWithResponse_Call) Return(_a0 *client.PostApiAuthKeyChallengeResponse, _a1 error) *MockClientWithResponsesInterface_PostApiAuthKeyChallengeWithResponse_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiAuthKeyChallengeWithResponse_Call) RunAndReturn(run func(context.Context, client.KeyIdentityChallengeRequest, ...client.RequestEditorFn) (*client.PostApiAuthKeyChallengeResponse, error)) *MockClientWithResponsesInterface_PostApiAuthKeyChallengeWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// PostApiAuthKeyConnectChallengeWithBodyWithResponse provides a mock function with given fields: ctx, contentType, body, reqEditors
+func (_m *MockClientWithResponsesInterface) PostApiAuthKeyConnectChallengeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...client.RequestEditorFn) (*client.PostApiAuthKeyConnectChallengeResponse, error) {
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, contentType, body)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PostApiAuthKeyConnectChallengeWithBodyWithResponse")
+	}
+
+	var r0 *client.PostApiAuthKeyConnectChallengeResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, io.Reader, ...client.RequestEditorFn) (*client.PostApiAuthKeyConnectChallengeResponse, error)); ok {
+		return rf(ctx, contentType, body, reqEditors...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, io.Reader, ...client.RequestEditorFn) *client.PostApiAuthKeyConnectChallengeResponse); ok {
+		r0 = rf(ctx, contentType, body, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*client.PostApiAuthKeyConnectChallengeResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, io.Reader, ...client.RequestEditorFn) error); ok {
+		r1 = rf(ctx, contentType, body, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_PostApiAuthKeyConnectChallengeWithBodyWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PostApiAuthKeyConnectChallengeWithBodyWithResponse'
+type MockClientWithResponsesInterface_PostApiAuthKeyConnectChallengeWithBodyWithResponse_Call struct {
+	*mock.Call
+}
+
+// PostApiAuthKeyConnectChallengeWithBodyWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - contentType string
+//   - body io.Reader
+//   - reqEditors ...client.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) PostApiAuthKeyConnectChallengeWithBodyWithResponse(ctx interface{}, contentType interface{}, body interface{}, reqEditors ...interface{}) *MockClientWithResponsesInterface_PostApiAuthKeyConnectChallengeWithBodyWithResponse_Call {
+	return &MockClientWithResponsesInterface_PostApiAuthKeyConnectChallengeWithBodyWithResponse_Call{Call: _e.mock.On("PostApiAuthKeyConnectChallengeWithBodyWithResponse",
+		append([]interface{}{ctx, contentType, body}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiAuthKeyConnectChallengeWithBodyWithResponse_Call) Run(run func(ctx context.Context, contentType string, body io.Reader, reqEditors ...client.RequestEditorFn)) *MockClientWithResponsesInterface_PostApiAuthKeyConnectChallengeWithBodyWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]client.RequestEditorFn, len(args)-3)
+		for i, a := range args[3:] {
+			if a != nil {
+				variadicArgs[i] = a.(client.RequestEditorFn)
+			}
+		}
+		run(args[0].(context.Context), args[1].(string), args[2].(io.Reader), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiAuthKeyConnectChallengeWithBodyWithResponse_Call) Return(_a0 *client.PostApiAuthKeyConnectChallengeResponse, _a1 error) *MockClientWithResponsesInterface_PostApiAuthKeyConnectChallengeWithBodyWithResponse_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiAuthKeyConnectChallengeWithBodyWithResponse_Call) RunAndReturn(run func(context.Context, string, io.Reader, ...client.RequestEditorFn) (*client.PostApiAuthKeyConnectChallengeResponse, error)) *MockClientWithResponsesInterface_PostApiAuthKeyConnectChallengeWithBodyWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// PostApiAuthKeyConnectChallengeWithResponse provides a mock function with given fields: ctx, body, reqEditors
+func (_m *MockClientWithResponsesInterface) PostApiAuthKeyConnectChallengeWithResponse(ctx context.Context, body client.KeyIdentityChallengeRequest, reqEditors ...client.RequestEditorFn) (*client.PostApiAuthKeyConnectChallengeResponse, error) {
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, body)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PostApiAuthKeyConnectChallengeWithResponse")
+	}
+
+	var r0 *client.PostApiAuthKeyConnectChallengeResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, client.KeyIdentityChallengeRequest, ...client.RequestEditorFn) (*client.PostApiAuthKeyConnectChallengeResponse, error)); ok {
+		return rf(ctx, body, reqEditors...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, client.KeyIdentityChallengeRequest, ...client.RequestEditorFn) *client.PostApiAuthKeyConnectChallengeResponse); ok {
+		r0 = rf(ctx, body, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*client.PostApiAuthKeyConnectChallengeResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, client.KeyIdentityChallengeRequest, ...client.RequestEditorFn) error); ok {
+		r1 = rf(ctx, body, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_PostApiAuthKeyConnectChallengeWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PostApiAuthKeyConnectChallengeWithResponse'
+type MockClientWithResponsesInterface_PostApiAuthKeyConnectChallengeWithResponse_Call struct {
+	*mock.Call
+}
+
+// PostApiAuthKeyConnectChallengeWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - body client.KeyIdentityChallengeRequest
+//   - reqEditors ...client.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) PostApiAuthKeyConnectChallengeWithResponse(ctx interface{}, body interface{}, reqEditors ...interface{}) *MockClientWithResponsesInterface_PostApiAuthKeyConnectChallengeWithResponse_Call {
+	return &MockClientWithResponsesInterface_PostApiAuthKeyConnectChallengeWithResponse_Call{Call: _e.mock.On("PostApiAuthKeyConnectChallengeWithResponse",
+		append([]interface{}{ctx, body}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiAuthKeyConnectChallengeWithResponse_Call) Run(run func(ctx context.Context, body client.KeyIdentityChallengeRequest, reqEditors ...client.RequestEditorFn)) *MockClientWithResponsesInterface_PostApiAuthKeyConnectChallengeWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]client.RequestEditorFn, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(client.RequestEditorFn)
+			}
+		}
+		run(args[0].(context.Context), args[1].(client.KeyIdentityChallengeRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiAuthKeyConnectChallengeWithResponse_Call) Return(_a0 *client.PostApiAuthKeyConnectChallengeResponse, _a1 error) *MockClientWithResponsesInterface_PostApiAuthKeyConnectChallengeWithResponse_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiAuthKeyConnectChallengeWithResponse_Call) RunAndReturn(run func(context.Context, client.KeyIdentityChallengeRequest, ...client.RequestEditorFn) (*client.PostApiAuthKeyConnectChallengeResponse, error)) *MockClientWithResponsesInterface_PostApiAuthKeyConnectChallengeWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// PostApiAuthKeyConnectVerifyWithBodyWithResponse provides a mock function with given fields: ctx, contentType, body, reqEditors
+func (_m *MockClientWithResponsesInterface) PostApiAuthKeyConnectVerifyWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...client.RequestEditorFn) (*client.PostApiAuthKeyConnectVerifyResponse, error) {
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, contentType, body)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PostApiAuthKeyConnectVerifyWithBodyWithResponse")
+	}
+
+	var r0 *client.PostApiAuthKeyConnectVerifyResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, io.Reader, ...client.RequestEditorFn) (*client.PostApiAuthKeyConnectVerifyResponse, error)); ok {
+		return rf(ctx, contentType, body, reqEditors...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, io.Reader, ...client.RequestEditorFn) *client.PostApiAuthKeyConnectVerifyResponse); ok {
+		r0 = rf(ctx, contentType, body, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*client.PostApiAuthKeyConnectVerifyResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, io.Reader, ...client.RequestEditorFn) error); ok {
+		r1 = rf(ctx, contentType, body, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_PostApiAuthKeyConnectVerifyWithBodyWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PostApiAuthKeyConnectVerifyWithBodyWithResponse'
+type MockClientWithResponsesInterface_PostApiAuthKeyConnectVerifyWithBodyWithResponse_Call struct {
+	*mock.Call
+}
+
+// PostApiAuthKeyConnectVerifyWithBodyWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - contentType string
+//   - body io.Reader
+//   - reqEditors ...client.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) PostApiAuthKeyConnectVerifyWithBodyWithResponse(ctx interface{}, contentType interface{}, body interface{}, reqEditors ...interface{}) *MockClientWithResponsesInterface_PostApiAuthKeyConnectVerifyWithBodyWithResponse_Call {
+	return &MockClientWithResponsesInterface_PostApiAuthKeyConnectVerifyWithBodyWithResponse_Call{Call: _e.mock.On("PostApiAuthKeyConnectVerifyWithBodyWithResponse",
+		append([]interface{}{ctx, contentType, body}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiAuthKeyConnectVerifyWithBodyWithResponse_Call) Run(run func(ctx context.Context, contentType string, body io.Reader, reqEditors ...client.RequestEditorFn)) *MockClientWithResponsesInterface_PostApiAuthKeyConnectVerifyWithBodyWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]client.RequestEditorFn, len(args)-3)
+		for i, a := range args[3:] {
+			if a != nil {
+				variadicArgs[i] = a.(client.RequestEditorFn)
+			}
+		}
+		run(args[0].(context.Context), args[1].(string), args[2].(io.Reader), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiAuthKeyConnectVerifyWithBodyWithResponse_Call) Return(_a0 *client.PostApiAuthKeyConnectVerifyResponse, _a1 error) *MockClientWithResponsesInterface_PostApiAuthKeyConnectVerifyWithBodyWithResponse_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiAuthKeyConnectVerifyWithBodyWithResponse_Call) RunAndReturn(run func(context.Context, string, io.Reader, ...client.RequestEditorFn) (*client.PostApiAuthKeyConnectVerifyResponse, error)) *MockClientWithResponsesInterface_PostApiAuthKeyConnectVerifyWithBodyWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// PostApiAuthKeyConnectVerifyWithResponse provides a mock function with given fields: ctx, body, reqEditors
+func (_m *MockClientWithResponsesInterface) PostApiAuthKeyConnectVerifyWithResponse(ctx context.Context, body client.KeyIdentityConnectVerifyRequest, reqEditors ...client.RequestEditorFn) (*client.PostApiAuthKeyConnectVerifyResponse, error) {
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, body)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PostApiAuthKeyConnectVerifyWithResponse")
+	}
+
+	var r0 *client.PostApiAuthKeyConnectVerifyResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, client.KeyIdentityConnectVerifyRequest, ...client.RequestEditorFn) (*client.PostApiAuthKeyConnectVerifyResponse, error)); ok {
+		return rf(ctx, body, reqEditors...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, client.KeyIdentityConnectVerifyRequest, ...client.RequestEditorFn) *client.PostApiAuthKeyConnectVerifyResponse); ok {
+		r0 = rf(ctx, body, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*client.PostApiAuthKeyConnectVerifyResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, client.KeyIdentityConnectVerifyRequest, ...client.RequestEditorFn) error); ok {
+		r1 = rf(ctx, body, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_PostApiAuthKeyConnectVerifyWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PostApiAuthKeyConnectVerifyWithResponse'
+type MockClientWithResponsesInterface_PostApiAuthKeyConnectVerifyWithResponse_Call struct {
+	*mock.Call
+}
+
+// PostApiAuthKeyConnectVerifyWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - body client.KeyIdentityConnectVerifyRequest
+//   - reqEditors ...client.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) PostApiAuthKeyConnectVerifyWithResponse(ctx interface{}, body interface{}, reqEditors ...interface{}) *MockClientWithResponsesInterface_PostApiAuthKeyConnectVerifyWithResponse_Call {
+	return &MockClientWithResponsesInterface_PostApiAuthKeyConnectVerifyWithResponse_Call{Call: _e.mock.On("PostApiAuthKeyConnectVerifyWithResponse",
+		append([]interface{}{ctx, body}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiAuthKeyConnectVerifyWithResponse_Call) Run(run func(ctx context.Context, body client.KeyIdentityConnectVerifyRequest, reqEditors ...client.RequestEditorFn)) *MockClientWithResponsesInterface_PostApiAuthKeyConnectVerifyWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]client.RequestEditorFn, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(client.RequestEditorFn)
+			}
+		}
+		run(args[0].(context.Context), args[1].(client.KeyIdentityConnectVerifyRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiAuthKeyConnectVerifyWithResponse_Call) Return(_a0 *client.PostApiAuthKeyConnectVerifyResponse, _a1 error) *MockClientWithResponsesInterface_PostApiAuthKeyConnectVerifyWithResponse_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiAuthKeyConnectVerifyWithResponse_Call) RunAndReturn(run func(context.Context, client.KeyIdentityConnectVerifyRequest, ...client.RequestEditorFn) (*client.PostApiAuthKeyConnectVerifyResponse, error)) *MockClientWithResponsesInterface_PostApiAuthKeyConnectVerifyWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// PostApiAuthKeyVerifyWithBodyWithResponse provides a mock function with given fields: ctx, contentType, body, reqEditors
+func (_m *MockClientWithResponsesInterface) PostApiAuthKeyVerifyWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...client.RequestEditorFn) (*client.PostApiAuthKeyVerifyResponse, error) {
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, contentType, body)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PostApiAuthKeyVerifyWithBodyWithResponse")
+	}
+
+	var r0 *client.PostApiAuthKeyVerifyResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, io.Reader, ...client.RequestEditorFn) (*client.PostApiAuthKeyVerifyResponse, error)); ok {
+		return rf(ctx, contentType, body, reqEditors...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, io.Reader, ...client.RequestEditorFn) *client.PostApiAuthKeyVerifyResponse); ok {
+		r0 = rf(ctx, contentType, body, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*client.PostApiAuthKeyVerifyResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, io.Reader, ...client.RequestEditorFn) error); ok {
+		r1 = rf(ctx, contentType, body, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_PostApiAuthKeyVerifyWithBodyWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PostApiAuthKeyVerifyWithBodyWithResponse'
+type MockClientWithResponsesInterface_PostApiAuthKeyVerifyWithBodyWithResponse_Call struct {
+	*mock.Call
+}
+
+// PostApiAuthKeyVerifyWithBodyWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - contentType string
+//   - body io.Reader
+//   - reqEditors ...client.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) PostApiAuthKeyVerifyWithBodyWithResponse(ctx interface{}, contentType interface{}, body interface{}, reqEditors ...interface{}) *MockClientWithResponsesInterface_PostApiAuthKeyVerifyWithBodyWithResponse_Call {
+	return &MockClientWithResponsesInterface_PostApiAuthKeyVerifyWithBodyWithResponse_Call{Call: _e.mock.On("PostApiAuthKeyVerifyWithBodyWithResponse",
+		append([]interface{}{ctx, contentType, body}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiAuthKeyVerifyWithBodyWithResponse_Call) Run(run func(ctx context.Context, contentType string, body io.Reader, reqEditors ...client.RequestEditorFn)) *MockClientWithResponsesInterface_PostApiAuthKeyVerifyWithBodyWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]client.RequestEditorFn, len(args)-3)
+		for i, a := range args[3:] {
+			if a != nil {
+				variadicArgs[i] = a.(client.RequestEditorFn)
+			}
+		}
+		run(args[0].(context.Context), args[1].(string), args[2].(io.Reader), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiAuthKeyVerifyWithBodyWithResponse_Call) Return(_a0 *client.PostApiAuthKeyVerifyResponse, _a1 error) *MockClientWithResponsesInterface_PostApiAuthKeyVerifyWithBodyWithResponse_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiAuthKeyVerifyWithBodyWithResponse_Call) RunAndReturn(run func(context.Context, string, io.Reader, ...client.RequestEditorFn) (*client.PostApiAuthKeyVerifyResponse, error)) *MockClientWithResponsesInterface_PostApiAuthKeyVerifyWithBodyWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// PostApiAuthKeyVerifyWithResponse provides a mock function with given fields: ctx, body, reqEditors
+func (_m *MockClientWithResponsesInterface) PostApiAuthKeyVerifyWithResponse(ctx context.Context, body client.KeyIdentityVerifyRequest, reqEditors ...client.RequestEditorFn) (*client.PostApiAuthKeyVerifyResponse, error) {
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, body)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PostApiAuthKeyVerifyWithResponse")
+	}
+
+	var r0 *client.PostApiAuthKeyVerifyResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, client.KeyIdentityVerifyRequest, ...client.RequestEditorFn) (*client.PostApiAuthKeyVerifyResponse, error)); ok {
+		return rf(ctx, body, reqEditors...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, client.KeyIdentityVerifyRequest, ...client.RequestEditorFn) *client.PostApiAuthKeyVerifyResponse); ok {
+		r0 = rf(ctx, body, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*client.PostApiAuthKeyVerifyResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, client.KeyIdentityVerifyRequest, ...client.RequestEditorFn) error); ok {
+		r1 = rf(ctx, body, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_PostApiAuthKeyVerifyWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PostApiAuthKeyVerifyWithResponse'
+type MockClientWithResponsesInterface_PostApiAuthKeyVerifyWithResponse_Call struct {
+	*mock.Call
+}
+
+// PostApiAuthKeyVerifyWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - body client.KeyIdentityVerifyRequest
+//   - reqEditors ...client.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) PostApiAuthKeyVerifyWithResponse(ctx interface{}, body interface{}, reqEditors ...interface{}) *MockClientWithResponsesInterface_PostApiAuthKeyVerifyWithResponse_Call {
+	return &MockClientWithResponsesInterface_PostApiAuthKeyVerifyWithResponse_Call{Call: _e.mock.On("PostApiAuthKeyVerifyWithResponse",
+		append([]interface{}{ctx, body}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiAuthKeyVerifyWithResponse_Call) Run(run func(ctx context.Context, body client.KeyIdentityVerifyRequest, reqEditors ...client.RequestEditorFn)) *MockClientWithResponsesInterface_PostApiAuthKeyVerifyWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]client.RequestEditorFn, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(client.RequestEditorFn)
+			}
+		}
+		run(args[0].(context.Context), args[1].(client.KeyIdentityVerifyRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiAuthKeyVerifyWithResponse_Call) Return(_a0 *client.PostApiAuthKeyVerifyResponse, _a1 error) *MockClientWithResponsesInterface_PostApiAuthKeyVerifyWithResponse_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiAuthKeyVerifyWithResponse_Call) RunAndReturn(run func(context.Context, client.KeyIdentityVerifyRequest, ...client.RequestEditorFn) (*client.PostApiAuthKeyVerifyResponse, error)) *MockClientWithResponsesInterface_PostApiAuthKeyVerifyWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // PostApiAuthKeyWithResponse provides a mock function with given fields: ctx, params, reqEditors
 func (_m *MockClientWithResponsesInterface) PostApiAuthKeyWithResponse(ctx context.Context, params *client.PostApiAuthKeyParams, reqEditors ...client.RequestEditorFn) (*client.PostApiAuthKeyResponse, error) {
 	_va := make([]interface{}, len(reqEditors))
@@ -4760,6 +5504,80 @@ func (_c *MockClientWithResponsesInterface_PostApiAuthRegisterWithResponse_Call)
 }
 
 func (_c *MockClientWithResponsesInterface_PostApiAuthRegisterWithResponse_Call) RunAndReturn(run func(context.Context, client.RegisterRequest, ...client.RequestEditorFn) (*client.PostApiAuthRegisterResponse, error)) *MockClientWithResponsesInterface_PostApiAuthRegisterWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// PostApiBillingCreditsPurchaseWithResponse provides a mock function with given fields: ctx, params, reqEditors
+func (_m *MockClientWithResponsesInterface) PostApiBillingCreditsPurchaseWithResponse(ctx context.Context, params *client.PostApiBillingCreditsPurchaseParams, reqEditors ...client.RequestEditorFn) (*client.PostApiBillingCreditsPurchaseResponse, error) {
+	_va := make([]interface{}, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, params)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PostApiBillingCreditsPurchaseWithResponse")
+	}
+
+	var r0 *client.PostApiBillingCreditsPurchaseResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *client.PostApiBillingCreditsPurchaseParams, ...client.RequestEditorFn) (*client.PostApiBillingCreditsPurchaseResponse, error)); ok {
+		return rf(ctx, params, reqEditors...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *client.PostApiBillingCreditsPurchaseParams, ...client.RequestEditorFn) *client.PostApiBillingCreditsPurchaseResponse); ok {
+		r0 = rf(ctx, params, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*client.PostApiBillingCreditsPurchaseResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *client.PostApiBillingCreditsPurchaseParams, ...client.RequestEditorFn) error); ok {
+		r1 = rf(ctx, params, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_PostApiBillingCreditsPurchaseWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PostApiBillingCreditsPurchaseWithResponse'
+type MockClientWithResponsesInterface_PostApiBillingCreditsPurchaseWithResponse_Call struct {
+	*mock.Call
+}
+
+// PostApiBillingCreditsPurchaseWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - params *client.PostApiBillingCreditsPurchaseParams
+//   - reqEditors ...client.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) PostApiBillingCreditsPurchaseWithResponse(ctx interface{}, params interface{}, reqEditors ...interface{}) *MockClientWithResponsesInterface_PostApiBillingCreditsPurchaseWithResponse_Call {
+	return &MockClientWithResponsesInterface_PostApiBillingCreditsPurchaseWithResponse_Call{Call: _e.mock.On("PostApiBillingCreditsPurchaseWithResponse",
+		append([]interface{}{ctx, params}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiBillingCreditsPurchaseWithResponse_Call) Run(run func(ctx context.Context, params *client.PostApiBillingCreditsPurchaseParams, reqEditors ...client.RequestEditorFn)) *MockClientWithResponsesInterface_PostApiBillingCreditsPurchaseWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]client.RequestEditorFn, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(client.RequestEditorFn)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*client.PostApiBillingCreditsPurchaseParams), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiBillingCreditsPurchaseWithResponse_Call) Return(_a0 *client.PostApiBillingCreditsPurchaseResponse, _a1 error) *MockClientWithResponsesInterface_PostApiBillingCreditsPurchaseWithResponse_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiBillingCreditsPurchaseWithResponse_Call) RunAndReturn(run func(context.Context, *client.PostApiBillingCreditsPurchaseParams, ...client.RequestEditorFn) (*client.PostApiBillingCreditsPurchaseResponse, error)) *MockClientWithResponsesInterface_PostApiBillingCreditsPurchaseWithResponse_Call {
 	_c.Call.Return(run)
 	return _c
 }

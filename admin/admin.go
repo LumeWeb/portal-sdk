@@ -2,6 +2,7 @@ package admin
 
 import (
 	"context"
+	"fmt"
 	stdhttp "net/http"
 
 	"go.lumeweb.com/portal-sdk/internal/admin"
@@ -129,7 +130,7 @@ func defaultClientConfig() *clientConfig {
 
 // NewClient creates a new AdminClient.
 // Uses DefaultEndpoint if no endpoint is provided via WithEndpoint.
-func NewClient(opts ...ClientOption) *AdminClient {
+func NewClient(opts ...ClientOption) (*AdminClient, error) {
 	cfg := defaultClientConfig()
 
 	// Apply options to configure the client
@@ -168,7 +169,10 @@ func NewClient(opts ...ClientOption) *AdminClient {
 		}))
 	}
 
-	c, _ := admin.NewClientWithResponses(cfg.endpoint, clientOpts...)
+	c, err := admin.NewClientWithResponses(cfg.endpoint, clientOpts...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create admin client: %w", err)
+	}
 
 	quotaService := &QuotaService{
 		client: c,
@@ -192,7 +196,7 @@ func NewClient(opts ...ClientOption) *AdminClient {
 	clientWrapper.website = websiteService
 	clientWrapper.profiling = profilingService
 	clientWrapper.config = cfg
-	return clientWrapper
+	return clientWrapper, nil
 }
 
 // Quota returns the quota service for managing quotas.
