@@ -24,14 +24,11 @@ type AggregateStatsResponse struct {
 
 // CIDExportResponse defines model for CIDExportResponse.
 type CIDExportResponse struct {
-	Bucket       string                 `json:"bucket"`
-	Cid          string                 `json:"cid"`
-	CreatedAt    string                 `json:"created_at"`
-	ObjectKey    string                 `json:"object_key"`
-	SharedObject map[string]interface{} `json:"shared_object"`
-	SiaObjectId  string                 `json:"sia_object_id"`
-	SizeBytes    int                    `json:"size_bytes"`
-	UpdatedAt    string                 `json:"updated_at"`
+	Cid          string       `json:"cid"`
+	CreatedAt    string       `json:"created_at"`
+	SharedObject SharedObject `json:"shared_object"`
+	SizeBytes    int          `json:"size_bytes"`
+	UpdatedAt    string       `json:"updated_at"`
 }
 
 // CIDStatsResponse defines model for CIDStatsResponse.
@@ -83,6 +80,12 @@ type ErrorResponse struct {
 	Error ErrorDetail `json:"error"`
 }
 
+// PinnedSector defines model for PinnedSector.
+type PinnedSector struct {
+	HostKey []int `json:"host_key"`
+	Root    []int `json:"root"`
+}
+
 // ProtocolStat defines model for ProtocolStat.
 type ProtocolStat struct {
 	Protocol          string `json:"protocol"`
@@ -94,6 +97,22 @@ type ProtocolStat struct {
 // ProtocolStatsResponse defines model for ProtocolStatsResponse.
 type ProtocolStatsResponse struct {
 	Protocols []ProtocolStat `json:"protocols"`
+}
+
+// SharedObject defines model for SharedObject.
+type SharedObject struct {
+	DataKey []int       `json:"data_key"`
+	Slabs   []SlabSlice `json:"slabs"`
+}
+
+// SlabSlice defines model for SlabSlice.
+type SlabSlice struct {
+	EncryptionKey []int          `json:"encryption_key"`
+	Length        int            `json:"length"`
+	MinShards     int            `json:"min_shards"`
+	Offset        int            `json:"offset"`
+	Sectors       []PinnedSector `json:"sectors"`
+	Version       int            `json:"version"`
 }
 
 // RequestEditorFn  is the function signature for the RequestEditor callback function
