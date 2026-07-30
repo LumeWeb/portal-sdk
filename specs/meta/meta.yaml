@@ -17,28 +17,19 @@ components:
     CIDExportResponse:
       additionalProperties: false
       properties:
-        bucket:
-          type: string
         cid:
           type: string
         created_at:
           type: string
-        object_key:
-          type: string
         shared_object:
-          type: object
-        sia_object_id:
-          type: string
+          $ref: '#/components/schemas/SharedObject'
         size_bytes:
           type: integer
         updated_at:
           type: string
       required:
       - cid
-      - sia_object_id
       - size_bytes
-      - bucket
-      - object_key
       - shared_object
       - created_at
       - updated_at
@@ -143,6 +134,25 @@ components:
       required:
       - error
       type: object
+    PinnedSector:
+      additionalProperties: false
+      properties:
+        host_key:
+          items:
+            type: integer
+          maxItems: 32
+          minItems: 32
+          type: array
+        root:
+          items:
+            type: integer
+          maxItems: 32
+          minItems: 32
+          type: array
+      required:
+      - root
+      - host_key
+      type: object
     ProtocolStat:
       additionalProperties: false
       properties:
@@ -170,10 +180,56 @@ components:
       required:
       - protocols
       type: object
+    SharedObject:
+      additionalProperties: false
+      properties:
+        data_key:
+          items:
+            type: integer
+          maxItems: 32
+          minItems: 32
+          type: array
+        slabs:
+          items:
+            $ref: '#/components/schemas/SlabSlice'
+          type: array
+      required:
+      - slabs
+      - data_key
+      type: object
+    SlabSlice:
+      additionalProperties: false
+      properties:
+        encryption_key:
+          items:
+            type: integer
+          maxItems: 32
+          minItems: 32
+          type: array
+        length:
+          type: integer
+        min_shards:
+          type: integer
+        offset:
+          type: integer
+        sectors:
+          items:
+            $ref: '#/components/schemas/PinnedSector'
+          type: array
+        version:
+          type: integer
+      required:
+      - version
+      - encryption_key
+      - min_shards
+      - sectors
+      - offset
+      - length
+      type: object
 info:
   description: Public, anonymized statistics about pinned content.
   title: Meta API
-  version: v0.0.0-20260729232409-a2af1b131f98
+  version: v0.0.0-20260730185953-1320db45923f
 openapi: 3.0.0
 paths:
   /api/export/cid/{cid}/dag:
