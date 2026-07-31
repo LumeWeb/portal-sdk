@@ -17,9 +17,9 @@ import (
 
 // AggregateStatsResponse defines model for AggregateStatsResponse.
 type AggregateStatsResponse struct {
-	TotalCids         int `json:"total_cids"`
-	TotalPinners      int `json:"total_pinners"`
+	TotalPins         int `json:"total_pins"`
 	TotalStorageBytes int `json:"total_storage_bytes"`
+	TotalUploads      int `json:"total_uploads"`
 }
 
 // CIDExportResponse defines model for CIDExportResponse.
@@ -37,8 +37,8 @@ type CIDStatsResponse struct {
 	FirstPinnedAt       *string `json:"first_pinned_at,omitempty"`
 	IsUnlimited         *bool   `json:"is_unlimited,omitempty"`
 	LastPinnedAt        *string `json:"last_pinned_at,omitempty"`
+	PinCount            int     `json:"pin_count"`
 	Pinned              bool    `json:"pinned"`
-	PinnerCount         int     `json:"pinner_count"`
 	QuotaRunsOutAt      *string `json:"quota_runs_out_at,omitempty"`
 	SizeBytes           int     `json:"size_bytes"`
 	StorageDays         float32 `json:"storage_days"`
