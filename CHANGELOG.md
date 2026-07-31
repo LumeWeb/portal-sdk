@@ -1,3 +1,9 @@
+## 0.1.62 (2026-07-31)
+
+### Features
+
+- update meta spec with renamed aggregate/CID stats fields
+
 ## 0.1.61 (2026-07-30)
 
 ### Features
