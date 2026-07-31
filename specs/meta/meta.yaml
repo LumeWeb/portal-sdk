@@ -3,15 +3,15 @@ components:
     AggregateStatsResponse:
       additionalProperties: false
       properties:
-        total_cids:
-          type: integer
-        total_pinners:
+        total_pins:
           type: integer
         total_storage_bytes:
           type: integer
+        total_uploads:
+          type: integer
       required:
-      - total_cids
-      - total_pinners
+      - total_uploads
+      - total_pins
       - total_storage_bytes
       type: object
     CIDExportResponse:
@@ -45,10 +45,10 @@ components:
           type: boolean
         last_pinned_at:
           type: string
+        pin_count:
+          type: integer
         pinned:
           type: boolean
-        pinner_count:
-          type: integer
         quota_runs_out_at:
           type: string
         size_bytes:
@@ -64,7 +64,7 @@ components:
       required:
       - cid
       - pinned
-      - pinner_count
+      - pin_count
       - size_bytes
       - storage_days
       type: object
@@ -229,7 +229,7 @@ components:
 info:
   description: Public, anonymized statistics about pinned content.
   title: Meta API
-  version: v0.0.0-20260730185953-1320db45923f
+  version: v0.0.0-20260731123254-acffeae2bd8f
 openapi: 3.0.0
 paths:
   /api/export/cid/{cid}/dag:
@@ -337,7 +337,7 @@ paths:
       - export
   /api/stats/aggregate:
     get:
-      description: Total CIDs, pinners, storage bytes across all protocols.
+      description: Total uploads, pins, and storage bytes across all protocols.
       responses:
         "200":
           content:
@@ -380,7 +380,7 @@ paths:
       - stats
   /api/stats/cid/{cid}:
     get:
-      description: 'Returns anonymized stats for a CID: pinned status, pinner count,
+      description: 'Returns anonymized stats for a CID: pinned status, pin count,
         size, storage-days, and quota health (when quota plugin is available).'
       parameters:
       - description: Content identifier (CID)
