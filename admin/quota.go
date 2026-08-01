@@ -204,6 +204,9 @@ type SystemStats struct {
 // This is an alias of the generated type for convenience.
 type UserQuotaConfigUpdate = admin.UserQuotaConfigUpdateRequest
 
+// UserQuotaConfigUpdateEnforcementPolicy is an alias for the generated enforcement policy enum type.
+type UserQuotaConfigUpdateEnforcementPolicy = admin.UserQuotaConfigUpdateRequestEnforcementPolicy
+
 // QuotaService provides methods for managing quotas.
 type QuotaService struct {
 	client   admin.ClientWithResponsesInterface
