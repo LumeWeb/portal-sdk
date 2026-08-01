@@ -1,3 +1,9 @@
+## 0.1.63 (2026-08-01)
+
+### Features
+
+- export UserQuotaConfigUpdateEnforcementPolicy type alias
+
 ## 0.1.62 (2026-07-31)
 
 ### Features
