@@ -253,3 +253,44 @@ func TestStatsService_GetProtocols(t *testing.T) {
 		assert.Equal(t, "ipfs", result.Protocols[0].Protocol)
 	})
 }
+
+func TestExportedMetaResponseAliases_ConstructFromConsumer(t *testing.T) {
+	// Consumers (e.g. the pinner CLI) construct DAGExport and SiaObject responses
+	// to drive output formatting in tests. The exported aliases expose the
+	// underlying generated response types so the embedded wrapper fields can be
+	// set from outside the module (the internal package is otherwise inaccessible).
+	dag := &DAGExport{
+		DAGExportResponse: DAGExportResponse{
+			RootCid:        "bafyroot",
+			TotalBlocks:    1,
+			TotalSizeBytes: 256,
+			Blocks: []DAGBlock{
+				{
+					Cid:   "bafyroot",
+					Size:  256,
+					Links: []DAGLink{{Cid: "bafychild", Index: 0}},
+					SiaObject: &CIDExportResponse{
+						Cid:          "bafyroot",
+						SizeBytes:    256,
+						SharedObject: SharedObject{DataKey: []int{0xAB}},
+					},
+				},
+			},
+		},
+	}
+	require.NotNil(t, dag)
+	assert.Equal(t, "bafyroot", dag.RootCid)
+	assert.Len(t, dag.Blocks, 1)
+	assert.Len(t, dag.Blocks[0].SiaObject.SharedObject.DataKey, 1)
+
+	so := &SiaObject{
+		CIDExportResponse: CIDExportResponse{
+			Cid:          "bafybeieffnocaq7t4w4daagvydl32igft5oziyyaebqr6vx6rb3fwh2ab4",
+			SizeBytes:    1024,
+			SharedObject: SharedObject{Slabs: []SlabSlice{{Version: 1, MinShards: 3, Offset: 0, Length: 1024}}},
+		},
+	}
+	require.NotNil(t, so)
+	assert.Len(t, so.SharedObject.Slabs, 1)
+	assert.Equal(t, 3, so.SharedObject.Slabs[0].MinShards)
+}

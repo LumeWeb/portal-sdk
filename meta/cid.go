@@ -62,6 +62,19 @@ type CIDStats struct {
 	internalmeta.CIDStatsResponse
 }
 
+// Exported aliases for the underlying response types so external consumers can
+// construct DAGExport / SiaObject values (the embedded fields are generated
+// types from an internal package otherwise inaccessible to consumers).
+type (
+	DAGExportResponse = internalmeta.DAGExportResponse
+	CIDExportResponse = internalmeta.CIDExportResponse
+	DAGBlock          = internalmeta.DAGBlock
+	DAGLink           = internalmeta.DAGLink
+	SharedObject      = internalmeta.SharedObject
+	SlabSlice         = internalmeta.SlabSlice
+	PinnedSector      = internalmeta.PinnedSector
+)
+
 // DAGExport wraps the generated DAGExportResponse to reuse all fields.
 type DAGExport struct {
 	internalmeta.DAGExportResponse
