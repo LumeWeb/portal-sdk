@@ -1,3 +1,9 @@
+## 0.1.64 (2026-08-04)
+
+### Features
+
+- export meta response types for external consumers
+
 ## 0.1.63 (2026-08-01)
 
 ### Features
