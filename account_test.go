@@ -5758,3 +5758,33 @@ func TestSubscribeBillingEvents_DispatchesTypedEvents(t *testing.T) {
 		t.Fatal("timed out waiting for event")
 	}
 }
+
+// TestClient_SetAuthTokenHotUpdate verifies the account client's JWT can be
+// hot-swapped at runtime without recreating the client. A long-lived client
+// must be able to push a fresh token after the credentials change (e.g. a login
+// or config reload) so subsequent requests carry the new Authorization header
+// instead of the stale startup token.
+func TestClient_SetAuthTokenHotUpdate(t *testing.T) {
+	gotAuth := ""
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gotAuth = r.Header.Get("Authorization")
+		if r.URL.Path != "/api/auth/ping" {
+			t.Errorf("expected /api/auth/ping, got %s", r.URL.Path)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{}`))
+	}))
+	defer server.Close()
+
+	acc := NewClient(WithEndpoint(server.URL), WithJWT("token-a"))
+
+	// First request uses the startup token.
+	require.NoError(t, acc.Ping(context.Background()))
+	assert.Equal(t, "Bearer token-a", gotAuth, "initial request should use the startup token")
+
+	// Hot-swap the token, then verify subsequent requests send the new one.
+	acc.SetAuthToken("token-b")
+	require.NoError(t, acc.Ping(context.Background()))
+	assert.Equal(t, "Bearer token-b", gotAuth, "request after SetAuthToken must use the new token")
+}

@@ -1037,11 +1037,18 @@ type AccountAPI interface {
 
 	// ListPricingPlans lists available pricing plans with their periods.
 	ListPricingPlans(ctx context.Context) ([]*PricingPlanPublic, int, error)
+
+	// SetAuthToken hot-updates the JWT used for authenticated requests without
+	// recreating the client. A long-lived client can call this after the
+	// credentials change (e.g. after a login or config reload) so subsequent
+	// requests carry the new token.
+	SetAuthToken(token string)
 }
 
 // Client implements AccountAPI using the generated OpenAPI client.
 type Client struct {
 	client          client.ClientWithResponsesInterface
+	mu              sync.RWMutex // guards jwt so SetAuthToken can hot-swap it concurrently with request-editor reads
 	jwt             string
 	endpoint        string
 	disableRedirect bool
@@ -1132,13 +1139,19 @@ func NewClient(opts ...ClientOption) AccountAPI {
 	// Build client options from config
 	clientOpts := []client.ClientOption{}
 
-	// Add JWT request editor if provided
-	if cfg.jwt != "" {
-		clientOpts = append(clientOpts, client.WithRequestEditorFn(func(ctx context.Context, req *http.Request) error {
-			req.Header.Set("Authorization", "Bearer "+cfg.jwt)
-			return nil
-		}))
-	}
+	// Add JWT request editor. The editor always reads the current token from
+	// clientWrapper.jwt (under the mutex) rather than capturing cfg.jwt by
+	// value, so a later SetAuthToken hot-swaps the token for subsequent
+	// requests without recreating the client.
+	clientOpts = append(clientOpts, client.WithRequestEditorFn(func(ctx context.Context, req *http.Request) error {
+		clientWrapper.mu.RLock()
+		token := clientWrapper.jwt
+		clientWrapper.mu.RUnlock()
+		if token != "" {
+			req.Header.Set("Authorization", "Bearer "+token)
+		}
+		return nil
+	}))
 
 	// Create HTTP client with redirect control and optional host override using shared utilities
 	httpClient := internalhttp.BuildHTTPClient(&clientWrapper.disableRedirect, cfg.hostOverride)
@@ -1149,6 +1162,16 @@ func NewClient(opts ...ClientOption) AccountAPI {
 	c, _ := client.NewClientWithResponses(cfg.endpoint, clientOpts...)
 	clientWrapper.client = c
 	return clientWrapper
+}
+
+// SetAuthToken hot-updates the JWT used for authenticated requests. This lets a
+// long-lived client swap in a fresh token after the credentials change (e.g. a
+// login or config reload) without recreating the client, so subsequent requests
+// carry the new Authorization header.
+func (c *Client) SetAuthToken(token string) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.jwt = token
 }
 
 // NewClientWithDefaults creates a new AccountAPI client with default settings (for testing).

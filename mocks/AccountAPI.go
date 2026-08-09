@@ -2547,6 +2547,46 @@ func (_c *MockAccountAPI_ResumeBilling_Call) RunAndReturn(run func(ctx context.C
 	return _c
 }
 
+// SetAuthToken provides a mock function for the type MockAccountAPI
+func (_mock *MockAccountAPI) SetAuthToken(token string) {
+	_mock.Called(token)
+	return
+}
+
+// MockAccountAPI_SetAuthToken_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SetAuthToken'
+type MockAccountAPI_SetAuthToken_Call struct {
+	*mock.Call
+}
+
+// SetAuthToken is a helper method to define mock.On call
+//   - token string
+func (_e *MockAccountAPI_Expecter) SetAuthToken(token any) *MockAccountAPI_SetAuthToken_Call {
+	return &MockAccountAPI_SetAuthToken_Call{Call: _e.mock.On("SetAuthToken", token)}
+}
+
+func (_c *MockAccountAPI_SetAuthToken_Call) Run(run func(token string)) *MockAccountAPI_SetAuthToken_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockAccountAPI_SetAuthToken_Call) Return() *MockAccountAPI_SetAuthToken_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *MockAccountAPI_SetAuthToken_Call) RunAndReturn(run func(token string)) *MockAccountAPI_SetAuthToken_Call {
+	_c.Run(run)
+	return _c
+}
+
 // SubscribeBillingEvents provides a mock function for the type MockAccountAPI
 func (_mock *MockAccountAPI) SubscribeBillingEvents(ctx context.Context, opts ...account.SSEOption) (*account.SubscriptionEventStream, error) {
 	// account.SSEOption
