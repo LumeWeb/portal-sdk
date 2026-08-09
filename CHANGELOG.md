@@ -1,3 +1,9 @@
+## 0.1.65 (2026-08-09)
+
+### Features
+
+- support hot-updating the auth JWT on a long-lived client
+
 ## 0.1.64 (2026-08-04)
 
 ### Features
