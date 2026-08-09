@@ -1,28 +1,30 @@
-unroll-variadic: true
-filename: "{{.InterfaceName}}.go"
 include-auto-generated: true
+template: testify
+template-data:
+  unroll-variadic: true
+filename: "{{.InterfaceName}}.go"
 packages:
   go.lumeweb.com/portal-sdk:
     config:
       dir: ./mocks
-      outpkg: "mocks"
+      pkgname: mocks
     interfaces:
       AccountAPI: {}
   go.lumeweb.com/portal-sdk/internal/client:
     config:
       dir: ./internal/client/mocks
-      outpkg: "mocks"
+      pkgname: mocks
     interfaces:
       ClientWithResponsesInterface: {}
   go.lumeweb.com/portal-sdk/internal/admin:
     config:
       dir: ./internal/admin/mocks
-      outpkg: "mocks"
+      pkgname: mocks
     interfaces:
       ClientWithResponsesInterface: {}
   go.lumeweb.com/portal-sdk/internal/meta:
     config:
       dir: ./internal/meta/mocks
-      outpkg: "mocks"
+      pkgname: mocks
     interfaces:
       ClientWithResponsesInterface: {}
