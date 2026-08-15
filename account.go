@@ -1460,7 +1460,21 @@ func (c *Client) ListAPIKeys(ctx context.Context, opts ...ListOption) ([]*APIKey
 		}
 	}
 
-	resp, err := c.client.GetApiAccountKeysWithResponse(ctx, params)
+	// Add a request editor so the list can be filtered by name search,
+	// mirroring ListOperations. The generated params struct has no global
+	// search field, so the editor appends it as the q query param, which the
+	// dashboard's getApiAccountKeys handler maps onto the name filter via
+	// queryutil.ApplyFilters.
+	reqEditor := func(_ context.Context, req *http.Request) error {
+		if options.Search != "" {
+			query := req.URL.Query()
+			query.Set("q", options.Search)
+			req.URL.RawQuery = query.Encode()
+		}
+		return nil
+	}
+
+	resp, err := c.client.GetApiAccountKeysWithResponse(ctx, params, reqEditor)
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to send list API keys request: %w", err)
 	}

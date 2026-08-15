@@ -2003,6 +2003,13 @@ func TestListAPIKeys(t *testing.T) {
 			opts:       []ListOption{WithPagination(&queryutil.Pagination{Start: 0, End: 0})},
 		},
 		{
+			name:       "list API keys with name search",
+			jwt:        "valid-token",
+			statusCode: http.StatusOK,
+			wantErr:    false,
+			opts:       []ListOption{WithSearch("cli")},
+		},
+		{
 			name:       "list API keys with empty data",
 			jwt:        "valid-token",
 			statusCode: http.StatusOK,
@@ -2035,6 +2042,13 @@ func TestListAPIKeys(t *testing.T) {
 					}
 					if r.URL.Query().Get("_end") != "10" {
 						t.Errorf("expected _end=10, got %s", r.URL.Query().Get("_end"))
+					}
+				}
+
+				// Verify the search term is sent as the q query param
+				if tt.name == "list API keys with name search" {
+					if got := r.URL.Query().Get("q"); got != "cli" {
+						t.Errorf("expected q=cli, got q=%q", got)
 					}
 				}
 
@@ -2148,7 +2162,7 @@ func TestListAPIKeys_NilJSON200(t *testing.T) {
 		JSON200:      nil, // This is the key - 200 status but nil JSON200
 	}
 
-	mockClient.On("GetApiAccountKeysWithResponse", mock.Anything, mock.Anything).
+	mockClient.On("GetApiAccountKeysWithResponse", mock.Anything, mock.Anything, mock.Anything).
 		Return(mockResp, nil)
 
 	acc := NewClientWithDefaults(mockClient)
