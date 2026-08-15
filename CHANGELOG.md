@@ -1,3 +1,9 @@
+## 0.1.66 (2026-08-15)
+
+### Fixes
+
+- send name search as q param in ListAPIKeys
+
 ## 0.1.65 (2026-08-09)
 
 ### Features
