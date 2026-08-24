@@ -1,3 +1,9 @@
+## 0.1.69 (2026-08-24)
+
+### Features
+
+- add platform domain website binding
+
 ## 0.1.68 (2026-08-24)
 
 ### Features
