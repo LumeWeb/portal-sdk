@@ -1,3 +1,9 @@
+## 0.1.68 (2026-08-24)
+
+### Features
+
+- add platform domain management service
+
 ## 0.1.67 (2026-08-24)
 
 ### Fixes
