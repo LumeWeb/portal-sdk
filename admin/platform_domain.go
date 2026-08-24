@@ -13,8 +13,9 @@ import (
 
 // Platform domain error sentinels
 var (
-	errPlatformDomainNotFound = internalhttp.NotFoundError("platform domain not found")
-	errInvalidPlatformDomain  = internalhttp.BadRequestError("invalid platform domain data")
+	errPlatformDomainNotFound    = internalhttp.NotFoundError("platform domain not found")
+	errInvalidPlatformDomain     = internalhttp.BadRequestError("invalid platform domain data")
+	errInvalidPlatformDomainBind = internalhttp.BadRequestError("invalid platform domain bind request")
 )
 
 const (
@@ -23,6 +24,7 @@ const (
 	OpPlatformDomainRegister
 	OpPlatformDomainDelete
 	OpPlatformDomainUpdate
+	OpPlatformDomainBind
 )
 
 const defaultPlatformDomainOperationName = "platform domain operation"
@@ -36,6 +38,7 @@ var platformDomainOperationString = map[int]string{
 	OpPlatformDomainRegister: "register platform domain",
 	OpPlatformDomainDelete:   "delete platform domain",
 	OpPlatformDomainUpdate:   "update platform domain",
+	OpPlatformDomainBind:     "bind website to platform domain",
 }
 
 // platformDomainHTTPErrorMessages maps platform domain operation IDs to their custom status code error messages.
@@ -58,6 +61,12 @@ var platformDomainHTTPErrorMessages = map[int]map[int]internalhttp.ErrorFactoryE
 		stdhttp.StatusUnauthorized: errAuthRequired,
 		stdhttp.StatusForbidden:    errInsufficientPermissions,
 		stdhttp.StatusBadRequest:   errInvalidPlatformDomain,
+		stdhttp.StatusNotFound:     errPlatformDomainNotFound,
+	},
+	OpPlatformDomainBind: {
+		stdhttp.StatusUnauthorized: errAuthRequired,
+		stdhttp.StatusForbidden:    errInsufficientPermissions,
+		stdhttp.StatusBadRequest:   errInvalidPlatformDomainBind,
 		stdhttp.StatusNotFound:     errPlatformDomainNotFound,
 	},
 }
@@ -106,12 +115,19 @@ func validatePlatformDomainJSON201[T any](respStatusCode int, json201 *T, nilMsg
 type (
 	PlatformDomainRequest       = admin.PlatformDomainRequest
 	PlatformDomainUpdateRequest = admin.PlatformDomainUpdateRequest
+	PlatformDomainBindRequest   = admin.PlatformDomainBindRequest
 )
 
 // PlatformDomain represents a platform-owned root domain that users can claim
 // subdomains under. Embeds the generated admin.PlatformDomainResponse.
 type PlatformDomain struct {
 	admin.PlatformDomainResponse
+}
+
+// RootDomain represents the root apex domain of a platform domain after an
+// operator-owned website is bound to it. Embeds the generated admin.DomainResponse.
+type RootDomain struct {
+	admin.DomainResponse
 }
 
 // PlatformDomainService provides methods for managing platform domains.
@@ -186,4 +202,21 @@ func (p *PlatformDomainService) UpdatePlatformDomain(ctx context.Context, id str
 	}
 
 	return &PlatformDomain{PlatformDomainResponse: *data}, nil
+}
+
+// BindWebsiteToPlatformDomain binds an operator-owned website directly to the
+// root apex of a platform domain (e.g. "pinner.site"). The platform root's DNS
+// zone is auto-created on first use.
+func (p *PlatformDomainService) BindWebsiteToPlatformDomain(ctx context.Context, id string, req *PlatformDomainBindRequest) (*RootDomain, error) {
+	resp, err := p.client.PostApiIpfsPlatformDomainsIdBindWithResponse(ctx, id, *req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to bind website to platform domain: %w", err)
+	}
+
+	data, err := validatePlatformDomainJSON200(resp.StatusCode(), resp.JSON200, OpPlatformDomainBind)
+	if err != nil {
+		return nil, err
+	}
+
+	return &RootDomain{DomainResponse: *data}, nil
 }

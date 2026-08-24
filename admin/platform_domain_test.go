@@ -137,7 +137,6 @@ func TestPlatformDomainService_RegisterPlatformDomain(t *testing.T) {
 				require.NoError(t, json.NewDecoder(r.Body).Decode(&body))
 				require.Equal(t, "example.net", body.Domain)
 				require.Equal(t, "devs", body.Namespace)
-				require.Equal(t, 7, body.ZoneId)
 
 				w.Header().Set("Content-Type", "application/json")
 				w.WriteHeader(tt.statusCode)
@@ -149,7 +148,7 @@ func TestPlatformDomainService_RegisterPlatformDomain(t *testing.T) {
 			require.NoError(t, err)
 
 			domain, err := client.PlatformDomains().RegisterPlatformDomain(context.Background(), &admin.PlatformDomainRequest{
-				Domain: "example.net", Namespace: "devs", ZoneId: 7, Enabled: &enabled,
+				Domain: "example.net", Namespace: "devs", Enabled: &enabled,
 			})
 
 			if (err != nil) != tt.wantErr {
@@ -310,6 +309,93 @@ func TestPlatformDomainService_UpdatePlatformDomain(t *testing.T) {
 				require.NotNil(t, domain)
 				require.Equal(t, 3, domain.Id)
 				require.False(t, domain.Enabled)
+			}
+		})
+	}
+}
+
+func TestPlatformDomainService_BindWebsiteToPlatformDomain(t *testing.T) {
+	tests := []struct {
+		name       string
+		statusCode int
+		response   interface{}
+		wantErr    bool
+		errCheck   func(*testing.T, error)
+	}{
+		{
+			name:       "successful bind website to platform domain",
+			statusCode: http.StatusOK,
+			response: admin.DomainResponse{
+				Id: 9, Domain: "platform.example.com", Namespace: "users", DnsHostingEnabled: true,
+			},
+			wantErr: false,
+		},
+		{
+			name:       "unauthorized",
+			statusCode: http.StatusUnauthorized,
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "unauthorized"}},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "unauthorized")
+			},
+		},
+		{
+			name:       "invalid bind request",
+			statusCode: http.StatusBadRequest,
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "invalid platform domain bind request"}},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "invalid platform domain bind request")
+			},
+		},
+		{
+			name:       "platform domain not found",
+			statusCode: http.StatusNotFound,
+			response:   admin.ErrorResponse{Error: admin.ErrorDetail{Reason: "platform domain not found"}},
+			wantErr:    true,
+			errCheck: func(t *testing.T, err error) {
+				require.ErrorContains(t, err, "platform domain not found")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				require.Equal(t, "POST", r.Method)
+				require.Equal(t, "/api/ipfs/platform-domains/5/bind", r.URL.Path)
+
+				var body admin.PlatformDomainBindRequest
+				require.NoError(t, json.NewDecoder(r.Body).Decode(&body))
+				require.Equal(t, 42, body.WebsiteId)
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				if tt.response != nil {
+					require.NoError(t, json.NewEncoder(w).Encode(tt.response))
+				}
+			}))
+			defer server.Close()
+
+			client, err := NewClient(WithEndpoint(server.URL))
+			require.NoError(t, err)
+
+			rootDomain, err := client.PlatformDomains().BindWebsiteToPlatformDomain(context.Background(), "5", &admin.PlatformDomainBindRequest{WebsiteId: 42})
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("BindWebsiteToPlatformDomain() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if tt.wantErr && tt.errCheck != nil {
+				tt.errCheck(t, err)
+			}
+
+			if !tt.wantErr {
+				require.NotNil(t, rootDomain)
+				require.Equal(t, 9, rootDomain.Id)
+				require.Equal(t, "platform.example.com", rootDomain.Domain)
+				require.True(t, rootDomain.DnsHostingEnabled)
 			}
 		})
 	}

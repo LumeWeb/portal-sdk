@@ -313,6 +313,24 @@ type CreditsListResponse struct {
 	Total int          `json:"total"`
 }
 
+// DNSDelegation defines model for DNSDelegation.
+type DNSDelegation struct {
+	AuthoritativeRecords *[]DNSDelegationRecord `json:"authoritative_records,omitempty"`
+	Dnssec               *string                `json:"dnssec,omitempty"`
+	DnssecError          *string                `json:"dnssec_error,omitempty"`
+	Mode                 *string                `json:"mode,omitempty"`
+	Nameservers          *[]string              `json:"nameservers,omitempty"`
+	ParentRecords        *[]DNSDelegationRecord `json:"parent_records,omitempty"`
+}
+
+// DNSDelegationRecord defines model for DNSDelegationRecord.
+type DNSDelegationRecord struct {
+	Address *string `json:"address,omitempty"`
+	Ns      *string `json:"ns,omitempty"`
+	Type    string  `json:"type"`
+	Value   *string `json:"value,omitempty"`
+}
+
 // Decimal defines model for Decimal.
 type Decimal = decimal.Decimal
 
@@ -320,6 +338,19 @@ type Decimal = decimal.Decimal
 type DeletedCreditsListResponse struct {
 	Data  []CreditItem `json:"data"`
 	Total int          `json:"total"`
+}
+
+// DomainResponse defines model for DomainResponse.
+type DomainResponse struct {
+	Delegation        *DNSDelegation `json:"delegation,omitempty"`
+	DnsHostingEnabled bool           `json:"dns_hosting_enabled"`
+	Domain            string         `json:"domain"`
+	GatewayHost       *string        `json:"gateway_host,omitempty"`
+	Id                int            `json:"id"`
+	Namespace         string         `json:"namespace"`
+	Ssl               *SSLStatusInfo `json:"ssl,omitempty"`
+	Status            *string        `json:"status,omitempty"`
+	ZoneName          *string        `json:"zone_name,omitempty"`
 }
 
 // ErrorDetail defines model for ErrorDetail.
@@ -373,6 +404,11 @@ type PlanListResponse struct {
 	Total int                 `json:"total"`
 }
 
+// PlatformDomainBindRequest defines model for PlatformDomainBindRequest.
+type PlatformDomainBindRequest struct {
+	WebsiteId int `json:"website_id"`
+}
+
 // PlatformDomainListResponse defines model for PlatformDomainListResponse.
 type PlatformDomainListResponse struct {
 	Data  []PlatformDomainResponse `json:"data"`
@@ -384,7 +420,6 @@ type PlatformDomainRequest struct {
 	Domain    string `json:"domain"`
 	Enabled   *bool  `json:"enabled,omitempty"`
 	Namespace string `json:"namespace"`
-	ZoneId    int    `json:"zone_id"`
 }
 
 // PlatformDomainResponse defines model for PlatformDomainResponse.
@@ -1026,6 +1061,9 @@ type PostApiIpfsPlatformDomainsJSONRequestBody = PlatformDomainRequest
 // PatchApiIpfsPlatformDomainsIdJSONRequestBody defines body for PatchApiIpfsPlatformDomainsId for application/json ContentType.
 type PatchApiIpfsPlatformDomainsIdJSONRequestBody = PlatformDomainUpdateRequest
 
+// PostApiIpfsPlatformDomainsIdBindJSONRequestBody defines body for PostApiIpfsPlatformDomainsIdBind for application/json ContentType.
+type PostApiIpfsPlatformDomainsIdBindJSONRequestBody = PlatformDomainBindRequest
+
 // PostApiQuotaAllowancesJSONRequestBody defines body for PostApiQuotaAllowances for application/json ContentType.
 type PostApiQuotaAllowancesJSONRequestBody = AllowanceGrantRequest
 
@@ -1343,6 +1381,11 @@ type ClientInterface interface {
 	PatchApiIpfsPlatformDomainsIdWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	PatchApiIpfsPlatformDomainsId(ctx context.Context, id string, body PatchApiIpfsPlatformDomainsIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiIpfsPlatformDomainsIdBindWithBody request with any body
+	PostApiIpfsPlatformDomainsIdBindWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PostApiIpfsPlatformDomainsIdBind(ctx context.Context, id string, body PostApiIpfsPlatformDomainsIdBindJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// PostApiIpfsWebsitesIdBlock request
 	PostApiIpfsWebsitesIdBlock(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -2363,6 +2406,30 @@ func (c *Client) PatchApiIpfsPlatformDomainsIdWithBody(ctx context.Context, id s
 
 func (c *Client) PatchApiIpfsPlatformDomainsId(ctx context.Context, id string, body PatchApiIpfsPlatformDomainsIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPatchApiIpfsPlatformDomainsIdRequest(c.Server, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiIpfsPlatformDomainsIdBindWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiIpfsPlatformDomainsIdBindRequestWithBody(c.Server, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiIpfsPlatformDomainsIdBind(ctx context.Context, id string, body PostApiIpfsPlatformDomainsIdBindJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiIpfsPlatformDomainsIdBindRequest(c.Server, id, body)
 	if err != nil {
 		return nil, err
 	}
@@ -5641,6 +5708,53 @@ func NewPatchApiIpfsPlatformDomainsIdRequestWithBody(server string, id string, c
 	return req, nil
 }
 
+// NewPostApiIpfsPlatformDomainsIdBindRequest calls the generic PostApiIpfsPlatformDomainsIdBind builder with application/json body
+func NewPostApiIpfsPlatformDomainsIdBindRequest(server string, id string, body PostApiIpfsPlatformDomainsIdBindJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostApiIpfsPlatformDomainsIdBindRequestWithBody(server, id, "application/json", bodyReader)
+}
+
+// NewPostApiIpfsPlatformDomainsIdBindRequestWithBody generates requests for PostApiIpfsPlatformDomainsIdBind with any type of body
+func NewPostApiIpfsPlatformDomainsIdBindRequestWithBody(server string, id string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/ipfs/platform-domains/%s/bind", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewPostApiIpfsWebsitesIdBlockRequest generates requests for PostApiIpfsWebsitesIdBlock
 func NewPostApiIpfsWebsitesIdBlockRequest(server string, id string) (*http.Request, error) {
 	var err error
@@ -6554,6 +6668,11 @@ type ClientWithResponsesInterface interface {
 	PatchApiIpfsPlatformDomainsIdWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchApiIpfsPlatformDomainsIdResponse, error)
 
 	PatchApiIpfsPlatformDomainsIdWithResponse(ctx context.Context, id string, body PatchApiIpfsPlatformDomainsIdJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchApiIpfsPlatformDomainsIdResponse, error)
+
+	// PostApiIpfsPlatformDomainsIdBindWithBodyWithResponse request with any body
+	PostApiIpfsPlatformDomainsIdBindWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiIpfsPlatformDomainsIdBindResponse, error)
+
+	PostApiIpfsPlatformDomainsIdBindWithResponse(ctx context.Context, id string, body PostApiIpfsPlatformDomainsIdBindJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiIpfsPlatformDomainsIdBindResponse, error)
 
 	// PostApiIpfsWebsitesIdBlockWithResponse request
 	PostApiIpfsWebsitesIdBlockWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*PostApiIpfsWebsitesIdBlockResponse, error)
@@ -8868,6 +8987,42 @@ func (r PatchApiIpfsPlatformDomainsIdResponse) ContentType() string {
 	return ""
 }
 
+type PostApiIpfsPlatformDomainsIdBindResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *DomainResponse
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiIpfsPlatformDomainsIdBindResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiIpfsPlatformDomainsIdBindResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PostApiIpfsPlatformDomainsIdBindResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type PostApiIpfsWebsitesIdBlockResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -10184,6 +10339,23 @@ func (c *ClientWithResponses) PatchApiIpfsPlatformDomainsIdWithResponse(ctx cont
 		return nil, err
 	}
 	return ParsePatchApiIpfsPlatformDomainsIdResponse(rsp)
+}
+
+// PostApiIpfsPlatformDomainsIdBindWithBodyWithResponse request with arbitrary body returning *PostApiIpfsPlatformDomainsIdBindResponse
+func (c *ClientWithResponses) PostApiIpfsPlatformDomainsIdBindWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiIpfsPlatformDomainsIdBindResponse, error) {
+	rsp, err := c.PostApiIpfsPlatformDomainsIdBindWithBody(ctx, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiIpfsPlatformDomainsIdBindResponse(rsp)
+}
+
+func (c *ClientWithResponses) PostApiIpfsPlatformDomainsIdBindWithResponse(ctx context.Context, id string, body PostApiIpfsPlatformDomainsIdBindJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiIpfsPlatformDomainsIdBindResponse, error) {
+	rsp, err := c.PostApiIpfsPlatformDomainsIdBind(ctx, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiIpfsPlatformDomainsIdBindResponse(rsp)
 }
 
 // PostApiIpfsWebsitesIdBlockWithResponse request returning *PostApiIpfsWebsitesIdBlockResponse
@@ -14284,6 +14456,74 @@ func ParsePatchApiIpfsPlatformDomainsIdResponse(rsp *http.Response) (*PatchApiIp
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest PlatformDomainResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiIpfsPlatformDomainsIdBindResponse parses an HTTP response from a PostApiIpfsPlatformDomainsIdBindWithResponse call
+func ParsePostApiIpfsPlatformDomainsIdBindResponse(rsp *http.Response) (*PostApiIpfsPlatformDomainsIdBindResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiIpfsPlatformDomainsIdBindResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest DomainResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

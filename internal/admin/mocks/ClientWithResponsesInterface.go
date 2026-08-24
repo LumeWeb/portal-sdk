@@ -6405,6 +6405,198 @@ func (_c *MockClientWithResponsesInterface_PostApiIpfsIpnsRepublishWithResponse_
 	return _c
 }
 
+// PostApiIpfsPlatformDomainsIdBindWithBodyWithResponse provides a mock function for the type MockClientWithResponsesInterface
+func (_mock *MockClientWithResponsesInterface) PostApiIpfsPlatformDomainsIdBindWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...admin.RequestEditorFn) (*admin.PostApiIpfsPlatformDomainsIdBindResponse, error) {
+	// admin.RequestEditorFn
+	_va := make([]any, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []any
+	_ca = append(_ca, ctx, id, contentType, body)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PostApiIpfsPlatformDomainsIdBindWithBodyWithResponse")
+	}
+
+	var r0 *admin.PostApiIpfsPlatformDomainsIdBindResponse
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, io.Reader, ...admin.RequestEditorFn) (*admin.PostApiIpfsPlatformDomainsIdBindResponse, error)); ok {
+		return returnFunc(ctx, id, contentType, body, reqEditors...)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, io.Reader, ...admin.RequestEditorFn) *admin.PostApiIpfsPlatformDomainsIdBindResponse); ok {
+		r0 = returnFunc(ctx, id, contentType, body, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*admin.PostApiIpfsPlatformDomainsIdBindResponse)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string, string, io.Reader, ...admin.RequestEditorFn) error); ok {
+		r1 = returnFunc(ctx, id, contentType, body, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_PostApiIpfsPlatformDomainsIdBindWithBodyWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PostApiIpfsPlatformDomainsIdBindWithBodyWithResponse'
+type MockClientWithResponsesInterface_PostApiIpfsPlatformDomainsIdBindWithBodyWithResponse_Call struct {
+	*mock.Call
+}
+
+// PostApiIpfsPlatformDomainsIdBindWithBodyWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id string
+//   - contentType string
+//   - body io.Reader
+//   - reqEditors ...admin.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) PostApiIpfsPlatformDomainsIdBindWithBodyWithResponse(ctx any, id any, contentType any, body any, reqEditors ...any) *MockClientWithResponsesInterface_PostApiIpfsPlatformDomainsIdBindWithBodyWithResponse_Call {
+	return &MockClientWithResponsesInterface_PostApiIpfsPlatformDomainsIdBindWithBodyWithResponse_Call{Call: _e.mock.On("PostApiIpfsPlatformDomainsIdBindWithBodyWithResponse",
+		append([]any{ctx, id, contentType, body}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiIpfsPlatformDomainsIdBindWithBodyWithResponse_Call) Run(run func(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...admin.RequestEditorFn)) *MockClientWithResponsesInterface_PostApiIpfsPlatformDomainsIdBindWithBodyWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		var arg3 io.Reader
+		if args[3] != nil {
+			arg3 = args[3].(io.Reader)
+		}
+		var arg4 []admin.RequestEditorFn
+		variadicArgs := make([]admin.RequestEditorFn, len(args)-4)
+		for i, a := range args[4:] {
+			if a != nil {
+				variadicArgs[i] = a.(admin.RequestEditorFn)
+			}
+		}
+		arg4 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3,
+			arg4...,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiIpfsPlatformDomainsIdBindWithBodyWithResponse_Call) Return(postApiIpfsPlatformDomainsIdBindResponse *admin.PostApiIpfsPlatformDomainsIdBindResponse, err error) *MockClientWithResponsesInterface_PostApiIpfsPlatformDomainsIdBindWithBodyWithResponse_Call {
+	_c.Call.Return(postApiIpfsPlatformDomainsIdBindResponse, err)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiIpfsPlatformDomainsIdBindWithBodyWithResponse_Call) RunAndReturn(run func(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...admin.RequestEditorFn) (*admin.PostApiIpfsPlatformDomainsIdBindResponse, error)) *MockClientWithResponsesInterface_PostApiIpfsPlatformDomainsIdBindWithBodyWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// PostApiIpfsPlatformDomainsIdBindWithResponse provides a mock function for the type MockClientWithResponsesInterface
+func (_mock *MockClientWithResponsesInterface) PostApiIpfsPlatformDomainsIdBindWithResponse(ctx context.Context, id string, body admin.PostApiIpfsPlatformDomainsIdBindJSONRequestBody, reqEditors ...admin.RequestEditorFn) (*admin.PostApiIpfsPlatformDomainsIdBindResponse, error) {
+	// admin.RequestEditorFn
+	_va := make([]any, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []any
+	_ca = append(_ca, ctx, id, body)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PostApiIpfsPlatformDomainsIdBindWithResponse")
+	}
+
+	var r0 *admin.PostApiIpfsPlatformDomainsIdBindResponse
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, admin.PostApiIpfsPlatformDomainsIdBindJSONRequestBody, ...admin.RequestEditorFn) (*admin.PostApiIpfsPlatformDomainsIdBindResponse, error)); ok {
+		return returnFunc(ctx, id, body, reqEditors...)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, admin.PostApiIpfsPlatformDomainsIdBindJSONRequestBody, ...admin.RequestEditorFn) *admin.PostApiIpfsPlatformDomainsIdBindResponse); ok {
+		r0 = returnFunc(ctx, id, body, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*admin.PostApiIpfsPlatformDomainsIdBindResponse)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string, admin.PostApiIpfsPlatformDomainsIdBindJSONRequestBody, ...admin.RequestEditorFn) error); ok {
+		r1 = returnFunc(ctx, id, body, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_PostApiIpfsPlatformDomainsIdBindWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PostApiIpfsPlatformDomainsIdBindWithResponse'
+type MockClientWithResponsesInterface_PostApiIpfsPlatformDomainsIdBindWithResponse_Call struct {
+	*mock.Call
+}
+
+// PostApiIpfsPlatformDomainsIdBindWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id string
+//   - body admin.PostApiIpfsPlatformDomainsIdBindJSONRequestBody
+//   - reqEditors ...admin.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) PostApiIpfsPlatformDomainsIdBindWithResponse(ctx any, id any, body any, reqEditors ...any) *MockClientWithResponsesInterface_PostApiIpfsPlatformDomainsIdBindWithResponse_Call {
+	return &MockClientWithResponsesInterface_PostApiIpfsPlatformDomainsIdBindWithResponse_Call{Call: _e.mock.On("PostApiIpfsPlatformDomainsIdBindWithResponse",
+		append([]any{ctx, id, body}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiIpfsPlatformDomainsIdBindWithResponse_Call) Run(run func(ctx context.Context, id string, body admin.PostApiIpfsPlatformDomainsIdBindJSONRequestBody, reqEditors ...admin.RequestEditorFn)) *MockClientWithResponsesInterface_PostApiIpfsPlatformDomainsIdBindWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 admin.PostApiIpfsPlatformDomainsIdBindJSONRequestBody
+		if args[2] != nil {
+			arg2 = args[2].(admin.PostApiIpfsPlatformDomainsIdBindJSONRequestBody)
+		}
+		var arg3 []admin.RequestEditorFn
+		variadicArgs := make([]admin.RequestEditorFn, len(args)-3)
+		for i, a := range args[3:] {
+			if a != nil {
+				variadicArgs[i] = a.(admin.RequestEditorFn)
+			}
+		}
+		arg3 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3...,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiIpfsPlatformDomainsIdBindWithResponse_Call) Return(postApiIpfsPlatformDomainsIdBindResponse *admin.PostApiIpfsPlatformDomainsIdBindResponse, err error) *MockClientWithResponsesInterface_PostApiIpfsPlatformDomainsIdBindWithResponse_Call {
+	_c.Call.Return(postApiIpfsPlatformDomainsIdBindResponse, err)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiIpfsPlatformDomainsIdBindWithResponse_Call) RunAndReturn(run func(ctx context.Context, id string, body admin.PostApiIpfsPlatformDomainsIdBindJSONRequestBody, reqEditors ...admin.RequestEditorFn) (*admin.PostApiIpfsPlatformDomainsIdBindResponse, error)) *MockClientWithResponsesInterface_PostApiIpfsPlatformDomainsIdBindWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // PostApiIpfsPlatformDomainsWithBodyWithResponse provides a mock function for the type MockClientWithResponsesInterface
 func (_mock *MockClientWithResponsesInterface) PostApiIpfsPlatformDomainsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...admin.RequestEditorFn) (*admin.PostApiIpfsPlatformDomainsResponse, error) {
 	// admin.RequestEditorFn

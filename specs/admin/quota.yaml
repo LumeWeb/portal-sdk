@@ -320,6 +320,42 @@ components:
       - data
       - total
       type: object
+    DNSDelegation:
+      additionalProperties: false
+      properties:
+        authoritative_records:
+          items:
+            $ref: '#/components/schemas/DNSDelegationRecord'
+          type: array
+        dnssec:
+          type: string
+        dnssec_error:
+          type: string
+        mode:
+          type: string
+        nameservers:
+          items:
+            type: string
+          type: array
+        parent_records:
+          items:
+            $ref: '#/components/schemas/DNSDelegationRecord'
+          type: array
+      type: object
+    DNSDelegationRecord:
+      additionalProperties: false
+      properties:
+        address:
+          type: string
+        ns:
+          type: string
+        type:
+          type: string
+        value:
+          type: string
+      required:
+      - type
+      type: object
     Decimal:
       additionalProperties: false
       type: object
@@ -335,6 +371,33 @@ components:
       required:
       - data
       - total
+      type: object
+    DomainResponse:
+      additionalProperties: false
+      properties:
+        delegation:
+          $ref: '#/components/schemas/DNSDelegation'
+        dns_hosting_enabled:
+          type: boolean
+        domain:
+          type: string
+        gateway_host:
+          type: string
+        id:
+          type: integer
+        namespace:
+          type: string
+        ssl:
+          $ref: '#/components/schemas/SSLStatusInfo'
+        status:
+          type: string
+        zone_name:
+          type: string
+      required:
+      - id
+      - domain
+      - namespace
+      - dns_hosting_enabled
       type: object
     ErrorDetail:
       additionalProperties: false
@@ -437,6 +500,14 @@ components:
       - data
       - total
       type: object
+    PlatformDomainBindRequest:
+      additionalProperties: false
+      properties:
+        website_id:
+          type: integer
+      required:
+      - website_id
+      type: object
     PlatformDomainListResponse:
       additionalProperties: false
       properties:
@@ -459,12 +530,9 @@ components:
           type: boolean
         namespace:
           type: string
-        zone_id:
-          type: integer
       required:
       - domain
       - namespace
-      - zone_id
       type: object
     PlatformDomainResponse:
       additionalProperties: false
@@ -4636,9 +4704,9 @@ paths:
       description: |-
         Registers a platform-owned root domain that users can claim free subdomains under.
 
-        Operator-only operation. The zone referenced by zone_id must already be provisioned and owned by the operator.
+        Operator-only operation. The operator's DNS zone for the root is auto-created (idempotently) from the authenticated operator.
 
-        See also: GET /platform-domains (list), PATCH /platform-domains/:id (enable/disable), DELETE /platform-domains/:id
+        See also: GET /platform-domains (list), PATCH /platform-domains/:id (enable/disable), DELETE /platform-domains/:id, POST /platform-domains/:id/bind
       requestBody:
         content:
           application/json:
@@ -4814,6 +4882,75 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Internal server error
       summary: Update platform domain
+      tags:
+      - Admin
+      - PlatformDomains
+  /api/ipfs/platform-domains/{id}/bind:
+    post:
+      description: |-
+        Binds an operator-owned website directly to the root apex of a platform domain (e.g. "pinner.site").
+
+        Operator-only operation. The website must be owned by the authenticated operator. The apex binding reuses the platform root's auto-created zone.
+
+        See also: POST /platform-domains (register), PATCH /platform-domains/:id (enable/disable)
+      parameters:
+      - description: Platform domain ID
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlatformDomainBindRequest'
+        description: Website to bind to the root apex
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainResponse'
+          description: Website bound to platform root apex
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Bind website to platform root apex
       tags:
       - Admin
       - PlatformDomains
