@@ -1327,10 +1327,10 @@ func TestOperationStatus_IsSettled(t *testing.T) {
 		want   bool
 	}{
 		{"pending is not settled", OperationStatusPending, false},
-		{"running is not settled", OperationStatusRunning, false},
+		{"processing is not settled", OperationStatusProcessing, false},
 		{"completed is settled", OperationStatusCompleted, true},
 		{"failed is settled", OperationStatusFailed, true},
-		{"error is settled", OperationStatusError, true},
+		{"duplicate is settled", OperationStatusDuplicate, true},
 	}
 
 	for _, tt := range tests {
@@ -1343,7 +1343,7 @@ func TestOperationStatus_IsSettled(t *testing.T) {
 }
 
 func TestWaitForOperation(t *testing.T) {
-	// Test with a mock that returns running first, then completed
+	// Test with a mock that returns processing first, then completed
 	callCount := 0
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		callCount++
@@ -1352,10 +1352,10 @@ func TestWaitForOperation(t *testing.T) {
 
 		var resp client.OperationDetailResponse
 		if callCount == 1 {
-			// First call: running
+			// First call: processing
 			resp = client.OperationDetailResponse{
 				Id:              123,
-				Status:          OperationStatusRunning.String(),
+				Status:          OperationStatusProcessing.String(),
 				Cid:             lo.ToPtr("QmTest"),
 				ProgressPercent: float32(25.0),
 				StatusMessage:   "In progress",
@@ -1723,9 +1723,9 @@ func TestWaitForOperation_Timeout(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 		resp := client.OperationDetailResponse{
 			Id:            123,
-			Status:        OperationStatusRunning.String(),
+			Status:        OperationStatusProcessing.String(),
 			Cid:           lo.ToPtr("QmTest"),
-			StatusMessage: "Still running",
+			StatusMessage: "Still processing",
 		}
 		require.NoError(t, json.NewEncoder(w).Encode(resp))
 	}))
@@ -1814,9 +1814,9 @@ func TestWaitForOperation_ContextTimeout(t *testing.T) {
 			w.WriteHeader(http.StatusOK)
 			resp := client.OperationDetailResponse{
 				Id:            123,
-				Status:        OperationStatusRunning.String(),
+				Status:        OperationStatusProcessing.String(),
 				Cid:           lo.ToPtr("QmTest"),
-				StatusMessage: "Still running",
+				StatusMessage: "Still processing",
 			}
 			require.NoError(t, json.NewEncoder(w).Encode(resp))
 		}
@@ -1882,7 +1882,7 @@ func TestGetOperationFilters(t *testing.T) {
 								},
 								Statuses: []client.OperationFilterItem{
 									{Name: "completed", Value: OperationStatusCompleted.String()},
-									{Name: "running", Value: OperationStatusRunning.String()},
+									{Name: "processing", Value: OperationStatusProcessing.String()},
 								},
 							},
 						},
@@ -2882,8 +2882,8 @@ func TestListOperations(t *testing.T) {
 								OperationDisplayName: "Download",
 								Protocol:             "ipfs",
 								ProtocolDisplayName:  "IPFS",
-								Status:               client.OperationListItemStatus(OperationStatusRunning.String()),
-								StatusDisplayName:    "Running",
+								Status:               client.OperationListItemStatus(OperationStatusProcessing.String()),
+								StatusDisplayName:    "Processing",
 								StatusMessage:        "In progress",
 								ProgressPercent:      50.0,
 								Cid:                  lo.ToPtr("QmTest2"),
@@ -2994,10 +2994,10 @@ func TestOperation_IsSettled(t *testing.T) {
 		want   bool
 	}{
 		{"pending is not settled", OperationStatusPending.String(), false},
-		{"running is not settled", OperationStatusRunning.String(), false},
+		{"processing is not settled", OperationStatusProcessing.String(), false},
 		{"completed is settled", OperationStatusCompleted.String(), true},
 		{"failed is settled", OperationStatusFailed.String(), true},
-		{"error is settled", OperationStatusError.String(), true},
+		{"duplicate is settled", OperationStatusDuplicate.String(), true},
 	}
 
 	for _, tt := range tests {
