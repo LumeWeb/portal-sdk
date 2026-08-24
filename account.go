@@ -26,18 +26,18 @@ import (
 type OperationStatus string
 
 const (
-	OperationStatusPending   OperationStatus = "pending"
-	OperationStatusRunning   OperationStatus = "running"
-	OperationStatusCompleted OperationStatus = "completed"
-	OperationStatusFailed    OperationStatus = "failed"
-	OperationStatusError     OperationStatus = "error"
+	OperationStatusPending    OperationStatus = "pending"
+	OperationStatusProcessing OperationStatus = "processing"
+	OperationStatusCompleted  OperationStatus = "completed"
+	OperationStatusFailed     OperationStatus = "failed"
+	OperationStatusDuplicate  OperationStatus = "duplicate"
 )
 
 // DefaultSettledStates are the default operation statuses considered "settled" (finished).
 var DefaultSettledStates = []OperationStatus{
 	OperationStatusCompleted,
 	OperationStatusFailed,
-	OperationStatusError,
+	OperationStatusDuplicate,
 }
 
 // RateLimiterFunc is a function that checks whether an operation is allowed based on available quota.
@@ -415,7 +415,7 @@ var httpErrorMessages = map[int]map[int]internalhttp.ErrorFactoryError{
 
 // IsSettled returns true if the operation is in a settled state (finished, no longer being processed).
 func (s OperationStatus) IsSettled() bool {
-	return s == OperationStatusCompleted || s == OperationStatusFailed || s == OperationStatusError
+	return s == OperationStatusCompleted || s == OperationStatusFailed || s == OperationStatusDuplicate
 }
 
 // String returns the string representation of the operation status.
@@ -786,7 +786,7 @@ func WithPollTimeout(d time.Duration) PollOption {
 }
 
 // WithPollSettledStates sets the operation statuses that are considered "settled".
-// If not provided, defaults to [OperationStatusCompleted, OperationStatusFailed, OperationStatusError].
+// If not provided, defaults to [OperationStatusCompleted, OperationStatusFailed, OperationStatusDuplicate].
 func WithPollSettledStates(states ...OperationStatus) PollOption {
 	return func(c *pollConfig) {
 		c.settledStates = states
