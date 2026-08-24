@@ -1,3 +1,9 @@
+## 0.1.67 (2026-08-24)
+
+### Fixes
+
+- sync OperationStatus constants with generated client enum
+
 ## 0.1.66 (2026-08-15)
 
 ### Fixes
