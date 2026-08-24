@@ -44,6 +44,7 @@ type AdminAPI interface {
 	Billing() *BillingService
 	Website() *WebsiteService
 	Profiling() *ProfilingService
+	PlatformDomains() *PlatformDomainService
 }
 
 // AdminClient provides access to admin APIs for managing quotas, billing, and users.
@@ -53,6 +54,7 @@ type AdminClient struct {
 	billing         *BillingService
 	website         *WebsiteService
 	profiling       *ProfilingService
+	platformDomains *PlatformDomainService
 	config          *clientConfig
 	jwt             string
 	apiKey          string
@@ -190,11 +192,16 @@ func NewClient(opts ...ClientOption) (*AdminClient, error) {
 		client: c,
 	}
 
+	platformDomainService := &PlatformDomainService{
+		client: c,
+	}
+
 	clientWrapper.client = c
 	clientWrapper.quota = quotaService
 	clientWrapper.billing = billingService
 	clientWrapper.website = websiteService
 	clientWrapper.profiling = profilingService
+	clientWrapper.platformDomains = platformDomainService
 	clientWrapper.config = cfg
 	return clientWrapper, nil
 }
@@ -217,6 +224,12 @@ func (a *AdminClient) Website() *WebsiteService {
 // Profiling returns the profiling service for managing Go runtime profiling.
 func (a *AdminClient) Profiling() *ProfilingService {
 	return a.profiling
+}
+
+// PlatformDomains returns the platform domain service for managing platform-owned
+// root domains that users can claim subdomains under.
+func (a *AdminClient) PlatformDomains() *PlatformDomainService {
+	return a.platformDomains
 }
 
 // RequestExecutor provides a method to execute requests with the admin client's configuration.

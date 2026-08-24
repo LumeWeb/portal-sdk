@@ -437,6 +437,63 @@ components:
       - data
       - total
       type: object
+    PlatformDomainListResponse:
+      additionalProperties: false
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/PlatformDomainResponse'
+          type: array
+        total:
+          type: integer
+      required:
+      - data
+      - total
+      type: object
+    PlatformDomainRequest:
+      additionalProperties: false
+      properties:
+        domain:
+          type: string
+        enabled:
+          type: boolean
+        namespace:
+          type: string
+        zone_id:
+          type: integer
+      required:
+      - domain
+      - namespace
+      - zone_id
+      type: object
+    PlatformDomainResponse:
+      additionalProperties: false
+      properties:
+        domain:
+          type: string
+        enabled:
+          type: boolean
+        id:
+          type: integer
+        namespace:
+          type: string
+        zone_id:
+          type: integer
+      required:
+      - id
+      - domain
+      - namespace
+      - zone_id
+      - enabled
+      type: object
+    PlatformDomainUpdateRequest:
+      additionalProperties: false
+      properties:
+        enabled:
+          type: boolean
+      required:
+      - enabled
+      type: object
     PriceLineCreateRequest:
       additionalProperties: false
       properties:
@@ -1262,8 +1319,6 @@ components:
           type: string
         dns_hosting_enabled:
           type: boolean
-        dns_zone_id:
-          type: integer
         domain:
           type: string
         expired:
@@ -1297,6 +1352,8 @@ components:
           type: string
         validation_token:
           type: string
+        zone_id:
+          type: integer
       required:
       - id
       - domain
@@ -1516,6 +1573,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -1572,6 +1635,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -1618,6 +1687,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Resource not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -1667,6 +1742,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Resource not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -1717,6 +1798,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Resource not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -1767,6 +1854,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -1817,6 +1910,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -1864,6 +1963,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -1908,6 +2013,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -1957,6 +2068,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -2002,6 +2119,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -2051,6 +2174,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -2106,6 +2235,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -2163,6 +2298,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -2216,6 +2357,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -2279,6 +2426,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -2323,6 +2476,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -2372,6 +2531,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -2418,6 +2583,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -2467,6 +2638,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -2523,6 +2700,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -2567,6 +2750,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -2616,6 +2805,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -2661,6 +2856,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -2710,6 +2911,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -2765,6 +2972,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -2805,6 +3018,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -2849,6 +3068,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -2899,6 +3124,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Resource not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -2949,6 +3180,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Resource not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -3164,6 +3401,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -3214,6 +3457,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -3272,6 +3521,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Resource not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -3323,6 +3578,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: No scheduled cancellation found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -3380,6 +3641,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Resource not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -3430,6 +3697,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: No active subscription found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -3480,6 +3753,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: No paused subscription found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -3507,6 +3786,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -3534,6 +3819,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -3574,6 +3865,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -3601,6 +3898,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -3628,6 +3931,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -3655,6 +3964,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -3682,6 +3997,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -3722,6 +4043,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -3750,6 +4077,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -3781,6 +4114,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -3808,6 +4147,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -3835,6 +4180,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -3862,6 +4213,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -3871,6 +4228,303 @@ paths:
       summary: Execution trace
       tags:
       - Profiling
+  /api/internal/pprof/block:
+    get:
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Success
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+  /api/internal/pprof/cmdline:
+    get:
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Success
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+  /api/internal/pprof/goroutine:
+    get:
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Success
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+  /api/internal/pprof/heap:
+    get:
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Success
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+  /api/internal/pprof/mutex:
+    get:
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Success
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+  /api/internal/pprof/profile:
+    get:
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Success
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+  /api/internal/pprof/symbol:
+    get:
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Success
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+  /api/internal/pprof/threadcreate:
+    get:
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Success
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+  /api/internal/pprof/trace:
+    get:
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Success
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
   /api/ipfs/ipns/republish:
     post:
       description: |-
@@ -3910,6 +4564,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -3920,6 +4580,243 @@ paths:
       tags:
       - Admin
       - IPNS
+  /api/ipfs/platform-domains:
+    get:
+      description: Lists all registered platform-owned roots, including disabled ones.
+        Returns the standard paginated list shape ({data, total}) with query-param
+        filtering and paging.
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlatformDomainListResponse'
+          description: Platform domains listed
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: List platform domains
+      tags:
+      - Admin
+      - PlatformDomains
+    post:
+      description: |-
+        Registers a platform-owned root domain that users can claim free subdomains under.
+
+        Operator-only operation. The zone referenced by zone_id must already be provisioned and owned by the operator.
+
+        See also: GET /platform-domains (list), PATCH /platform-domains/:id (enable/disable), DELETE /platform-domains/:id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlatformDomainRequest'
+        description: Platform domain to register
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Success
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlatformDomainResponse'
+          description: Platform domain registered
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Register platform domain
+      tags:
+      - Admin
+      - PlatformDomains
+  /api/ipfs/platform-domains/{id}:
+    delete:
+      description: Removes a registered platform root. Existing subdomain bindings
+        remain but can no longer be reconciled as platform subdomains.
+      parameters:
+      - description: Platform domain ID
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: Platform domain deleted
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Delete platform domain
+      tags:
+      - Admin
+      - PlatformDomains
+    patch:
+      description: Enables or disables a registered platform root. Disabling prevents
+        new claims but does not delete existing bindings.
+      parameters:
+      - description: Platform domain ID
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlatformDomainUpdateRequest'
+        description: Platform domain update
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlatformDomainResponse'
+          description: Platform domain updated
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Update platform domain
+      tags:
+      - Admin
+      - PlatformDomains
   /api/ipfs/websites/{id}/block:
     post:
       description: |-
@@ -3968,6 +4865,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -4027,6 +4930,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -4060,6 +4969,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -4104,6 +5019,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -4139,6 +5060,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -4184,6 +5111,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -4216,6 +5149,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -4260,6 +5199,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -4295,6 +5240,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -4333,6 +5284,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -4378,6 +5335,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -4413,6 +5376,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -4452,6 +5421,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -4491,6 +5466,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -4523,6 +5504,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -4556,6 +5543,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -4602,6 +5595,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
@@ -4637,6 +5636,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
         "500":
           content:
             application/json:
