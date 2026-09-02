@@ -1103,6 +1103,119 @@ components:
       required:
       - status
       type: object
+    SocialProviderListResponse:
+      additionalProperties: false
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/SocialProviderResponse'
+          type: array
+        total:
+          type: integer
+      required:
+      - data
+      - total
+      type: object
+    SocialProviderRequest:
+      additionalProperties: false
+      properties:
+        auth_url:
+          type: string
+        client_id:
+          type: string
+        client_secret:
+          type: string
+        display_name:
+          type: string
+        enabled:
+          type: boolean
+        order_index:
+          type: integer
+        provider_id:
+          type: string
+        scopes:
+          items:
+            type: string
+          type: array
+        token_url:
+          type: string
+        user_email_key:
+          type: string
+        user_id_key:
+          type: string
+        user_name_key:
+          type: string
+        user_url:
+          type: string
+      required:
+      - provider_id
+      - display_name
+      - client_id
+      - client_secret
+      - scopes
+      - auth_url
+      - token_url
+      - user_url
+      - user_id_key
+      - user_email_key
+      - user_name_key
+      - enabled
+      - order_index
+      type: object
+    SocialProviderResponse:
+      additionalProperties: false
+      properties:
+        auth_url:
+          type: string
+        client_id:
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        display_name:
+          type: string
+        enabled:
+          type: boolean
+        id:
+          type: integer
+        order_index:
+          type: integer
+        provider_id:
+          type: string
+        scopes:
+          items:
+            type: string
+          type: array
+        token_url:
+          type: string
+        updated_at:
+          format: date-time
+          type: string
+        user_email_key:
+          type: string
+        user_id_key:
+          type: string
+        user_name_key:
+          type: string
+        user_url:
+          type: string
+      required:
+      - id
+      - provider_id
+      - display_name
+      - client_id
+      - scopes
+      - auth_url
+      - token_url
+      - user_url
+      - user_id_key
+      - user_email_key
+      - user_name_key
+      - enabled
+      - order_index
+      - created_at
+      - updated_at
+      type: object
     SubscriberItem:
       additionalProperties: false
       properties:
@@ -5789,5 +5902,325 @@ paths:
       tags:
       - quota
       - user-configs
+  /api/social/providers:
+    get:
+      description: Get a paginated list of all configured social login providers.
+        Secrets are never returned.
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SocialProviderListResponse'
+          description: List of providers
+          headers:
+            X-Total-Count:
+              description: Total number of items
+              schema:
+                type: string
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: List social login providers
+      tags:
+      - social
+      - providers
+    post:
+      description: Create a new social login provider configuration
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SocialProviderRequest'
+        description: Provider configuration
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Success
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SocialProviderResponse'
+          description: Provider created
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Create social login provider
+      tags:
+      - social
+      - providers
+  /api/social/providers/{id}:
+    delete:
+      description: Delete a social login provider by ID
+      parameters:
+      - description: Numeric ID of the provider
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: Provider deleted
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Delete social login provider
+      tags:
+      - social
+      - providers
+    get:
+      description: Get a single social login provider by ID
+      parameters:
+      - description: Numeric ID of the provider
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SocialProviderResponse'
+          description: Provider details
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Get social login provider
+      tags:
+      - social
+      - providers
+    put:
+      description: Update an existing social login provider
+      parameters:
+      - description: Numeric ID of the provider
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SocialProviderRequest'
+        description: Provider configuration
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SocialProviderResponse'
+          description: Provider updated
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Update social login provider
+      tags:
+      - social
+      - providers
+  /api/social/providers/{id}/disable:
+    post:
+      description: Disable a social login provider
+      parameters:
+      - description: Numeric ID of the provider
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SocialProviderResponse'
+          description: Provider disabled
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Disable social login provider
+      tags:
+      - social
+      - providers
+  /api/social/providers/{id}/enable:
+    post:
+      description: Enable a social login provider
+      parameters:
+      - description: Numeric ID of the provider
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SocialProviderResponse'
+          description: Provider enabled
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Enable social login provider
+      tags:
+      - social
+      - providers
 servers:
 - url: /
