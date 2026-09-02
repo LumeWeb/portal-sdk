@@ -71,6 +71,20 @@ type APIKeyResponse struct {
 	Uuid      BinaryUUID `json:"uuid"`
 }
 
+// ASMetadata defines model for ASMetadata.
+type ASMetadata struct {
+	AuthorizationEndpoint             string   `json:"authorization_endpoint"`
+	ClientIdMetadataDocumentSupported *bool    `json:"client_id_metadata_document_supported,omitempty"`
+	CodeChallengeMethodsSupported     []string `json:"code_challenge_methods_supported"`
+	GrantTypesSupported               []string `json:"grant_types_supported"`
+	Issuer                            string   `json:"issuer"`
+	RegistrationEndpoint              *string  `json:"registration_endpoint,omitempty"`
+	ResponseTypesSupported            []string `json:"response_types_supported"`
+	ScopesSupported                   []string `json:"scopes_supported"`
+	TokenEndpoint                     string   `json:"token_endpoint"`
+	TokenEndpointAuthMethodsSupported []string `json:"token_endpoint_auth_methods_supported"`
+}
+
 // AccessModel defines model for AccessModel.
 type AccessModel struct {
 	Matchers          AccessModelDef `json:"matchers"`
@@ -291,6 +305,47 @@ type ManagementResultResponse struct {
 	Url                  *string                  `json:"url,omitempty"`
 }
 
+// OAuthApproveRequest defines model for OAuthApproveRequest.
+type OAuthApproveRequest struct {
+	Approve bool `json:"approve"`
+}
+
+// OAuthClientResponse defines model for OAuthClientResponse.
+type OAuthClientResponse struct {
+	ClientId                string   `json:"client_id"`
+	ClientName              string   `json:"client_name"`
+	GrantTypes              []string `json:"grant_types"`
+	RedirectUris            []string `json:"redirect_uris"`
+	ResponseTypes           []string `json:"response_types"`
+	TokenEndpointAuthMethod string   `json:"token_endpoint_auth_method"`
+}
+
+// OAuthRedirectResponse defines model for OAuthRedirectResponse.
+type OAuthRedirectResponse struct {
+	RedirectUri string `json:"redirect_uri"`
+}
+
+// OAuthRegisterRequest defines model for OAuthRegisterRequest.
+type OAuthRegisterRequest struct {
+	ApplicationType         string   `json:"application_type"`
+	ClientName              string   `json:"client_name"`
+	GrantTypes              []string `json:"grant_types"`
+	RedirectUris            []string `json:"redirect_uris"`
+	ResponseTypes           []string `json:"response_types"`
+	TokenEndpointAuthMethod string   `json:"token_endpoint_auth_method"`
+}
+
+// OAuthTokenRequest defines model for OAuthTokenRequest.
+type OAuthTokenRequest struct {
+	ClientId     string `json:"client_id"`
+	Code         string `json:"code"`
+	CodeVerifier string `json:"code_verifier"`
+	GrantType    string `json:"grant_type"`
+	RedirectUri  string `json:"redirect_uri"`
+	RefreshToken string `json:"refresh_token"`
+	Resource     string `json:"resource"`
+}
+
 // OTPDisableRequest defines model for OTPDisableRequest.
 type OTPDisableRequest struct {
 	Password string `json:"password"`
@@ -428,6 +483,13 @@ type PublicPricingPlansListResponse struct {
 	Total int                         `json:"total"`
 }
 
+// PublicProviderResponse defines model for PublicProviderResponse.
+type PublicProviderResponse struct {
+	DisplayName string `json:"display_name"`
+	OrderIndex  int    `json:"order_index"`
+	ProviderId  string `json:"provider_id"`
+}
+
 // QuotaHistoryResponse defines model for QuotaHistoryResponse.
 type QuotaHistoryResponse struct {
 	Points []UsagePoint `json:"points"`
@@ -465,6 +527,25 @@ type ResendVerifyEmailRequest struct {
 	Email string `json:"email"`
 }
 
+// SocialAccountListResponse defines model for SocialAccountListResponse.
+type SocialAccountListResponse struct {
+	Data  []SocialAccountResponse `json:"data"`
+	Total int                     `json:"total"`
+}
+
+// SocialAccountResponse defines model for SocialAccountResponse.
+type SocialAccountResponse struct {
+	CreatedAt      time.Time `json:"created_at"`
+	Email          string    `json:"email"`
+	Provider       string    `json:"provider"`
+	ProviderUserId string    `json:"provider_user_id"`
+}
+
+// SocialConsentResponse defines model for SocialConsentResponse.
+type SocialConsentResponse struct {
+	RedirectUri string `json:"redirect_uri"`
+}
+
 // SubscriptionStatusResponse defines model for SubscriptionStatusResponse.
 type SubscriptionStatusResponse struct {
 	CreatedAt           *time.Time `json:"created_at,omitempty"`
@@ -474,6 +555,14 @@ type SubscriptionStatusResponse struct {
 	PricingPlanPeriodId *int       `json:"pricing_plan_period_id,omitempty"`
 	UpdatedAt           *time.Time `json:"updated_at,omitempty"`
 	WillCancelAt        *time.Time `json:"will_cancel_at,omitempty"`
+}
+
+// TokenResponse defines model for TokenResponse.
+type TokenResponse struct {
+	AccessToken  string  `json:"access_token"`
+	ExpiresIn    int     `json:"expires_in"`
+	RefreshToken *string `json:"refresh_token,omitempty"`
+	TokenType    string  `json:"token_type"`
 }
 
 // UUID defines model for UUID.
@@ -539,8 +628,56 @@ type WindowInfo struct {
 	Type      string  `json:"type"`
 }
 
+// OpenIDConfig defines model for openIDConfig.
+type OpenIDConfig struct {
+	AuthorizationEndpoint             string   `json:"authorization_endpoint"`
+	CodeChallengeMethodsSupported     []string `json:"code_challenge_methods_supported"`
+	GrantTypesSupported               []string `json:"grant_types_supported"`
+	IdTokenSigningAlgValuesSupported  []string `json:"id_token_signing_alg_values_supported"`
+	Issuer                            string   `json:"issuer"`
+	JwksUri                           string   `json:"jwks_uri"`
+	RegistrationEndpoint              *string  `json:"registration_endpoint,omitempty"`
+	ResponseTypesSupported            []string `json:"response_types_supported"`
+	ScopesSupported                   []string `json:"scopes_supported"`
+	SubjectTypesSupported             []string `json:"subject_types_supported"`
+	TokenEndpoint                     string   `json:"token_endpoint"`
+	TokenEndpointAuthMethodsSupported []string `json:"token_endpoint_auth_methods_supported"`
+}
+
 // StringUUIDSchema defines model for stringUUIDSchema.
 type StringUUIDSchema = openapi_types.UUID
+
+// WebKey defines model for webKey.
+type WebKey struct {
+	Alg *string `json:"alg,omitempty"`
+	Crv *string `json:"crv,omitempty"`
+	Kid *string `json:"kid,omitempty"`
+	Kty string  `json:"kty"`
+	Use *string `json:"use,omitempty"`
+	X   *string `json:"x,omitempty"`
+}
+
+// WebKeySet defines model for webKeySet.
+type WebKeySet struct {
+	Keys []WebKey `json:"keys"`
+}
+
+// GetApiAccountAuthSsoProviderParams defines parameters for GetApiAccountAuthSsoProvider.
+type GetApiAccountAuthSsoProviderParams struct {
+	// Return URL to redirect to after successful authentication
+	Return *string `form:"return,omitempty" json:"return,omitempty"`
+}
+
+// PostApiAccountAuthSsoProviderConsentJSONBody defines parameters for PostApiAccountAuthSsoProviderConsent.
+type PostApiAccountAuthSsoProviderConsentJSONBody struct {
+	Approve bool `json:"approve"`
+}
+
+// PostApiAccountAuthSsoProviderLinkParams defines parameters for PostApiAccountAuthSsoProviderLink.
+type PostApiAccountAuthSsoProviderLinkParams struct {
+	// Return URL to redirect to after successful linking
+	Return *string `form:"return,omitempty" json:"return,omitempty"`
+}
 
 // PostApiAccountAvatarMultipartBody defines parameters for PostApiAccountAvatar.
 type PostApiAccountAvatarMultipartBody struct {
@@ -632,6 +769,60 @@ type PostApiAccountVerifyEmailParams struct {
 type PostApiAuthKeyParams struct {
 	// Authorization API Key followed by the key
 	Authorization *string `json:"Authorization,omitempty"`
+}
+
+// GetApiAuthOauthAuthorizeParams defines parameters for GetApiAuthOauthAuthorize.
+type GetApiAuthOauthAuthorizeParams struct {
+	// ClientId The registered OAuth client identifier
+	ClientId *string `form:"client_id,omitempty" json:"client_id,omitempty"`
+
+	// CodeChallenge PKCE code challenge (RFC 7636)
+	CodeChallenge *string `form:"code_challenge,omitempty" json:"code_challenge,omitempty"`
+
+	// CodeChallengeMethod PKCE challenge method; must be "S256"
+	CodeChallengeMethod *string `form:"code_challenge_method,omitempty" json:"code_challenge_method,omitempty"`
+
+	// RedirectUri The client redirect URI
+	RedirectUri *string `form:"redirect_uri,omitempty" json:"redirect_uri,omitempty"`
+
+	// Resource The MCP server resource being requested (RFC 8707)
+	Resource *string `form:"resource,omitempty" json:"resource,omitempty"`
+
+	// ResponseType Authorization flow response type; must be "code"
+	ResponseType *string `form:"response_type,omitempty" json:"response_type,omitempty"`
+
+	// Scope Requested scopes
+	Scope *string `form:"scope,omitempty" json:"scope,omitempty"`
+
+	// State Opaque state echoed back to the client
+	State *string `form:"state,omitempty" json:"state,omitempty"`
+}
+
+// PostApiAuthOauthAuthorizeParams defines parameters for PostApiAuthOauthAuthorize.
+type PostApiAuthOauthAuthorizeParams struct {
+	// ClientId The registered OAuth client identifier
+	ClientId *string `form:"client_id,omitempty" json:"client_id,omitempty"`
+
+	// CodeChallenge PKCE code challenge (RFC 7636)
+	CodeChallenge *string `form:"code_challenge,omitempty" json:"code_challenge,omitempty"`
+
+	// CodeChallengeMethod PKCE challenge method; must be "S256"
+	CodeChallengeMethod *string `form:"code_challenge_method,omitempty" json:"code_challenge_method,omitempty"`
+
+	// RedirectUri The client redirect URI
+	RedirectUri *string `form:"redirect_uri,omitempty" json:"redirect_uri,omitempty"`
+
+	// Resource The MCP server resource being requested (RFC 8707)
+	Resource *string `form:"resource,omitempty" json:"resource,omitempty"`
+
+	// ResponseType Authorization flow response type; must be "code"
+	ResponseType *string `form:"response_type,omitempty" json:"response_type,omitempty"`
+
+	// Scope Requested scopes
+	Scope *string `form:"scope,omitempty" json:"scope,omitempty"`
+
+	// State Opaque state echoed back to the client
+	State *string `form:"state,omitempty" json:"state,omitempty"`
 }
 
 // PostApiBillingCreditsPurchaseParams defines parameters for PostApiBillingCreditsPurchase.
@@ -931,6 +1122,9 @@ type GetApiOperationsParams struct {
 // PatchApiAccountJSONRequestBody defines body for PatchApiAccount for application/json ContentType.
 type PatchApiAccountJSONRequestBody = UpdateProfileRequest
 
+// PostApiAccountAuthSsoProviderConsentJSONRequestBody defines body for PostApiAccountAuthSsoProviderConsent for application/json ContentType.
+type PostApiAccountAuthSsoProviderConsentJSONRequestBody PostApiAccountAuthSsoProviderConsentJSONBody
+
 // PostApiAccountAvatarMultipartRequestBody defines body for PostApiAccountAvatar for multipart/form-data ContentType.
 type PostApiAccountAvatarMultipartRequestBody PostApiAccountAvatarMultipartBody
 
@@ -978,6 +1172,15 @@ type PostApiAuthKeyVerifyJSONRequestBody = KeyIdentityVerifyRequest
 
 // PostApiAuthLoginJSONRequestBody defines body for PostApiAuthLogin for application/json ContentType.
 type PostApiAuthLoginJSONRequestBody = LoginRequest
+
+// PostApiAuthOauthAuthorizeJSONRequestBody defines body for PostApiAuthOauthAuthorize for application/json ContentType.
+type PostApiAuthOauthAuthorizeJSONRequestBody = OAuthApproveRequest
+
+// PostApiAuthOauthRegisterJSONRequestBody defines body for PostApiAuthOauthRegister for application/json ContentType.
+type PostApiAuthOauthRegisterJSONRequestBody = OAuthRegisterRequest
+
+// PostApiAuthOauthTokenJSONRequestBody defines body for PostApiAuthOauthToken for application/json ContentType.
+type PostApiAuthOauthTokenJSONRequestBody = OAuthTokenRequest
 
 // PostApiAuthOtpDisableJSONRequestBody defines body for PostApiAuthOtpDisable for application/json ContentType.
 type PostApiAuthOtpDisableJSONRequestBody = OTPDisableRequest
@@ -1064,6 +1267,24 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
+	// GetWellKnownJwksJson request
+	GetWellKnownJwksJson(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// OptionsWellKnownJwksJson request
+	OptionsWellKnownJwksJson(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetWellKnownOauthAuthorizationServer request
+	GetWellKnownOauthAuthorizationServer(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// OptionsWellKnownOauthAuthorizationServer request
+	OptionsWellKnownOauthAuthorizationServer(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetWellKnownOpenidConfiguration request
+	GetWellKnownOpenidConfiguration(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// OptionsWellKnownOpenidConfiguration request
+	OptionsWellKnownOpenidConfiguration(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// DeleteApiAccount request
 	DeleteApiAccount(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -1074,6 +1295,35 @@ type ClientInterface interface {
 	PatchApiAccountWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	PatchApiAccount(ctx context.Context, body PatchApiAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiAccountAuthLinks request
+	GetApiAccountAuthLinks(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiAccountAuthProviders request
+	GetApiAccountAuthProviders(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteApiAccountAuthSsoProvider request
+	DeleteApiAccountAuthSsoProvider(ctx context.Context, provider string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiAccountAuthSsoProvider request
+	GetApiAccountAuthSsoProvider(ctx context.Context, provider string, params *GetApiAccountAuthSsoProviderParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiAccountAuthSsoProviderCallback request
+	GetApiAccountAuthSsoProviderCallback(ctx context.Context, provider string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiAccountAuthSsoProviderConsent request
+	GetApiAccountAuthSsoProviderConsent(ctx context.Context, provider string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiAccountAuthSsoProviderConsentWithBody request with any body
+	PostApiAccountAuthSsoProviderConsentWithBody(ctx context.Context, provider string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PostApiAccountAuthSsoProviderConsent(ctx context.Context, provider string, body PostApiAccountAuthSsoProviderConsentJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiAccountAuthSsoProviderLink request
+	PostApiAccountAuthSsoProviderLink(ctx context.Context, provider string, params *PostApiAccountAuthSsoProviderLinkParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiAccountAuthSsoProviderLogout request
+	GetApiAccountAuthSsoProviderLogout(ctx context.Context, provider string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetApiAccountAvatar request
 	GetApiAccountAvatar(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1219,6 +1469,24 @@ type ClientInterface interface {
 	// PostApiAuthLogout request
 	PostApiAuthLogout(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetApiAuthOauthAuthorize request
+	GetApiAuthOauthAuthorize(ctx context.Context, params *GetApiAuthOauthAuthorizeParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiAuthOauthAuthorizeWithBody request with any body
+	PostApiAuthOauthAuthorizeWithBody(ctx context.Context, params *PostApiAuthOauthAuthorizeParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PostApiAuthOauthAuthorize(ctx context.Context, params *PostApiAuthOauthAuthorizeParams, body PostApiAuthOauthAuthorizeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiAuthOauthRegisterWithBody request with any body
+	PostApiAuthOauthRegisterWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PostApiAuthOauthRegister(ctx context.Context, body PostApiAuthOauthRegisterJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiAuthOauthTokenWithBody request with any body
+	PostApiAuthOauthTokenWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PostApiAuthOauthToken(ctx context.Context, body PostApiAuthOauthTokenJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// PostApiAuthOtpDisableWithBody request with any body
 	PostApiAuthOtpDisableWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -1270,6 +1538,78 @@ type ClientInterface interface {
 	GetApiUploadLimit(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
+func (c *Client) GetWellKnownJwksJson(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetWellKnownJwksJsonRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) OptionsWellKnownJwksJson(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewOptionsWellKnownJwksJsonRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetWellKnownOauthAuthorizationServer(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetWellKnownOauthAuthorizationServerRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) OptionsWellKnownOauthAuthorizationServer(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewOptionsWellKnownOauthAuthorizationServerRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetWellKnownOpenidConfiguration(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetWellKnownOpenidConfigurationRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) OptionsWellKnownOpenidConfiguration(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewOptionsWellKnownOpenidConfigurationRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) DeleteApiAccount(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewDeleteApiAccountRequest(c.Server)
 	if err != nil {
@@ -1308,6 +1648,126 @@ func (c *Client) PatchApiAccountWithBody(ctx context.Context, contentType string
 
 func (c *Client) PatchApiAccount(ctx context.Context, body PatchApiAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPatchApiAccountRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetApiAccountAuthLinks(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiAccountAuthLinksRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetApiAccountAuthProviders(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiAccountAuthProvidersRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteApiAccountAuthSsoProvider(ctx context.Context, provider string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteApiAccountAuthSsoProviderRequest(c.Server, provider)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetApiAccountAuthSsoProvider(ctx context.Context, provider string, params *GetApiAccountAuthSsoProviderParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiAccountAuthSsoProviderRequest(c.Server, provider, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetApiAccountAuthSsoProviderCallback(ctx context.Context, provider string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiAccountAuthSsoProviderCallbackRequest(c.Server, provider)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetApiAccountAuthSsoProviderConsent(ctx context.Context, provider string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiAccountAuthSsoProviderConsentRequest(c.Server, provider)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiAccountAuthSsoProviderConsentWithBody(ctx context.Context, provider string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiAccountAuthSsoProviderConsentRequestWithBody(c.Server, provider, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiAccountAuthSsoProviderConsent(ctx context.Context, provider string, body PostApiAccountAuthSsoProviderConsentJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiAccountAuthSsoProviderConsentRequest(c.Server, provider, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiAccountAuthSsoProviderLink(ctx context.Context, provider string, params *PostApiAccountAuthSsoProviderLinkParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiAccountAuthSsoProviderLinkRequest(c.Server, provider, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetApiAccountAuthSsoProviderLogout(ctx context.Context, provider string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiAccountAuthSsoProviderLogoutRequest(c.Server, provider)
 	if err != nil {
 		return nil, err
 	}
@@ -1954,6 +2414,90 @@ func (c *Client) PostApiAuthLogout(ctx context.Context, reqEditors ...RequestEdi
 	return c.Client.Do(req)
 }
 
+func (c *Client) GetApiAuthOauthAuthorize(ctx context.Context, params *GetApiAuthOauthAuthorizeParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiAuthOauthAuthorizeRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiAuthOauthAuthorizeWithBody(ctx context.Context, params *PostApiAuthOauthAuthorizeParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiAuthOauthAuthorizeRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiAuthOauthAuthorize(ctx context.Context, params *PostApiAuthOauthAuthorizeParams, body PostApiAuthOauthAuthorizeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiAuthOauthAuthorizeRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiAuthOauthRegisterWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiAuthOauthRegisterRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiAuthOauthRegister(ctx context.Context, body PostApiAuthOauthRegisterJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiAuthOauthRegisterRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiAuthOauthTokenWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiAuthOauthTokenRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiAuthOauthToken(ctx context.Context, body PostApiAuthOauthTokenJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiAuthOauthTokenRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) PostApiAuthOtpDisableWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPostApiAuthOtpDisableRequestWithBody(c.Server, contentType, body)
 	if err != nil {
@@ -2170,6 +2714,168 @@ func (c *Client) GetApiUploadLimit(ctx context.Context, reqEditors ...RequestEdi
 	return c.Client.Do(req)
 }
 
+// NewGetWellKnownJwksJsonRequest generates requests for GetWellKnownJwksJson
+func NewGetWellKnownJwksJsonRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/.well-known/jwks.json")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewOptionsWellKnownJwksJsonRequest generates requests for OptionsWellKnownJwksJson
+func NewOptionsWellKnownJwksJsonRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/.well-known/jwks.json")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodOptions, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetWellKnownOauthAuthorizationServerRequest generates requests for GetWellKnownOauthAuthorizationServer
+func NewGetWellKnownOauthAuthorizationServerRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/.well-known/oauth-authorization-server")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewOptionsWellKnownOauthAuthorizationServerRequest generates requests for OptionsWellKnownOauthAuthorizationServer
+func NewOptionsWellKnownOauthAuthorizationServerRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/.well-known/oauth-authorization-server")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodOptions, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetWellKnownOpenidConfigurationRequest generates requests for GetWellKnownOpenidConfiguration
+func NewGetWellKnownOpenidConfigurationRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/.well-known/openid-configuration")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewOptionsWellKnownOpenidConfigurationRequest generates requests for OptionsWellKnownOpenidConfiguration
+func NewOptionsWellKnownOpenidConfigurationRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/.well-known/openid-configuration")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodOptions, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewDeleteApiAccountRequest generates requests for DeleteApiAccount
 func NewDeleteApiAccountRequest(server string) (*http.Request, error) {
 	var err error
@@ -2260,6 +2966,365 @@ func NewPatchApiAccountRequestWithBody(server string, contentType string, body i
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetApiAccountAuthLinksRequest generates requests for GetApiAccountAuthLinks
+func NewGetApiAccountAuthLinksRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/account/auth/links")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetApiAccountAuthProvidersRequest generates requests for GetApiAccountAuthProviders
+func NewGetApiAccountAuthProvidersRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/account/auth/providers")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewDeleteApiAccountAuthSsoProviderRequest generates requests for DeleteApiAccountAuthSsoProvider
+func NewDeleteApiAccountAuthSsoProviderRequest(server string, provider string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "provider", provider, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/account/auth/sso/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetApiAccountAuthSsoProviderRequest generates requests for GetApiAccountAuthSsoProvider
+func NewGetApiAccountAuthSsoProviderRequest(server string, provider string, params *GetApiAccountAuthSsoProviderParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "provider", provider, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/account/auth/sso/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Return != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "return", *params.Return, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetApiAccountAuthSsoProviderCallbackRequest generates requests for GetApiAccountAuthSsoProviderCallback
+func NewGetApiAccountAuthSsoProviderCallbackRequest(server string, provider string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "provider", provider, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/account/auth/sso/%s/callback", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetApiAccountAuthSsoProviderConsentRequest generates requests for GetApiAccountAuthSsoProviderConsent
+func NewGetApiAccountAuthSsoProviderConsentRequest(server string, provider string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "provider", provider, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/account/auth/sso/%s/consent", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPostApiAccountAuthSsoProviderConsentRequest calls the generic PostApiAccountAuthSsoProviderConsent builder with application/json body
+func NewPostApiAccountAuthSsoProviderConsentRequest(server string, provider string, body PostApiAccountAuthSsoProviderConsentJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostApiAccountAuthSsoProviderConsentRequestWithBody(server, provider, "application/json", bodyReader)
+}
+
+// NewPostApiAccountAuthSsoProviderConsentRequestWithBody generates requests for PostApiAccountAuthSsoProviderConsent with any type of body
+func NewPostApiAccountAuthSsoProviderConsentRequestWithBody(server string, provider string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "provider", provider, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/account/auth/sso/%s/consent", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPostApiAccountAuthSsoProviderLinkRequest generates requests for PostApiAccountAuthSsoProviderLink
+func NewPostApiAccountAuthSsoProviderLinkRequest(server string, provider string, params *PostApiAccountAuthSsoProviderLinkParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "provider", provider, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/account/auth/sso/%s/link", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Return != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "return", *params.Return, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetApiAccountAuthSsoProviderLogoutRequest generates requests for GetApiAccountAuthSsoProviderLogout
+func NewGetApiAccountAuthSsoProviderLogoutRequest(server string, provider string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "provider", provider, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/account/auth/sso/%s/logout", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -3867,6 +4932,375 @@ func NewPostApiAuthLogoutRequest(server string) (*http.Request, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	return req, nil
+}
+
+// NewGetApiAuthOauthAuthorizeRequest generates requests for GetApiAuthOauthAuthorize
+func NewGetApiAuthOauthAuthorizeRequest(server string, params *GetApiAuthOauthAuthorizeParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/auth/oauth/authorize")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.ClientId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "client_id", *params.ClientId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.CodeChallenge != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "code_challenge", *params.CodeChallenge, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.CodeChallengeMethod != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "code_challenge_method", *params.CodeChallengeMethod, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.RedirectUri != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "redirect_uri", *params.RedirectUri, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Resource != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "resource", *params.Resource, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.ResponseType != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "response_type", *params.ResponseType, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Scope != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "scope", *params.Scope, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.State != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "state", *params.State, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPostApiAuthOauthAuthorizeRequest calls the generic PostApiAuthOauthAuthorize builder with application/json body
+func NewPostApiAuthOauthAuthorizeRequest(server string, params *PostApiAuthOauthAuthorizeParams, body PostApiAuthOauthAuthorizeJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostApiAuthOauthAuthorizeRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewPostApiAuthOauthAuthorizeRequestWithBody generates requests for PostApiAuthOauthAuthorize with any type of body
+func NewPostApiAuthOauthAuthorizeRequestWithBody(server string, params *PostApiAuthOauthAuthorizeParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/auth/oauth/authorize")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.ClientId != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "client_id", *params.ClientId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.CodeChallenge != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "code_challenge", *params.CodeChallenge, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.CodeChallengeMethod != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "code_challenge_method", *params.CodeChallengeMethod, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.RedirectUri != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "redirect_uri", *params.RedirectUri, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Resource != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "resource", *params.Resource, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.ResponseType != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "response_type", *params.ResponseType, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.Scope != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "scope", *params.Scope, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.State != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "state", *params.State, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPostApiAuthOauthRegisterRequest calls the generic PostApiAuthOauthRegister builder with application/json body
+func NewPostApiAuthOauthRegisterRequest(server string, body PostApiAuthOauthRegisterJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostApiAuthOauthRegisterRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPostApiAuthOauthRegisterRequestWithBody generates requests for PostApiAuthOauthRegister with any type of body
+func NewPostApiAuthOauthRegisterRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/auth/oauth/register")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPostApiAuthOauthTokenRequest calls the generic PostApiAuthOauthToken builder with application/json body
+func NewPostApiAuthOauthTokenRequest(server string, body PostApiAuthOauthTokenJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostApiAuthOauthTokenRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPostApiAuthOauthTokenRequestWithBody generates requests for PostApiAuthOauthToken with any type of body
+func NewPostApiAuthOauthTokenRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/auth/oauth/token")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -5540,6 +6974,24 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
+	// GetWellKnownJwksJsonWithResponse request
+	GetWellKnownJwksJsonWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetWellKnownJwksJsonResponse, error)
+
+	// OptionsWellKnownJwksJsonWithResponse request
+	OptionsWellKnownJwksJsonWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*OptionsWellKnownJwksJsonResponse, error)
+
+	// GetWellKnownOauthAuthorizationServerWithResponse request
+	GetWellKnownOauthAuthorizationServerWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetWellKnownOauthAuthorizationServerResponse, error)
+
+	// OptionsWellKnownOauthAuthorizationServerWithResponse request
+	OptionsWellKnownOauthAuthorizationServerWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*OptionsWellKnownOauthAuthorizationServerResponse, error)
+
+	// GetWellKnownOpenidConfigurationWithResponse request
+	GetWellKnownOpenidConfigurationWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetWellKnownOpenidConfigurationResponse, error)
+
+	// OptionsWellKnownOpenidConfigurationWithResponse request
+	OptionsWellKnownOpenidConfigurationWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*OptionsWellKnownOpenidConfigurationResponse, error)
+
 	// DeleteApiAccountWithResponse request
 	DeleteApiAccountWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*DeleteApiAccountResponse, error)
 
@@ -5550,6 +7002,35 @@ type ClientWithResponsesInterface interface {
 	PatchApiAccountWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchApiAccountResponse, error)
 
 	PatchApiAccountWithResponse(ctx context.Context, body PatchApiAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchApiAccountResponse, error)
+
+	// GetApiAccountAuthLinksWithResponse request
+	GetApiAccountAuthLinksWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiAccountAuthLinksResponse, error)
+
+	// GetApiAccountAuthProvidersWithResponse request
+	GetApiAccountAuthProvidersWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiAccountAuthProvidersResponse, error)
+
+	// DeleteApiAccountAuthSsoProviderWithResponse request
+	DeleteApiAccountAuthSsoProviderWithResponse(ctx context.Context, provider string, reqEditors ...RequestEditorFn) (*DeleteApiAccountAuthSsoProviderResponse, error)
+
+	// GetApiAccountAuthSsoProviderWithResponse request
+	GetApiAccountAuthSsoProviderWithResponse(ctx context.Context, provider string, params *GetApiAccountAuthSsoProviderParams, reqEditors ...RequestEditorFn) (*GetApiAccountAuthSsoProviderResponse, error)
+
+	// GetApiAccountAuthSsoProviderCallbackWithResponse request
+	GetApiAccountAuthSsoProviderCallbackWithResponse(ctx context.Context, provider string, reqEditors ...RequestEditorFn) (*GetApiAccountAuthSsoProviderCallbackResponse, error)
+
+	// GetApiAccountAuthSsoProviderConsentWithResponse request
+	GetApiAccountAuthSsoProviderConsentWithResponse(ctx context.Context, provider string, reqEditors ...RequestEditorFn) (*GetApiAccountAuthSsoProviderConsentResponse, error)
+
+	// PostApiAccountAuthSsoProviderConsentWithBodyWithResponse request with any body
+	PostApiAccountAuthSsoProviderConsentWithBodyWithResponse(ctx context.Context, provider string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAccountAuthSsoProviderConsentResponse, error)
+
+	PostApiAccountAuthSsoProviderConsentWithResponse(ctx context.Context, provider string, body PostApiAccountAuthSsoProviderConsentJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiAccountAuthSsoProviderConsentResponse, error)
+
+	// PostApiAccountAuthSsoProviderLinkWithResponse request
+	PostApiAccountAuthSsoProviderLinkWithResponse(ctx context.Context, provider string, params *PostApiAccountAuthSsoProviderLinkParams, reqEditors ...RequestEditorFn) (*PostApiAccountAuthSsoProviderLinkResponse, error)
+
+	// GetApiAccountAuthSsoProviderLogoutWithResponse request
+	GetApiAccountAuthSsoProviderLogoutWithResponse(ctx context.Context, provider string, reqEditors ...RequestEditorFn) (*GetApiAccountAuthSsoProviderLogoutResponse, error)
 
 	// GetApiAccountAvatarWithResponse request
 	GetApiAccountAvatarWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiAccountAvatarResponse, error)
@@ -5695,6 +7176,24 @@ type ClientWithResponsesInterface interface {
 	// PostApiAuthLogoutWithResponse request
 	PostApiAuthLogoutWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*PostApiAuthLogoutResponse, error)
 
+	// GetApiAuthOauthAuthorizeWithResponse request
+	GetApiAuthOauthAuthorizeWithResponse(ctx context.Context, params *GetApiAuthOauthAuthorizeParams, reqEditors ...RequestEditorFn) (*GetApiAuthOauthAuthorizeResponse, error)
+
+	// PostApiAuthOauthAuthorizeWithBodyWithResponse request with any body
+	PostApiAuthOauthAuthorizeWithBodyWithResponse(ctx context.Context, params *PostApiAuthOauthAuthorizeParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAuthOauthAuthorizeResponse, error)
+
+	PostApiAuthOauthAuthorizeWithResponse(ctx context.Context, params *PostApiAuthOauthAuthorizeParams, body PostApiAuthOauthAuthorizeJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiAuthOauthAuthorizeResponse, error)
+
+	// PostApiAuthOauthRegisterWithBodyWithResponse request with any body
+	PostApiAuthOauthRegisterWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAuthOauthRegisterResponse, error)
+
+	PostApiAuthOauthRegisterWithResponse(ctx context.Context, body PostApiAuthOauthRegisterJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiAuthOauthRegisterResponse, error)
+
+	// PostApiAuthOauthTokenWithBodyWithResponse request with any body
+	PostApiAuthOauthTokenWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAuthOauthTokenResponse, error)
+
+	PostApiAuthOauthTokenWithResponse(ctx context.Context, body PostApiAuthOauthTokenJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiAuthOauthTokenResponse, error)
+
 	// PostApiAuthOtpDisableWithBodyWithResponse request with any body
 	PostApiAuthOtpDisableWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAuthOtpDisableResponse, error)
 
@@ -5746,11 +7245,228 @@ type ClientWithResponsesInterface interface {
 	GetApiUploadLimitWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiUploadLimitResponse, error)
 }
 
+type GetWellKnownJwksJsonResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *WebKeySet
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetWellKnownJwksJsonResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetWellKnownJwksJsonResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetWellKnownJwksJsonResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type OptionsWellKnownJwksJsonResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *WebKeySet
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r OptionsWellKnownJwksJsonResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r OptionsWellKnownJwksJsonResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r OptionsWellKnownJwksJsonResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetWellKnownOauthAuthorizationServerResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ASMetadata
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetWellKnownOauthAuthorizationServerResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetWellKnownOauthAuthorizationServerResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetWellKnownOauthAuthorizationServerResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type OptionsWellKnownOauthAuthorizationServerResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ASMetadata
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r OptionsWellKnownOauthAuthorizationServerResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r OptionsWellKnownOauthAuthorizationServerResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r OptionsWellKnownOauthAuthorizationServerResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetWellKnownOpenidConfigurationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *OpenIDConfig
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetWellKnownOpenidConfigurationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetWellKnownOpenidConfigurationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetWellKnownOpenidConfigurationResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type OptionsWellKnownOpenidConfigurationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *OpenIDConfig
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r OptionsWellKnownOpenidConfigurationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r OptionsWellKnownOpenidConfigurationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r OptionsWellKnownOpenidConfigurationResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type DeleteApiAccountResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON400      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -5786,6 +7502,7 @@ type GetApiAccountResponse struct {
 	JSON401      *ErrorResponse
 	JSON403      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -5820,6 +7537,7 @@ type PatchApiAccountResponse struct {
 	JSON401      *ErrorResponse
 	JSON403      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -5847,11 +7565,317 @@ func (r PatchApiAccountResponse) ContentType() string {
 	return ""
 }
 
+type GetApiAccountAuthLinksResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *SocialAccountListResponse
+	JSON400      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiAccountAuthLinksResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiAccountAuthLinksResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetApiAccountAuthLinksResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetApiAccountAuthProvidersResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]PublicProviderResponse
+	JSON400      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiAccountAuthProvidersResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiAccountAuthProvidersResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetApiAccountAuthProvidersResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type DeleteApiAccountAuthSsoProviderResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ErrorResponse
+	JSON400      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteApiAccountAuthSsoProviderResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteApiAccountAuthSsoProviderResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DeleteApiAccountAuthSsoProviderResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetApiAccountAuthSsoProviderResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ErrorResponse
+	JSON400      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiAccountAuthSsoProviderResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiAccountAuthSsoProviderResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetApiAccountAuthSsoProviderResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetApiAccountAuthSsoProviderCallbackResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ErrorResponse
+	JSON400      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiAccountAuthSsoProviderCallbackResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiAccountAuthSsoProviderCallbackResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetApiAccountAuthSsoProviderCallbackResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetApiAccountAuthSsoProviderConsentResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiAccountAuthSsoProviderConsentResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiAccountAuthSsoProviderConsentResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetApiAccountAuthSsoProviderConsentResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PostApiAccountAuthSsoProviderConsentResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *SocialConsentResponse
+	JSON400      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiAccountAuthSsoProviderConsentResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiAccountAuthSsoProviderConsentResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PostApiAccountAuthSsoProviderConsentResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PostApiAccountAuthSsoProviderLinkResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ErrorResponse
+	JSON400      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiAccountAuthSsoProviderLinkResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiAccountAuthSsoProviderLinkResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PostApiAccountAuthSsoProviderLinkResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetApiAccountAuthSsoProviderLogoutResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ErrorResponse
+	JSON400      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiAccountAuthSsoProviderLogoutResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiAccountAuthSsoProviderLogoutResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetApiAccountAuthSsoProviderLogoutResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type GetApiAccountAvatarResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON400      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -5885,6 +7909,7 @@ type PostApiAccountAvatarResponse struct {
 	JSON200      *ErrorResponse
 	JSON400      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -5920,6 +7945,7 @@ type GetApiAccountBillingBalanceResponse struct {
 	JSON401      *ErrorResponse
 	JSON403      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -5955,6 +7981,7 @@ type PostApiAccountBillingCancelResponse struct {
 	JSON401      *ErrorResponse
 	JSON403      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -5990,6 +8017,7 @@ type PostApiAccountBillingCancelAbortResponse struct {
 	JSON401      *ErrorResponse
 	JSON403      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -6025,6 +8053,7 @@ type PostApiAccountBillingChangePlanResponse struct {
 	JSON401      *ErrorResponse
 	JSON403      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -6060,6 +8089,7 @@ type GetApiAccountBillingCheckoutSessionSessionIdStatusResponse struct {
 	JSON401      *ErrorResponse
 	JSON403      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 	JSON501      *ErrorResponse
 }
@@ -6097,6 +8127,7 @@ type GetApiAccountBillingCheckoutUiPlanIdResponse struct {
 	JSON403      *ErrorResponse
 	JSON404      *ErrorResponse
 	JSON409      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -6132,6 +8163,7 @@ type GetApiAccountBillingCreditsResponse struct {
 	JSON401      *ErrorResponse
 	JSON403      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -6167,6 +8199,7 @@ type PostApiAccountBillingCustomerPortalResponse struct {
 	JSON401      *ErrorResponse
 	JSON403      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -6202,6 +8235,7 @@ type PostApiAccountBillingManagementResponse struct {
 	JSON401      *ErrorResponse
 	JSON403      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -6237,6 +8271,7 @@ type GetApiAccountBillingManagementCapabilitiesResponse struct {
 	JSON401      *ErrorResponse
 	JSON403      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -6272,6 +8307,7 @@ type PostApiAccountBillingPauseResponse struct {
 	JSON401      *ErrorResponse
 	JSON403      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -6307,6 +8343,7 @@ type PostApiAccountBillingResumeResponse struct {
 	JSON401      *ErrorResponse
 	JSON403      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -6342,6 +8379,7 @@ type GetApiAccountBillingSubscriptionResponse struct {
 	JSON401      *ErrorResponse
 	JSON403      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -6376,6 +8414,7 @@ type GetApiAccountBillingSubscriptionEventsResponse struct {
 	JSON401      *ErrorResponse
 	JSON403      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -6412,6 +8451,7 @@ type PostApiAccountBillingWebhooksGatewayTypeResponse struct {
 	JSON403      *ErrorResponse
 	JSON404      *ErrorResponse
 	JSON413      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -6445,6 +8485,7 @@ type GetApiAccountKeysResponse struct {
 	JSON200      *APIKeyListResponse
 	JSON400      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -6478,6 +8519,7 @@ type PostApiAccountKeysResponse struct {
 	JSON200      *CreateAPIKeyResponse
 	JSON400      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -6510,6 +8552,7 @@ type DeleteApiAccountKeysKeyIDResponse struct {
 	HTTPResponse *http.Response
 	JSON400      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -6542,6 +8585,7 @@ type PostApiAccountPasswordResetConfirmResponse struct {
 	HTTPResponse *http.Response
 	JSON400      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -6576,6 +8620,7 @@ type PostApiAccountPasswordResetRequestResponse struct {
 	JSON401      *ErrorResponse
 	JSON403      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -6609,6 +8654,7 @@ type GetApiAccountPermissionsResponse struct {
 	JSON200      *AccountPermissionsResponse
 	JSON400      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -6642,6 +8688,7 @@ type GetApiAccountQuotaResponse struct {
 	JSON200      *QuotaStatusResponse
 	JSON400      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -6675,6 +8722,7 @@ type GetApiAccountQuotaHistoryResponse struct {
 	JSON200      *QuotaHistoryResponse
 	JSON400      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -6707,6 +8755,7 @@ type PostApiAccountUpdateEmailResponse struct {
 	HTTPResponse *http.Response
 	JSON400      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -6739,6 +8788,7 @@ type PostApiAccountUpdatePasswordResponse struct {
 	HTTPResponse *http.Response
 	JSON400      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -6771,6 +8821,7 @@ type PostApiAccountVerifyEmailResponse struct {
 	HTTPResponse *http.Response
 	JSON400      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -6803,6 +8854,7 @@ type PostApiAccountVerifyEmailResendResponse struct {
 	HTTPResponse *http.Response
 	JSON400      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -6838,6 +8890,7 @@ type PostApiAuthKeyResponse struct {
 	JSON401      *ErrorResponse
 	JSON403      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -6873,6 +8926,7 @@ type PostApiAuthKeyChallengeResponse struct {
 	JSON401      *ErrorResponse
 	JSON403      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -6909,6 +8963,7 @@ type PostApiAuthKeyConnectChallengeResponse struct {
 	JSON403      *ErrorResponse
 	JSON404      *ErrorResponse
 	JSON409      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -6945,6 +9000,7 @@ type PostApiAuthKeyConnectVerifyResponse struct {
 	JSON403      *ErrorResponse
 	JSON404      *ErrorResponse
 	JSON409      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -6980,6 +9036,7 @@ type GetApiAuthKeyIdentitiesResponse struct {
 	JSON401      *ErrorResponse
 	JSON403      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -7015,6 +9072,7 @@ type PostApiAuthKeyVerifyResponse struct {
 	JSON401      *ErrorResponse
 	JSON403      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -7050,6 +9108,7 @@ type DeleteApiAuthKeyTypeKeyResponse struct {
 	JSON401      *ErrorResponse
 	JSON403      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -7085,6 +9144,7 @@ type PostApiAuthLoginResponse struct {
 	JSON401      *ErrorResponse
 	JSON403      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -7119,6 +9179,7 @@ type PostApiAuthLogoutResponse struct {
 	JSON401      *ErrorResponse
 	JSON403      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -7146,12 +9207,157 @@ func (r PostApiAuthLogoutResponse) ContentType() string {
 	return ""
 }
 
+type GetApiAuthOauthAuthorizeResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiAuthOauthAuthorizeResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiAuthOauthAuthorizeResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetApiAuthOauthAuthorizeResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PostApiAuthOauthAuthorizeResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *OAuthRedirectResponse
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiAuthOauthAuthorizeResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiAuthOauthAuthorizeResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PostApiAuthOauthAuthorizeResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PostApiAuthOauthRegisterResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ErrorResponse
+	JSON201      *OAuthClientResponse
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiAuthOauthRegisterResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiAuthOauthRegisterResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PostApiAuthOauthRegisterResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PostApiAuthOauthTokenResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *TokenResponse
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiAuthOauthTokenResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiAuthOauthTokenResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PostApiAuthOauthTokenResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type PostApiAuthOtpDisableResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *ErrorResponse
 	JSON400      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -7187,6 +9393,7 @@ type PostApiAuthOtpGenerateResponse struct {
 	JSON401      *ErrorResponse
 	JSON403      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -7221,6 +9428,7 @@ type PostApiAuthOtpValidateResponse struct {
 	JSON401      *ErrorResponse
 	JSON403      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -7254,6 +9462,7 @@ type PostApiAuthOtpVerifyResponse struct {
 	JSON200      *ErrorResponse
 	JSON400      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -7289,6 +9498,7 @@ type PostApiAuthPingResponse struct {
 	JSON401      *ErrorResponse
 	JSON403      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -7324,6 +9534,7 @@ type PostApiAuthRegisterResponse struct {
 	JSON403      *ErrorResponse
 	JSON404      *ErrorResponse
 	JSON409      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -7359,6 +9570,7 @@ type PostApiBillingCreditsPurchaseResponse struct {
 	JSON401      *ErrorResponse
 	JSON403      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON429      *ErrorResponse
 	JSON500      *ErrorResponse
 }
@@ -7395,6 +9607,7 @@ type GetApiBillingGatewaysResponse struct {
 	JSON401      *ErrorResponse
 	JSON403      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -7429,6 +9642,7 @@ type GetApiBillingGatewaysIdLogoResponse struct {
 	JSON401      *ErrorResponse
 	JSON403      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -7464,6 +9678,7 @@ type GetApiBillingPlansResponse struct {
 	JSON401      *ErrorResponse
 	JSON403      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -7497,6 +9712,7 @@ type GetApiOperationsResponse struct {
 	JSON200      *OperationListItemResponse
 	JSON400      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -7530,6 +9746,7 @@ type GetApiOperationsFiltersResponse struct {
 	JSON200      *OperationFiltersResponseResponse
 	JSON400      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -7563,6 +9780,7 @@ type GetApiOperationsIdResponse struct {
 	JSON200      *OperationDetailResponse
 	JSON400      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -7596,6 +9814,7 @@ type GetApiUploadLimitResponse struct {
 	JSON200      *UploadLimitResponse
 	JSON400      *ErrorResponse
 	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -7621,6 +9840,60 @@ func (r GetApiUploadLimitResponse) ContentType() string {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
 	return ""
+}
+
+// GetWellKnownJwksJsonWithResponse request returning *GetWellKnownJwksJsonResponse
+func (c *ClientWithResponses) GetWellKnownJwksJsonWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetWellKnownJwksJsonResponse, error) {
+	rsp, err := c.GetWellKnownJwksJson(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetWellKnownJwksJsonResponse(rsp)
+}
+
+// OptionsWellKnownJwksJsonWithResponse request returning *OptionsWellKnownJwksJsonResponse
+func (c *ClientWithResponses) OptionsWellKnownJwksJsonWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*OptionsWellKnownJwksJsonResponse, error) {
+	rsp, err := c.OptionsWellKnownJwksJson(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseOptionsWellKnownJwksJsonResponse(rsp)
+}
+
+// GetWellKnownOauthAuthorizationServerWithResponse request returning *GetWellKnownOauthAuthorizationServerResponse
+func (c *ClientWithResponses) GetWellKnownOauthAuthorizationServerWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetWellKnownOauthAuthorizationServerResponse, error) {
+	rsp, err := c.GetWellKnownOauthAuthorizationServer(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetWellKnownOauthAuthorizationServerResponse(rsp)
+}
+
+// OptionsWellKnownOauthAuthorizationServerWithResponse request returning *OptionsWellKnownOauthAuthorizationServerResponse
+func (c *ClientWithResponses) OptionsWellKnownOauthAuthorizationServerWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*OptionsWellKnownOauthAuthorizationServerResponse, error) {
+	rsp, err := c.OptionsWellKnownOauthAuthorizationServer(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseOptionsWellKnownOauthAuthorizationServerResponse(rsp)
+}
+
+// GetWellKnownOpenidConfigurationWithResponse request returning *GetWellKnownOpenidConfigurationResponse
+func (c *ClientWithResponses) GetWellKnownOpenidConfigurationWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetWellKnownOpenidConfigurationResponse, error) {
+	rsp, err := c.GetWellKnownOpenidConfiguration(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetWellKnownOpenidConfigurationResponse(rsp)
+}
+
+// OptionsWellKnownOpenidConfigurationWithResponse request returning *OptionsWellKnownOpenidConfigurationResponse
+func (c *ClientWithResponses) OptionsWellKnownOpenidConfigurationWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*OptionsWellKnownOpenidConfigurationResponse, error) {
+	rsp, err := c.OptionsWellKnownOpenidConfiguration(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseOptionsWellKnownOpenidConfigurationResponse(rsp)
 }
 
 // DeleteApiAccountWithResponse request returning *DeleteApiAccountResponse
@@ -7656,6 +9929,95 @@ func (c *ClientWithResponses) PatchApiAccountWithResponse(ctx context.Context, b
 		return nil, err
 	}
 	return ParsePatchApiAccountResponse(rsp)
+}
+
+// GetApiAccountAuthLinksWithResponse request returning *GetApiAccountAuthLinksResponse
+func (c *ClientWithResponses) GetApiAccountAuthLinksWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiAccountAuthLinksResponse, error) {
+	rsp, err := c.GetApiAccountAuthLinks(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiAccountAuthLinksResponse(rsp)
+}
+
+// GetApiAccountAuthProvidersWithResponse request returning *GetApiAccountAuthProvidersResponse
+func (c *ClientWithResponses) GetApiAccountAuthProvidersWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiAccountAuthProvidersResponse, error) {
+	rsp, err := c.GetApiAccountAuthProviders(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiAccountAuthProvidersResponse(rsp)
+}
+
+// DeleteApiAccountAuthSsoProviderWithResponse request returning *DeleteApiAccountAuthSsoProviderResponse
+func (c *ClientWithResponses) DeleteApiAccountAuthSsoProviderWithResponse(ctx context.Context, provider string, reqEditors ...RequestEditorFn) (*DeleteApiAccountAuthSsoProviderResponse, error) {
+	rsp, err := c.DeleteApiAccountAuthSsoProvider(ctx, provider, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteApiAccountAuthSsoProviderResponse(rsp)
+}
+
+// GetApiAccountAuthSsoProviderWithResponse request returning *GetApiAccountAuthSsoProviderResponse
+func (c *ClientWithResponses) GetApiAccountAuthSsoProviderWithResponse(ctx context.Context, provider string, params *GetApiAccountAuthSsoProviderParams, reqEditors ...RequestEditorFn) (*GetApiAccountAuthSsoProviderResponse, error) {
+	rsp, err := c.GetApiAccountAuthSsoProvider(ctx, provider, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiAccountAuthSsoProviderResponse(rsp)
+}
+
+// GetApiAccountAuthSsoProviderCallbackWithResponse request returning *GetApiAccountAuthSsoProviderCallbackResponse
+func (c *ClientWithResponses) GetApiAccountAuthSsoProviderCallbackWithResponse(ctx context.Context, provider string, reqEditors ...RequestEditorFn) (*GetApiAccountAuthSsoProviderCallbackResponse, error) {
+	rsp, err := c.GetApiAccountAuthSsoProviderCallback(ctx, provider, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiAccountAuthSsoProviderCallbackResponse(rsp)
+}
+
+// GetApiAccountAuthSsoProviderConsentWithResponse request returning *GetApiAccountAuthSsoProviderConsentResponse
+func (c *ClientWithResponses) GetApiAccountAuthSsoProviderConsentWithResponse(ctx context.Context, provider string, reqEditors ...RequestEditorFn) (*GetApiAccountAuthSsoProviderConsentResponse, error) {
+	rsp, err := c.GetApiAccountAuthSsoProviderConsent(ctx, provider, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiAccountAuthSsoProviderConsentResponse(rsp)
+}
+
+// PostApiAccountAuthSsoProviderConsentWithBodyWithResponse request with arbitrary body returning *PostApiAccountAuthSsoProviderConsentResponse
+func (c *ClientWithResponses) PostApiAccountAuthSsoProviderConsentWithBodyWithResponse(ctx context.Context, provider string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAccountAuthSsoProviderConsentResponse, error) {
+	rsp, err := c.PostApiAccountAuthSsoProviderConsentWithBody(ctx, provider, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiAccountAuthSsoProviderConsentResponse(rsp)
+}
+
+func (c *ClientWithResponses) PostApiAccountAuthSsoProviderConsentWithResponse(ctx context.Context, provider string, body PostApiAccountAuthSsoProviderConsentJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiAccountAuthSsoProviderConsentResponse, error) {
+	rsp, err := c.PostApiAccountAuthSsoProviderConsent(ctx, provider, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiAccountAuthSsoProviderConsentResponse(rsp)
+}
+
+// PostApiAccountAuthSsoProviderLinkWithResponse request returning *PostApiAccountAuthSsoProviderLinkResponse
+func (c *ClientWithResponses) PostApiAccountAuthSsoProviderLinkWithResponse(ctx context.Context, provider string, params *PostApiAccountAuthSsoProviderLinkParams, reqEditors ...RequestEditorFn) (*PostApiAccountAuthSsoProviderLinkResponse, error) {
+	rsp, err := c.PostApiAccountAuthSsoProviderLink(ctx, provider, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiAccountAuthSsoProviderLinkResponse(rsp)
+}
+
+// GetApiAccountAuthSsoProviderLogoutWithResponse request returning *GetApiAccountAuthSsoProviderLogoutResponse
+func (c *ClientWithResponses) GetApiAccountAuthSsoProviderLogoutWithResponse(ctx context.Context, provider string, reqEditors ...RequestEditorFn) (*GetApiAccountAuthSsoProviderLogoutResponse, error) {
+	rsp, err := c.GetApiAccountAuthSsoProviderLogout(ctx, provider, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiAccountAuthSsoProviderLogoutResponse(rsp)
 }
 
 // GetApiAccountAvatarWithResponse request returning *GetApiAccountAvatarResponse
@@ -8120,6 +10482,66 @@ func (c *ClientWithResponses) PostApiAuthLogoutWithResponse(ctx context.Context,
 	return ParsePostApiAuthLogoutResponse(rsp)
 }
 
+// GetApiAuthOauthAuthorizeWithResponse request returning *GetApiAuthOauthAuthorizeResponse
+func (c *ClientWithResponses) GetApiAuthOauthAuthorizeWithResponse(ctx context.Context, params *GetApiAuthOauthAuthorizeParams, reqEditors ...RequestEditorFn) (*GetApiAuthOauthAuthorizeResponse, error) {
+	rsp, err := c.GetApiAuthOauthAuthorize(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiAuthOauthAuthorizeResponse(rsp)
+}
+
+// PostApiAuthOauthAuthorizeWithBodyWithResponse request with arbitrary body returning *PostApiAuthOauthAuthorizeResponse
+func (c *ClientWithResponses) PostApiAuthOauthAuthorizeWithBodyWithResponse(ctx context.Context, params *PostApiAuthOauthAuthorizeParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAuthOauthAuthorizeResponse, error) {
+	rsp, err := c.PostApiAuthOauthAuthorizeWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiAuthOauthAuthorizeResponse(rsp)
+}
+
+func (c *ClientWithResponses) PostApiAuthOauthAuthorizeWithResponse(ctx context.Context, params *PostApiAuthOauthAuthorizeParams, body PostApiAuthOauthAuthorizeJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiAuthOauthAuthorizeResponse, error) {
+	rsp, err := c.PostApiAuthOauthAuthorize(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiAuthOauthAuthorizeResponse(rsp)
+}
+
+// PostApiAuthOauthRegisterWithBodyWithResponse request with arbitrary body returning *PostApiAuthOauthRegisterResponse
+func (c *ClientWithResponses) PostApiAuthOauthRegisterWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAuthOauthRegisterResponse, error) {
+	rsp, err := c.PostApiAuthOauthRegisterWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiAuthOauthRegisterResponse(rsp)
+}
+
+func (c *ClientWithResponses) PostApiAuthOauthRegisterWithResponse(ctx context.Context, body PostApiAuthOauthRegisterJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiAuthOauthRegisterResponse, error) {
+	rsp, err := c.PostApiAuthOauthRegister(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiAuthOauthRegisterResponse(rsp)
+}
+
+// PostApiAuthOauthTokenWithBodyWithResponse request with arbitrary body returning *PostApiAuthOauthTokenResponse
+func (c *ClientWithResponses) PostApiAuthOauthTokenWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAuthOauthTokenResponse, error) {
+	rsp, err := c.PostApiAuthOauthTokenWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiAuthOauthTokenResponse(rsp)
+}
+
+func (c *ClientWithResponses) PostApiAuthOauthTokenWithResponse(ctx context.Context, body PostApiAuthOauthTokenJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiAuthOauthTokenResponse, error) {
+	rsp, err := c.PostApiAuthOauthToken(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiAuthOauthTokenResponse(rsp)
+}
+
 // PostApiAuthOtpDisableWithBodyWithResponse request with arbitrary body returning *PostApiAuthOtpDisableResponse
 func (c *ClientWithResponses) PostApiAuthOtpDisableWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAuthOtpDisableResponse, error) {
 	rsp, err := c.PostApiAuthOtpDisableWithBody(ctx, contentType, body, reqEditors...)
@@ -8278,6 +10700,414 @@ func (c *ClientWithResponses) GetApiUploadLimitWithResponse(ctx context.Context,
 	return ParseGetApiUploadLimitResponse(rsp)
 }
 
+// ParseGetWellKnownJwksJsonResponse parses an HTTP response from a GetWellKnownJwksJsonWithResponse call
+func ParseGetWellKnownJwksJsonResponse(rsp *http.Response) (*GetWellKnownJwksJsonResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetWellKnownJwksJsonResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WebKeySet
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseOptionsWellKnownJwksJsonResponse parses an HTTP response from a OptionsWellKnownJwksJsonWithResponse call
+func ParseOptionsWellKnownJwksJsonResponse(rsp *http.Response) (*OptionsWellKnownJwksJsonResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &OptionsWellKnownJwksJsonResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WebKeySet
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetWellKnownOauthAuthorizationServerResponse parses an HTTP response from a GetWellKnownOauthAuthorizationServerWithResponse call
+func ParseGetWellKnownOauthAuthorizationServerResponse(rsp *http.Response) (*GetWellKnownOauthAuthorizationServerResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetWellKnownOauthAuthorizationServerResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ASMetadata
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseOptionsWellKnownOauthAuthorizationServerResponse parses an HTTP response from a OptionsWellKnownOauthAuthorizationServerWithResponse call
+func ParseOptionsWellKnownOauthAuthorizationServerResponse(rsp *http.Response) (*OptionsWellKnownOauthAuthorizationServerResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &OptionsWellKnownOauthAuthorizationServerResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ASMetadata
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetWellKnownOpenidConfigurationResponse parses an HTTP response from a GetWellKnownOpenidConfigurationWithResponse call
+func ParseGetWellKnownOpenidConfigurationResponse(rsp *http.Response) (*GetWellKnownOpenidConfigurationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetWellKnownOpenidConfigurationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest OpenIDConfig
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseOptionsWellKnownOpenidConfigurationResponse parses an HTTP response from a OptionsWellKnownOpenidConfigurationWithResponse call
+func ParseOptionsWellKnownOpenidConfigurationResponse(rsp *http.Response) (*OptionsWellKnownOpenidConfigurationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &OptionsWellKnownOpenidConfigurationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest OpenIDConfig
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseDeleteApiAccountResponse parses an HTTP response from a DeleteApiAccountWithResponse call
 func ParseDeleteApiAccountResponse(rsp *http.Response) (*DeleteApiAccountResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -8305,6 +11135,13 @@ func ParseDeleteApiAccountResponse(rsp *http.Response) (*DeleteApiAccountRespons
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
@@ -8367,6 +11204,13 @@ func ParseGetApiAccountResponse(rsp *http.Response) (*GetApiAccountResponse, err
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -8421,6 +11265,492 @@ func ParsePatchApiAccountResponse(rsp *http.Response) (*PatchApiAccountResponse,
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiAccountAuthLinksResponse parses an HTTP response from a GetApiAccountAuthLinksWithResponse call
+func ParseGetApiAccountAuthLinksResponse(rsp *http.Response) (*GetApiAccountAuthLinksResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiAccountAuthLinksResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest SocialAccountListResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiAccountAuthProvidersResponse parses an HTTP response from a GetApiAccountAuthProvidersWithResponse call
+func ParseGetApiAccountAuthProvidersResponse(rsp *http.Response) (*GetApiAccountAuthProvidersResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiAccountAuthProvidersResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []PublicProviderResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteApiAccountAuthSsoProviderResponse parses an HTTP response from a DeleteApiAccountAuthSsoProviderWithResponse call
+func ParseDeleteApiAccountAuthSsoProviderResponse(rsp *http.Response) (*DeleteApiAccountAuthSsoProviderResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteApiAccountAuthSsoProviderResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiAccountAuthSsoProviderResponse parses an HTTP response from a GetApiAccountAuthSsoProviderWithResponse call
+func ParseGetApiAccountAuthSsoProviderResponse(rsp *http.Response) (*GetApiAccountAuthSsoProviderResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiAccountAuthSsoProviderResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiAccountAuthSsoProviderCallbackResponse parses an HTTP response from a GetApiAccountAuthSsoProviderCallbackWithResponse call
+func ParseGetApiAccountAuthSsoProviderCallbackResponse(rsp *http.Response) (*GetApiAccountAuthSsoProviderCallbackResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiAccountAuthSsoProviderCallbackResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiAccountAuthSsoProviderConsentResponse parses an HTTP response from a GetApiAccountAuthSsoProviderConsentWithResponse call
+func ParseGetApiAccountAuthSsoProviderConsentResponse(rsp *http.Response) (*GetApiAccountAuthSsoProviderConsentResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiAccountAuthSsoProviderConsentResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiAccountAuthSsoProviderConsentResponse parses an HTTP response from a PostApiAccountAuthSsoProviderConsentWithResponse call
+func ParsePostApiAccountAuthSsoProviderConsentResponse(rsp *http.Response) (*PostApiAccountAuthSsoProviderConsentResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiAccountAuthSsoProviderConsentResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest SocialConsentResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiAccountAuthSsoProviderLinkResponse parses an HTTP response from a PostApiAccountAuthSsoProviderLinkWithResponse call
+func ParsePostApiAccountAuthSsoProviderLinkResponse(rsp *http.Response) (*PostApiAccountAuthSsoProviderLinkResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiAccountAuthSsoProviderLinkResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiAccountAuthSsoProviderLogoutResponse parses an HTTP response from a GetApiAccountAuthSsoProviderLogoutWithResponse call
+func ParseGetApiAccountAuthSsoProviderLogoutResponse(rsp *http.Response) (*GetApiAccountAuthSsoProviderLogoutResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiAccountAuthSsoProviderLogoutResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -8460,6 +11790,13 @@ func ParseGetApiAccountAvatarResponse(rsp *http.Response) (*GetApiAccountAvatarR
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
@@ -8507,6 +11844,13 @@ func ParsePostApiAccountAvatarResponse(rsp *http.Response) (*PostApiAccountAvata
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
@@ -8569,6 +11913,13 @@ func ParseGetApiAccountBillingBalanceResponse(rsp *http.Response) (*GetApiAccoun
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -8629,6 +11980,13 @@ func ParsePostApiAccountBillingCancelResponse(rsp *http.Response) (*PostApiAccou
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
@@ -8691,6 +12049,13 @@ func ParsePostApiAccountBillingCancelAbortResponse(rsp *http.Response) (*PostApi
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -8752,6 +12117,13 @@ func ParsePostApiAccountBillingChangePlanResponse(rsp *http.Response) (*PostApiA
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -8812,6 +12184,13 @@ func ParseGetApiAccountBillingCheckoutSessionSessionIdStatusResponse(rsp *http.R
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
@@ -8888,6 +12267,13 @@ func ParseGetApiAccountBillingCheckoutUiPlanIdResponse(rsp *http.Response) (*Get
 		}
 		response.JSON409 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -8948,6 +12334,13 @@ func ParseGetApiAccountBillingCreditsResponse(rsp *http.Response) (*GetApiAccoun
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
@@ -9010,6 +12403,13 @@ func ParsePostApiAccountBillingCustomerPortalResponse(rsp *http.Response) (*Post
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -9070,6 +12470,13 @@ func ParsePostApiAccountBillingManagementResponse(rsp *http.Response) (*PostApiA
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
@@ -9132,6 +12539,13 @@ func ParseGetApiAccountBillingManagementCapabilitiesResponse(rsp *http.Response)
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -9192,6 +12606,13 @@ func ParsePostApiAccountBillingPauseResponse(rsp *http.Response) (*PostApiAccoun
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
@@ -9254,6 +12675,13 @@ func ParsePostApiAccountBillingResumeResponse(rsp *http.Response) (*PostApiAccou
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -9315,6 +12743,13 @@ func ParseGetApiAccountBillingSubscriptionResponse(rsp *http.Response) (*GetApiA
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -9368,6 +12803,13 @@ func ParseGetApiAccountBillingSubscriptionEventsResponse(rsp *http.Response) (*G
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
@@ -9437,6 +12879,13 @@ func ParsePostApiAccountBillingWebhooksGatewayTypeResponse(rsp *http.Response) (
 		}
 		response.JSON413 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -9483,6 +12932,13 @@ func ParseGetApiAccountKeysResponse(rsp *http.Response) (*GetApiAccountKeysRespo
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
@@ -9531,6 +12987,13 @@ func ParsePostApiAccountKeysResponse(rsp *http.Response) (*PostApiAccountKeysRes
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -9571,6 +13034,13 @@ func ParseDeleteApiAccountKeysKeyIDResponse(rsp *http.Response) (*DeleteApiAccou
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -9610,6 +13080,13 @@ func ParsePostApiAccountPasswordResetConfirmResponse(rsp *http.Response) (*PostA
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
@@ -9665,6 +13142,13 @@ func ParsePostApiAccountPasswordResetRequestResponse(rsp *http.Response) (*PostA
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -9711,6 +13195,13 @@ func ParseGetApiAccountPermissionsResponse(rsp *http.Response) (*GetApiAccountPe
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
@@ -9759,6 +13250,13 @@ func ParseGetApiAccountQuotaResponse(rsp *http.Response) (*GetApiAccountQuotaRes
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -9806,6 +13304,13 @@ func ParseGetApiAccountQuotaHistoryResponse(rsp *http.Response) (*GetApiAccountQ
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -9845,6 +13350,13 @@ func ParsePostApiAccountUpdateEmailResponse(rsp *http.Response) (*PostApiAccount
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
@@ -9886,6 +13398,13 @@ func ParsePostApiAccountUpdatePasswordResponse(rsp *http.Response) (*PostApiAcco
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -9926,6 +13445,13 @@ func ParsePostApiAccountVerifyEmailResponse(rsp *http.Response) (*PostApiAccount
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -9965,6 +13491,13 @@ func ParsePostApiAccountVerifyEmailResendResponse(rsp *http.Response) (*PostApiA
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
@@ -10027,6 +13560,13 @@ func ParsePostApiAuthKeyResponse(rsp *http.Response) (*PostApiAuthKeyResponse, e
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -10087,6 +13627,13 @@ func ParsePostApiAuthKeyChallengeResponse(rsp *http.Response) (*PostApiAuthKeyCh
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
@@ -10156,6 +13703,13 @@ func ParsePostApiAuthKeyConnectChallengeResponse(rsp *http.Response) (*PostApiAu
 		}
 		response.JSON409 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -10224,6 +13778,13 @@ func ParsePostApiAuthKeyConnectVerifyResponse(rsp *http.Response) (*PostApiAuthK
 		}
 		response.JSON409 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -10284,6 +13845,13 @@ func ParseGetApiAuthKeyIdentitiesResponse(rsp *http.Response) (*GetApiAuthKeyIde
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
@@ -10346,6 +13914,13 @@ func ParsePostApiAuthKeyVerifyResponse(rsp *http.Response) (*PostApiAuthKeyVerif
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -10406,6 +13981,13 @@ func ParseDeleteApiAuthKeyTypeKeyResponse(rsp *http.Response) (*DeleteApiAuthKey
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
@@ -10468,6 +14050,13 @@ func ParsePostApiAuthLoginResponse(rsp *http.Response) (*PostApiAuthLoginRespons
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -10522,6 +14111,285 @@ func ParsePostApiAuthLogoutResponse(rsp *http.Response) (*PostApiAuthLogoutRespo
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiAuthOauthAuthorizeResponse parses an HTTP response from a GetApiAuthOauthAuthorizeWithResponse call
+func ParseGetApiAuthOauthAuthorizeResponse(rsp *http.Response) (*GetApiAuthOauthAuthorizeResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiAuthOauthAuthorizeResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiAuthOauthAuthorizeResponse parses an HTTP response from a PostApiAuthOauthAuthorizeWithResponse call
+func ParsePostApiAuthOauthAuthorizeResponse(rsp *http.Response) (*PostApiAuthOauthAuthorizeResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiAuthOauthAuthorizeResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest OAuthRedirectResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiAuthOauthRegisterResponse parses an HTTP response from a PostApiAuthOauthRegisterWithResponse call
+func ParsePostApiAuthOauthRegisterResponse(rsp *http.Response) (*PostApiAuthOauthRegisterResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiAuthOauthRegisterResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest OAuthClientResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiAuthOauthTokenResponse parses an HTTP response from a PostApiAuthOauthTokenWithResponse call
+func ParsePostApiAuthOauthTokenResponse(rsp *http.Response) (*PostApiAuthOauthTokenResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiAuthOauthTokenResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest TokenResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -10568,6 +14436,13 @@ func ParsePostApiAuthOtpDisableResponse(rsp *http.Response) (*PostApiAuthOtpDisa
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
@@ -10630,6 +14505,13 @@ func ParsePostApiAuthOtpGenerateResponse(rsp *http.Response) (*PostApiAuthOtpGen
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -10684,6 +14566,13 @@ func ParsePostApiAuthOtpValidateResponse(rsp *http.Response) (*PostApiAuthOtpVal
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -10730,6 +14619,13 @@ func ParsePostApiAuthOtpVerifyResponse(rsp *http.Response) (*PostApiAuthOtpVerif
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
@@ -10792,6 +14688,13 @@ func ParsePostApiAuthPingResponse(rsp *http.Response) (*PostApiAuthPingResponse,
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -10853,6 +14756,13 @@ func ParsePostApiAuthRegisterResponse(rsp *http.Response) (*PostApiAuthRegisterR
 		}
 		response.JSON409 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -10913,6 +14823,13 @@ func ParsePostApiBillingCreditsPurchaseResponse(rsp *http.Response) (*PostApiBil
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
 		var dest ErrorResponse
@@ -10982,6 +14899,13 @@ func ParseGetApiBillingGatewaysResponse(rsp *http.Response) (*GetApiBillingGatew
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -11035,6 +14959,13 @@ func ParseGetApiBillingGatewaysIdLogoResponse(rsp *http.Response) (*GetApiBillin
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
@@ -11097,6 +15028,13 @@ func ParseGetApiBillingPlansResponse(rsp *http.Response) (*GetApiBillingPlansRes
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -11143,6 +15081,13 @@ func ParseGetApiOperationsResponse(rsp *http.Response) (*GetApiOperationsRespons
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
@@ -11191,6 +15136,13 @@ func ParseGetApiOperationsFiltersResponse(rsp *http.Response) (*GetApiOperations
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -11238,6 +15190,13 @@ func ParseGetApiOperationsIdResponse(rsp *http.Response) (*GetApiOperationsIdRes
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -11284,6 +15243,13 @@ func ParseGetApiUploadLimitResponse(rsp *http.Response) (*GetApiUploadLimitRespo
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
