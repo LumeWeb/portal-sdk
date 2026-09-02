@@ -1265,26 +1265,12 @@ func NewClientWithDefaults(genClient client.ClientWithResponsesInterface) Accoun
 	return &Client{client: genClient}
 }
 
-// disableRedirects temporarily disables HTTP redirect following for the next request.
-// This is thread-safe and should be used with enableRedirects in a defer pattern.
-func (c *Client) disableRedirects() {
-	c.disableRedirect = true
-}
-
-// enableRedirects re-enables HTTP redirect following after a disableRedirects call.
-// This is thread-safe and should be used in a defer pattern.
-func (c *Client) enableRedirects() {
-	c.disableRedirect = false
-}
-
-// withRedirectsDisabled runs fn with HTTP redirect following disabled so a
-// redirect response (and its Location header) is captured rather than followed.
-// The previous redirect state is restored after fn returns.
-func withRedirectsDisabled[T any](c *Client, fn func() (T, error)) (T, error) {
-	originalState := c.disableRedirect
-	c.disableRedirect = true
-	defer func() { c.disableRedirect = originalState }()
-	return fn()
+// withRedirectsDisabled runs fn with HTTP redirect following suppressed for the
+// request carried by ctx, so a redirect response (and its Location header) is
+// captured rather than followed. Redirect control is per-request, so concurrent
+// calls do not share mutable state.
+func withRedirectsDisabled[T any](ctx context.Context, fn func(context.Context) (T, error)) (T, error) {
+	return fn(internalhttp.WithRedirectsDisabled(ctx))
 }
 
 // Login authenticates with email/password and returns a login result.
@@ -1363,7 +1349,7 @@ func (c *Client) ValidateOTP(ctx context.Context, intermediateJWT, otp string) (
 
 	// Temporarily disable redirect following to capture the 302 response.
 	// The OTP validate endpoint returns 302 with Location header containing the JWT.
-	return withRedirectsDisabled(c, func() (string, error) {
+	return withRedirectsDisabled(ctx, func(ctx context.Context) (string, error) {
 		// Use the client with a request editor to add the intermediate JWT.
 		resp, err := c.client.PostApiAuthOtpValidateWithResponse(ctx, reqBody,
 			func(ctx context.Context, req *http.Request) error {
@@ -2501,7 +2487,7 @@ func (c *Client) SocialLogin(ctx context.Context, provider, returnURL string) (s
 
 	// Temporarily disable redirect following to capture the 302 redirect to the
 	// provider's authentication page.
-	return withRedirectsDisabled(c, func() (string, error) {
+	return withRedirectsDisabled(ctx, func(ctx context.Context) (string, error) {
 		resp, err := c.client.GetApiAccountAuthSsoProviderWithResponse(ctx, provider, params)
 		if err != nil {
 			return "", fmt.Errorf("failed to initiate social login: %w", err)
@@ -2518,7 +2504,7 @@ func (c *Client) SocialLogin(ctx context.Context, provider, returnURL string) (s
 // SocialLogout logs the user out of the social login provider session.
 func (c *Client) SocialLogout(ctx context.Context, provider string) error {
 	// Temporarily disable redirect following to capture the 307 redirect.
-	_, err := withRedirectsDisabled(c, func() (struct{}, error) {
+	_, err := withRedirectsDisabled(ctx, func(ctx context.Context) (struct{}, error) {
 		resp, err := c.client.GetApiAccountAuthSsoProviderLogoutWithResponse(ctx, provider)
 		if err != nil {
 			return struct{}{}, fmt.Errorf("failed to log out of social login provider: %w", err)
@@ -2538,7 +2524,7 @@ func (c *Client) LinkSocialProvider(ctx context.Context, provider, returnURL str
 
 	// Temporarily disable redirect following to capture the 302 redirect to the
 	// provider's authentication page.
-	return withRedirectsDisabled(c, func() (string, error) {
+	return withRedirectsDisabled(ctx, func(ctx context.Context) (string, error) {
 		resp, err := c.client.PostApiAccountAuthSsoProviderLinkWithResponse(ctx, provider, params)
 		if err != nil {
 			return "", fmt.Errorf("failed to link social login provider: %w", err)

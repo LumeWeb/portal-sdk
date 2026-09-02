@@ -96,10 +96,28 @@ func JWTClientOption(token string) func(context.Context, *http.Request) error {
 	}
 }
 
+// redirectDisabledContextKey is the context key marking a request as having
+// redirect following suppressed.
+type redirectDisabledContextKey struct{}
+
+// WithRedirectsDisabled returns a context that marks requests as "do not follow
+// redirects". The flag is read per-request by BuildHTTPClient's CheckRedirect,
+// so redirect control is scoped to a single request rather than shared mutable
+// state.
+func WithRedirectsDisabled(ctx context.Context) context.Context {
+	return context.WithValue(ctx, redirectDisabledContextKey{}, true)
+}
+
+// redirectsDisabled reports whether the request context suppresses redirects.
+func redirectsDisabled(ctx context.Context) bool {
+	v, _ := ctx.Value(redirectDisabledContextKey{}).(bool)
+	return v
+}
+
 // DisableClientWrapper wraps an HTTP client to disable redirect following.
 type DisableClientWrapper struct {
-	client      *http.Client
-	disablePtr  *bool
+	client     *http.Client
+	disablePtr *bool
 }
 
 // NewDisableClientWrapper creates a wrapper that controls redirect behavior.
@@ -137,7 +155,7 @@ func (w *DisableClientWrapper) EnableRedirects() {
 // BuildHTTPClient creates an HTTP client with optional host override and redirect control.
 func BuildHTTPClient(disablePtr *bool, hostOverride *HostOverride) *http.Client {
 	transport := http.DefaultTransport
-	
+
 	if hostOverride != nil {
 		transport = NewHostOverrideRoundTripper(hostOverride.Host, hostOverride.Target)
 	}
@@ -145,6 +163,9 @@ func BuildHTTPClient(disablePtr *bool, hostOverride *HostOverride) *http.Client 
 	return &http.Client{
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			if disablePtr != nil && *disablePtr {
+				return http.ErrUseLastResponse
+			}
+			if redirectsDisabled(req.Context()) {
 				return http.ErrUseLastResponse
 			}
 			return nil
