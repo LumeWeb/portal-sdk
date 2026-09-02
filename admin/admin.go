@@ -45,6 +45,7 @@ type AdminAPI interface {
 	Website() *WebsiteService
 	Profiling() *ProfilingService
 	PlatformDomains() *PlatformDomainService
+	SocialProviders() *SocialProviderService
 }
 
 // AdminClient provides access to admin APIs for managing quotas, billing, and users.
@@ -55,6 +56,7 @@ type AdminClient struct {
 	website         *WebsiteService
 	profiling       *ProfilingService
 	platformDomains *PlatformDomainService
+	socialProviders *SocialProviderService
 	config          *clientConfig
 	jwt             string
 	apiKey          string
@@ -196,12 +198,17 @@ func NewClient(opts ...ClientOption) (*AdminClient, error) {
 		client: c,
 	}
 
+	socialProviderService := &SocialProviderService{
+		client: c,
+	}
+
 	clientWrapper.client = c
 	clientWrapper.quota = quotaService
 	clientWrapper.billing = billingService
 	clientWrapper.website = websiteService
 	clientWrapper.profiling = profilingService
 	clientWrapper.platformDomains = platformDomainService
+	clientWrapper.socialProviders = socialProviderService
 	clientWrapper.config = cfg
 	return clientWrapper, nil
 }
@@ -230,6 +237,12 @@ func (a *AdminClient) Profiling() *ProfilingService {
 // root domains that users can claim subdomains under.
 func (a *AdminClient) PlatformDomains() *PlatformDomainService {
 	return a.platformDomains
+}
+
+// SocialProviders returns the social provider service for managing configured
+// social login providers.
+func (a *AdminClient) SocialProviders() *SocialProviderService {
+	return a.socialProviders
 }
 
 // RequestExecutor provides a method to execute requests with the admin client's configuration.

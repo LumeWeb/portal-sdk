@@ -663,6 +663,48 @@ type SSLStatusInfo struct {
 	Status        string     `json:"status"`
 }
 
+// SocialProviderListResponse defines model for SocialProviderListResponse.
+type SocialProviderListResponse struct {
+	Data  []SocialProviderResponse `json:"data"`
+	Total int                      `json:"total"`
+}
+
+// SocialProviderRequest defines model for SocialProviderRequest.
+type SocialProviderRequest struct {
+	AuthUrl      string   `json:"auth_url"`
+	ClientId     string   `json:"client_id"`
+	ClientSecret string   `json:"client_secret"`
+	DisplayName  string   `json:"display_name"`
+	Enabled      bool     `json:"enabled"`
+	OrderIndex   int      `json:"order_index"`
+	ProviderId   string   `json:"provider_id"`
+	Scopes       []string `json:"scopes"`
+	TokenUrl     string   `json:"token_url"`
+	UserEmailKey string   `json:"user_email_key"`
+	UserIdKey    string   `json:"user_id_key"`
+	UserNameKey  string   `json:"user_name_key"`
+	UserUrl      string   `json:"user_url"`
+}
+
+// SocialProviderResponse defines model for SocialProviderResponse.
+type SocialProviderResponse struct {
+	AuthUrl      string    `json:"auth_url"`
+	ClientId     string    `json:"client_id"`
+	CreatedAt    time.Time `json:"created_at"`
+	DisplayName  string    `json:"display_name"`
+	Enabled      bool      `json:"enabled"`
+	Id           int       `json:"id"`
+	OrderIndex   int       `json:"order_index"`
+	ProviderId   string    `json:"provider_id"`
+	Scopes       []string  `json:"scopes"`
+	TokenUrl     string    `json:"token_url"`
+	UpdatedAt    time.Time `json:"updated_at"`
+	UserEmailKey string    `json:"user_email_key"`
+	UserIdKey    string    `json:"user_id_key"`
+	UserNameKey  string    `json:"user_name_key"`
+	UserUrl      string    `json:"user_url"`
+}
+
 // SubscriberItem defines model for SubscriberItem.
 type SubscriberItem struct {
 	BillingPeriodEnd    *time.Time `json:"billing_period_end,omitempty"`
@@ -1085,6 +1127,12 @@ type PostApiQuotaSystemReconcileJSONRequestBody = ReconcileRequest
 // PutApiQuotaUserConfigsUserIDJSONRequestBody defines body for PutApiQuotaUserConfigsUserID for application/json ContentType.
 type PutApiQuotaUserConfigsUserIDJSONRequestBody = UserQuotaConfigUpdateRequest
 
+// PostApiSocialProvidersJSONRequestBody defines body for PostApiSocialProviders for application/json ContentType.
+type PostApiSocialProvidersJSONRequestBody = SocialProviderRequest
+
+// PutApiSocialProvidersIdJSONRequestBody defines body for PutApiSocialProvidersId for application/json ContentType.
+type PutApiSocialProvidersIdJSONRequestBody = SocialProviderRequest
+
 // RequestEditorFn  is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
 
@@ -1454,6 +1502,31 @@ type ClientInterface interface {
 
 	// DeleteApiQuotaUserConfigsUserIDPlan request
 	DeleteApiQuotaUserConfigsUserIDPlan(ctx context.Context, userID string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiSocialProviders request
+	GetApiSocialProviders(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiSocialProvidersWithBody request with any body
+	PostApiSocialProvidersWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PostApiSocialProviders(ctx context.Context, body PostApiSocialProvidersJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteApiSocialProvidersId request
+	DeleteApiSocialProvidersId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetApiSocialProvidersId request
+	GetApiSocialProvidersId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PutApiSocialProvidersIdWithBody request with any body
+	PutApiSocialProvidersIdWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PutApiSocialProvidersId(ctx context.Context, id string, body PutApiSocialProvidersIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiSocialProvidersIdDisable request
+	PostApiSocialProvidersIdDisable(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostApiSocialProvidersIdEnable request
+	PostApiSocialProvidersIdEnable(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) GetApiBillingCredits(ctx context.Context, params *GetApiBillingCreditsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -2730,6 +2803,114 @@ func (c *Client) PutApiQuotaUserConfigsUserID(ctx context.Context, userID string
 
 func (c *Client) DeleteApiQuotaUserConfigsUserIDPlan(ctx context.Context, userID string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewDeleteApiQuotaUserConfigsUserIDPlanRequest(c.Server, userID)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetApiSocialProviders(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiSocialProvidersRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiSocialProvidersWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiSocialProvidersRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiSocialProviders(ctx context.Context, body PostApiSocialProvidersJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiSocialProvidersRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteApiSocialProvidersId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteApiSocialProvidersIdRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetApiSocialProvidersId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiSocialProvidersIdRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutApiSocialProvidersIdWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutApiSocialProvidersIdRequestWithBody(c.Server, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutApiSocialProvidersId(ctx context.Context, id string, body PutApiSocialProvidersIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutApiSocialProvidersIdRequest(c.Server, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiSocialProvidersIdDisable(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiSocialProvidersIdDisableRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostApiSocialProvidersIdEnable(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiSocialProvidersIdEnableRequest(c.Server, id)
 	if err != nil {
 		return nil, err
 	}
@@ -6402,6 +6583,256 @@ func NewDeleteApiQuotaUserConfigsUserIDPlanRequest(server string, userID string)
 	return req, nil
 }
 
+// NewGetApiSocialProvidersRequest generates requests for GetApiSocialProviders
+func NewGetApiSocialProvidersRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/social/providers")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPostApiSocialProvidersRequest calls the generic PostApiSocialProviders builder with application/json body
+func NewPostApiSocialProvidersRequest(server string, body PostApiSocialProvidersJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostApiSocialProvidersRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPostApiSocialProvidersRequestWithBody generates requests for PostApiSocialProviders with any type of body
+func NewPostApiSocialProvidersRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/social/providers")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteApiSocialProvidersIdRequest generates requests for DeleteApiSocialProvidersId
+func NewDeleteApiSocialProvidersIdRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/social/providers/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetApiSocialProvidersIdRequest generates requests for GetApiSocialProvidersId
+func NewGetApiSocialProvidersIdRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/social/providers/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPutApiSocialProvidersIdRequest calls the generic PutApiSocialProvidersId builder with application/json body
+func NewPutApiSocialProvidersIdRequest(server string, id string, body PutApiSocialProvidersIdJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPutApiSocialProvidersIdRequestWithBody(server, id, "application/json", bodyReader)
+}
+
+// NewPutApiSocialProvidersIdRequestWithBody generates requests for PutApiSocialProvidersId with any type of body
+func NewPutApiSocialProvidersIdRequestWithBody(server string, id string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/social/providers/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPostApiSocialProvidersIdDisableRequest generates requests for PostApiSocialProvidersIdDisable
+func NewPostApiSocialProvidersIdDisableRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/social/providers/%s/disable", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPostApiSocialProvidersIdEnableRequest generates requests for PostApiSocialProvidersIdEnable
+func NewPostApiSocialProvidersIdEnableRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/social/providers/%s/enable", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 func (c *Client) applyEditors(ctx context.Context, req *http.Request, additionalEditors []RequestEditorFn) error {
 	for _, r := range c.RequestEditors {
 		if err := r(ctx, req); err != nil {
@@ -6741,6 +7172,31 @@ type ClientWithResponsesInterface interface {
 
 	// DeleteApiQuotaUserConfigsUserIDPlanWithResponse request
 	DeleteApiQuotaUserConfigsUserIDPlanWithResponse(ctx context.Context, userID string, reqEditors ...RequestEditorFn) (*DeleteApiQuotaUserConfigsUserIDPlanResponse, error)
+
+	// GetApiSocialProvidersWithResponse request
+	GetApiSocialProvidersWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiSocialProvidersResponse, error)
+
+	// PostApiSocialProvidersWithBodyWithResponse request with any body
+	PostApiSocialProvidersWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiSocialProvidersResponse, error)
+
+	PostApiSocialProvidersWithResponse(ctx context.Context, body PostApiSocialProvidersJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiSocialProvidersResponse, error)
+
+	// DeleteApiSocialProvidersIdWithResponse request
+	DeleteApiSocialProvidersIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteApiSocialProvidersIdResponse, error)
+
+	// GetApiSocialProvidersIdWithResponse request
+	GetApiSocialProvidersIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiSocialProvidersIdResponse, error)
+
+	// PutApiSocialProvidersIdWithBodyWithResponse request with any body
+	PutApiSocialProvidersIdWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutApiSocialProvidersIdResponse, error)
+
+	PutApiSocialProvidersIdWithResponse(ctx context.Context, id string, body PutApiSocialProvidersIdJSONRequestBody, reqEditors ...RequestEditorFn) (*PutApiSocialProvidersIdResponse, error)
+
+	// PostApiSocialProvidersIdDisableWithResponse request
+	PostApiSocialProvidersIdDisableWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*PostApiSocialProvidersIdDisableResponse, error)
+
+	// PostApiSocialProvidersIdEnableWithResponse request
+	PostApiSocialProvidersIdEnableWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*PostApiSocialProvidersIdEnableResponse, error)
 }
 
 type GetApiBillingCreditsResponse struct {
@@ -9637,6 +10093,244 @@ func (r DeleteApiQuotaUserConfigsUserIDPlanResponse) ContentType() string {
 	return ""
 }
 
+type GetApiSocialProvidersResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *SocialProviderListResponse
+	JSON400      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiSocialProvidersResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiSocialProvidersResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetApiSocialProvidersResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PostApiSocialProvidersResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ErrorResponse
+	JSON201      *SocialProviderResponse
+	JSON400      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiSocialProvidersResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiSocialProvidersResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PostApiSocialProvidersResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type DeleteApiSocialProvidersIdResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteApiSocialProvidersIdResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteApiSocialProvidersIdResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DeleteApiSocialProvidersIdResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetApiSocialProvidersIdResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *SocialProviderResponse
+	JSON400      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetApiSocialProvidersIdResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetApiSocialProvidersIdResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetApiSocialProvidersIdResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PutApiSocialProvidersIdResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *SocialProviderResponse
+	JSON400      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PutApiSocialProvidersIdResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PutApiSocialProvidersIdResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PutApiSocialProvidersIdResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PostApiSocialProvidersIdDisableResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *SocialProviderResponse
+	JSON400      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiSocialProvidersIdDisableResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiSocialProvidersIdDisableResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PostApiSocialProvidersIdDisableResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type PostApiSocialProvidersIdEnableResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *SocialProviderResponse
+	JSON400      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON422      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PostApiSocialProvidersIdEnableResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostApiSocialProvidersIdEnableResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r PostApiSocialProvidersIdEnableResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 // GetApiBillingCreditsWithResponse request returning *GetApiBillingCreditsResponse
 func (c *ClientWithResponses) GetApiBillingCreditsWithResponse(ctx context.Context, params *GetApiBillingCreditsParams, reqEditors ...RequestEditorFn) (*GetApiBillingCreditsResponse, error) {
 	rsp, err := c.GetApiBillingCredits(ctx, params, reqEditors...)
@@ -10574,6 +11268,85 @@ func (c *ClientWithResponses) DeleteApiQuotaUserConfigsUserIDPlanWithResponse(ct
 		return nil, err
 	}
 	return ParseDeleteApiQuotaUserConfigsUserIDPlanResponse(rsp)
+}
+
+// GetApiSocialProvidersWithResponse request returning *GetApiSocialProvidersResponse
+func (c *ClientWithResponses) GetApiSocialProvidersWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiSocialProvidersResponse, error) {
+	rsp, err := c.GetApiSocialProviders(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiSocialProvidersResponse(rsp)
+}
+
+// PostApiSocialProvidersWithBodyWithResponse request with arbitrary body returning *PostApiSocialProvidersResponse
+func (c *ClientWithResponses) PostApiSocialProvidersWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiSocialProvidersResponse, error) {
+	rsp, err := c.PostApiSocialProvidersWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiSocialProvidersResponse(rsp)
+}
+
+func (c *ClientWithResponses) PostApiSocialProvidersWithResponse(ctx context.Context, body PostApiSocialProvidersJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiSocialProvidersResponse, error) {
+	rsp, err := c.PostApiSocialProviders(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiSocialProvidersResponse(rsp)
+}
+
+// DeleteApiSocialProvidersIdWithResponse request returning *DeleteApiSocialProvidersIdResponse
+func (c *ClientWithResponses) DeleteApiSocialProvidersIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteApiSocialProvidersIdResponse, error) {
+	rsp, err := c.DeleteApiSocialProvidersId(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteApiSocialProvidersIdResponse(rsp)
+}
+
+// GetApiSocialProvidersIdWithResponse request returning *GetApiSocialProvidersIdResponse
+func (c *ClientWithResponses) GetApiSocialProvidersIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiSocialProvidersIdResponse, error) {
+	rsp, err := c.GetApiSocialProvidersId(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetApiSocialProvidersIdResponse(rsp)
+}
+
+// PutApiSocialProvidersIdWithBodyWithResponse request with arbitrary body returning *PutApiSocialProvidersIdResponse
+func (c *ClientWithResponses) PutApiSocialProvidersIdWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutApiSocialProvidersIdResponse, error) {
+	rsp, err := c.PutApiSocialProvidersIdWithBody(ctx, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutApiSocialProvidersIdResponse(rsp)
+}
+
+func (c *ClientWithResponses) PutApiSocialProvidersIdWithResponse(ctx context.Context, id string, body PutApiSocialProvidersIdJSONRequestBody, reqEditors ...RequestEditorFn) (*PutApiSocialProvidersIdResponse, error) {
+	rsp, err := c.PutApiSocialProvidersId(ctx, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutApiSocialProvidersIdResponse(rsp)
+}
+
+// PostApiSocialProvidersIdDisableWithResponse request returning *PostApiSocialProvidersIdDisableResponse
+func (c *ClientWithResponses) PostApiSocialProvidersIdDisableWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*PostApiSocialProvidersIdDisableResponse, error) {
+	rsp, err := c.PostApiSocialProvidersIdDisable(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiSocialProvidersIdDisableResponse(rsp)
+}
+
+// PostApiSocialProvidersIdEnableWithResponse request returning *PostApiSocialProvidersIdEnableResponse
+func (c *ClientWithResponses) PostApiSocialProvidersIdEnableWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*PostApiSocialProvidersIdEnableResponse, error) {
+	rsp, err := c.PostApiSocialProvidersIdEnable(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostApiSocialProvidersIdEnableResponse(rsp)
 }
 
 // ParseGetApiBillingCreditsResponse parses an HTTP response from a GetApiBillingCreditsWithResponse call
@@ -15529,6 +16302,384 @@ func ParseDeleteApiQuotaUserConfigsUserIDPlanResponse(rsp *http.Response) (*Dele
 	}
 
 	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiSocialProvidersResponse parses an HTTP response from a GetApiSocialProvidersWithResponse call
+func ParseGetApiSocialProvidersResponse(rsp *http.Response) (*GetApiSocialProvidersResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiSocialProvidersResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest SocialProviderListResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiSocialProvidersResponse parses an HTTP response from a PostApiSocialProvidersWithResponse call
+func ParsePostApiSocialProvidersResponse(rsp *http.Response) (*PostApiSocialProvidersResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiSocialProvidersResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest SocialProviderResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteApiSocialProvidersIdResponse parses an HTTP response from a DeleteApiSocialProvidersIdWithResponse call
+func ParseDeleteApiSocialProvidersIdResponse(rsp *http.Response) (*DeleteApiSocialProvidersIdResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteApiSocialProvidersIdResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetApiSocialProvidersIdResponse parses an HTTP response from a GetApiSocialProvidersIdWithResponse call
+func ParseGetApiSocialProvidersIdResponse(rsp *http.Response) (*GetApiSocialProvidersIdResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetApiSocialProvidersIdResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest SocialProviderResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePutApiSocialProvidersIdResponse parses an HTTP response from a PutApiSocialProvidersIdWithResponse call
+func ParsePutApiSocialProvidersIdResponse(rsp *http.Response) (*PutApiSocialProvidersIdResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PutApiSocialProvidersIdResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest SocialProviderResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiSocialProvidersIdDisableResponse parses an HTTP response from a PostApiSocialProvidersIdDisableWithResponse call
+func ParsePostApiSocialProvidersIdDisableResponse(rsp *http.Response) (*PostApiSocialProvidersIdDisableResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiSocialProvidersIdDisableResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest SocialProviderResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostApiSocialProvidersIdEnableResponse parses an HTTP response from a PostApiSocialProvidersIdEnableWithResponse call
+func ParsePostApiSocialProvidersIdEnableResponse(rsp *http.Response) (*PostApiSocialProvidersIdEnableResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostApiSocialProvidersIdEnableResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest SocialProviderResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
 		var dest ErrorResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
