@@ -557,3 +557,23 @@ func TestSocialProviderService_DisableSocialProvider(t *testing.T) {
 		})
 	}
 }
+
+func TestSocialProviderService_CreateSocialProvider_NilRequest(t *testing.T) {
+	client, err := NewClient(WithEndpoint("http://127.0.0.1:1"))
+	require.NoError(t, err)
+
+	provider, err := client.SocialProviders().CreateSocialProvider(context.Background(), nil)
+	require.Nil(t, provider)
+	require.ErrorIs(t, err, ErrBadRequest)
+	require.ErrorContains(t, err, "social login provider request is required")
+}
+
+func TestSocialProviderService_UpdateSocialProvider_NilRequest(t *testing.T) {
+	client, err := NewClient(WithEndpoint("http://127.0.0.1:1"))
+	require.NoError(t, err)
+
+	provider, err := client.SocialProviders().UpdateSocialProvider(context.Background(), "1", nil)
+	require.Nil(t, provider)
+	require.ErrorIs(t, err, ErrBadRequest)
+	require.ErrorContains(t, err, "social login provider request is required")
+}

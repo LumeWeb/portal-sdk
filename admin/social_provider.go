@@ -15,6 +15,8 @@ import (
 var (
 	errSocialProviderNotFound = internalhttp.NotFoundError("social login provider not found")
 	errInvalidSocialProvider  = internalhttp.BadRequestError("invalid social login provider data")
+
+	errInvalidSocialProviderRequest = internalhttp.BadRequestError("social login provider request is required")
 )
 
 const (
@@ -169,6 +171,10 @@ func (s *SocialProviderService) ListSocialProviders(ctx context.Context) ([]*Soc
 
 // CreateSocialProvider creates a new social login provider configuration.
 func (s *SocialProviderService) CreateSocialProvider(ctx context.Context, req *SocialProviderRequest) (*SocialProvider, error) {
+	if req == nil {
+		return nil, errInvalidSocialProviderRequest.Error()
+	}
+
 	resp, err := s.client.PostApiSocialProvidersWithResponse(ctx, *req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create social login provider: %w", err)
@@ -199,6 +205,10 @@ func (s *SocialProviderService) GetSocialProvider(ctx context.Context, id string
 
 // UpdateSocialProvider updates an existing social login provider configuration.
 func (s *SocialProviderService) UpdateSocialProvider(ctx context.Context, id string, req *SocialProviderRequest) (*SocialProvider, error) {
+	if req == nil {
+		return nil, errInvalidSocialProviderRequest.Error()
+	}
+
 	resp, err := s.client.PutApiSocialProvidersIdWithResponse(ctx, id, *req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update social login provider: %w", err)
