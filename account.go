@@ -57,49 +57,51 @@ var (
 	ErrOperationTimeout = errors.New("operation timed out")
 
 	// HTTP ErrorFactoryError sentinels for DRY error mapping
-	errAuthRequiredOrPassword    = internalhttp.AuthError("authentication required or invalid password")
-	errInvalidLoginCredentials   = internalhttp.AuthError("invalid login credentials")
-	errInvalidAPIKey             = internalhttp.AuthError("invalid API key")
-	errInvalid2FASession         = internalhttp.AuthError("invalid or expired 2FA session")
-	errInvalidOTPCode            = internalhttp.PlainError("invalid OTP code")
-	errAccountPendingDeletion    = internalhttp.PlainError("account is pending deletion")
-	errUserAlreadyExists         = internalhttp.PlainError("user already exists with this email")
-	errInvalidVerificationToken  = internalhttp.PlainError("invalid verification token or email")
-	errInvalidEmailAddress       = internalhttp.PlainError("invalid email address")
-	errCannotDeleteAccount       = internalhttp.PlainError("cannot delete account")
-	errAccountDeleteConflict     = internalhttp.PlainError("account delete conflict")
-	errAccountNotFound           = internalhttp.PlainError("account not found")
-	errInvalidResetToken         = internalhttp.PlainError("invalid or expired reset token")
-	errInvalidPassword           = internalhttp.PlainError("invalid password")
-	errInvalidProfileData        = internalhttp.PlainError("invalid profile data")
-	errAvatarNotFound            = internalhttp.PlainError("avatar not found")
-	errInvalidEmailOrPassword    = internalhttp.PlainError("invalid email or password")
-	errPermissionsNotFound       = internalhttp.PlainError("permissions not found")
-	errQuotaNotFound             = internalhttp.PlainError("quota not found")
-	errInvalidDateParameters     = internalhttp.PlainError("invalid date parameters")
-	errQuotaHistoryNotFound      = internalhttp.PlainError("quota history not found")
-	errBalanceNotFound           = internalhttp.PlainError("balance not found")
-	errInvalidRequestParams      = internalhttp.PlainError("invalid request parameters")
-	errInvalidPlanID             = internalhttp.PlainError("invalid plan ID")
-	errCheckoutUINotFound        = internalhttp.PlainError("checkout UI not found")
-	errManagementCapsNotFound    = internalhttp.PlainError("management capabilities not found")
+	errAuthRequiredOrPassword     = internalhttp.AuthError("authentication required or invalid password")
+	errInvalidLoginCredentials    = internalhttp.AuthError("invalid login credentials")
+	errInvalidAPIKey              = internalhttp.AuthError("invalid API key")
+	errInvalid2FASession          = internalhttp.AuthError("invalid or expired 2FA session")
+	errInvalidOTPCode             = internalhttp.PlainError("invalid OTP code")
+	errAccountPendingDeletion     = internalhttp.PlainError("account is pending deletion")
+	errUserAlreadyExists          = internalhttp.PlainError("user already exists with this email")
+	errInvalidVerificationToken   = internalhttp.PlainError("invalid verification token or email")
+	errInvalidEmailAddress        = internalhttp.PlainError("invalid email address")
+	errCannotDeleteAccount        = internalhttp.PlainError("cannot delete account")
+	errAccountDeleteConflict      = internalhttp.PlainError("account delete conflict")
+	errAccountNotFound            = internalhttp.PlainError("account not found")
+	errInvalidResetToken          = internalhttp.PlainError("invalid or expired reset token")
+	errInvalidPassword            = internalhttp.PlainError("invalid password")
+	errInvalidProfileData         = internalhttp.PlainError("invalid profile data")
+	errAvatarNotFound             = internalhttp.PlainError("avatar not found")
+	errInvalidEmailOrPassword     = internalhttp.PlainError("invalid email or password")
+	errPermissionsNotFound        = internalhttp.PlainError("permissions not found")
+	errQuotaNotFound              = internalhttp.PlainError("quota not found")
+	errInvalidDateParameters      = internalhttp.PlainError("invalid date parameters")
+	errQuotaHistoryNotFound       = internalhttp.PlainError("quota history not found")
+	errBalanceNotFound            = internalhttp.PlainError("balance not found")
+	errInvalidRequestParams       = internalhttp.PlainError("invalid request parameters")
+	errInvalidPlanID              = internalhttp.PlainError("invalid plan ID")
+	errCheckoutUINotFound         = internalhttp.PlainError("checkout UI not found")
+	errManagementCapsNotFound     = internalhttp.PlainError("management capabilities not found")
 	errSubscriptionStatusNotFound = internalhttp.PlainError("subscription status not found")
-	errInvalidRequest            = internalhttp.PlainError("invalid request")
-	errResourceNotFound          = internalhttp.PlainError("resource not found")
-	errCannotCancelSubscription  = internalhttp.PlainError("cannot cancel subscription")
-	errNoActiveSubscription      = internalhttp.PlainError("no active subscription")
-	errCannotAbortCancellation   = internalhttp.PlainError("cannot abort cancellation")
-	errNoScheduledCancellation   = internalhttp.PlainError("no scheduled cancellation found")
-	errCannotChangePlan          = internalhttp.PlainError("cannot change plan")
-	errPlanNotFound              = internalhttp.PlainError("plan not found")
-	errInvalidWebhookData        = internalhttp.PlainError("invalid webhook data")
-	errGatewayRegistryNotInit    = internalhttp.PlainError("gateway registry not initialized")
-	errGatewayLogoNotFound       = internalhttp.PlainError("gateway logo not found")
-	errFailedGetPricingPlans     = internalhttp.PlainError("failed to get pricing plans")
-	errCannotPauseBilling        = internalhttp.PlainError("cannot pause billing")
-	errCannotResumeBilling       = internalhttp.PlainError("cannot resume billing")
-	errNoPausedSubscription      = internalhttp.PlainError("no paused subscription")
-	errCheckoutSessionNotFound   = internalhttp.PlainError("checkout session not found")
+	errInvalidRequest             = internalhttp.PlainError("invalid request")
+	errResourceNotFound           = internalhttp.PlainError("resource not found")
+	errCannotCancelSubscription   = internalhttp.PlainError("cannot cancel subscription")
+	errNoActiveSubscription       = internalhttp.PlainError("no active subscription")
+	errCannotAbortCancellation    = internalhttp.PlainError("cannot abort cancellation")
+	errNoScheduledCancellation    = internalhttp.PlainError("no scheduled cancellation found")
+	errCannotChangePlan           = internalhttp.PlainError("cannot change plan")
+	errPlanNotFound               = internalhttp.PlainError("plan not found")
+	errInvalidWebhookData         = internalhttp.PlainError("invalid webhook data")
+	errGatewayRegistryNotInit     = internalhttp.PlainError("gateway registry not initialized")
+	errGatewayLogoNotFound        = internalhttp.PlainError("gateway logo not found")
+	errFailedGetPricingPlans      = internalhttp.PlainError("failed to get pricing plans")
+	errCannotPauseBilling         = internalhttp.PlainError("cannot pause billing")
+	errCannotResumeBilling        = internalhttp.PlainError("cannot resume billing")
+	errNoPausedSubscription       = internalhttp.PlainError("no paused subscription")
+	errCheckoutSessionNotFound    = internalhttp.PlainError("checkout session not found")
+	errInvalidReturnURL           = internalhttp.BadRequestError("invalid return URL")
+	errSocialProviderNotEnabled   = internalhttp.NotFoundError("social login provider not enabled")
 
 	// Generic/shared error sentinels (from internalhttp)
 	errAuthRequired            = internalhttp.FactoryErrAuthRequired
@@ -183,6 +185,13 @@ const (
 	OpResumeBilling
 	OpGetCheckoutSessionStatus
 	OpGetCustomerPortalURL
+	OpListSocialProviders
+	OpListSocialLinks
+	OpSocialLogin
+	OpSocialLogout
+	OpLinkSocialProvider
+	OpUnlinkSocialProvider
+	OpSocialConsent
 )
 
 const defaultOperationName = "operation"
@@ -192,45 +201,52 @@ const DefaultEndpoint = "account.pinner.xyz"
 
 // operationString maps operation IDs to their string names.
 var operationString = map[int]string{
-	OpLogin:        "login",
-	OpOTPValidation: "OTP validation",
-	OpPing:         "ping",
-	OpOTPGeneration: "OTP generation",
-	OpOTPVerification: "OTP verification",
-	OpOTPDisable:   "OTP disable",
-	OpAPIKeyLogin:  "API key login",
-	OpRegistration: "registration",
-	OpEmailVerification: "email verification",
-	OpResendEmailVerification: "resend email verification",
-	OpDeleteAccount: "account deletion",
-	OpPasswordResetRequest: "password reset request",
-	OpPasswordResetConfirm: "password reset confirm",
-	OpPasswordUpdate: "password update",
-	OpGetAccount:   "get account",
-	OpUpdateProfile: "update profile",
-	OpGetAvatar:    "get avatar",
-	OpUploadAvatar: "upload avatar",
-	OpUpdateEmail:  "update email",
-	OpGetPermissions: "get account permissions",
-	OpGetQuota:      "get quota status",
-	OpGetQuotaHistory: "get quota history",
-	OpGetBalance:             "get billing balance",
-	OpListCredits:            "list user credits",
-	OpGetCheckoutUI:          "get checkout UI",
-	OpGetManagementCapabilities: "get management capabilities",
-	OpGetSubscriptionStatus:   "get subscription status",
-	OpManageBilling:                  "manage billing",
-	OpCancelSubscription:             "cancel subscription",
-	OpAbortSubscriptionCancellation:  "abort subscription cancellation",
+	OpLogin:                         "login",
+	OpOTPValidation:                 "OTP validation",
+	OpPing:                          "ping",
+	OpOTPGeneration:                 "OTP generation",
+	OpOTPVerification:               "OTP verification",
+	OpOTPDisable:                    "OTP disable",
+	OpAPIKeyLogin:                   "API key login",
+	OpRegistration:                  "registration",
+	OpEmailVerification:             "email verification",
+	OpResendEmailVerification:       "resend email verification",
+	OpDeleteAccount:                 "account deletion",
+	OpPasswordResetRequest:          "password reset request",
+	OpPasswordResetConfirm:          "password reset confirm",
+	OpPasswordUpdate:                "password update",
+	OpGetAccount:                    "get account",
+	OpUpdateProfile:                 "update profile",
+	OpGetAvatar:                     "get avatar",
+	OpUploadAvatar:                  "upload avatar",
+	OpUpdateEmail:                   "update email",
+	OpGetPermissions:                "get account permissions",
+	OpGetQuota:                      "get quota status",
+	OpGetQuotaHistory:               "get quota history",
+	OpGetBalance:                    "get billing balance",
+	OpListCredits:                   "list user credits",
+	OpGetCheckoutUI:                 "get checkout UI",
+	OpGetManagementCapabilities:     "get management capabilities",
+	OpGetSubscriptionStatus:         "get subscription status",
+	OpManageBilling:                 "manage billing",
+	OpCancelSubscription:            "cancel subscription",
+	OpAbortSubscriptionCancellation: "abort subscription cancellation",
 	OpChangePlan:                    "change subscription plan",
-	OpHandleWebhook:           "handle billing webhook",
-	OpListBillingGateways:     "list billing gateways",
-	OpGetGatewayLogo:          "get gateway logo",
-	OpListPricingPlans:        "list pricing plans",
-	OpPauseBilling:            "pause billing",
-	OpResumeBilling:           "resume billing",
-	OpGetCheckoutSessionStatus: "get checkout session status",
-	OpGetCustomerPortalURL:     "get customer portal URL",
+	OpHandleWebhook:                 "handle billing webhook",
+	OpListBillingGateways:           "list billing gateways",
+	OpGetGatewayLogo:                "get gateway logo",
+	OpListPricingPlans:              "list pricing plans",
+	OpPauseBilling:                  "pause billing",
+	OpResumeBilling:                 "resume billing",
+	OpGetCheckoutSessionStatus:      "get checkout session status",
+	OpGetCustomerPortalURL:          "get customer portal URL",
+	OpListSocialProviders:           "list social login providers",
+	OpListSocialLinks:               "list linked social accounts",
+	OpSocialLogin:                   "initiate social login",
+	OpSocialLogout:                  "social logout",
+	OpLinkSocialProvider:            "link social login provider",
+	OpUnlinkSocialProvider:          "unlink social login provider",
+	OpSocialConsent:                 "social link consent",
 }
 
 // httpErrorMessages maps operation IDs to their custom status code error messages.
@@ -411,6 +427,33 @@ var httpErrorMessages = map[int]map[int]internalhttp.ErrorFactoryError{
 		http.StatusBadRequest:   errInvalidRequest,
 		http.StatusNotFound:     errResourceNotFound,
 	},
+	OpListSocialProviders: {
+		http.StatusBadRequest: errInvalidRequest,
+		http.StatusNotFound:   errSocialProviderNotEnabled,
+	},
+	OpListSocialLinks: {
+		http.StatusUnauthorized: errAuthRequired,
+	},
+	OpSocialLogin: {
+		http.StatusBadRequest: errInvalidReturnURL,
+		http.StatusNotFound:   errSocialProviderNotEnabled,
+	},
+	OpSocialLogout: {
+		http.StatusBadRequest: errInvalidRequest,
+	},
+	OpLinkSocialProvider: {
+		http.StatusUnauthorized: errAuthRequired,
+		http.StatusBadRequest:   errInvalidReturnURL,
+		http.StatusNotFound:     errSocialProviderNotEnabled,
+	},
+	OpUnlinkSocialProvider: {
+		http.StatusUnauthorized: errAuthRequired,
+		http.StatusNotFound:     errSocialProviderNotEnabled,
+	},
+	OpSocialConsent: {
+		http.StatusBadRequest: errInvalidRequest,
+		http.StatusNotFound:   errSocialProviderNotEnabled,
+	},
 }
 
 // IsSettled returns true if the operation is in a settled state (finished, no longer being processed).
@@ -455,6 +498,24 @@ type OperationFilterItem struct {
 // Embeds the generated client.AccountInfoResponse to reuse all fields.
 type AccountInfo struct {
 	client.AccountInfoResponse
+}
+
+// PublicSocialProvider represents an enabled social login provider exposed for
+// the login page. Embeds the generated client.PublicProviderResponse.
+type PublicSocialProvider struct {
+	client.PublicProviderResponse
+}
+
+// SocialAccount represents a social login provider linked to the authenticated
+// user's account. Embeds the generated client.SocialAccountResponse.
+type SocialAccount struct {
+	client.SocialAccountResponse
+}
+
+// SocialConsentResult carries the redirect URI returned after a social link
+// consent decision. Embeds the generated client.SocialConsentResponse.
+type SocialConsentResult struct {
+	client.SocialConsentResponse
 }
 
 // AccountPermissions represents the access control policies and model for the authenticated user.
@@ -607,14 +668,14 @@ const (
 
 // SubscriptionEventStream wraps an SSE connection for receiving real-time billing events.
 type SubscriptionEventStream struct {
-	conn         *sseClient.Connection
-	eventChan    <-chan sse.Event
-	eventHandlers map[string][]func([]byte)
+	conn           *sseClient.Connection
+	eventChan      <-chan sse.Event
+	eventHandlers  map[string][]func([]byte)
 	messageHandler func(string, []byte)
-	opts        sseClient.Options
-	url         string
-	jwt         string
-	mu          sync.RWMutex
+	opts           sseClient.Options
+	url            string
+	jwt            string
+	mu             sync.RWMutex
 }
 
 // OnEvent registers a handler for a specific SSE event type.
@@ -708,7 +769,6 @@ type GatewayLogo struct {
 type PricingPlanPublic struct {
 	client.PublicPricingPlanResponse
 }
-
 
 // ManagementResult represents the result of a management operation.
 // Embeds the generated client.ManagementResultResponse to reuse all fields.
@@ -1043,6 +1103,32 @@ type AccountAPI interface {
 	// credentials change (e.g. after a login or config reload) so subsequent
 	// requests carry the new token.
 	SetAuthToken(token string)
+
+	// Single Sign-On (Social Login)
+	// ListSocialProviders lists the enabled social login providers available for login.
+	// No authentication required.
+	ListSocialProviders(ctx context.Context) ([]*PublicSocialProvider, error)
+
+	// ListSocialLinks lists the social login providers linked to the authenticated user's account.
+	ListSocialLinks(ctx context.Context) ([]*SocialAccount, int, error)
+
+	// SocialLogin initiates a social login for the given provider, returning the
+	// URL to which the user should be redirected to authenticate with the provider.
+	SocialLogin(ctx context.Context, provider, returnURL string) (string, error)
+
+	// SocialLogout logs the user out of the social login provider session.
+	SocialLogout(ctx context.Context, provider string) error
+
+	// LinkSocialProvider initiates linking a social login provider to the
+	// authenticated user's account, returning the provider redirect URL.
+	LinkSocialProvider(ctx context.Context, provider, returnURL string) (string, error)
+
+	// UnlinkSocialProvider unlinks a social login provider from the authenticated user's account.
+	UnlinkSocialProvider(ctx context.Context, provider string) error
+
+	// SocialConsent approves or rejects linking a pending provider identity to the
+	// user's account, returning the redirect URI to navigate to.
+	SocialConsent(ctx context.Context, provider string, approve bool) (string, error)
 }
 
 // Client implements AccountAPI using the generated OpenAPI client.
@@ -1056,10 +1142,10 @@ type Client struct {
 
 // clientConfig holds the configuration for creating a new Client.
 type clientConfig struct {
-	endpoint       string
-	jwt            string
-	httpClient     *http.Client
-	hostOverride   *internalhttp.HostOverride
+	endpoint        string
+	jwt             string
+	httpClient      *http.Client
+	hostOverride    *internalhttp.HostOverride
 	disableRedirect bool
 }
 
@@ -1179,16 +1265,12 @@ func NewClientWithDefaults(genClient client.ClientWithResponsesInterface) Accoun
 	return &Client{client: genClient}
 }
 
-// disableRedirects temporarily disables HTTP redirect following for the next request.
-// This is thread-safe and should be used with enableRedirects in a defer pattern.
-func (c *Client) disableRedirects() {
-	c.disableRedirect = true
-}
-
-// enableRedirects re-enables HTTP redirect following after a disableRedirects call.
-// This is thread-safe and should be used in a defer pattern.
-func (c *Client) enableRedirects() {
-	c.disableRedirect = false
+// withRedirectsDisabled runs fn with HTTP redirect following suppressed for the
+// request carried by ctx, so a redirect response (and its Location header) is
+// captured rather than followed. Redirect control is per-request, so concurrent
+// calls do not share mutable state.
+func withRedirectsDisabled[T any](ctx context.Context, fn func(context.Context) (T, error)) (T, error) {
+	return fn(internalhttp.WithRedirectsDisabled(ctx))
 }
 
 // Login authenticates with email/password and returns a login result.
@@ -1265,33 +1347,31 @@ func (c *Client) ValidateOTP(ctx context.Context, intermediateJWT, otp string) (
 		Otp: otp,
 	}
 
-	// Temporarily disable redirect following to capture the 302 response
-	// The OTP validate endpoint returns 302 with Location header containing the JWT
-	originalState := c.disableRedirect
-	c.disableRedirect = true
-	defer func() { c.disableRedirect = originalState }()
+	// Temporarily disable redirect following to capture the 302 response.
+	// The OTP validate endpoint returns 302 with Location header containing the JWT.
+	return withRedirectsDisabled(ctx, func(ctx context.Context) (string, error) {
+		// Use the client with a request editor to add the intermediate JWT.
+		resp, err := c.client.PostApiAuthOtpValidateWithResponse(ctx, reqBody,
+			func(ctx context.Context, req *http.Request) error {
+				req.Header.Set("Authorization", "Bearer "+intermediateJWT)
+				return nil
+			},
+		)
+		if err != nil {
+			return "", fmt.Errorf("failed to send OTP validate request: %w", err)
+		}
 
-	// Use the client with a request editor to add the intermediate JWT
-	resp, err := c.client.PostApiAuthOtpValidateWithResponse(ctx, reqBody,
-		func(ctx context.Context, req *http.Request) error {
-			req.Header.Set("Authorization", "Bearer "+intermediateJWT)
-			return nil
-		},
-	)
-	if err != nil {
-		return "", fmt.Errorf("failed to send OTP validate request: %w", err)
-	}
+		// Validate response using the global error map
+		if err := handleResponse(resp.StatusCode(), resp.Body, OpOTPValidation, []int{http.StatusFound}); err != nil {
+			return "", err
+		}
 
-	// Validate response using the global error map
-	if err := handleResponse(resp.StatusCode(), resp.Body, OpOTPValidation, []int{http.StatusFound}); err != nil {
-		return "", err
-	}
-
-	token, err := extractTokenFromRedirect(resp.HTTPResponse)
-	if err != nil {
-		return "", fmt.Errorf("OTP validation: %w", err)
-	}
-	return token, nil
+		token, err := extractTokenFromRedirect(resp.HTTPResponse)
+		if err != nil {
+			return "", fmt.Errorf("OTP validation: %w", err)
+		}
+		return token, nil
+	})
 }
 
 // extractTokenFromRedirect extracts the JWT token from a 302 redirect response.
@@ -2008,7 +2088,7 @@ func (c *Client) ListCredits(ctx context.Context) ([]*Credit, int, error) {
 
 // CheckoutUIOptions provides options for GetCheckoutUI.
 type CheckoutUIOptions struct {
-	gateway *string
+	gateway  *string
 	periodID *string
 }
 
@@ -2269,8 +2349,8 @@ func (c *Client) SubscribeBillingEvents(ctx context.Context, opts ...SSEOption) 
 	sseURL.Path = "/api/account/billing/subscription/events"
 
 	return &SubscriptionEventStream{
-		url:  sseURL.String(),
-		jwt:  c.jwt,
+		url: sseURL.String(),
+		jwt: c.jwt,
 	}, nil
 }
 
@@ -2351,3 +2431,152 @@ func (c *Client) ListPricingPlans(ctx context.Context) ([]*PricingPlanPublic, in
 	return plans, resp.JSON200.Total, nil
 }
 
+// ListSocialProviders lists the enabled social login providers available for
+// login. No authentication required.
+func (c *Client) ListSocialProviders(ctx context.Context) ([]*PublicSocialProvider, error) {
+	resp, err := c.client.GetApiAccountAuthProvidersWithResponse(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list social login providers: %w", err)
+	}
+
+	if resp.StatusCode() != http.StatusOK {
+		return nil, handleResponse(resp.StatusCode(), resp.Body, OpListSocialProviders, []int{http.StatusOK})
+	}
+	if resp.JSON200 == nil {
+		return nil, fmt.Errorf("list social login providers response did not contain data")
+	}
+
+	providers := lo.Map(*resp.JSON200, func(p client.PublicProviderResponse, _ int) *PublicSocialProvider {
+		return &PublicSocialProvider{PublicProviderResponse: p}
+	})
+
+	return providers, nil
+}
+
+// ListSocialLinks lists the social login providers linked to the authenticated
+// user's account.
+func (c *Client) ListSocialLinks(ctx context.Context) ([]*SocialAccount, int, error) {
+	resp, err := c.client.GetApiAccountAuthLinksWithResponse(ctx)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to list linked social accounts: %w", err)
+	}
+
+	if resp.StatusCode() != http.StatusOK {
+		return nil, 0, handleResponse(resp.StatusCode(), resp.Body, OpListSocialLinks, []int{http.StatusOK})
+	}
+	if resp.JSON200 == nil {
+		return nil, 0, fmt.Errorf("list linked social accounts response did not contain data")
+	}
+
+	accounts := lo.Map(resp.JSON200.Data, func(a client.SocialAccountResponse, _ int) *SocialAccount {
+		return &SocialAccount{SocialAccountResponse: a}
+	})
+
+	return accounts, resp.JSON200.Total, nil
+}
+
+// SocialLogin initiates a social login for the given provider, returning the URL
+// to which the user should be redirected to authenticate with the provider.
+// The flow is browser-based; callers typically open the returned URL (or print
+// it) and complete the callback in the browser.
+func (c *Client) SocialLogin(ctx context.Context, provider, returnURL string) (string, error) {
+	params := &client.GetApiAccountAuthSsoProviderParams{}
+	if returnURL != "" {
+		params.Return = &returnURL
+	}
+
+	// Temporarily disable redirect following to capture the 302 redirect to the
+	// provider's authentication page.
+	return withRedirectsDisabled(ctx, func(ctx context.Context) (string, error) {
+		resp, err := c.client.GetApiAccountAuthSsoProviderWithResponse(ctx, provider, params)
+		if err != nil {
+			return "", fmt.Errorf("failed to initiate social login: %w", err)
+		}
+
+		if err := handleResponse(resp.StatusCode(), resp.Body, OpSocialLogin, []int{http.StatusFound}); err != nil {
+			return "", err
+		}
+
+		return redirectLocation(resp.HTTPResponse)
+	})
+}
+
+// SocialLogout logs the user out of the social login provider session.
+func (c *Client) SocialLogout(ctx context.Context, provider string) error {
+	// Temporarily disable redirect following to capture the 307 redirect.
+	_, err := withRedirectsDisabled(ctx, func(ctx context.Context) (struct{}, error) {
+		resp, err := c.client.GetApiAccountAuthSsoProviderLogoutWithResponse(ctx, provider)
+		if err != nil {
+			return struct{}{}, fmt.Errorf("failed to log out of social login provider: %w", err)
+		}
+		return struct{}{}, handleResponse(resp.StatusCode(), resp.Body, OpSocialLogout, []int{http.StatusTemporaryRedirect})
+	})
+	return err
+}
+
+// LinkSocialProvider initiates linking a social login provider to the
+// authenticated user's account, returning the provider redirect URL.
+func (c *Client) LinkSocialProvider(ctx context.Context, provider, returnURL string) (string, error) {
+	params := &client.PostApiAccountAuthSsoProviderLinkParams{}
+	if returnURL != "" {
+		params.Return = &returnURL
+	}
+
+	// Temporarily disable redirect following to capture the 302 redirect to the
+	// provider's authentication page.
+	return withRedirectsDisabled(ctx, func(ctx context.Context) (string, error) {
+		resp, err := c.client.PostApiAccountAuthSsoProviderLinkWithResponse(ctx, provider, params)
+		if err != nil {
+			return "", fmt.Errorf("failed to link social login provider: %w", err)
+		}
+
+		if err := handleResponse(resp.StatusCode(), resp.Body, OpLinkSocialProvider, []int{http.StatusFound}); err != nil {
+			return "", err
+		}
+
+		return redirectLocation(resp.HTTPResponse)
+	})
+}
+
+// UnlinkSocialProvider unlinks a social login provider from the authenticated
+// user's account.
+func (c *Client) UnlinkSocialProvider(ctx context.Context, provider string) error {
+	resp, err := c.client.DeleteApiAccountAuthSsoProviderWithResponse(ctx, provider)
+	if err != nil {
+		return fmt.Errorf("failed to unlink social login provider: %w", err)
+	}
+
+	return handleResponse(resp.StatusCode(), resp.Body, OpUnlinkSocialProvider, []int{http.StatusNoContent})
+}
+
+// SocialConsent approves or rejects linking a pending provider identity to the
+// user's account, returning the redirect URI to navigate to.
+func (c *Client) SocialConsent(ctx context.Context, provider string, approve bool) (string, error) {
+	body := client.PostApiAccountAuthSsoProviderConsentJSONRequestBody(client.PostApiAccountAuthSsoProviderConsentJSONBody{Approve: approve})
+
+	resp, err := c.client.PostApiAccountAuthSsoProviderConsentWithResponse(ctx, provider, body)
+	if err != nil {
+		return "", fmt.Errorf("failed to submit social link consent: %w", err)
+	}
+
+	if resp.StatusCode() != http.StatusOK {
+		return "", handleResponse(resp.StatusCode(), resp.Body, OpSocialConsent, []int{http.StatusOK})
+	}
+	if resp.JSON200 == nil {
+		return "", fmt.Errorf("social link consent response did not contain data")
+	}
+
+	return resp.JSON200.RedirectUri, nil
+}
+
+// redirectLocation extracts the Location header from a redirect response.
+func redirectLocation(resp *http.Response) (string, error) {
+	if resp == nil {
+		return "", fmt.Errorf("redirect response was empty")
+	}
+	loc := resp.Header.Get("Location")
+	if loc == "" {
+		return "", fmt.Errorf("redirect response did not include a Location header")
+	}
+	return loc, nil
+}

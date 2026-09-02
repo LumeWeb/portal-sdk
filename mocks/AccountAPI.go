@@ -1603,6 +1603,78 @@ func (_c *MockAccountAPI_HandleWebhook_Call) RunAndReturn(run func(ctx context.C
 	return _c
 }
 
+// LinkSocialProvider provides a mock function for the type MockAccountAPI
+func (_mock *MockAccountAPI) LinkSocialProvider(ctx context.Context, provider string, returnURL string) (string, error) {
+	ret := _mock.Called(ctx, provider, returnURL)
+
+	if len(ret) == 0 {
+		panic("no return value specified for LinkSocialProvider")
+	}
+
+	var r0 string
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string) (string, error)); ok {
+		return returnFunc(ctx, provider, returnURL)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string) string); ok {
+		r0 = returnFunc(ctx, provider, returnURL)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
+		r1 = returnFunc(ctx, provider, returnURL)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockAccountAPI_LinkSocialProvider_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'LinkSocialProvider'
+type MockAccountAPI_LinkSocialProvider_Call struct {
+	*mock.Call
+}
+
+// LinkSocialProvider is a helper method to define mock.On call
+//   - ctx context.Context
+//   - provider string
+//   - returnURL string
+func (_e *MockAccountAPI_Expecter) LinkSocialProvider(ctx any, provider any, returnURL any) *MockAccountAPI_LinkSocialProvider_Call {
+	return &MockAccountAPI_LinkSocialProvider_Call{Call: _e.mock.On("LinkSocialProvider", ctx, provider, returnURL)}
+}
+
+func (_c *MockAccountAPI_LinkSocialProvider_Call) Run(run func(ctx context.Context, provider string, returnURL string)) *MockAccountAPI_LinkSocialProvider_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockAccountAPI_LinkSocialProvider_Call) Return(s string, err error) *MockAccountAPI_LinkSocialProvider_Call {
+	_c.Call.Return(s, err)
+	return _c
+}
+
+func (_c *MockAccountAPI_LinkSocialProvider_Call) RunAndReturn(run func(ctx context.Context, provider string, returnURL string) (string, error)) *MockAccountAPI_LinkSocialProvider_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // ListAPIKeys provides a mock function for the type MockAccountAPI
 func (_mock *MockAccountAPI) ListAPIKeys(ctx context.Context, opts ...account.ListOption) ([]*account.APIKey, int, error) {
 	// account.ListOption
@@ -1971,6 +2043,136 @@ func (_c *MockAccountAPI_ListPricingPlans_Call) Return(pricingPlanPublics []*acc
 }
 
 func (_c *MockAccountAPI_ListPricingPlans_Call) RunAndReturn(run func(ctx context.Context) ([]*account.PricingPlanPublic, int, error)) *MockAccountAPI_ListPricingPlans_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ListSocialLinks provides a mock function for the type MockAccountAPI
+func (_mock *MockAccountAPI) ListSocialLinks(ctx context.Context) ([]*account.SocialAccount, int, error) {
+	ret := _mock.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListSocialLinks")
+	}
+
+	var r0 []*account.SocialAccount
+	var r1 int
+	var r2 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context) ([]*account.SocialAccount, int, error)); ok {
+		return returnFunc(ctx)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context) []*account.SocialAccount); ok {
+		r0 = returnFunc(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*account.SocialAccount)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context) int); ok {
+		r1 = returnFunc(ctx)
+	} else {
+		r1 = ret.Get(1).(int)
+	}
+	if returnFunc, ok := ret.Get(2).(func(context.Context) error); ok {
+		r2 = returnFunc(ctx)
+	} else {
+		r2 = ret.Error(2)
+	}
+	return r0, r1, r2
+}
+
+// MockAccountAPI_ListSocialLinks_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListSocialLinks'
+type MockAccountAPI_ListSocialLinks_Call struct {
+	*mock.Call
+}
+
+// ListSocialLinks is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockAccountAPI_Expecter) ListSocialLinks(ctx any) *MockAccountAPI_ListSocialLinks_Call {
+	return &MockAccountAPI_ListSocialLinks_Call{Call: _e.mock.On("ListSocialLinks", ctx)}
+}
+
+func (_c *MockAccountAPI_ListSocialLinks_Call) Run(run func(ctx context.Context)) *MockAccountAPI_ListSocialLinks_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockAccountAPI_ListSocialLinks_Call) Return(socialAccounts []*account.SocialAccount, n int, err error) *MockAccountAPI_ListSocialLinks_Call {
+	_c.Call.Return(socialAccounts, n, err)
+	return _c
+}
+
+func (_c *MockAccountAPI_ListSocialLinks_Call) RunAndReturn(run func(ctx context.Context) ([]*account.SocialAccount, int, error)) *MockAccountAPI_ListSocialLinks_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ListSocialProviders provides a mock function for the type MockAccountAPI
+func (_mock *MockAccountAPI) ListSocialProviders(ctx context.Context) ([]*account.PublicSocialProvider, error) {
+	ret := _mock.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListSocialProviders")
+	}
+
+	var r0 []*account.PublicSocialProvider
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context) ([]*account.PublicSocialProvider, error)); ok {
+		return returnFunc(ctx)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context) []*account.PublicSocialProvider); ok {
+		r0 = returnFunc(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*account.PublicSocialProvider)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = returnFunc(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockAccountAPI_ListSocialProviders_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListSocialProviders'
+type MockAccountAPI_ListSocialProviders_Call struct {
+	*mock.Call
+}
+
+// ListSocialProviders is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockAccountAPI_Expecter) ListSocialProviders(ctx any) *MockAccountAPI_ListSocialProviders_Call {
+	return &MockAccountAPI_ListSocialProviders_Call{Call: _e.mock.On("ListSocialProviders", ctx)}
+}
+
+func (_c *MockAccountAPI_ListSocialProviders_Call) Run(run func(ctx context.Context)) *MockAccountAPI_ListSocialProviders_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockAccountAPI_ListSocialProviders_Call) Return(publicSocialProviders []*account.PublicSocialProvider, err error) *MockAccountAPI_ListSocialProviders_Call {
+	_c.Call.Return(publicSocialProviders, err)
+	return _c
+}
+
+func (_c *MockAccountAPI_ListSocialProviders_Call) RunAndReturn(run func(ctx context.Context) ([]*account.PublicSocialProvider, error)) *MockAccountAPI_ListSocialProviders_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -2587,6 +2789,207 @@ func (_c *MockAccountAPI_SetAuthToken_Call) RunAndReturn(run func(token string))
 	return _c
 }
 
+// SocialConsent provides a mock function for the type MockAccountAPI
+func (_mock *MockAccountAPI) SocialConsent(ctx context.Context, provider string, approve bool) (string, error) {
+	ret := _mock.Called(ctx, provider, approve)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SocialConsent")
+	}
+
+	var r0 string
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, bool) (string, error)); ok {
+		return returnFunc(ctx, provider, approve)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, bool) string); ok {
+		r0 = returnFunc(ctx, provider, approve)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string, bool) error); ok {
+		r1 = returnFunc(ctx, provider, approve)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockAccountAPI_SocialConsent_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SocialConsent'
+type MockAccountAPI_SocialConsent_Call struct {
+	*mock.Call
+}
+
+// SocialConsent is a helper method to define mock.On call
+//   - ctx context.Context
+//   - provider string
+//   - approve bool
+func (_e *MockAccountAPI_Expecter) SocialConsent(ctx any, provider any, approve any) *MockAccountAPI_SocialConsent_Call {
+	return &MockAccountAPI_SocialConsent_Call{Call: _e.mock.On("SocialConsent", ctx, provider, approve)}
+}
+
+func (_c *MockAccountAPI_SocialConsent_Call) Run(run func(ctx context.Context, provider string, approve bool)) *MockAccountAPI_SocialConsent_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 bool
+		if args[2] != nil {
+			arg2 = args[2].(bool)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockAccountAPI_SocialConsent_Call) Return(s string, err error) *MockAccountAPI_SocialConsent_Call {
+	_c.Call.Return(s, err)
+	return _c
+}
+
+func (_c *MockAccountAPI_SocialConsent_Call) RunAndReturn(run func(ctx context.Context, provider string, approve bool) (string, error)) *MockAccountAPI_SocialConsent_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SocialLogin provides a mock function for the type MockAccountAPI
+func (_mock *MockAccountAPI) SocialLogin(ctx context.Context, provider string, returnURL string) (string, error) {
+	ret := _mock.Called(ctx, provider, returnURL)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SocialLogin")
+	}
+
+	var r0 string
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string) (string, error)); ok {
+		return returnFunc(ctx, provider, returnURL)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string) string); ok {
+		r0 = returnFunc(ctx, provider, returnURL)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
+		r1 = returnFunc(ctx, provider, returnURL)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockAccountAPI_SocialLogin_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SocialLogin'
+type MockAccountAPI_SocialLogin_Call struct {
+	*mock.Call
+}
+
+// SocialLogin is a helper method to define mock.On call
+//   - ctx context.Context
+//   - provider string
+//   - returnURL string
+func (_e *MockAccountAPI_Expecter) SocialLogin(ctx any, provider any, returnURL any) *MockAccountAPI_SocialLogin_Call {
+	return &MockAccountAPI_SocialLogin_Call{Call: _e.mock.On("SocialLogin", ctx, provider, returnURL)}
+}
+
+func (_c *MockAccountAPI_SocialLogin_Call) Run(run func(ctx context.Context, provider string, returnURL string)) *MockAccountAPI_SocialLogin_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockAccountAPI_SocialLogin_Call) Return(s string, err error) *MockAccountAPI_SocialLogin_Call {
+	_c.Call.Return(s, err)
+	return _c
+}
+
+func (_c *MockAccountAPI_SocialLogin_Call) RunAndReturn(run func(ctx context.Context, provider string, returnURL string) (string, error)) *MockAccountAPI_SocialLogin_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SocialLogout provides a mock function for the type MockAccountAPI
+func (_mock *MockAccountAPI) SocialLogout(ctx context.Context, provider string) error {
+	ret := _mock.Called(ctx, provider)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SocialLogout")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = returnFunc(ctx, provider)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockAccountAPI_SocialLogout_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SocialLogout'
+type MockAccountAPI_SocialLogout_Call struct {
+	*mock.Call
+}
+
+// SocialLogout is a helper method to define mock.On call
+//   - ctx context.Context
+//   - provider string
+func (_e *MockAccountAPI_Expecter) SocialLogout(ctx any, provider any) *MockAccountAPI_SocialLogout_Call {
+	return &MockAccountAPI_SocialLogout_Call{Call: _e.mock.On("SocialLogout", ctx, provider)}
+}
+
+func (_c *MockAccountAPI_SocialLogout_Call) Run(run func(ctx context.Context, provider string)) *MockAccountAPI_SocialLogout_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockAccountAPI_SocialLogout_Call) Return(err error) *MockAccountAPI_SocialLogout_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockAccountAPI_SocialLogout_Call) RunAndReturn(run func(ctx context.Context, provider string) error) *MockAccountAPI_SocialLogout_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // SubscribeBillingEvents provides a mock function for the type MockAccountAPI
 func (_mock *MockAccountAPI) SubscribeBillingEvents(ctx context.Context, opts ...account.SSEOption) (*account.SubscriptionEventStream, error) {
 	// account.SSEOption
@@ -2664,6 +3067,63 @@ func (_c *MockAccountAPI_SubscribeBillingEvents_Call) Return(subscriptionEventSt
 }
 
 func (_c *MockAccountAPI_SubscribeBillingEvents_Call) RunAndReturn(run func(ctx context.Context, opts ...account.SSEOption) (*account.SubscriptionEventStream, error)) *MockAccountAPI_SubscribeBillingEvents_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UnlinkSocialProvider provides a mock function for the type MockAccountAPI
+func (_mock *MockAccountAPI) UnlinkSocialProvider(ctx context.Context, provider string) error {
+	ret := _mock.Called(ctx, provider)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UnlinkSocialProvider")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = returnFunc(ctx, provider)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockAccountAPI_UnlinkSocialProvider_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UnlinkSocialProvider'
+type MockAccountAPI_UnlinkSocialProvider_Call struct {
+	*mock.Call
+}
+
+// UnlinkSocialProvider is a helper method to define mock.On call
+//   - ctx context.Context
+//   - provider string
+func (_e *MockAccountAPI_Expecter) UnlinkSocialProvider(ctx any, provider any) *MockAccountAPI_UnlinkSocialProvider_Call {
+	return &MockAccountAPI_UnlinkSocialProvider_Call{Call: _e.mock.On("UnlinkSocialProvider", ctx, provider)}
+}
+
+func (_c *MockAccountAPI_UnlinkSocialProvider_Call) Run(run func(ctx context.Context, provider string)) *MockAccountAPI_UnlinkSocialProvider_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockAccountAPI_UnlinkSocialProvider_Call) Return(err error) *MockAccountAPI_UnlinkSocialProvider_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockAccountAPI_UnlinkSocialProvider_Call) RunAndReturn(run func(ctx context.Context, provider string) error) *MockAccountAPI_UnlinkSocialProvider_Call {
 	_c.Call.Return(run)
 	return _c
 }
