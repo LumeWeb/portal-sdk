@@ -705,6 +705,23 @@ type SocialProviderResponse struct {
 	UserUrl      string    `json:"user_url"`
 }
 
+// SocialProviderUpdateRequest defines model for SocialProviderUpdateRequest.
+type SocialProviderUpdateRequest struct {
+	AuthUrl      *string   `json:"auth_url,omitempty"`
+	ClientId     *string   `json:"client_id,omitempty"`
+	ClientSecret *string   `json:"client_secret,omitempty"`
+	DisplayName  *string   `json:"display_name,omitempty"`
+	Enabled      *bool     `json:"enabled,omitempty"`
+	OrderIndex   *int      `json:"order_index,omitempty"`
+	ProviderId   *string   `json:"provider_id,omitempty"`
+	Scopes       *[]string `json:"scopes,omitempty"`
+	TokenUrl     *string   `json:"token_url,omitempty"`
+	UserEmailKey *string   `json:"user_email_key,omitempty"`
+	UserIdKey    *string   `json:"user_id_key,omitempty"`
+	UserNameKey  *string   `json:"user_name_key,omitempty"`
+	UserUrl      *string   `json:"user_url,omitempty"`
+}
+
 // SubscriberItem defines model for SubscriberItem.
 type SubscriberItem struct {
 	BillingPeriodEnd    *time.Time `json:"billing_period_end,omitempty"`
@@ -1131,7 +1148,7 @@ type PutApiQuotaUserConfigsUserIDJSONRequestBody = UserQuotaConfigUpdateRequest
 type PostApiSocialProvidersJSONRequestBody = SocialProviderRequest
 
 // PutApiSocialProvidersIdJSONRequestBody defines body for PutApiSocialProvidersId for application/json ContentType.
-type PutApiSocialProvidersIdJSONRequestBody = SocialProviderRequest
+type PutApiSocialProvidersIdJSONRequestBody = SocialProviderUpdateRequest
 
 // RequestEditorFn  is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error

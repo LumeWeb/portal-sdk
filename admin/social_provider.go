@@ -127,7 +127,8 @@ func validateSocialProviderJSON201[T any](respStatusCode int, json201 *T, nilMsg
 
 // Type aliases for generated admin client types.
 type (
-	SocialProviderRequest = admin.SocialProviderRequest
+	SocialProviderRequest       = admin.SocialProviderRequest
+	SocialProviderUpdateRequest = admin.SocialProviderUpdateRequest
 )
 
 // SocialProvider represents a configured social login provider. Embeds the
@@ -203,8 +204,10 @@ func (s *SocialProviderService) GetSocialProvider(ctx context.Context, id string
 	return &SocialProvider{SocialProviderResponse: *data}, nil
 }
 
-// UpdateSocialProvider updates an existing social login provider configuration.
-func (s *SocialProviderService) UpdateSocialProvider(ctx context.Context, id string, req *SocialProviderRequest) (*SocialProvider, error) {
+// UpdateSocialProvider patches an existing social login provider configuration.
+// Omitted fields are left unchanged; an omitted client secret keeps the stored
+// one.
+func (s *SocialProviderService) UpdateSocialProvider(ctx context.Context, id string, req *SocialProviderUpdateRequest) (*SocialProvider, error) {
 	if req == nil {
 		return nil, errInvalidSocialProviderRequest.Error()
 	}

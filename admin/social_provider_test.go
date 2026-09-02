@@ -316,9 +316,10 @@ func TestSocialProviderService_UpdateSocialProvider(t *testing.T) {
 				require.Equal(t, "PUT", r.Method)
 				require.Equal(t, "/api/social/providers/1", r.URL.Path)
 
-				var body admin.SocialProviderRequest
+				var body admin.SocialProviderUpdateRequest
 				require.NoError(t, json.NewDecoder(r.Body).Decode(&body))
-				require.Equal(t, "github", body.ProviderId)
+				require.NotNil(t, body.ProviderId)
+				require.Equal(t, "github", *body.ProviderId)
 
 				w.Header().Set("Content-Type", "application/json")
 				w.WriteHeader(tt.statusCode)
@@ -329,11 +330,12 @@ func TestSocialProviderService_UpdateSocialProvider(t *testing.T) {
 			client, err := NewClient(WithEndpoint(server.URL))
 			require.NoError(t, err)
 
-			provider, err := client.SocialProviders().UpdateSocialProvider(context.Background(), "1", &admin.SocialProviderRequest{
-				ProviderId: "github", DisplayName: "GitHub", ClientId: "client-123",
-				Scopes: []string{"user:email"}, AuthUrl: "https://github.com/login/oauth/authorize",
-				TokenUrl: "https://github.com/login/oauth/access_token", UserUrl: "https://api.github.com/user",
-				UserIdKey: "id", UserEmailKey: "email", UserNameKey: "login", Enabled: true,
+			providerId, displayName, clientId, userUrl := "github", "GitHub", "client-123", "https://api.github.com/user"
+			scopes := []string{"user:email"}
+			enabled := true
+			provider, err := client.SocialProviders().UpdateSocialProvider(context.Background(), "1", &admin.SocialProviderUpdateRequest{
+				ProviderId: &providerId, DisplayName: &displayName, ClientId: &clientId,
+				Scopes: &scopes, UserUrl: &userUrl, Enabled: &enabled,
 			})
 
 			if (err != nil) != tt.wantErr {

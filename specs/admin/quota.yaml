@@ -1216,6 +1216,38 @@ components:
       - created_at
       - updated_at
       type: object
+    SocialProviderUpdateRequest:
+      additionalProperties: false
+      properties:
+        auth_url:
+          type: string
+        client_id:
+          type: string
+        client_secret:
+          type: string
+        display_name:
+          type: string
+        enabled:
+          type: boolean
+        order_index:
+          type: integer
+        provider_id:
+          type: string
+        scopes:
+          items:
+            type: string
+          type: array
+        token_url:
+          type: string
+        user_email_key:
+          type: string
+        user_id_key:
+          type: string
+        user_name_key:
+          type: string
+        user_url:
+          type: string
+      type: object
     SubscriberItem:
       additionalProperties: false
       properties:
@@ -6082,7 +6114,9 @@ paths:
       - social
       - providers
     put:
-      description: Update an existing social login provider
+      description: Update an existing social login provider. Fields that are omitted
+        are left unchanged, so the client secret can be omitted to keep the stored
+        one.
       parameters:
       - description: Numeric ID of the provider
         in: path
@@ -6094,8 +6128,8 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SocialProviderRequest'
-        description: Provider configuration
+              $ref: '#/components/schemas/SocialProviderUpdateRequest'
+        description: Provider fields to change (omitted fields are left unchanged)
         required: true
       responses:
         "200":
