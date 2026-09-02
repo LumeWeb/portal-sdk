@@ -1,3 +1,13 @@
+## 0.1.70 (2026-09-02)
+
+### Features
+
+- add social provider management service
+
+### Fixes
+
+- guard social provider create/update against nil request
+
 ## 0.1.69 (2026-08-24)
 
 ### Features
