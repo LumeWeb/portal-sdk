@@ -2491,6 +2491,12 @@ func (c *Client) SocialLogin(ctx context.Context, provider, returnURL string) (s
 		params.Return = &returnURL
 	}
 
+	// Temporarily disable redirect following to capture the 302 redirect to the
+	// provider's authentication page.
+	originalState := c.disableRedirect
+	c.disableRedirect = true
+	defer func() { c.disableRedirect = originalState }()
+
 	resp, err := c.client.GetApiAccountAuthSsoProviderWithResponse(ctx, provider, params)
 	if err != nil {
 		return "", fmt.Errorf("failed to initiate social login: %w", err)
@@ -2505,6 +2511,11 @@ func (c *Client) SocialLogin(ctx context.Context, provider, returnURL string) (s
 
 // SocialLogout logs the user out of the social login provider session.
 func (c *Client) SocialLogout(ctx context.Context, provider string) error {
+	// Temporarily disable redirect following to capture the 307 redirect.
+	originalState := c.disableRedirect
+	c.disableRedirect = true
+	defer func() { c.disableRedirect = originalState }()
+
 	resp, err := c.client.GetApiAccountAuthSsoProviderLogoutWithResponse(ctx, provider)
 	if err != nil {
 		return fmt.Errorf("failed to log out of social login provider: %w", err)
@@ -2520,6 +2531,12 @@ func (c *Client) LinkSocialProvider(ctx context.Context, provider, returnURL str
 	if returnURL != "" {
 		params.Return = &returnURL
 	}
+
+	// Temporarily disable redirect following to capture the 302 redirect to the
+	// provider's authentication page.
+	originalState := c.disableRedirect
+	c.disableRedirect = true
+	defer func() { c.disableRedirect = originalState }()
 
 	resp, err := c.client.PostApiAccountAuthSsoProviderLinkWithResponse(ctx, provider, params)
 	if err != nil {

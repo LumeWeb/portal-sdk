@@ -337,13 +337,13 @@ type OAuthRegisterRequest struct {
 
 // OAuthTokenRequest defines model for OAuthTokenRequest.
 type OAuthTokenRequest struct {
-	ClientId     string `json:"client_id"`
-	Code         string `json:"code"`
-	CodeVerifier string `json:"code_verifier"`
-	GrantType    string `json:"grant_type"`
-	RedirectUri  string `json:"redirect_uri"`
-	RefreshToken string `json:"refresh_token"`
-	Resource     string `json:"resource"`
+	ClientId     string  `json:"client_id"`
+	Code         *string `json:"code,omitempty"`
+	CodeVerifier *string `json:"code_verifier,omitempty"`
+	GrantType    string  `json:"grant_type"`
+	RedirectUri  *string `json:"redirect_uri,omitempty"`
+	RefreshToken *string `json:"refresh_token,omitempty"`
+	Resource     *string `json:"resource,omitempty"`
 }
 
 // OTPDisableRequest defines model for OTPDisableRequest.

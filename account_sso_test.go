@@ -179,7 +179,7 @@ func TestSocialLogin(t *testing.T) {
 			}))
 			defer server.Close()
 
-			c := NewClient(WithEndpoint(server.URL), WithDisableFollowRedirect())
+			c := NewClient(WithEndpoint(server.URL))
 
 			redirect, err := c.SocialLogin(context.Background(), "google", "/dashboard")
 
@@ -235,7 +235,7 @@ func TestSocialLogout(t *testing.T) {
 			}))
 			defer server.Close()
 
-			c := NewClient(WithEndpoint(server.URL), WithDisableFollowRedirect())
+			c := NewClient(WithEndpoint(server.URL))
 
 			err := c.SocialLogout(context.Background(), "google")
 
@@ -294,7 +294,7 @@ func TestLinkSocialProvider(t *testing.T) {
 			}))
 			defer server.Close()
 
-			c := NewClient(WithEndpoint(server.URL), WithDisableFollowRedirect())
+			c := NewClient(WithEndpoint(server.URL))
 
 			redirect, err := c.LinkSocialProvider(context.Background(), "github", "/settings")
 
