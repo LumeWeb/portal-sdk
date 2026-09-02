@@ -1,3 +1,15 @@
+## 0.1.71 (2026-09-02)
+
+### Features
+
+- patch semantics for social provider update
+- add social login (SSO) support
+
+### Fixes
+
+- capture SSO redirects and relax OAuth token request
+- make redirect suppression per-request and race-free
+
 ## 0.1.70 (2026-09-02)
 
 ### Features
