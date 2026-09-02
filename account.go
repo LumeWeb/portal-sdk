@@ -1277,6 +1277,16 @@ func (c *Client) enableRedirects() {
 	c.disableRedirect = false
 }
 
+// withRedirectsDisabled runs fn with HTTP redirect following disabled so a
+// redirect response (and its Location header) is captured rather than followed.
+// The previous redirect state is restored after fn returns.
+func withRedirectsDisabled[T any](c *Client, fn func() (T, error)) (T, error) {
+	originalState := c.disableRedirect
+	c.disableRedirect = true
+	defer func() { c.disableRedirect = originalState }()
+	return fn()
+}
+
 // Login authenticates with email/password and returns a login result.
 // If 2FA is enabled for the account, OTPRequired will be true and the token
 // is an intermediate JWT that must be used with ValidateOTP.
@@ -1351,33 +1361,31 @@ func (c *Client) ValidateOTP(ctx context.Context, intermediateJWT, otp string) (
 		Otp: otp,
 	}
 
-	// Temporarily disable redirect following to capture the 302 response
-	// The OTP validate endpoint returns 302 with Location header containing the JWT
-	originalState := c.disableRedirect
-	c.disableRedirect = true
-	defer func() { c.disableRedirect = originalState }()
+	// Temporarily disable redirect following to capture the 302 response.
+	// The OTP validate endpoint returns 302 with Location header containing the JWT.
+	return withRedirectsDisabled(c, func() (string, error) {
+		// Use the client with a request editor to add the intermediate JWT.
+		resp, err := c.client.PostApiAuthOtpValidateWithResponse(ctx, reqBody,
+			func(ctx context.Context, req *http.Request) error {
+				req.Header.Set("Authorization", "Bearer "+intermediateJWT)
+				return nil
+			},
+		)
+		if err != nil {
+			return "", fmt.Errorf("failed to send OTP validate request: %w", err)
+		}
 
-	// Use the client with a request editor to add the intermediate JWT
-	resp, err := c.client.PostApiAuthOtpValidateWithResponse(ctx, reqBody,
-		func(ctx context.Context, req *http.Request) error {
-			req.Header.Set("Authorization", "Bearer "+intermediateJWT)
-			return nil
-		},
-	)
-	if err != nil {
-		return "", fmt.Errorf("failed to send OTP validate request: %w", err)
-	}
+		// Validate response using the global error map
+		if err := handleResponse(resp.StatusCode(), resp.Body, OpOTPValidation, []int{http.StatusFound}); err != nil {
+			return "", err
+		}
 
-	// Validate response using the global error map
-	if err := handleResponse(resp.StatusCode(), resp.Body, OpOTPValidation, []int{http.StatusFound}); err != nil {
-		return "", err
-	}
-
-	token, err := extractTokenFromRedirect(resp.HTTPResponse)
-	if err != nil {
-		return "", fmt.Errorf("OTP validation: %w", err)
-	}
-	return token, nil
+		token, err := extractTokenFromRedirect(resp.HTTPResponse)
+		if err != nil {
+			return "", fmt.Errorf("OTP validation: %w", err)
+		}
+		return token, nil
+	})
 }
 
 // extractTokenFromRedirect extracts the JWT token from a 302 redirect response.
@@ -2493,35 +2501,31 @@ func (c *Client) SocialLogin(ctx context.Context, provider, returnURL string) (s
 
 	// Temporarily disable redirect following to capture the 302 redirect to the
 	// provider's authentication page.
-	originalState := c.disableRedirect
-	c.disableRedirect = true
-	defer func() { c.disableRedirect = originalState }()
+	return withRedirectsDisabled(c, func() (string, error) {
+		resp, err := c.client.GetApiAccountAuthSsoProviderWithResponse(ctx, provider, params)
+		if err != nil {
+			return "", fmt.Errorf("failed to initiate social login: %w", err)
+		}
 
-	resp, err := c.client.GetApiAccountAuthSsoProviderWithResponse(ctx, provider, params)
-	if err != nil {
-		return "", fmt.Errorf("failed to initiate social login: %w", err)
-	}
+		if err := handleResponse(resp.StatusCode(), resp.Body, OpSocialLogin, []int{http.StatusFound}); err != nil {
+			return "", err
+		}
 
-	if err := handleResponse(resp.StatusCode(), resp.Body, OpSocialLogin, []int{http.StatusFound}); err != nil {
-		return "", err
-	}
-
-	return redirectLocation(resp.HTTPResponse)
+		return redirectLocation(resp.HTTPResponse)
+	})
 }
 
 // SocialLogout logs the user out of the social login provider session.
 func (c *Client) SocialLogout(ctx context.Context, provider string) error {
 	// Temporarily disable redirect following to capture the 307 redirect.
-	originalState := c.disableRedirect
-	c.disableRedirect = true
-	defer func() { c.disableRedirect = originalState }()
-
-	resp, err := c.client.GetApiAccountAuthSsoProviderLogoutWithResponse(ctx, provider)
-	if err != nil {
-		return fmt.Errorf("failed to log out of social login provider: %w", err)
-	}
-
-	return handleResponse(resp.StatusCode(), resp.Body, OpSocialLogout, []int{http.StatusTemporaryRedirect})
+	_, err := withRedirectsDisabled(c, func() (struct{}, error) {
+		resp, err := c.client.GetApiAccountAuthSsoProviderLogoutWithResponse(ctx, provider)
+		if err != nil {
+			return struct{}{}, fmt.Errorf("failed to log out of social login provider: %w", err)
+		}
+		return struct{}{}, handleResponse(resp.StatusCode(), resp.Body, OpSocialLogout, []int{http.StatusTemporaryRedirect})
+	})
+	return err
 }
 
 // LinkSocialProvider initiates linking a social login provider to the
@@ -2534,20 +2538,18 @@ func (c *Client) LinkSocialProvider(ctx context.Context, provider, returnURL str
 
 	// Temporarily disable redirect following to capture the 302 redirect to the
 	// provider's authentication page.
-	originalState := c.disableRedirect
-	c.disableRedirect = true
-	defer func() { c.disableRedirect = originalState }()
+	return withRedirectsDisabled(c, func() (string, error) {
+		resp, err := c.client.PostApiAccountAuthSsoProviderLinkWithResponse(ctx, provider, params)
+		if err != nil {
+			return "", fmt.Errorf("failed to link social login provider: %w", err)
+		}
 
-	resp, err := c.client.PostApiAccountAuthSsoProviderLinkWithResponse(ctx, provider, params)
-	if err != nil {
-		return "", fmt.Errorf("failed to link social login provider: %w", err)
-	}
+		if err := handleResponse(resp.StatusCode(), resp.Body, OpLinkSocialProvider, []int{http.StatusFound}); err != nil {
+			return "", err
+		}
 
-	if err := handleResponse(resp.StatusCode(), resp.Body, OpLinkSocialProvider, []int{http.StatusFound}); err != nil {
-		return "", err
-	}
-
-	return redirectLocation(resp.HTTPResponse)
+		return redirectLocation(resp.HTTPResponse)
+	})
 }
 
 // UnlinkSocialProvider unlinks a social login provider from the authenticated
