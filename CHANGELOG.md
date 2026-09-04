@@ -1,3 +1,9 @@
+## 0.1.72 (2026-09-04)
+
+### Fixes
+
+- update specs from production and adapt client
+
 ## 0.1.71 (2026-09-02)
 
 ### Features
