@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/require"
 	"go.lumeweb.com/portal-sdk/internal/admin"
 )
@@ -136,7 +137,8 @@ func TestPlatformDomainService_RegisterPlatformDomain(t *testing.T) {
 				var body admin.PlatformDomainRequest
 				require.NoError(t, json.NewDecoder(r.Body).Decode(&body))
 				require.Equal(t, "example.net", body.Domain)
-				require.Equal(t, "devs", body.Namespace)
+				require.NotNil(t, body.Namespace)
+			require.Equal(t, "devs", *body.Namespace)
 
 				w.Header().Set("Content-Type", "application/json")
 				w.WriteHeader(tt.statusCode)
@@ -148,7 +150,7 @@ func TestPlatformDomainService_RegisterPlatformDomain(t *testing.T) {
 			require.NoError(t, err)
 
 			domain, err := client.PlatformDomains().RegisterPlatformDomain(context.Background(), &admin.PlatformDomainRequest{
-				Domain: "example.net", Namespace: "devs", Enabled: &enabled,
+				Domain: "example.net", Namespace: lo.ToPtr("devs"), Enabled: &enabled,
 			})
 
 			if (err != nil) != tt.wantErr {

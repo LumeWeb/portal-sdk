@@ -1282,7 +1282,7 @@ func (c *Client) Login(ctx context.Context, email, password string) (*LoginResul
 		Password: password,
 	}
 
-	resp, err := c.client.PostApiAuthLoginWithResponse(ctx, reqBody)
+	resp, err := c.client.PostApiAuthLoginWithResponse(ctx, nil, reqBody)
 	if err != nil {
 		return nil, fmt.Errorf("failed to send login request: %w", err)
 	}
@@ -1351,7 +1351,7 @@ func (c *Client) ValidateOTP(ctx context.Context, intermediateJWT, otp string) (
 	// The OTP validate endpoint returns 302 with Location header containing the JWT.
 	return withRedirectsDisabled(ctx, func(ctx context.Context) (string, error) {
 		// Use the client with a request editor to add the intermediate JWT.
-		resp, err := c.client.PostApiAuthOtpValidateWithResponse(ctx, reqBody,
+		resp, err := c.client.PostApiAuthOtpValidateWithResponse(ctx, nil, reqBody,
 			func(ctx context.Context, req *http.Request) error {
 				req.Header.Set("Authorization", "Bearer "+intermediateJWT)
 				return nil

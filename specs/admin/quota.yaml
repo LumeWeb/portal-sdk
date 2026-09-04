@@ -532,7 +532,6 @@ components:
           type: string
       required:
       - domain
-      - namespace
       type: object
     PlatformDomainResponse:
       additionalProperties: false
@@ -5033,7 +5032,7 @@ paths:
   /api/ipfs/platform-domains/{id}/bind:
     post:
       description: |-
-        Binds an operator-owned website directly to the root apex of a platform domain (e.g. "pinner.site").
+        Binds an operator-owned website directly to the root apex of a platform domain (e.g. "pinned.site").
 
         Operator-only operation. The website must be owned by the authenticated operator. The apex binding reuses the platform root's auto-created zone.
 
