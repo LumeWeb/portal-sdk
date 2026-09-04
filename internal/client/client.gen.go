@@ -263,8 +263,9 @@ type KeyIdentityVerifyRequest struct {
 
 // KeyIdentityVerifyResponse defines model for KeyIdentityVerifyResponse.
 type KeyIdentityVerifyResponse struct {
-	Otp   *bool  `json:"otp,omitempty"`
-	Token string `json:"token"`
+	NewAccount *bool  `json:"new_account,omitempty"`
+	Otp        *bool  `json:"otp,omitempty"`
+	Token      string `json:"token"`
 }
 
 // LoginRequest defines model for LoginRequest.
@@ -771,6 +772,18 @@ type PostApiAuthKeyParams struct {
 	Authorization *string `json:"Authorization,omitempty"`
 }
 
+// PostApiAuthKeyVerifyParams defines parameters for PostApiAuthKeyVerify.
+type PostApiAuthKeyVerifyParams struct {
+	// Return URL to redirect to after completion
+	Return *string `form:"return,omitempty" json:"return,omitempty"`
+}
+
+// PostApiAuthLoginParams defines parameters for PostApiAuthLogin.
+type PostApiAuthLoginParams struct {
+	// Return URL to redirect to after completion
+	Return *string `form:"return,omitempty" json:"return,omitempty"`
+}
+
 // GetApiAuthOauthAuthorizeParams defines parameters for GetApiAuthOauthAuthorize.
 type GetApiAuthOauthAuthorizeParams struct {
 	// ClientId The registered OAuth client identifier
@@ -823,6 +836,12 @@ type PostApiAuthOauthAuthorizeParams struct {
 
 	// State Opaque state echoed back to the client
 	State *string `form:"state,omitempty" json:"state,omitempty"`
+}
+
+// PostApiAuthOtpValidateParams defines parameters for PostApiAuthOtpValidate.
+type PostApiAuthOtpValidateParams struct {
+	// Return URL to redirect to after completion
+	Return *string `form:"return,omitempty" json:"return,omitempty"`
 }
 
 // PostApiBillingCreditsPurchaseParams defines parameters for PostApiBillingCreditsPurchase.
@@ -1454,17 +1473,17 @@ type ClientInterface interface {
 	GetApiAuthKeyIdentities(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// PostApiAuthKeyVerifyWithBody request with any body
-	PostApiAuthKeyVerifyWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	PostApiAuthKeyVerifyWithBody(ctx context.Context, params *PostApiAuthKeyVerifyParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	PostApiAuthKeyVerify(ctx context.Context, body PostApiAuthKeyVerifyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	PostApiAuthKeyVerify(ctx context.Context, params *PostApiAuthKeyVerifyParams, body PostApiAuthKeyVerifyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeleteApiAuthKeyTypeKey request
 	DeleteApiAuthKeyTypeKey(ctx context.Context, pType string, key string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// PostApiAuthLoginWithBody request with any body
-	PostApiAuthLoginWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	PostApiAuthLoginWithBody(ctx context.Context, params *PostApiAuthLoginParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	PostApiAuthLogin(ctx context.Context, body PostApiAuthLoginJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	PostApiAuthLogin(ctx context.Context, params *PostApiAuthLoginParams, body PostApiAuthLoginJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// PostApiAuthLogout request
 	PostApiAuthLogout(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1496,9 +1515,9 @@ type ClientInterface interface {
 	PostApiAuthOtpGenerate(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// PostApiAuthOtpValidateWithBody request with any body
-	PostApiAuthOtpValidateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	PostApiAuthOtpValidateWithBody(ctx context.Context, params *PostApiAuthOtpValidateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	PostApiAuthOtpValidate(ctx context.Context, body PostApiAuthOtpValidateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	PostApiAuthOtpValidate(ctx context.Context, params *PostApiAuthOtpValidateParams, body PostApiAuthOtpValidateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// PostApiAuthOtpVerifyWithBody request with any body
 	PostApiAuthOtpVerifyWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -2342,8 +2361,8 @@ func (c *Client) GetApiAuthKeyIdentities(ctx context.Context, reqEditors ...Requ
 	return c.Client.Do(req)
 }
 
-func (c *Client) PostApiAuthKeyVerifyWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPostApiAuthKeyVerifyRequestWithBody(c.Server, contentType, body)
+func (c *Client) PostApiAuthKeyVerifyWithBody(ctx context.Context, params *PostApiAuthKeyVerifyParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiAuthKeyVerifyRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -2354,8 +2373,8 @@ func (c *Client) PostApiAuthKeyVerifyWithBody(ctx context.Context, contentType s
 	return c.Client.Do(req)
 }
 
-func (c *Client) PostApiAuthKeyVerify(ctx context.Context, body PostApiAuthKeyVerifyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPostApiAuthKeyVerifyRequest(c.Server, body)
+func (c *Client) PostApiAuthKeyVerify(ctx context.Context, params *PostApiAuthKeyVerifyParams, body PostApiAuthKeyVerifyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiAuthKeyVerifyRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -2378,8 +2397,8 @@ func (c *Client) DeleteApiAuthKeyTypeKey(ctx context.Context, pType string, key 
 	return c.Client.Do(req)
 }
 
-func (c *Client) PostApiAuthLoginWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPostApiAuthLoginRequestWithBody(c.Server, contentType, body)
+func (c *Client) PostApiAuthLoginWithBody(ctx context.Context, params *PostApiAuthLoginParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiAuthLoginRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -2390,8 +2409,8 @@ func (c *Client) PostApiAuthLoginWithBody(ctx context.Context, contentType strin
 	return c.Client.Do(req)
 }
 
-func (c *Client) PostApiAuthLogin(ctx context.Context, body PostApiAuthLoginJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPostApiAuthLoginRequest(c.Server, body)
+func (c *Client) PostApiAuthLogin(ctx context.Context, params *PostApiAuthLoginParams, body PostApiAuthLoginJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiAuthLoginRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -2534,8 +2553,8 @@ func (c *Client) PostApiAuthOtpGenerate(ctx context.Context, reqEditors ...Reque
 	return c.Client.Do(req)
 }
 
-func (c *Client) PostApiAuthOtpValidateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPostApiAuthOtpValidateRequestWithBody(c.Server, contentType, body)
+func (c *Client) PostApiAuthOtpValidateWithBody(ctx context.Context, params *PostApiAuthOtpValidateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiAuthOtpValidateRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -2546,8 +2565,8 @@ func (c *Client) PostApiAuthOtpValidateWithBody(ctx context.Context, contentType
 	return c.Client.Do(req)
 }
 
-func (c *Client) PostApiAuthOtpValidate(ctx context.Context, body PostApiAuthOtpValidateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPostApiAuthOtpValidateRequest(c.Server, body)
+func (c *Client) PostApiAuthOtpValidate(ctx context.Context, params *PostApiAuthOtpValidateParams, body PostApiAuthOtpValidateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostApiAuthOtpValidateRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -4789,18 +4808,18 @@ func NewGetApiAuthKeyIdentitiesRequest(server string) (*http.Request, error) {
 }
 
 // NewPostApiAuthKeyVerifyRequest calls the generic PostApiAuthKeyVerify builder with application/json body
-func NewPostApiAuthKeyVerifyRequest(server string, body PostApiAuthKeyVerifyJSONRequestBody) (*http.Request, error) {
+func NewPostApiAuthKeyVerifyRequest(server string, params *PostApiAuthKeyVerifyParams, body PostApiAuthKeyVerifyJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPostApiAuthKeyVerifyRequestWithBody(server, "application/json", bodyReader)
+	return NewPostApiAuthKeyVerifyRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPostApiAuthKeyVerifyRequestWithBody generates requests for PostApiAuthKeyVerify with any type of body
-func NewPostApiAuthKeyVerifyRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPostApiAuthKeyVerifyRequestWithBody(server string, params *PostApiAuthKeyVerifyParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -4816,6 +4835,33 @@ func NewPostApiAuthKeyVerifyRequestWithBody(server string, contentType string, b
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Return != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "return", *params.Return, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
 	}
 
 	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
@@ -4870,18 +4916,18 @@ func NewDeleteApiAuthKeyTypeKeyRequest(server string, pType string, key string) 
 }
 
 // NewPostApiAuthLoginRequest calls the generic PostApiAuthLogin builder with application/json body
-func NewPostApiAuthLoginRequest(server string, body PostApiAuthLoginJSONRequestBody) (*http.Request, error) {
+func NewPostApiAuthLoginRequest(server string, params *PostApiAuthLoginParams, body PostApiAuthLoginJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPostApiAuthLoginRequestWithBody(server, "application/json", bodyReader)
+	return NewPostApiAuthLoginRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPostApiAuthLoginRequestWithBody generates requests for PostApiAuthLogin with any type of body
-func NewPostApiAuthLoginRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPostApiAuthLoginRequestWithBody(server string, params *PostApiAuthLoginParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -4897,6 +4943,33 @@ func NewPostApiAuthLoginRequestWithBody(server string, contentType string, body 
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Return != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "return", *params.Return, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
 	}
 
 	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
@@ -5373,18 +5446,18 @@ func NewPostApiAuthOtpGenerateRequest(server string) (*http.Request, error) {
 }
 
 // NewPostApiAuthOtpValidateRequest calls the generic PostApiAuthOtpValidate builder with application/json body
-func NewPostApiAuthOtpValidateRequest(server string, body PostApiAuthOtpValidateJSONRequestBody) (*http.Request, error) {
+func NewPostApiAuthOtpValidateRequest(server string, params *PostApiAuthOtpValidateParams, body PostApiAuthOtpValidateJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPostApiAuthOtpValidateRequestWithBody(server, "application/json", bodyReader)
+	return NewPostApiAuthOtpValidateRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPostApiAuthOtpValidateRequestWithBody generates requests for PostApiAuthOtpValidate with any type of body
-func NewPostApiAuthOtpValidateRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPostApiAuthOtpValidateRequestWithBody(server string, params *PostApiAuthOtpValidateParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -5400,6 +5473,33 @@ func NewPostApiAuthOtpValidateRequestWithBody(server string, contentType string,
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Return != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "return", *params.Return, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
 	}
 
 	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
@@ -7161,17 +7261,17 @@ type ClientWithResponsesInterface interface {
 	GetApiAuthKeyIdentitiesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiAuthKeyIdentitiesResponse, error)
 
 	// PostApiAuthKeyVerifyWithBodyWithResponse request with any body
-	PostApiAuthKeyVerifyWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAuthKeyVerifyResponse, error)
+	PostApiAuthKeyVerifyWithBodyWithResponse(ctx context.Context, params *PostApiAuthKeyVerifyParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAuthKeyVerifyResponse, error)
 
-	PostApiAuthKeyVerifyWithResponse(ctx context.Context, body PostApiAuthKeyVerifyJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiAuthKeyVerifyResponse, error)
+	PostApiAuthKeyVerifyWithResponse(ctx context.Context, params *PostApiAuthKeyVerifyParams, body PostApiAuthKeyVerifyJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiAuthKeyVerifyResponse, error)
 
 	// DeleteApiAuthKeyTypeKeyWithResponse request
 	DeleteApiAuthKeyTypeKeyWithResponse(ctx context.Context, pType string, key string, reqEditors ...RequestEditorFn) (*DeleteApiAuthKeyTypeKeyResponse, error)
 
 	// PostApiAuthLoginWithBodyWithResponse request with any body
-	PostApiAuthLoginWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAuthLoginResponse, error)
+	PostApiAuthLoginWithBodyWithResponse(ctx context.Context, params *PostApiAuthLoginParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAuthLoginResponse, error)
 
-	PostApiAuthLoginWithResponse(ctx context.Context, body PostApiAuthLoginJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiAuthLoginResponse, error)
+	PostApiAuthLoginWithResponse(ctx context.Context, params *PostApiAuthLoginParams, body PostApiAuthLoginJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiAuthLoginResponse, error)
 
 	// PostApiAuthLogoutWithResponse request
 	PostApiAuthLogoutWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*PostApiAuthLogoutResponse, error)
@@ -7203,9 +7303,9 @@ type ClientWithResponsesInterface interface {
 	PostApiAuthOtpGenerateWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*PostApiAuthOtpGenerateResponse, error)
 
 	// PostApiAuthOtpValidateWithBodyWithResponse request with any body
-	PostApiAuthOtpValidateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAuthOtpValidateResponse, error)
+	PostApiAuthOtpValidateWithBodyWithResponse(ctx context.Context, params *PostApiAuthOtpValidateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAuthOtpValidateResponse, error)
 
-	PostApiAuthOtpValidateWithResponse(ctx context.Context, body PostApiAuthOtpValidateJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiAuthOtpValidateResponse, error)
+	PostApiAuthOtpValidateWithResponse(ctx context.Context, params *PostApiAuthOtpValidateParams, body PostApiAuthOtpValidateJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiAuthOtpValidateResponse, error)
 
 	// PostApiAuthOtpVerifyWithBodyWithResponse request with any body
 	PostApiAuthOtpVerifyWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAuthOtpVerifyResponse, error)
@@ -10431,16 +10531,16 @@ func (c *ClientWithResponses) GetApiAuthKeyIdentitiesWithResponse(ctx context.Co
 }
 
 // PostApiAuthKeyVerifyWithBodyWithResponse request with arbitrary body returning *PostApiAuthKeyVerifyResponse
-func (c *ClientWithResponses) PostApiAuthKeyVerifyWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAuthKeyVerifyResponse, error) {
-	rsp, err := c.PostApiAuthKeyVerifyWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) PostApiAuthKeyVerifyWithBodyWithResponse(ctx context.Context, params *PostApiAuthKeyVerifyParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAuthKeyVerifyResponse, error) {
+	rsp, err := c.PostApiAuthKeyVerifyWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParsePostApiAuthKeyVerifyResponse(rsp)
 }
 
-func (c *ClientWithResponses) PostApiAuthKeyVerifyWithResponse(ctx context.Context, body PostApiAuthKeyVerifyJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiAuthKeyVerifyResponse, error) {
-	rsp, err := c.PostApiAuthKeyVerify(ctx, body, reqEditors...)
+func (c *ClientWithResponses) PostApiAuthKeyVerifyWithResponse(ctx context.Context, params *PostApiAuthKeyVerifyParams, body PostApiAuthKeyVerifyJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiAuthKeyVerifyResponse, error) {
+	rsp, err := c.PostApiAuthKeyVerify(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -10457,16 +10557,16 @@ func (c *ClientWithResponses) DeleteApiAuthKeyTypeKeyWithResponse(ctx context.Co
 }
 
 // PostApiAuthLoginWithBodyWithResponse request with arbitrary body returning *PostApiAuthLoginResponse
-func (c *ClientWithResponses) PostApiAuthLoginWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAuthLoginResponse, error) {
-	rsp, err := c.PostApiAuthLoginWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) PostApiAuthLoginWithBodyWithResponse(ctx context.Context, params *PostApiAuthLoginParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAuthLoginResponse, error) {
+	rsp, err := c.PostApiAuthLoginWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParsePostApiAuthLoginResponse(rsp)
 }
 
-func (c *ClientWithResponses) PostApiAuthLoginWithResponse(ctx context.Context, body PostApiAuthLoginJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiAuthLoginResponse, error) {
-	rsp, err := c.PostApiAuthLogin(ctx, body, reqEditors...)
+func (c *ClientWithResponses) PostApiAuthLoginWithResponse(ctx context.Context, params *PostApiAuthLoginParams, body PostApiAuthLoginJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiAuthLoginResponse, error) {
+	rsp, err := c.PostApiAuthLogin(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -10569,16 +10669,16 @@ func (c *ClientWithResponses) PostApiAuthOtpGenerateWithResponse(ctx context.Con
 }
 
 // PostApiAuthOtpValidateWithBodyWithResponse request with arbitrary body returning *PostApiAuthOtpValidateResponse
-func (c *ClientWithResponses) PostApiAuthOtpValidateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAuthOtpValidateResponse, error) {
-	rsp, err := c.PostApiAuthOtpValidateWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) PostApiAuthOtpValidateWithBodyWithResponse(ctx context.Context, params *PostApiAuthOtpValidateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiAuthOtpValidateResponse, error) {
+	rsp, err := c.PostApiAuthOtpValidateWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParsePostApiAuthOtpValidateResponse(rsp)
 }
 
-func (c *ClientWithResponses) PostApiAuthOtpValidateWithResponse(ctx context.Context, body PostApiAuthOtpValidateJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiAuthOtpValidateResponse, error) {
-	rsp, err := c.PostApiAuthOtpValidate(ctx, body, reqEditors...)
+func (c *ClientWithResponses) PostApiAuthOtpValidateWithResponse(ctx context.Context, params *PostApiAuthOtpValidateParams, body PostApiAuthOtpValidateJSONRequestBody, reqEditors ...RequestEditorFn) (*PostApiAuthOtpValidateResponse, error) {
+	rsp, err := c.PostApiAuthOtpValidate(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}

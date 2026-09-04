@@ -417,9 +417,9 @@ type PlatformDomainListResponse struct {
 
 // PlatformDomainRequest defines model for PlatformDomainRequest.
 type PlatformDomainRequest struct {
-	Domain    string `json:"domain"`
-	Enabled   *bool  `json:"enabled,omitempty"`
-	Namespace string `json:"namespace"`
+	Domain    string  `json:"domain"`
+	Enabled   *bool   `json:"enabled,omitempty"`
+	Namespace *string `json:"namespace,omitempty"`
 }
 
 // PlatformDomainResponse defines model for PlatformDomainResponse.

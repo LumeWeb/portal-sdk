@@ -436,6 +436,8 @@ components:
     KeyIdentityVerifyResponse:
       additionalProperties: false
       properties:
+        new_account:
+          type: boolean
         otp:
           type: boolean
         token:
@@ -1285,7 +1287,7 @@ components:
 info:
   description: API endpoints for managing user accounts, authentication, and API keys.
   title: Account API
-  version: v0.3.1-0.20260902200643-4c8de78ef95e
+  version: v0.3.1-0.20260904065215-34c5da8341bb
 openapi: 3.0.0
 paths:
   /.well-known/jwks.json:
@@ -3939,7 +3941,14 @@ paths:
   /api/auth/key/verify:
     post:
       description: Verifies a signed challenge and authenticates the user via key
-        identity login.
+        identity login. If the key is not linked to any account, a new anonymous account
+        is provisioned (response/redirect carries new_account).
+      parameters:
+      - description: URL to redirect to after completion
+        in: query
+        name: return
+        schema:
+          type: string
       requestBody:
         content:
           application/json:
@@ -4001,6 +4010,12 @@ paths:
   /api/auth/login:
     post:
       description: Authenticates a user using email and password.
+      parameters:
+      - description: URL to redirect to after completion
+        in: query
+        name: return
+        schema:
+          type: string
       requestBody:
         content:
           application/json:
@@ -4502,6 +4517,12 @@ paths:
   /api/auth/otp/validate:
     post:
       description: Validates an OTP code to complete 2FA login.
+      parameters:
+      - description: URL to redirect to after completion
+        in: query
+        name: return
+        schema:
+          type: string
       requestBody:
         content:
           application/json:
