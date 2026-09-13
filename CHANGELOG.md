@@ -1,3 +1,9 @@
+## 0.1.73 (2026-09-13)
+
+### Features
+
+- add user service from updated specs
+
 ## 0.1.72 (2026-09-04)
 
 ### Fixes
