@@ -468,8 +468,12 @@ func (s OperationStatus) String() string {
 
 // APIKey represents an API key for the account.
 // Embeds the generated client.CreateAPIKeyResponse to reuse all fields.
+// CreatedAt and LastUsedAt are only populated for keys returned by ListAPIKeys;
+// the API never returns them when a key is first created.
 type APIKey struct {
 	client.CreateAPIKeyResponse
+	CreatedAt  time.Time
+	LastUsedAt *time.Time
 }
 
 // Operation represents an account operation (upload, pin, etc.).
@@ -1568,11 +1572,15 @@ func (c *Client) ListAPIKeys(ctx context.Context, opts ...ListOption) ([]*APIKey
 	}
 
 	keys := lo.Map(resp.JSON200.Data, func(key client.APIKeyResponse, _ int) *APIKey {
-		return &APIKey{CreateAPIKeyResponse: client.CreateAPIKeyResponse{
-			Name:  key.Name,
-			Token: "",
-			Uuid:  key.Uuid,
-		}}
+		return &APIKey{
+			CreateAPIKeyResponse: client.CreateAPIKeyResponse{
+				Name:  key.Name,
+				Token: "",
+				Uuid:  key.Uuid,
+			},
+			CreatedAt:  key.CreatedAt,
+			LastUsedAt: key.LastUsedAt,
+		}
 	})
 
 	return keys, resp.JSON200.Total, nil

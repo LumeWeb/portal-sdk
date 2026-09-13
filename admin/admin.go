@@ -46,6 +46,7 @@ type AdminAPI interface {
 	Profiling() *ProfilingService
 	PlatformDomains() *PlatformDomainService
 	SocialProviders() *SocialProviderService
+	Users() *UserService
 }
 
 // AdminClient provides access to admin APIs for managing quotas, billing, and users.
@@ -57,6 +58,7 @@ type AdminClient struct {
 	profiling       *ProfilingService
 	platformDomains *PlatformDomainService
 	socialProviders *SocialProviderService
+	users           *UserService
 	config          *clientConfig
 	jwt             string
 	apiKey          string
@@ -65,10 +67,10 @@ type AdminClient struct {
 
 // clientConfig holds the configuration for creating a new AdminClient.
 type clientConfig struct {
-	endpoint       string
-	jwt            string
-	apiKey         string
-	hostOverride   *internalhttp.HostOverride
+	endpoint        string
+	jwt             string
+	apiKey          string
+	hostOverride    *internalhttp.HostOverride
 	disableRedirect bool
 }
 
@@ -202,6 +204,10 @@ func NewClient(opts ...ClientOption) (*AdminClient, error) {
 		client: c,
 	}
 
+	userService := &UserService{
+		client: c,
+	}
+
 	clientWrapper.client = c
 	clientWrapper.quota = quotaService
 	clientWrapper.billing = billingService
@@ -209,6 +215,7 @@ func NewClient(opts ...ClientOption) (*AdminClient, error) {
 	clientWrapper.profiling = profilingService
 	clientWrapper.platformDomains = platformDomainService
 	clientWrapper.socialProviders = socialProviderService
+	clientWrapper.users = userService
 	clientWrapper.config = cfg
 	return clientWrapper, nil
 }
@@ -243,6 +250,11 @@ func (a *AdminClient) PlatformDomains() *PlatformDomainService {
 // social login providers.
 func (a *AdminClient) SocialProviders() *SocialProviderService {
 	return a.socialProviders
+}
+
+// Users returns the user service for managing portal users.
+func (a *AdminClient) Users() *UserService {
+	return a.users
 }
 
 // RequestExecutor provides a method to execute requests with the admin client's configuration.

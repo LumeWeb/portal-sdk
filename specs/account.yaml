@@ -38,6 +38,9 @@ components:
         created_at:
           format: date-time
           type: string
+        last_used_at:
+          format: date-time
+          type: string
         name:
           type: string
         uuid:
@@ -1287,7 +1290,7 @@ components:
 info:
   description: API endpoints for managing user accounts, authentication, and API keys.
   title: Account API
-  version: v0.3.1-0.20260904065215-34c5da8341bb
+  version: v0.3.1-0.20260911165854-4c8f9a587763
 openapi: 3.0.0
 paths:
   /.well-known/jwks.json:
@@ -3058,6 +3061,41 @@ paths:
         name: _start
         schema:
           type: integer
+      - description: Filter by last_used_at between
+        in: query
+        name: filters[last_used_at][between]
+        schema:
+          type: string
+      - description: Filter by last_used_at eq
+        in: query
+        name: filters[last_used_at][eq]
+        schema:
+          type: string
+      - description: Filter by last_used_at gt
+        in: query
+        name: filters[last_used_at][gt]
+        schema:
+          type: string
+      - description: Filter by last_used_at gte
+        in: query
+        name: filters[last_used_at][gte]
+        schema:
+          type: string
+      - description: Filter by last_used_at lt
+        in: query
+        name: filters[last_used_at][lt]
+        schema:
+          type: string
+      - description: Filter by last_used_at lte
+        in: query
+        name: filters[last_used_at][lte]
+        schema:
+          type: string
+      - description: Filter by last_used_at ne
+        in: query
+        name: filters[last_used_at][ne]
+        schema:
+          type: string
       - description: Filter by name contains
         in: query
         name: filters[name][contains]
@@ -3081,6 +3119,36 @@ paths:
       - description: Filter by name startswith
         in: query
         name: filters[name][startswith]
+        schema:
+          type: string
+      - description: Filter by last_used_at eq
+        in: query
+        name: last_used_at_eq
+        schema:
+          type: string
+      - description: Filter by last_used_at gt
+        in: query
+        name: last_used_at_gt
+        schema:
+          type: string
+      - description: Filter by last_used_at gte
+        in: query
+        name: last_used_at_gte
+        schema:
+          type: string
+      - description: Filter by last_used_at lt
+        in: query
+        name: last_used_at_lt
+        schema:
+          type: string
+      - description: Filter by last_used_at lte
+        in: query
+        name: last_used_at_lte
+        schema:
+          type: string
+      - description: Filter by last_used_at ne
+        in: query
+        name: last_used_at_ne
         schema:
           type: string
       - description: Filter by name contains
