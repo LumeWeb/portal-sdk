@@ -375,6 +375,10 @@ components:
     DomainResponse:
       additionalProperties: false
       properties:
+        checks:
+          items:
+            $ref: '#/components/schemas/ValidationCheck'
+          type: array
         delegation:
           $ref: '#/components/schemas/DNSDelegation'
         dns_hosting_enabled:
@@ -386,10 +390,25 @@ components:
         id:
           type: integer
         namespace:
+          enum:
+          - icann
+          - hns
+          type: string
+        owner_name:
           type: string
         ssl:
           $ref: '#/components/schemas/SSLStatusInfo'
         status:
+          enum:
+          - draft
+          - records_generated
+          - waiting_delegation
+          - active
+          - self_hosted
+          - error
+          - onchain_managed
+          type: string
+        tlsa_rdata:
           type: string
         zone_name:
           type: string
@@ -1098,6 +1117,11 @@ components:
           format: date-time
           type: string
         status:
+          enum:
+          - pending
+          - issuing
+          - ready
+          - failed
           type: string
       required:
       - status
@@ -1421,6 +1445,37 @@ components:
       - upload_bytes
       - download_bytes
       type: object
+    UserCreateRequest:
+      additionalProperties: false
+      properties:
+        email:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        password:
+          type: string
+        verify_email:
+          type: boolean
+      required:
+      - email
+      - password
+      - verify_email
+      type: object
+    UserListResponse:
+      additionalProperties: false
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/UserResponse'
+          type: array
+        total:
+          type: integer
+      required:
+      - data
+      - total
+      type: object
     UserQuotaConfigListResponse:
       additionalProperties: false
       properties:
@@ -1520,6 +1575,71 @@ components:
           type: string
         window_type:
           type: string
+      type: object
+    UserResponse:
+      additionalProperties: false
+      properties:
+        created_at:
+          format: date-time
+          type: string
+        email:
+          type: string
+        first_name:
+          type: string
+        id:
+          type: integer
+        last_login:
+          format: date-time
+          type: string
+        last_name:
+          type: string
+        role:
+          type: string
+        updated_at:
+          format: date-time
+          type: string
+        verified:
+          type: boolean
+      required:
+      - id
+      - first_name
+      - last_name
+      - email
+      - role
+      - verified
+      - created_at
+      - updated_at
+      type: object
+    UserUpdateRequest:
+      additionalProperties: false
+      properties:
+        email:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        password:
+          type: string
+        verified:
+          type: boolean
+      type: object
+    ValidationCheck:
+      additionalProperties: false
+      properties:
+        expected:
+          type: string
+        found:
+          type: string
+        message:
+          type: string
+        name:
+          type: string
+        ok:
+          type: boolean
+      required:
+      - name
+      - ok
       type: object
     WebsiteResponse:
       additionalProperties: false
@@ -6255,5 +6375,268 @@ paths:
       tags:
       - social
       - providers
+  /api/users:
+    get:
+      description: Returns a filterable, sortable, paginated list of portal users.
+        Authentication- and database-sensitive fields are never returned.
+      parameters:
+      - description: Ending index of the items to return (exclusive). Defaults to
+          10.
+        in: query
+        name: _end
+        schema:
+          type: integer
+      - description: Sort order (asc/desc)
+        in: query
+        name: _order
+        schema:
+          type: string
+      - description: Comma-separated sort fields (e.g. id,email,created_at)
+        in: query
+        name: _sort
+        schema:
+          type: string
+      - description: Starting index of the items to return (0-based). Defaults to
+          0.
+        in: query
+        name: _start
+        schema:
+          type: integer
+      - description: Filter by exact email address
+        in: query
+        name: email
+        schema:
+          type: string
+      - description: Filter by verification state (true/false)
+        in: query
+        name: verified
+        schema:
+          type: boolean
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserListResponse'
+          description: List of users
+          headers:
+            X-Total-Count:
+              description: Total number of items
+              schema:
+                type: string
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: List users
+      tags:
+      - Users
+    post:
+      description: Creates a portal account with an email and password, plus optional
+        names and verification-email behavior. The password is hashed server-side
+        and never returned.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreateRequest'
+        description: Account details
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Success
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+          description: User created
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Create user
+      tags:
+      - Users
+  /api/users/{id}:
+    delete:
+      description: Permanently deletes a portal user. Deleting your own (the authenticated
+        administrator's) account is rejected.
+      parameters:
+      - description: Numeric ID of the user
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: User deleted
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Delete user
+      tags:
+      - Users
+    get:
+      description: Returns a single portal user by numeric ID.
+      parameters:
+      - description: Numeric ID of the user
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+          description: User details
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Get user
+      tags:
+      - Users
+    patch:
+      description: Partially updates a portal user. Fields that are omitted are left
+        unchanged; an explicit false or empty value is applied. A new password is
+        hashed server-side.
+      parameters:
+      - description: Numeric ID of the user
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequest'
+        description: Fields to change (omitted fields are left unchanged)
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+          description: User updated
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Bad request
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Validation failed
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+      summary: Update user
+      tags:
+      - Users
 servers:
 - url: /

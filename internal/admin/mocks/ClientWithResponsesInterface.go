@@ -915,6 +915,93 @@ func (_c *MockClientWithResponsesInterface_DeleteApiSocialProvidersIdWithRespons
 	return _c
 }
 
+// DeleteApiUsersIdWithResponse provides a mock function for the type MockClientWithResponsesInterface
+func (_mock *MockClientWithResponsesInterface) DeleteApiUsersIdWithResponse(ctx context.Context, id string, reqEditors ...admin.RequestEditorFn) (*admin.DeleteApiUsersIdResponse, error) {
+	// admin.RequestEditorFn
+	_va := make([]any, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []any
+	_ca = append(_ca, ctx, id)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteApiUsersIdWithResponse")
+	}
+
+	var r0 *admin.DeleteApiUsersIdResponse
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, ...admin.RequestEditorFn) (*admin.DeleteApiUsersIdResponse, error)); ok {
+		return returnFunc(ctx, id, reqEditors...)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, ...admin.RequestEditorFn) *admin.DeleteApiUsersIdResponse); ok {
+		r0 = returnFunc(ctx, id, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*admin.DeleteApiUsersIdResponse)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string, ...admin.RequestEditorFn) error); ok {
+		r1 = returnFunc(ctx, id, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_DeleteApiUsersIdWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteApiUsersIdWithResponse'
+type MockClientWithResponsesInterface_DeleteApiUsersIdWithResponse_Call struct {
+	*mock.Call
+}
+
+// DeleteApiUsersIdWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id string
+//   - reqEditors ...admin.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) DeleteApiUsersIdWithResponse(ctx any, id any, reqEditors ...any) *MockClientWithResponsesInterface_DeleteApiUsersIdWithResponse_Call {
+	return &MockClientWithResponsesInterface_DeleteApiUsersIdWithResponse_Call{Call: _e.mock.On("DeleteApiUsersIdWithResponse",
+		append([]any{ctx, id}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_DeleteApiUsersIdWithResponse_Call) Run(run func(ctx context.Context, id string, reqEditors ...admin.RequestEditorFn)) *MockClientWithResponsesInterface_DeleteApiUsersIdWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 []admin.RequestEditorFn
+		variadicArgs := make([]admin.RequestEditorFn, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(admin.RequestEditorFn)
+			}
+		}
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_DeleteApiUsersIdWithResponse_Call) Return(deleteApiUsersIdResponse *admin.DeleteApiUsersIdResponse, err error) *MockClientWithResponsesInterface_DeleteApiUsersIdWithResponse_Call {
+	_c.Call.Return(deleteApiUsersIdResponse, err)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_DeleteApiUsersIdWithResponse_Call) RunAndReturn(run func(ctx context.Context, id string, reqEditors ...admin.RequestEditorFn) (*admin.DeleteApiUsersIdResponse, error)) *MockClientWithResponsesInterface_DeleteApiUsersIdWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetApiBillingCreditsIdWithResponse provides a mock function for the type MockClientWithResponsesInterface
 func (_mock *MockClientWithResponsesInterface) GetApiBillingCreditsIdWithResponse(ctx context.Context, id string, reqEditors ...admin.RequestEditorFn) (*admin.GetApiBillingCreditsIdResponse, error) {
 	// admin.RequestEditorFn
@@ -4395,6 +4482,180 @@ func (_c *MockClientWithResponsesInterface_GetApiSocialProvidersWithResponse_Cal
 	return _c
 }
 
+// GetApiUsersIdWithResponse provides a mock function for the type MockClientWithResponsesInterface
+func (_mock *MockClientWithResponsesInterface) GetApiUsersIdWithResponse(ctx context.Context, id string, reqEditors ...admin.RequestEditorFn) (*admin.GetApiUsersIdResponse, error) {
+	// admin.RequestEditorFn
+	_va := make([]any, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []any
+	_ca = append(_ca, ctx, id)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetApiUsersIdWithResponse")
+	}
+
+	var r0 *admin.GetApiUsersIdResponse
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, ...admin.RequestEditorFn) (*admin.GetApiUsersIdResponse, error)); ok {
+		return returnFunc(ctx, id, reqEditors...)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, ...admin.RequestEditorFn) *admin.GetApiUsersIdResponse); ok {
+		r0 = returnFunc(ctx, id, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*admin.GetApiUsersIdResponse)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string, ...admin.RequestEditorFn) error); ok {
+		r1 = returnFunc(ctx, id, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_GetApiUsersIdWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetApiUsersIdWithResponse'
+type MockClientWithResponsesInterface_GetApiUsersIdWithResponse_Call struct {
+	*mock.Call
+}
+
+// GetApiUsersIdWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id string
+//   - reqEditors ...admin.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) GetApiUsersIdWithResponse(ctx any, id any, reqEditors ...any) *MockClientWithResponsesInterface_GetApiUsersIdWithResponse_Call {
+	return &MockClientWithResponsesInterface_GetApiUsersIdWithResponse_Call{Call: _e.mock.On("GetApiUsersIdWithResponse",
+		append([]any{ctx, id}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiUsersIdWithResponse_Call) Run(run func(ctx context.Context, id string, reqEditors ...admin.RequestEditorFn)) *MockClientWithResponsesInterface_GetApiUsersIdWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 []admin.RequestEditorFn
+		variadicArgs := make([]admin.RequestEditorFn, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(admin.RequestEditorFn)
+			}
+		}
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiUsersIdWithResponse_Call) Return(getApiUsersIdResponse *admin.GetApiUsersIdResponse, err error) *MockClientWithResponsesInterface_GetApiUsersIdWithResponse_Call {
+	_c.Call.Return(getApiUsersIdResponse, err)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiUsersIdWithResponse_Call) RunAndReturn(run func(ctx context.Context, id string, reqEditors ...admin.RequestEditorFn) (*admin.GetApiUsersIdResponse, error)) *MockClientWithResponsesInterface_GetApiUsersIdWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetApiUsersWithResponse provides a mock function for the type MockClientWithResponsesInterface
+func (_mock *MockClientWithResponsesInterface) GetApiUsersWithResponse(ctx context.Context, params *admin.GetApiUsersParams, reqEditors ...admin.RequestEditorFn) (*admin.GetApiUsersResponse, error) {
+	// admin.RequestEditorFn
+	_va := make([]any, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []any
+	_ca = append(_ca, ctx, params)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetApiUsersWithResponse")
+	}
+
+	var r0 *admin.GetApiUsersResponse
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *admin.GetApiUsersParams, ...admin.RequestEditorFn) (*admin.GetApiUsersResponse, error)); ok {
+		return returnFunc(ctx, params, reqEditors...)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *admin.GetApiUsersParams, ...admin.RequestEditorFn) *admin.GetApiUsersResponse); ok {
+		r0 = returnFunc(ctx, params, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*admin.GetApiUsersResponse)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, *admin.GetApiUsersParams, ...admin.RequestEditorFn) error); ok {
+		r1 = returnFunc(ctx, params, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_GetApiUsersWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetApiUsersWithResponse'
+type MockClientWithResponsesInterface_GetApiUsersWithResponse_Call struct {
+	*mock.Call
+}
+
+// GetApiUsersWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - params *admin.GetApiUsersParams
+//   - reqEditors ...admin.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) GetApiUsersWithResponse(ctx any, params any, reqEditors ...any) *MockClientWithResponsesInterface_GetApiUsersWithResponse_Call {
+	return &MockClientWithResponsesInterface_GetApiUsersWithResponse_Call{Call: _e.mock.On("GetApiUsersWithResponse",
+		append([]any{ctx, params}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiUsersWithResponse_Call) Run(run func(ctx context.Context, params *admin.GetApiUsersParams, reqEditors ...admin.RequestEditorFn)) *MockClientWithResponsesInterface_GetApiUsersWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *admin.GetApiUsersParams
+		if args[1] != nil {
+			arg1 = args[1].(*admin.GetApiUsersParams)
+		}
+		var arg2 []admin.RequestEditorFn
+		variadicArgs := make([]admin.RequestEditorFn, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(admin.RequestEditorFn)
+			}
+		}
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiUsersWithResponse_Call) Return(getApiUsersResponse *admin.GetApiUsersResponse, err error) *MockClientWithResponsesInterface_GetApiUsersWithResponse_Call {
+	_c.Call.Return(getApiUsersResponse, err)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_GetApiUsersWithResponse_Call) RunAndReturn(run func(ctx context.Context, params *admin.GetApiUsersParams, reqEditors ...admin.RequestEditorFn) (*admin.GetApiUsersResponse, error)) *MockClientWithResponsesInterface_GetApiUsersWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // PatchApiIpfsPlatformDomainsIdWithBodyWithResponse provides a mock function for the type MockClientWithResponsesInterface
 func (_mock *MockClientWithResponsesInterface) PatchApiIpfsPlatformDomainsIdWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...admin.RequestEditorFn) (*admin.PatchApiIpfsPlatformDomainsIdResponse, error) {
 	// admin.RequestEditorFn
@@ -4583,6 +4844,198 @@ func (_c *MockClientWithResponsesInterface_PatchApiIpfsPlatformDomainsIdWithResp
 }
 
 func (_c *MockClientWithResponsesInterface_PatchApiIpfsPlatformDomainsIdWithResponse_Call) RunAndReturn(run func(ctx context.Context, id string, body admin.PatchApiIpfsPlatformDomainsIdJSONRequestBody, reqEditors ...admin.RequestEditorFn) (*admin.PatchApiIpfsPlatformDomainsIdResponse, error)) *MockClientWithResponsesInterface_PatchApiIpfsPlatformDomainsIdWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// PatchApiUsersIdWithBodyWithResponse provides a mock function for the type MockClientWithResponsesInterface
+func (_mock *MockClientWithResponsesInterface) PatchApiUsersIdWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...admin.RequestEditorFn) (*admin.PatchApiUsersIdResponse, error) {
+	// admin.RequestEditorFn
+	_va := make([]any, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []any
+	_ca = append(_ca, ctx, id, contentType, body)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PatchApiUsersIdWithBodyWithResponse")
+	}
+
+	var r0 *admin.PatchApiUsersIdResponse
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, io.Reader, ...admin.RequestEditorFn) (*admin.PatchApiUsersIdResponse, error)); ok {
+		return returnFunc(ctx, id, contentType, body, reqEditors...)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, io.Reader, ...admin.RequestEditorFn) *admin.PatchApiUsersIdResponse); ok {
+		r0 = returnFunc(ctx, id, contentType, body, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*admin.PatchApiUsersIdResponse)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string, string, io.Reader, ...admin.RequestEditorFn) error); ok {
+		r1 = returnFunc(ctx, id, contentType, body, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_PatchApiUsersIdWithBodyWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PatchApiUsersIdWithBodyWithResponse'
+type MockClientWithResponsesInterface_PatchApiUsersIdWithBodyWithResponse_Call struct {
+	*mock.Call
+}
+
+// PatchApiUsersIdWithBodyWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id string
+//   - contentType string
+//   - body io.Reader
+//   - reqEditors ...admin.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) PatchApiUsersIdWithBodyWithResponse(ctx any, id any, contentType any, body any, reqEditors ...any) *MockClientWithResponsesInterface_PatchApiUsersIdWithBodyWithResponse_Call {
+	return &MockClientWithResponsesInterface_PatchApiUsersIdWithBodyWithResponse_Call{Call: _e.mock.On("PatchApiUsersIdWithBodyWithResponse",
+		append([]any{ctx, id, contentType, body}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_PatchApiUsersIdWithBodyWithResponse_Call) Run(run func(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...admin.RequestEditorFn)) *MockClientWithResponsesInterface_PatchApiUsersIdWithBodyWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		var arg3 io.Reader
+		if args[3] != nil {
+			arg3 = args[3].(io.Reader)
+		}
+		var arg4 []admin.RequestEditorFn
+		variadicArgs := make([]admin.RequestEditorFn, len(args)-4)
+		for i, a := range args[4:] {
+			if a != nil {
+				variadicArgs[i] = a.(admin.RequestEditorFn)
+			}
+		}
+		arg4 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3,
+			arg4...,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PatchApiUsersIdWithBodyWithResponse_Call) Return(patchApiUsersIdResponse *admin.PatchApiUsersIdResponse, err error) *MockClientWithResponsesInterface_PatchApiUsersIdWithBodyWithResponse_Call {
+	_c.Call.Return(patchApiUsersIdResponse, err)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PatchApiUsersIdWithBodyWithResponse_Call) RunAndReturn(run func(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...admin.RequestEditorFn) (*admin.PatchApiUsersIdResponse, error)) *MockClientWithResponsesInterface_PatchApiUsersIdWithBodyWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// PatchApiUsersIdWithResponse provides a mock function for the type MockClientWithResponsesInterface
+func (_mock *MockClientWithResponsesInterface) PatchApiUsersIdWithResponse(ctx context.Context, id string, body admin.PatchApiUsersIdJSONRequestBody, reqEditors ...admin.RequestEditorFn) (*admin.PatchApiUsersIdResponse, error) {
+	// admin.RequestEditorFn
+	_va := make([]any, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []any
+	_ca = append(_ca, ctx, id, body)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PatchApiUsersIdWithResponse")
+	}
+
+	var r0 *admin.PatchApiUsersIdResponse
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, admin.PatchApiUsersIdJSONRequestBody, ...admin.RequestEditorFn) (*admin.PatchApiUsersIdResponse, error)); ok {
+		return returnFunc(ctx, id, body, reqEditors...)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, admin.PatchApiUsersIdJSONRequestBody, ...admin.RequestEditorFn) *admin.PatchApiUsersIdResponse); ok {
+		r0 = returnFunc(ctx, id, body, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*admin.PatchApiUsersIdResponse)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string, admin.PatchApiUsersIdJSONRequestBody, ...admin.RequestEditorFn) error); ok {
+		r1 = returnFunc(ctx, id, body, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_PatchApiUsersIdWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PatchApiUsersIdWithResponse'
+type MockClientWithResponsesInterface_PatchApiUsersIdWithResponse_Call struct {
+	*mock.Call
+}
+
+// PatchApiUsersIdWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id string
+//   - body admin.PatchApiUsersIdJSONRequestBody
+//   - reqEditors ...admin.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) PatchApiUsersIdWithResponse(ctx any, id any, body any, reqEditors ...any) *MockClientWithResponsesInterface_PatchApiUsersIdWithResponse_Call {
+	return &MockClientWithResponsesInterface_PatchApiUsersIdWithResponse_Call{Call: _e.mock.On("PatchApiUsersIdWithResponse",
+		append([]any{ctx, id, body}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_PatchApiUsersIdWithResponse_Call) Run(run func(ctx context.Context, id string, body admin.PatchApiUsersIdJSONRequestBody, reqEditors ...admin.RequestEditorFn)) *MockClientWithResponsesInterface_PatchApiUsersIdWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 admin.PatchApiUsersIdJSONRequestBody
+		if args[2] != nil {
+			arg2 = args[2].(admin.PatchApiUsersIdJSONRequestBody)
+		}
+		var arg3 []admin.RequestEditorFn
+		variadicArgs := make([]admin.RequestEditorFn, len(args)-3)
+		for i, a := range args[3:] {
+			if a != nil {
+				variadicArgs[i] = a.(admin.RequestEditorFn)
+			}
+		}
+		arg3 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3...,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PatchApiUsersIdWithResponse_Call) Return(patchApiUsersIdResponse *admin.PatchApiUsersIdResponse, err error) *MockClientWithResponsesInterface_PatchApiUsersIdWithResponse_Call {
+	_c.Call.Return(patchApiUsersIdResponse, err)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PatchApiUsersIdWithResponse_Call) RunAndReturn(run func(ctx context.Context, id string, body admin.PatchApiUsersIdJSONRequestBody, reqEditors ...admin.RequestEditorFn) (*admin.PatchApiUsersIdResponse, error)) *MockClientWithResponsesInterface_PatchApiUsersIdWithResponse_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -8363,6 +8816,186 @@ func (_c *MockClientWithResponsesInterface_PostApiSocialProvidersWithResponse_Ca
 }
 
 func (_c *MockClientWithResponsesInterface_PostApiSocialProvidersWithResponse_Call) RunAndReturn(run func(ctx context.Context, body admin.PostApiSocialProvidersJSONRequestBody, reqEditors ...admin.RequestEditorFn) (*admin.PostApiSocialProvidersResponse, error)) *MockClientWithResponsesInterface_PostApiSocialProvidersWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// PostApiUsersWithBodyWithResponse provides a mock function for the type MockClientWithResponsesInterface
+func (_mock *MockClientWithResponsesInterface) PostApiUsersWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...admin.RequestEditorFn) (*admin.PostApiUsersResponse, error) {
+	// admin.RequestEditorFn
+	_va := make([]any, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []any
+	_ca = append(_ca, ctx, contentType, body)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PostApiUsersWithBodyWithResponse")
+	}
+
+	var r0 *admin.PostApiUsersResponse
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, io.Reader, ...admin.RequestEditorFn) (*admin.PostApiUsersResponse, error)); ok {
+		return returnFunc(ctx, contentType, body, reqEditors...)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, io.Reader, ...admin.RequestEditorFn) *admin.PostApiUsersResponse); ok {
+		r0 = returnFunc(ctx, contentType, body, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*admin.PostApiUsersResponse)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string, io.Reader, ...admin.RequestEditorFn) error); ok {
+		r1 = returnFunc(ctx, contentType, body, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_PostApiUsersWithBodyWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PostApiUsersWithBodyWithResponse'
+type MockClientWithResponsesInterface_PostApiUsersWithBodyWithResponse_Call struct {
+	*mock.Call
+}
+
+// PostApiUsersWithBodyWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - contentType string
+//   - body io.Reader
+//   - reqEditors ...admin.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) PostApiUsersWithBodyWithResponse(ctx any, contentType any, body any, reqEditors ...any) *MockClientWithResponsesInterface_PostApiUsersWithBodyWithResponse_Call {
+	return &MockClientWithResponsesInterface_PostApiUsersWithBodyWithResponse_Call{Call: _e.mock.On("PostApiUsersWithBodyWithResponse",
+		append([]any{ctx, contentType, body}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiUsersWithBodyWithResponse_Call) Run(run func(ctx context.Context, contentType string, body io.Reader, reqEditors ...admin.RequestEditorFn)) *MockClientWithResponsesInterface_PostApiUsersWithBodyWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 io.Reader
+		if args[2] != nil {
+			arg2 = args[2].(io.Reader)
+		}
+		var arg3 []admin.RequestEditorFn
+		variadicArgs := make([]admin.RequestEditorFn, len(args)-3)
+		for i, a := range args[3:] {
+			if a != nil {
+				variadicArgs[i] = a.(admin.RequestEditorFn)
+			}
+		}
+		arg3 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3...,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiUsersWithBodyWithResponse_Call) Return(postApiUsersResponse *admin.PostApiUsersResponse, err error) *MockClientWithResponsesInterface_PostApiUsersWithBodyWithResponse_Call {
+	_c.Call.Return(postApiUsersResponse, err)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiUsersWithBodyWithResponse_Call) RunAndReturn(run func(ctx context.Context, contentType string, body io.Reader, reqEditors ...admin.RequestEditorFn) (*admin.PostApiUsersResponse, error)) *MockClientWithResponsesInterface_PostApiUsersWithBodyWithResponse_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// PostApiUsersWithResponse provides a mock function for the type MockClientWithResponsesInterface
+func (_mock *MockClientWithResponsesInterface) PostApiUsersWithResponse(ctx context.Context, body admin.PostApiUsersJSONRequestBody, reqEditors ...admin.RequestEditorFn) (*admin.PostApiUsersResponse, error) {
+	// admin.RequestEditorFn
+	_va := make([]any, len(reqEditors))
+	for _i := range reqEditors {
+		_va[_i] = reqEditors[_i]
+	}
+	var _ca []any
+	_ca = append(_ca, ctx, body)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PostApiUsersWithResponse")
+	}
+
+	var r0 *admin.PostApiUsersResponse
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, admin.PostApiUsersJSONRequestBody, ...admin.RequestEditorFn) (*admin.PostApiUsersResponse, error)); ok {
+		return returnFunc(ctx, body, reqEditors...)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, admin.PostApiUsersJSONRequestBody, ...admin.RequestEditorFn) *admin.PostApiUsersResponse); ok {
+		r0 = returnFunc(ctx, body, reqEditors...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*admin.PostApiUsersResponse)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, admin.PostApiUsersJSONRequestBody, ...admin.RequestEditorFn) error); ok {
+		r1 = returnFunc(ctx, body, reqEditors...)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClientWithResponsesInterface_PostApiUsersWithResponse_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PostApiUsersWithResponse'
+type MockClientWithResponsesInterface_PostApiUsersWithResponse_Call struct {
+	*mock.Call
+}
+
+// PostApiUsersWithResponse is a helper method to define mock.On call
+//   - ctx context.Context
+//   - body admin.PostApiUsersJSONRequestBody
+//   - reqEditors ...admin.RequestEditorFn
+func (_e *MockClientWithResponsesInterface_Expecter) PostApiUsersWithResponse(ctx any, body any, reqEditors ...any) *MockClientWithResponsesInterface_PostApiUsersWithResponse_Call {
+	return &MockClientWithResponsesInterface_PostApiUsersWithResponse_Call{Call: _e.mock.On("PostApiUsersWithResponse",
+		append([]any{ctx, body}, reqEditors...)...)}
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiUsersWithResponse_Call) Run(run func(ctx context.Context, body admin.PostApiUsersJSONRequestBody, reqEditors ...admin.RequestEditorFn)) *MockClientWithResponsesInterface_PostApiUsersWithResponse_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 admin.PostApiUsersJSONRequestBody
+		if args[1] != nil {
+			arg1 = args[1].(admin.PostApiUsersJSONRequestBody)
+		}
+		var arg2 []admin.RequestEditorFn
+		variadicArgs := make([]admin.RequestEditorFn, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(admin.RequestEditorFn)
+			}
+		}
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiUsersWithResponse_Call) Return(postApiUsersResponse *admin.PostApiUsersResponse, err error) *MockClientWithResponsesInterface_PostApiUsersWithResponse_Call {
+	_c.Call.Return(postApiUsersResponse, err)
+	return _c
+}
+
+func (_c *MockClientWithResponsesInterface_PostApiUsersWithResponse_Call) RunAndReturn(run func(ctx context.Context, body admin.PostApiUsersJSONRequestBody, reqEditors ...admin.RequestEditorFn) (*admin.PostApiUsersResponse, error)) *MockClientWithResponsesInterface_PostApiUsersWithResponse_Call {
 	_c.Call.Return(run)
 	return _c
 }

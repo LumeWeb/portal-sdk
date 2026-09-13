@@ -66,9 +66,10 @@ type APIKeyListResponse struct {
 
 // APIKeyResponse defines model for APIKeyResponse.
 type APIKeyResponse struct {
-	CreatedAt time.Time  `json:"created_at"`
-	Name      string     `json:"name"`
-	Uuid      BinaryUUID `json:"uuid"`
+	CreatedAt  time.Time  `json:"created_at"`
+	LastUsedAt *time.Time `json:"last_used_at,omitempty"`
+	Name       string     `json:"name"`
+	Uuid       BinaryUUID `json:"uuid"`
 }
 
 // ASMetadata defines model for ASMetadata.
@@ -717,6 +718,27 @@ type GetApiAccountKeysParams struct {
 	// UnderscoreStart Starting index of the items to return (0-based). Defaults to 0.
 	UnderscoreStart *int `form:"_start,omitempty" json:"_start,omitempty"`
 
+	// FiltersLastUsedAtBetween Filter by last_used_at between
+	FiltersLastUsedAtBetween *string `form:"filters[last_used_at][between],omitempty" json:"filters[last_used_at][between],omitempty"`
+
+	// FiltersLastUsedAtEq Filter by last_used_at eq
+	FiltersLastUsedAtEq *string `form:"filters[last_used_at][eq],omitempty" json:"filters[last_used_at][eq],omitempty"`
+
+	// FiltersLastUsedAtGt Filter by last_used_at gt
+	FiltersLastUsedAtGt *string `form:"filters[last_used_at][gt],omitempty" json:"filters[last_used_at][gt],omitempty"`
+
+	// FiltersLastUsedAtGte Filter by last_used_at gte
+	FiltersLastUsedAtGte *string `form:"filters[last_used_at][gte],omitempty" json:"filters[last_used_at][gte],omitempty"`
+
+	// FiltersLastUsedAtLt Filter by last_used_at lt
+	FiltersLastUsedAtLt *string `form:"filters[last_used_at][lt],omitempty" json:"filters[last_used_at][lt],omitempty"`
+
+	// FiltersLastUsedAtLte Filter by last_used_at lte
+	FiltersLastUsedAtLte *string `form:"filters[last_used_at][lte],omitempty" json:"filters[last_used_at][lte],omitempty"`
+
+	// FiltersLastUsedAtNe Filter by last_used_at ne
+	FiltersLastUsedAtNe *string `form:"filters[last_used_at][ne],omitempty" json:"filters[last_used_at][ne],omitempty"`
+
 	// FiltersNameContains Filter by name contains
 	FiltersNameContains *string `form:"filters[name][contains],omitempty" json:"filters[name][contains],omitempty"`
 
@@ -731,6 +753,24 @@ type GetApiAccountKeysParams struct {
 
 	// FiltersNameStartswith Filter by name startswith
 	FiltersNameStartswith *string `form:"filters[name][startswith],omitempty" json:"filters[name][startswith],omitempty"`
+
+	// LastUsedAtEq Filter by last_used_at eq
+	LastUsedAtEq *string `form:"last_used_at_eq,omitempty" json:"last_used_at_eq,omitempty"`
+
+	// LastUsedAtGt Filter by last_used_at gt
+	LastUsedAtGt *string `form:"last_used_at_gt,omitempty" json:"last_used_at_gt,omitempty"`
+
+	// LastUsedAtGte Filter by last_used_at gte
+	LastUsedAtGte *string `form:"last_used_at_gte,omitempty" json:"last_used_at_gte,omitempty"`
+
+	// LastUsedAtLt Filter by last_used_at lt
+	LastUsedAtLt *string `form:"last_used_at_lt,omitempty" json:"last_used_at_lt,omitempty"`
+
+	// LastUsedAtLte Filter by last_used_at lte
+	LastUsedAtLte *string `form:"last_used_at_lte,omitempty" json:"last_used_at_lte,omitempty"`
+
+	// LastUsedAtNe Filter by last_used_at ne
+	LastUsedAtNe *string `form:"last_used_at_ne,omitempty" json:"last_used_at_ne,omitempty"`
 
 	// NameContains Filter by name contains
 	NameContains *string `form:"name_contains,omitempty" json:"name_contains,omitempty"`
@@ -4011,6 +4051,90 @@ func NewGetApiAccountKeysRequest(server string, params *GetApiAccountKeysParams)
 
 		}
 
+		if params.FiltersLastUsedAtBetween != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "filters[last_used_at][between]", *params.FiltersLastUsedAtBetween, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.FiltersLastUsedAtEq != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "filters[last_used_at][eq]", *params.FiltersLastUsedAtEq, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.FiltersLastUsedAtGt != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "filters[last_used_at][gt]", *params.FiltersLastUsedAtGt, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.FiltersLastUsedAtGte != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "filters[last_used_at][gte]", *params.FiltersLastUsedAtGte, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.FiltersLastUsedAtLt != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "filters[last_used_at][lt]", *params.FiltersLastUsedAtLt, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.FiltersLastUsedAtLte != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "filters[last_used_at][lte]", *params.FiltersLastUsedAtLte, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.FiltersLastUsedAtNe != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "filters[last_used_at][ne]", *params.FiltersLastUsedAtNe, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
 		if params.FiltersNameContains != nil {
 
 			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "filters[name][contains]", *params.FiltersNameContains, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
@@ -4062,6 +4186,78 @@ func NewGetApiAccountKeysRequest(server string, params *GetApiAccountKeysParams)
 		if params.FiltersNameStartswith != nil {
 
 			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "filters[name][startswith]", *params.FiltersNameStartswith, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.LastUsedAtEq != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "last_used_at_eq", *params.LastUsedAtEq, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.LastUsedAtGt != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "last_used_at_gt", *params.LastUsedAtGt, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.LastUsedAtGte != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "last_used_at_gte", *params.LastUsedAtGte, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.LastUsedAtLt != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "last_used_at_lt", *params.LastUsedAtLt, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.LastUsedAtLte != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "last_used_at_lte", *params.LastUsedAtLte, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.LastUsedAtNe != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "last_used_at_ne", *params.LastUsedAtNe, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else {
 				for _, qp := range strings.Split(queryFrag, "&") {
