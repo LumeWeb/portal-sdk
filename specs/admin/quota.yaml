@@ -1709,6 +1709,16 @@ paths:
     get:
       description: Retrieves all credits with filtering, sorting, and pagination support
       parameters:
+      - description: Ending index of the items to return (exclusive). Defaults to 10.
+        in: query
+        name: _end
+        schema:
+          type: integer
+      - description: Starting index of the items to return (0-based). Defaults to 0.
+        in: query
+        name: _start
+        schema:
+          type: integer
       - description: Filter by direction contains
         in: query
         name: direction_contains
@@ -2314,6 +2324,17 @@ paths:
     get:
       description: Retrieves all price lines with filtering, sorting, and pagination
         support
+      parameters:
+      - description: Ending index of the items to return (exclusive). Defaults to 10.
+        in: query
+        name: _end
+        schema:
+          type: integer
+      - description: Starting index of the items to return (0-based). Defaults to 0.
+        in: query
+        name: _start
+        schema:
+          type: integer
       responses:
         "200":
           content:
@@ -2777,6 +2798,17 @@ paths:
     get:
       description: Retrieves all pricing plan periods with filtering, sorting, and
         pagination support
+      parameters:
+      - description: Ending index of the items to return (exclusive). Defaults to 10.
+        in: query
+        name: _end
+        schema:
+          type: integer
+      - description: Starting index of the items to return (0-based). Defaults to 0.
+        in: query
+        name: _start
+        schema:
+          type: integer
       responses:
         "200":
           content:
@@ -3051,6 +3083,17 @@ paths:
     get:
       description: Retrieves all pricing plans with filtering, sorting, and pagination
         support
+      parameters:
+      - description: Ending index of the items to return (exclusive). Defaults to 10.
+        in: query
+        name: _end
+        schema:
+          type: integer
+      - description: Starting index of the items to return (0-based). Defaults to 0.
+        in: query
+        name: _start
+        schema:
+          type: integer
       responses:
         "200":
           content:
@@ -3369,6 +3412,17 @@ paths:
     get:
       description: Retrieves all subscribers with filtering, sorting, and pagination
         support
+      parameters:
+      - description: Ending index of the items to return (exclusive). Defaults to 10.
+        in: query
+        name: _end
+        schema:
+          type: integer
+      - description: Starting index of the items to return (0-based). Defaults to 0.
+        in: query
+        name: _start
+        schema:
+          type: integer
       responses:
         "200":
           content:
@@ -4917,6 +4971,17 @@ paths:
       description: Lists all registered platform-owned roots, including disabled ones.
         Returns the standard paginated list shape ({data, total}) with query-param
         filtering and paging.
+      parameters:
+      - description: Ending index of the items to return (exclusive). Defaults to 10.
+        in: query
+        name: _end
+        schema:
+          type: integer
+      - description: Starting index of the items to return (0-based). Defaults to 0.
+        in: query
+        name: _start
+        schema:
+          type: integer
       responses:
         "200":
           content:
@@ -5351,6 +5416,17 @@ paths:
   /api/quota/allowances:
     get:
       description: Get a paginated list of all allowance grants
+      parameters:
+      - description: Ending index of the items to return (exclusive). Defaults to 10.
+        in: query
+        name: _end
+        schema:
+          type: integer
+      - description: Starting index of the items to return (0-based). Defaults to 0.
+        in: query
+        name: _start
+        schema:
+          type: integer
       responses:
         "200":
           content:
@@ -5531,6 +5607,17 @@ paths:
   /api/quota/plans:
     get:
       description: Get a paginated list of all quota plans
+      parameters:
+      - description: Ending index of the items to return (exclusive). Defaults to 10.
+        in: query
+        name: _end
+        schema:
+          type: integer
+      - description: Starting index of the items to return (0-based). Defaults to 0.
+        in: query
+        name: _start
+        schema:
+          type: integer
       responses:
         "200":
           content:
@@ -5925,6 +6012,17 @@ paths:
     get:
       description: Get a paginated list of user quota configurations with filtering
         and sorting
+      parameters:
+      - description: Ending index of the items to return (exclusive). Defaults to 10.
+        in: query
+        name: _end
+        schema:
+          type: integer
+      - description: Starting index of the items to return (0-based). Defaults to 0.
+        in: query
+        name: _start
+        schema:
+          type: integer
       responses:
         "200":
           content:
@@ -6057,6 +6155,17 @@ paths:
     get:
       description: Get a paginated list of all configured social login providers.
         Secrets are never returned.
+      parameters:
+      - description: Ending index of the items to return (exclusive). Defaults to 10.
+        in: query
+        name: _end
+        schema:
+          type: integer
+      - description: Starting index of the items to return (0-based). Defaults to 0.
+        in: query
+        name: _start
+        schema:
+          type: integer
       responses:
         "200":
           content:

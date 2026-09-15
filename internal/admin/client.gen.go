@@ -1003,6 +1003,12 @@ type WebsiteResponse struct {
 
 // GetApiBillingCreditsParams defines parameters for GetApiBillingCredits.
 type GetApiBillingCreditsParams struct {
+	// UnderscoreEnd Ending index of the items to return (exclusive). Defaults to 10.
+	UnderscoreEnd *int `form:"_end,omitempty" json:"_end,omitempty"`
+
+	// UnderscoreStart Starting index of the items to return (0-based). Defaults to 0.
+	UnderscoreStart *int `form:"_start,omitempty" json:"_start,omitempty"`
+
 	// DirectionContains Filter by direction contains
 	DirectionContains *string `form:"direction_contains,omitempty" json:"direction_contains,omitempty"`
 
@@ -1101,6 +1107,42 @@ type GetApiBillingCreditsParams struct {
 
 	// UserIdNe Filter by user_id ne
 	UserIdNe *string `form:"user_id_ne,omitempty" json:"user_id_ne,omitempty"`
+}
+
+// GetApiBillingPriceLinesParams defines parameters for GetApiBillingPriceLines.
+type GetApiBillingPriceLinesParams struct {
+	// UnderscoreEnd Ending index of the items to return (exclusive). Defaults to 10.
+	UnderscoreEnd *int `form:"_end,omitempty" json:"_end,omitempty"`
+
+	// UnderscoreStart Starting index of the items to return (0-based). Defaults to 0.
+	UnderscoreStart *int `form:"_start,omitempty" json:"_start,omitempty"`
+}
+
+// GetApiBillingPricingPlanPeriodsParams defines parameters for GetApiBillingPricingPlanPeriods.
+type GetApiBillingPricingPlanPeriodsParams struct {
+	// UnderscoreEnd Ending index of the items to return (exclusive). Defaults to 10.
+	UnderscoreEnd *int `form:"_end,omitempty" json:"_end,omitempty"`
+
+	// UnderscoreStart Starting index of the items to return (0-based). Defaults to 0.
+	UnderscoreStart *int `form:"_start,omitempty" json:"_start,omitempty"`
+}
+
+// GetApiBillingPricingPlansParams defines parameters for GetApiBillingPricingPlans.
+type GetApiBillingPricingPlansParams struct {
+	// UnderscoreEnd Ending index of the items to return (exclusive). Defaults to 10.
+	UnderscoreEnd *int `form:"_end,omitempty" json:"_end,omitempty"`
+
+	// UnderscoreStart Starting index of the items to return (0-based). Defaults to 0.
+	UnderscoreStart *int `form:"_start,omitempty" json:"_start,omitempty"`
+}
+
+// GetApiBillingSubscribersParams defines parameters for GetApiBillingSubscribers.
+type GetApiBillingSubscribersParams struct {
+	// UnderscoreEnd Ending index of the items to return (exclusive). Defaults to 10.
+	UnderscoreEnd *int `form:"_end,omitempty" json:"_end,omitempty"`
+
+	// UnderscoreStart Starting index of the items to return (0-based). Defaults to 0.
+	UnderscoreStart *int `form:"_start,omitempty" json:"_start,omitempty"`
 }
 
 // GetApiBillingUsersUserIdDeletedCreditsParams defines parameters for GetApiBillingUsersUserIdDeletedCredits.
@@ -1203,6 +1245,51 @@ type GetApiBillingUsersUserIdDeletedCreditsParams struct {
 
 	// UserIdNe Filter by user_id ne
 	UserIdNe *string `form:"user_id_ne,omitempty" json:"user_id_ne,omitempty"`
+}
+
+// GetApiIpfsPlatformDomainsParams defines parameters for GetApiIpfsPlatformDomains.
+type GetApiIpfsPlatformDomainsParams struct {
+	// UnderscoreEnd Ending index of the items to return (exclusive). Defaults to 10.
+	UnderscoreEnd *int `form:"_end,omitempty" json:"_end,omitempty"`
+
+	// UnderscoreStart Starting index of the items to return (0-based). Defaults to 0.
+	UnderscoreStart *int `form:"_start,omitempty" json:"_start,omitempty"`
+}
+
+// GetApiQuotaAllowancesParams defines parameters for GetApiQuotaAllowances.
+type GetApiQuotaAllowancesParams struct {
+	// UnderscoreEnd Ending index of the items to return (exclusive). Defaults to 10.
+	UnderscoreEnd *int `form:"_end,omitempty" json:"_end,omitempty"`
+
+	// UnderscoreStart Starting index of the items to return (0-based). Defaults to 0.
+	UnderscoreStart *int `form:"_start,omitempty" json:"_start,omitempty"`
+}
+
+// GetApiQuotaPlansParams defines parameters for GetApiQuotaPlans.
+type GetApiQuotaPlansParams struct {
+	// UnderscoreEnd Ending index of the items to return (exclusive). Defaults to 10.
+	UnderscoreEnd *int `form:"_end,omitempty" json:"_end,omitempty"`
+
+	// UnderscoreStart Starting index of the items to return (0-based). Defaults to 0.
+	UnderscoreStart *int `form:"_start,omitempty" json:"_start,omitempty"`
+}
+
+// GetApiQuotaUserConfigsParams defines parameters for GetApiQuotaUserConfigs.
+type GetApiQuotaUserConfigsParams struct {
+	// UnderscoreEnd Ending index of the items to return (exclusive). Defaults to 10.
+	UnderscoreEnd *int `form:"_end,omitempty" json:"_end,omitempty"`
+
+	// UnderscoreStart Starting index of the items to return (0-based). Defaults to 0.
+	UnderscoreStart *int `form:"_start,omitempty" json:"_start,omitempty"`
+}
+
+// GetApiSocialProvidersParams defines parameters for GetApiSocialProviders.
+type GetApiSocialProvidersParams struct {
+	// UnderscoreEnd Ending index of the items to return (exclusive). Defaults to 10.
+	UnderscoreEnd *int `form:"_end,omitempty" json:"_end,omitempty"`
+
+	// UnderscoreStart Starting index of the items to return (0-based). Defaults to 0.
+	UnderscoreStart *int `form:"_start,omitempty" json:"_start,omitempty"`
 }
 
 // GetApiUsersParams defines parameters for GetApiUsers.
@@ -1412,7 +1499,7 @@ type ClientInterface interface {
 	PostApiBillingPlansIdSync(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetApiBillingPriceLines request
-	GetApiBillingPriceLines(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetApiBillingPriceLines(ctx context.Context, params *GetApiBillingPriceLinesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// PostApiBillingPriceLinesWithBody request with any body
 	PostApiBillingPriceLinesWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1444,7 +1531,7 @@ type ClientInterface interface {
 	PutApiBillingPriceLinesIdPlansPlanId(ctx context.Context, id string, planId string, body PutApiBillingPriceLinesIdPlansPlanIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetApiBillingPricingPlanPeriods request
-	GetApiBillingPricingPlanPeriods(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetApiBillingPricingPlanPeriods(ctx context.Context, params *GetApiBillingPricingPlanPeriodsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// PostApiBillingPricingPlanPeriodsWithBody request with any body
 	PostApiBillingPricingPlanPeriodsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1463,7 +1550,7 @@ type ClientInterface interface {
 	PutApiBillingPricingPlanPeriodsId(ctx context.Context, id string, body PutApiBillingPricingPlanPeriodsIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetApiBillingPricingPlans request
-	GetApiBillingPricingPlans(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetApiBillingPricingPlans(ctx context.Context, params *GetApiBillingPricingPlansParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// PostApiBillingPricingPlansWithBody request with any body
 	PostApiBillingPricingPlansWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1485,7 +1572,7 @@ type ClientInterface interface {
 	PutApiBillingPricingPlansId(ctx context.Context, id string, body PutApiBillingPricingPlansIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetApiBillingSubscribers request
-	GetApiBillingSubscribers(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetApiBillingSubscribers(ctx context.Context, params *GetApiBillingSubscribersParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetApiBillingSubscribersId request
 	GetApiBillingSubscribersId(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1592,7 +1679,7 @@ type ClientInterface interface {
 	PostApiIpfsIpnsRepublish(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetApiIpfsPlatformDomains request
-	GetApiIpfsPlatformDomains(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetApiIpfsPlatformDomains(ctx context.Context, params *GetApiIpfsPlatformDomainsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// PostApiIpfsPlatformDomainsWithBody request with any body
 	PostApiIpfsPlatformDomainsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1619,7 +1706,7 @@ type ClientInterface interface {
 	PostApiIpfsWebsitesIdUnblock(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetApiQuotaAllowances request
-	GetApiQuotaAllowances(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetApiQuotaAllowances(ctx context.Context, params *GetApiQuotaAllowancesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// PostApiQuotaAllowancesWithBody request with any body
 	PostApiQuotaAllowancesWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1635,7 +1722,7 @@ type ClientInterface interface {
 	PutApiQuotaAllowancesGrantID(ctx context.Context, grantID string, body PutApiQuotaAllowancesGrantIDJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetApiQuotaPlans request
-	GetApiQuotaPlans(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetApiQuotaPlans(ctx context.Context, params *GetApiQuotaPlansParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// PostApiQuotaPlansWithBody request with any body
 	PostApiQuotaPlansWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1670,7 +1757,7 @@ type ClientInterface interface {
 	GetApiQuotaSystemStats(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetApiQuotaUserConfigs request
-	GetApiQuotaUserConfigs(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetApiQuotaUserConfigs(ctx context.Context, params *GetApiQuotaUserConfigsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// PutApiQuotaUserConfigsUserIDWithBody request with any body
 	PutApiQuotaUserConfigsUserIDWithBody(ctx context.Context, userID string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1681,7 +1768,7 @@ type ClientInterface interface {
 	DeleteApiQuotaUserConfigsUserIDPlan(ctx context.Context, userID string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetApiSocialProviders request
-	GetApiSocialProviders(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetApiSocialProviders(ctx context.Context, params *GetApiSocialProvidersParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// PostApiSocialProvidersWithBody request with any body
 	PostApiSocialProvidersWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1845,8 +1932,8 @@ func (c *Client) PostApiBillingPlansIdSync(ctx context.Context, id string, reqEd
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetApiBillingPriceLines(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetApiBillingPriceLinesRequest(c.Server)
+func (c *Client) GetApiBillingPriceLines(ctx context.Context, params *GetApiBillingPriceLinesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiBillingPriceLinesRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -1989,8 +2076,8 @@ func (c *Client) PutApiBillingPriceLinesIdPlansPlanId(ctx context.Context, id st
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetApiBillingPricingPlanPeriods(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetApiBillingPricingPlanPeriodsRequest(c.Server)
+func (c *Client) GetApiBillingPricingPlanPeriods(ctx context.Context, params *GetApiBillingPricingPlanPeriodsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiBillingPricingPlanPeriodsRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -2073,8 +2160,8 @@ func (c *Client) PutApiBillingPricingPlanPeriodsId(ctx context.Context, id strin
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetApiBillingPricingPlans(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetApiBillingPricingPlansRequest(c.Server)
+func (c *Client) GetApiBillingPricingPlans(ctx context.Context, params *GetApiBillingPricingPlansParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiBillingPricingPlansRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -2169,8 +2256,8 @@ func (c *Client) PutApiBillingPricingPlansId(ctx context.Context, id string, bod
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetApiBillingSubscribers(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetApiBillingSubscribersRequest(c.Server)
+func (c *Client) GetApiBillingSubscribers(ctx context.Context, params *GetApiBillingSubscribersParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiBillingSubscribersRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -2613,8 +2700,8 @@ func (c *Client) PostApiIpfsIpnsRepublish(ctx context.Context, reqEditors ...Req
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetApiIpfsPlatformDomains(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetApiIpfsPlatformDomainsRequest(c.Server)
+func (c *Client) GetApiIpfsPlatformDomains(ctx context.Context, params *GetApiIpfsPlatformDomainsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiIpfsPlatformDomainsRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -2733,8 +2820,8 @@ func (c *Client) PostApiIpfsWebsitesIdUnblock(ctx context.Context, id string, re
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetApiQuotaAllowances(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetApiQuotaAllowancesRequest(c.Server)
+func (c *Client) GetApiQuotaAllowances(ctx context.Context, params *GetApiQuotaAllowancesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiQuotaAllowancesRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -2805,8 +2892,8 @@ func (c *Client) PutApiQuotaAllowancesGrantID(ctx context.Context, grantID strin
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetApiQuotaPlans(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetApiQuotaPlansRequest(c.Server)
+func (c *Client) GetApiQuotaPlans(ctx context.Context, params *GetApiQuotaPlansParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiQuotaPlansRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -2961,8 +3048,8 @@ func (c *Client) GetApiQuotaSystemStats(ctx context.Context, reqEditors ...Reque
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetApiQuotaUserConfigs(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetApiQuotaUserConfigsRequest(c.Server)
+func (c *Client) GetApiQuotaUserConfigs(ctx context.Context, params *GetApiQuotaUserConfigsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiQuotaUserConfigsRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -3009,8 +3096,8 @@ func (c *Client) DeleteApiQuotaUserConfigsUserIDPlan(ctx context.Context, userID
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetApiSocialProviders(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetApiSocialProvidersRequest(c.Server)
+func (c *Client) GetApiSocialProviders(ctx context.Context, params *GetApiSocialProvidersParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetApiSocialProvidersRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -3228,6 +3315,30 @@ func NewGetApiBillingCreditsRequest(server string, params *GetApiBillingCreditsP
 		// styled parameters, preserving literal commas as delimiters
 		// per the OpenAPI spec (e.g. "color=blue,black,brown").
 		var rawQueryFragments []string
+
+		if params.UnderscoreEnd != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "_end", *params.UnderscoreEnd, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.UnderscoreStart != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "_start", *params.UnderscoreStart, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
 
 		if params.DirectionContains != nil {
 
@@ -3890,7 +4001,7 @@ func NewPostApiBillingPlansIdSyncRequest(server string, id string) (*http.Reques
 }
 
 // NewGetApiBillingPriceLinesRequest generates requests for GetApiBillingPriceLines
-func NewGetApiBillingPriceLinesRequest(server string) (*http.Request, error) {
+func NewGetApiBillingPriceLinesRequest(server string, params *GetApiBillingPriceLinesParams) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -3906,6 +4017,45 @@ func NewGetApiBillingPriceLinesRequest(server string) (*http.Request, error) {
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.UnderscoreEnd != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "_end", *params.UnderscoreEnd, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.UnderscoreStart != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "_start", *params.UnderscoreStart, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
 	}
 
 	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
@@ -4214,7 +4364,7 @@ func NewPutApiBillingPriceLinesIdPlansPlanIdRequestWithBody(server string, id st
 }
 
 // NewGetApiBillingPricingPlanPeriodsRequest generates requests for GetApiBillingPricingPlanPeriods
-func NewGetApiBillingPricingPlanPeriodsRequest(server string) (*http.Request, error) {
+func NewGetApiBillingPricingPlanPeriodsRequest(server string, params *GetApiBillingPricingPlanPeriodsParams) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -4230,6 +4380,45 @@ func NewGetApiBillingPricingPlanPeriodsRequest(server string) (*http.Request, er
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.UnderscoreEnd != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "_end", *params.UnderscoreEnd, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.UnderscoreStart != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "_start", *params.UnderscoreStart, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
 	}
 
 	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
@@ -4396,7 +4585,7 @@ func NewPutApiBillingPricingPlanPeriodsIdRequestWithBody(server string, id strin
 }
 
 // NewGetApiBillingPricingPlansRequest generates requests for GetApiBillingPricingPlans
-func NewGetApiBillingPricingPlansRequest(server string) (*http.Request, error) {
+func NewGetApiBillingPricingPlansRequest(server string, params *GetApiBillingPricingPlansParams) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -4412,6 +4601,45 @@ func NewGetApiBillingPricingPlansRequest(server string) (*http.Request, error) {
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.UnderscoreEnd != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "_end", *params.UnderscoreEnd, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.UnderscoreStart != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "_start", *params.UnderscoreStart, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
 	}
 
 	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
@@ -4605,7 +4833,7 @@ func NewPutApiBillingPricingPlansIdRequestWithBody(server string, id string, con
 }
 
 // NewGetApiBillingSubscribersRequest generates requests for GetApiBillingSubscribers
-func NewGetApiBillingSubscribersRequest(server string) (*http.Request, error) {
+func NewGetApiBillingSubscribersRequest(server string, params *GetApiBillingSubscribersParams) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -4621,6 +4849,45 @@ func NewGetApiBillingSubscribersRequest(server string) (*http.Request, error) {
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.UnderscoreEnd != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "_end", *params.UnderscoreEnd, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.UnderscoreStart != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "_start", *params.UnderscoreStart, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
 	}
 
 	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
@@ -6022,7 +6289,7 @@ func NewPostApiIpfsIpnsRepublishRequest(server string) (*http.Request, error) {
 }
 
 // NewGetApiIpfsPlatformDomainsRequest generates requests for GetApiIpfsPlatformDomains
-func NewGetApiIpfsPlatformDomainsRequest(server string) (*http.Request, error) {
+func NewGetApiIpfsPlatformDomainsRequest(server string, params *GetApiIpfsPlatformDomainsParams) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -6038,6 +6305,45 @@ func NewGetApiIpfsPlatformDomainsRequest(server string) (*http.Request, error) {
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.UnderscoreEnd != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "_end", *params.UnderscoreEnd, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.UnderscoreStart != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "_start", *params.UnderscoreStart, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
 	}
 
 	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
@@ -6285,7 +6591,7 @@ func NewPostApiIpfsWebsitesIdUnblockRequest(server string, id string) (*http.Req
 }
 
 // NewGetApiQuotaAllowancesRequest generates requests for GetApiQuotaAllowances
-func NewGetApiQuotaAllowancesRequest(server string) (*http.Request, error) {
+func NewGetApiQuotaAllowancesRequest(server string, params *GetApiQuotaAllowancesParams) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -6301,6 +6607,45 @@ func NewGetApiQuotaAllowancesRequest(server string) (*http.Request, error) {
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.UnderscoreEnd != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "_end", *params.UnderscoreEnd, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.UnderscoreStart != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "_start", *params.UnderscoreStart, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
 	}
 
 	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
@@ -6433,7 +6778,7 @@ func NewPutApiQuotaAllowancesGrantIDRequestWithBody(server string, grantID strin
 }
 
 // NewGetApiQuotaPlansRequest generates requests for GetApiQuotaPlans
-func NewGetApiQuotaPlansRequest(server string) (*http.Request, error) {
+func NewGetApiQuotaPlansRequest(server string, params *GetApiQuotaPlansParams) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -6449,6 +6794,45 @@ func NewGetApiQuotaPlansRequest(server string) (*http.Request, error) {
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.UnderscoreEnd != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "_end", *params.UnderscoreEnd, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.UnderscoreStart != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "_start", *params.UnderscoreStart, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
 	}
 
 	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
@@ -6756,7 +7140,7 @@ func NewGetApiQuotaSystemStatsRequest(server string) (*http.Request, error) {
 }
 
 // NewGetApiQuotaUserConfigsRequest generates requests for GetApiQuotaUserConfigs
-func NewGetApiQuotaUserConfigsRequest(server string) (*http.Request, error) {
+func NewGetApiQuotaUserConfigsRequest(server string, params *GetApiQuotaUserConfigsParams) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -6772,6 +7156,45 @@ func NewGetApiQuotaUserConfigsRequest(server string) (*http.Request, error) {
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.UnderscoreEnd != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "_end", *params.UnderscoreEnd, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.UnderscoreStart != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "_start", *params.UnderscoreStart, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
 	}
 
 	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
@@ -6864,7 +7287,7 @@ func NewDeleteApiQuotaUserConfigsUserIDPlanRequest(server string, userID string)
 }
 
 // NewGetApiSocialProvidersRequest generates requests for GetApiSocialProviders
-func NewGetApiSocialProvidersRequest(server string) (*http.Request, error) {
+func NewGetApiSocialProvidersRequest(server string, params *GetApiSocialProvidersParams) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -6880,6 +7303,45 @@ func NewGetApiSocialProvidersRequest(server string) (*http.Request, error) {
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.UnderscoreEnd != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "_end", *params.UnderscoreEnd, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.UnderscoreStart != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "_start", *params.UnderscoreStart, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
 	}
 
 	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
@@ -7454,7 +7916,7 @@ type ClientWithResponsesInterface interface {
 	PostApiBillingPlansIdSyncWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*PostApiBillingPlansIdSyncResponse, error)
 
 	// GetApiBillingPriceLinesWithResponse request
-	GetApiBillingPriceLinesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiBillingPriceLinesResponse, error)
+	GetApiBillingPriceLinesWithResponse(ctx context.Context, params *GetApiBillingPriceLinesParams, reqEditors ...RequestEditorFn) (*GetApiBillingPriceLinesResponse, error)
 
 	// PostApiBillingPriceLinesWithBodyWithResponse request with any body
 	PostApiBillingPriceLinesWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiBillingPriceLinesResponse, error)
@@ -7486,7 +7948,7 @@ type ClientWithResponsesInterface interface {
 	PutApiBillingPriceLinesIdPlansPlanIdWithResponse(ctx context.Context, id string, planId string, body PutApiBillingPriceLinesIdPlansPlanIdJSONRequestBody, reqEditors ...RequestEditorFn) (*PutApiBillingPriceLinesIdPlansPlanIdResponse, error)
 
 	// GetApiBillingPricingPlanPeriodsWithResponse request
-	GetApiBillingPricingPlanPeriodsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiBillingPricingPlanPeriodsResponse, error)
+	GetApiBillingPricingPlanPeriodsWithResponse(ctx context.Context, params *GetApiBillingPricingPlanPeriodsParams, reqEditors ...RequestEditorFn) (*GetApiBillingPricingPlanPeriodsResponse, error)
 
 	// PostApiBillingPricingPlanPeriodsWithBodyWithResponse request with any body
 	PostApiBillingPricingPlanPeriodsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiBillingPricingPlanPeriodsResponse, error)
@@ -7505,7 +7967,7 @@ type ClientWithResponsesInterface interface {
 	PutApiBillingPricingPlanPeriodsIdWithResponse(ctx context.Context, id string, body PutApiBillingPricingPlanPeriodsIdJSONRequestBody, reqEditors ...RequestEditorFn) (*PutApiBillingPricingPlanPeriodsIdResponse, error)
 
 	// GetApiBillingPricingPlansWithResponse request
-	GetApiBillingPricingPlansWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiBillingPricingPlansResponse, error)
+	GetApiBillingPricingPlansWithResponse(ctx context.Context, params *GetApiBillingPricingPlansParams, reqEditors ...RequestEditorFn) (*GetApiBillingPricingPlansResponse, error)
 
 	// PostApiBillingPricingPlansWithBodyWithResponse request with any body
 	PostApiBillingPricingPlansWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiBillingPricingPlansResponse, error)
@@ -7527,7 +7989,7 @@ type ClientWithResponsesInterface interface {
 	PutApiBillingPricingPlansIdWithResponse(ctx context.Context, id string, body PutApiBillingPricingPlansIdJSONRequestBody, reqEditors ...RequestEditorFn) (*PutApiBillingPricingPlansIdResponse, error)
 
 	// GetApiBillingSubscribersWithResponse request
-	GetApiBillingSubscribersWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiBillingSubscribersResponse, error)
+	GetApiBillingSubscribersWithResponse(ctx context.Context, params *GetApiBillingSubscribersParams, reqEditors ...RequestEditorFn) (*GetApiBillingSubscribersResponse, error)
 
 	// GetApiBillingSubscribersIdWithResponse request
 	GetApiBillingSubscribersIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetApiBillingSubscribersIdResponse, error)
@@ -7634,7 +8096,7 @@ type ClientWithResponsesInterface interface {
 	PostApiIpfsIpnsRepublishWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*PostApiIpfsIpnsRepublishResponse, error)
 
 	// GetApiIpfsPlatformDomainsWithResponse request
-	GetApiIpfsPlatformDomainsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiIpfsPlatformDomainsResponse, error)
+	GetApiIpfsPlatformDomainsWithResponse(ctx context.Context, params *GetApiIpfsPlatformDomainsParams, reqEditors ...RequestEditorFn) (*GetApiIpfsPlatformDomainsResponse, error)
 
 	// PostApiIpfsPlatformDomainsWithBodyWithResponse request with any body
 	PostApiIpfsPlatformDomainsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiIpfsPlatformDomainsResponse, error)
@@ -7661,7 +8123,7 @@ type ClientWithResponsesInterface interface {
 	PostApiIpfsWebsitesIdUnblockWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*PostApiIpfsWebsitesIdUnblockResponse, error)
 
 	// GetApiQuotaAllowancesWithResponse request
-	GetApiQuotaAllowancesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiQuotaAllowancesResponse, error)
+	GetApiQuotaAllowancesWithResponse(ctx context.Context, params *GetApiQuotaAllowancesParams, reqEditors ...RequestEditorFn) (*GetApiQuotaAllowancesResponse, error)
 
 	// PostApiQuotaAllowancesWithBodyWithResponse request with any body
 	PostApiQuotaAllowancesWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiQuotaAllowancesResponse, error)
@@ -7677,7 +8139,7 @@ type ClientWithResponsesInterface interface {
 	PutApiQuotaAllowancesGrantIDWithResponse(ctx context.Context, grantID string, body PutApiQuotaAllowancesGrantIDJSONRequestBody, reqEditors ...RequestEditorFn) (*PutApiQuotaAllowancesGrantIDResponse, error)
 
 	// GetApiQuotaPlansWithResponse request
-	GetApiQuotaPlansWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiQuotaPlansResponse, error)
+	GetApiQuotaPlansWithResponse(ctx context.Context, params *GetApiQuotaPlansParams, reqEditors ...RequestEditorFn) (*GetApiQuotaPlansResponse, error)
 
 	// PostApiQuotaPlansWithBodyWithResponse request with any body
 	PostApiQuotaPlansWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiQuotaPlansResponse, error)
@@ -7712,7 +8174,7 @@ type ClientWithResponsesInterface interface {
 	GetApiQuotaSystemStatsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiQuotaSystemStatsResponse, error)
 
 	// GetApiQuotaUserConfigsWithResponse request
-	GetApiQuotaUserConfigsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiQuotaUserConfigsResponse, error)
+	GetApiQuotaUserConfigsWithResponse(ctx context.Context, params *GetApiQuotaUserConfigsParams, reqEditors ...RequestEditorFn) (*GetApiQuotaUserConfigsResponse, error)
 
 	// PutApiQuotaUserConfigsUserIDWithBodyWithResponse request with any body
 	PutApiQuotaUserConfigsUserIDWithBodyWithResponse(ctx context.Context, userID string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutApiQuotaUserConfigsUserIDResponse, error)
@@ -7723,7 +8185,7 @@ type ClientWithResponsesInterface interface {
 	DeleteApiQuotaUserConfigsUserIDPlanWithResponse(ctx context.Context, userID string, reqEditors ...RequestEditorFn) (*DeleteApiQuotaUserConfigsUserIDPlanResponse, error)
 
 	// GetApiSocialProvidersWithResponse request
-	GetApiSocialProvidersWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiSocialProvidersResponse, error)
+	GetApiSocialProvidersWithResponse(ctx context.Context, params *GetApiSocialProvidersParams, reqEditors ...RequestEditorFn) (*GetApiSocialProvidersResponse, error)
 
 	// PostApiSocialProvidersWithBodyWithResponse request with any body
 	PostApiSocialProvidersWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostApiSocialProvidersResponse, error)
@@ -11158,8 +11620,8 @@ func (c *ClientWithResponses) PostApiBillingPlansIdSyncWithResponse(ctx context.
 }
 
 // GetApiBillingPriceLinesWithResponse request returning *GetApiBillingPriceLinesResponse
-func (c *ClientWithResponses) GetApiBillingPriceLinesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiBillingPriceLinesResponse, error) {
-	rsp, err := c.GetApiBillingPriceLines(ctx, reqEditors...)
+func (c *ClientWithResponses) GetApiBillingPriceLinesWithResponse(ctx context.Context, params *GetApiBillingPriceLinesParams, reqEditors ...RequestEditorFn) (*GetApiBillingPriceLinesResponse, error) {
+	rsp, err := c.GetApiBillingPriceLines(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -11262,8 +11724,8 @@ func (c *ClientWithResponses) PutApiBillingPriceLinesIdPlansPlanIdWithResponse(c
 }
 
 // GetApiBillingPricingPlanPeriodsWithResponse request returning *GetApiBillingPricingPlanPeriodsResponse
-func (c *ClientWithResponses) GetApiBillingPricingPlanPeriodsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiBillingPricingPlanPeriodsResponse, error) {
-	rsp, err := c.GetApiBillingPricingPlanPeriods(ctx, reqEditors...)
+func (c *ClientWithResponses) GetApiBillingPricingPlanPeriodsWithResponse(ctx context.Context, params *GetApiBillingPricingPlanPeriodsParams, reqEditors ...RequestEditorFn) (*GetApiBillingPricingPlanPeriodsResponse, error) {
+	rsp, err := c.GetApiBillingPricingPlanPeriods(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -11323,8 +11785,8 @@ func (c *ClientWithResponses) PutApiBillingPricingPlanPeriodsIdWithResponse(ctx 
 }
 
 // GetApiBillingPricingPlansWithResponse request returning *GetApiBillingPricingPlansResponse
-func (c *ClientWithResponses) GetApiBillingPricingPlansWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiBillingPricingPlansResponse, error) {
-	rsp, err := c.GetApiBillingPricingPlans(ctx, reqEditors...)
+func (c *ClientWithResponses) GetApiBillingPricingPlansWithResponse(ctx context.Context, params *GetApiBillingPricingPlansParams, reqEditors ...RequestEditorFn) (*GetApiBillingPricingPlansResponse, error) {
+	rsp, err := c.GetApiBillingPricingPlans(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -11393,8 +11855,8 @@ func (c *ClientWithResponses) PutApiBillingPricingPlansIdWithResponse(ctx contex
 }
 
 // GetApiBillingSubscribersWithResponse request returning *GetApiBillingSubscribersResponse
-func (c *ClientWithResponses) GetApiBillingSubscribersWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiBillingSubscribersResponse, error) {
-	rsp, err := c.GetApiBillingSubscribers(ctx, reqEditors...)
+func (c *ClientWithResponses) GetApiBillingSubscribersWithResponse(ctx context.Context, params *GetApiBillingSubscribersParams, reqEditors ...RequestEditorFn) (*GetApiBillingSubscribersResponse, error) {
+	rsp, err := c.GetApiBillingSubscribers(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -11722,8 +12184,8 @@ func (c *ClientWithResponses) PostApiIpfsIpnsRepublishWithResponse(ctx context.C
 }
 
 // GetApiIpfsPlatformDomainsWithResponse request returning *GetApiIpfsPlatformDomainsResponse
-func (c *ClientWithResponses) GetApiIpfsPlatformDomainsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiIpfsPlatformDomainsResponse, error) {
-	rsp, err := c.GetApiIpfsPlatformDomains(ctx, reqEditors...)
+func (c *ClientWithResponses) GetApiIpfsPlatformDomainsWithResponse(ctx context.Context, params *GetApiIpfsPlatformDomainsParams, reqEditors ...RequestEditorFn) (*GetApiIpfsPlatformDomainsResponse, error) {
+	rsp, err := c.GetApiIpfsPlatformDomains(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -11809,8 +12271,8 @@ func (c *ClientWithResponses) PostApiIpfsWebsitesIdUnblockWithResponse(ctx conte
 }
 
 // GetApiQuotaAllowancesWithResponse request returning *GetApiQuotaAllowancesResponse
-func (c *ClientWithResponses) GetApiQuotaAllowancesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiQuotaAllowancesResponse, error) {
-	rsp, err := c.GetApiQuotaAllowances(ctx, reqEditors...)
+func (c *ClientWithResponses) GetApiQuotaAllowancesWithResponse(ctx context.Context, params *GetApiQuotaAllowancesParams, reqEditors ...RequestEditorFn) (*GetApiQuotaAllowancesResponse, error) {
+	rsp, err := c.GetApiQuotaAllowances(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -11861,8 +12323,8 @@ func (c *ClientWithResponses) PutApiQuotaAllowancesGrantIDWithResponse(ctx conte
 }
 
 // GetApiQuotaPlansWithResponse request returning *GetApiQuotaPlansResponse
-func (c *ClientWithResponses) GetApiQuotaPlansWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiQuotaPlansResponse, error) {
-	rsp, err := c.GetApiQuotaPlans(ctx, reqEditors...)
+func (c *ClientWithResponses) GetApiQuotaPlansWithResponse(ctx context.Context, params *GetApiQuotaPlansParams, reqEditors ...RequestEditorFn) (*GetApiQuotaPlansResponse, error) {
+	rsp, err := c.GetApiQuotaPlans(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -11974,8 +12436,8 @@ func (c *ClientWithResponses) GetApiQuotaSystemStatsWithResponse(ctx context.Con
 }
 
 // GetApiQuotaUserConfigsWithResponse request returning *GetApiQuotaUserConfigsResponse
-func (c *ClientWithResponses) GetApiQuotaUserConfigsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiQuotaUserConfigsResponse, error) {
-	rsp, err := c.GetApiQuotaUserConfigs(ctx, reqEditors...)
+func (c *ClientWithResponses) GetApiQuotaUserConfigsWithResponse(ctx context.Context, params *GetApiQuotaUserConfigsParams, reqEditors ...RequestEditorFn) (*GetApiQuotaUserConfigsResponse, error) {
+	rsp, err := c.GetApiQuotaUserConfigs(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -12009,8 +12471,8 @@ func (c *ClientWithResponses) DeleteApiQuotaUserConfigsUserIDPlanWithResponse(ct
 }
 
 // GetApiSocialProvidersWithResponse request returning *GetApiSocialProvidersResponse
-func (c *ClientWithResponses) GetApiSocialProvidersWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetApiSocialProvidersResponse, error) {
-	rsp, err := c.GetApiSocialProviders(ctx, reqEditors...)
+func (c *ClientWithResponses) GetApiSocialProvidersWithResponse(ctx context.Context, params *GetApiSocialProvidersParams, reqEditors ...RequestEditorFn) (*GetApiSocialProvidersResponse, error) {
+	rsp, err := c.GetApiSocialProviders(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}

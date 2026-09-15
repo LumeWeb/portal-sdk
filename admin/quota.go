@@ -253,9 +253,13 @@ type QuotaLimits struct {
 	WindowType         string
 }
 
+// GetApiQuotaPlansParams defines parameters for ListPlans.
+// This type aliases the generated type for convenience.
+type GetApiQuotaPlansParams = admin.GetApiQuotaPlansParams
+
 // ListPlans lists all quota plans.
-func (q *QuotaService) ListPlans(ctx context.Context) ([]*QuotaPlan, int, error) {
-	resp, err := q.client.GetApiQuotaPlansWithResponse(ctx)
+func (q *QuotaService) ListPlans(ctx context.Context, params *GetApiQuotaPlansParams) ([]*QuotaPlan, int, error) {
+	resp, err := q.client.GetApiQuotaPlansWithResponse(ctx, params)
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to list plans: %w", err)
 	}
@@ -372,9 +376,13 @@ func (q *QuotaService) SetDefaultPlan(ctx context.Context, planID string) error 
 	return handleQuotaResponse(resp.StatusCode(), resp.Body, OpQuotaSetDefaultPlan, []int{stdhttp.StatusNoContent})
 }
 
+// GetApiQuotaAllowancesParams defines parameters for ListAllowances.
+// This type aliases the generated type for convenience.
+type GetApiQuotaAllowancesParams = admin.GetApiQuotaAllowancesParams
+
 // ListAllowances lists all quota allowances.
-func (q *QuotaService) ListAllowances(ctx context.Context) ([]*QuotaAllowance, int, error) {
-	resp, err := q.client.GetApiQuotaAllowancesWithResponse(ctx)
+func (q *QuotaService) ListAllowances(ctx context.Context, params *GetApiQuotaAllowancesParams) ([]*QuotaAllowance, int, error) {
+	resp, err := q.client.GetApiQuotaAllowancesWithResponse(ctx, params)
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to list allowances: %w", err)
 	}
@@ -513,9 +521,13 @@ func (q *QuotaService) Cleanup(ctx context.Context, retentionDays int) (int, err
 	return resp.JSON200.RecordsDeleted, nil
 }
 
+// GetApiQuotaUserConfigsParams defines parameters for ListUserConfigs.
+// This type aliases the generated type for convenience.
+type GetApiQuotaUserConfigsParams = admin.GetApiQuotaUserConfigsParams
+
 // ListUserConfigs lists all user quota configurations with pagination.
-func (q *QuotaService) ListUserConfigs(ctx context.Context) ([]*UserQuotaConfig, int, error) {
-	resp, err := q.client.GetApiQuotaUserConfigsWithResponse(ctx)
+func (q *QuotaService) ListUserConfigs(ctx context.Context, params *GetApiQuotaUserConfigsParams) ([]*UserQuotaConfig, int, error) {
+	resp, err := q.client.GetApiQuotaUserConfigsWithResponse(ctx, params)
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to list user configs: %w", err)
 	}

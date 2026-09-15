@@ -662,12 +662,7 @@ type BillingService struct {
 
 // ListCredits lists all credits with optional filtering.
 func (b *BillingService) ListCredits(ctx context.Context, params *GetApiBillingCreditsParams) ([]*CreditItem, int, error) {
-	var adminParams *admin.GetApiBillingCreditsParams
-	if params != nil {
-		adminParams = (*admin.GetApiBillingCreditsParams)(params)
-	}
-
-	resp, err := b.client.GetApiBillingCreditsWithResponse(ctx, adminParams)
+	resp, err := b.client.GetApiBillingCreditsWithResponse(ctx, params)
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to list credits: %w", err)
 	}
@@ -777,12 +772,7 @@ func (b *BillingService) GetUserBalance(ctx context.Context, userID string) (*Us
 
 // GetUserDeletedCredits retrieves soft-deleted credits for a user.
 func (b *BillingService) GetUserDeletedCredits(ctx context.Context, userID string, params *GetApiBillingUsersUserIdDeletedCreditsParams) ([]*CreditItem, int, error) {
-	var adminParams *admin.GetApiBillingUsersUserIdDeletedCreditsParams
-	if params != nil {
-		adminParams = (*admin.GetApiBillingUsersUserIdDeletedCreditsParams)(params)
-	}
-
-	resp, err := b.client.GetApiBillingUsersUserIdDeletedCreditsWithResponse(ctx, userID, adminParams)
+	resp, err := b.client.GetApiBillingUsersUserIdDeletedCreditsWithResponse(ctx, userID, params)
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to get user deleted credits: %w", err)
 	}
@@ -802,9 +792,13 @@ func (b *BillingService) GetUserDeletedCredits(ctx context.Context, userID strin
 	return credits, resp.JSON200.Total, nil
 }
 
+// GetApiBillingPriceLinesParams defines parameters for ListPriceLines.
+// This type aliases the generated type for convenience.
+type GetApiBillingPriceLinesParams = admin.GetApiBillingPriceLinesParams
+
 // ListPriceLines lists all price lines.
-func (b *BillingService) ListPriceLines(ctx context.Context) ([]*PriceLine, int, error) {
-	resp, err := b.client.GetApiBillingPriceLinesWithResponse(ctx)
+func (b *BillingService) ListPriceLines(ctx context.Context, params *GetApiBillingPriceLinesParams) ([]*PriceLine, int, error) {
+	resp, err := b.client.GetApiBillingPriceLinesWithResponse(ctx, params)
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to list price lines: %w", err)
 	}
@@ -916,9 +910,13 @@ func (b *BillingService) DeletePriceLine(ctx context.Context, priceLineID string
 	return handleBillingResponse(resp.StatusCode(), resp.Body, OpBillingDeletePriceLine, []int{stdhttp.StatusNoContent})
 }
 
+// GetApiBillingPricingPlansParams defines parameters for ListPricingPlans.
+// This type aliases the generated type for convenience.
+type GetApiBillingPricingPlansParams = admin.GetApiBillingPricingPlansParams
+
 // ListPricingPlans lists all pricing plans.
-func (b *BillingService) ListPricingPlans(ctx context.Context) ([]*PricingPlanItem, int, error) {
-	resp, err := b.client.GetApiBillingPricingPlansWithResponse(ctx)
+func (b *BillingService) ListPricingPlans(ctx context.Context, params *GetApiBillingPricingPlansParams) ([]*PricingPlanItem, int, error) {
+	resp, err := b.client.GetApiBillingPricingPlansWithResponse(ctx, params)
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to list pricing plans: %w", err)
 	}
@@ -993,9 +991,13 @@ func (b *BillingService) DeletePricingPlan(ctx context.Context, planID string) e
 	return handleBillingResponse(resp.StatusCode(), resp.Body, OpBillingDeletePricingPlan, []int{stdhttp.StatusNoContent})
 }
 
+// GetApiBillingPricingPlanPeriodsParams defines parameters for ListPricingPlanPeriods.
+// This type aliases the generated type for convenience.
+type GetApiBillingPricingPlanPeriodsParams = admin.GetApiBillingPricingPlanPeriodsParams
+
 // ListPricingPlanPeriods lists all pricing plan periods.
-func (b *BillingService) ListPricingPlanPeriods(ctx context.Context) ([]*PricingPlanPeriod, int, error) {
-	resp, err := b.client.GetApiBillingPricingPlanPeriodsWithResponse(ctx)
+func (b *BillingService) ListPricingPlanPeriods(ctx context.Context, params *GetApiBillingPricingPlanPeriodsParams) ([]*PricingPlanPeriod, int, error) {
+	resp, err := b.client.GetApiBillingPricingPlanPeriodsWithResponse(ctx, params)
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to list pricing plan periods: %w", err)
 	}
@@ -1072,15 +1074,19 @@ func (b *BillingService) DeletePricingPlanPeriod(ctx context.Context, periodID s
 
 // GetApiBillingCreditsParams defines parameters for ListCredits.
 // This type aliases the generated type for convenience.
-type GetApiBillingCreditsParams admin.GetApiBillingCreditsParams
+type GetApiBillingCreditsParams = admin.GetApiBillingCreditsParams
 
 // GetApiBillingUsersUserIdDeletedCreditsParams defines parameters for GetUserDeletedCredits.
 // This type aliases the generated type for convenience.
-type GetApiBillingUsersUserIdDeletedCreditsParams admin.GetApiBillingUsersUserIdDeletedCreditsParams
+type GetApiBillingUsersUserIdDeletedCreditsParams = admin.GetApiBillingUsersUserIdDeletedCreditsParams
+
+// GetApiBillingSubscribersParams defines parameters for ListSubscribers.
+// This type aliases the generated type for convenience.
+type GetApiBillingSubscribersParams = admin.GetApiBillingSubscribersParams
 
 // ListSubscribers lists all subscribers across all gateways.
-func (b *BillingService) ListSubscribers(ctx context.Context) ([]*Subscriber, int, error) {
-	resp, err := b.client.GetApiBillingSubscribersWithResponse(ctx)
+func (b *BillingService) ListSubscribers(ctx context.Context, params *GetApiBillingSubscribersParams) ([]*Subscriber, int, error) {
+	resp, err := b.client.GetApiBillingSubscribersWithResponse(ctx, params)
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to list subscribers: %w", err)
 	}

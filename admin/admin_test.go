@@ -111,7 +111,7 @@ func TestQuotaService_ListPlans(t *testing.T) {
 
 			client, err := NewClient(WithEndpoint(server.URL))
 			require.NoError(t, err)
-			plans, total, err := client.Quota().ListPlans(context.Background())
+			plans, total, err := client.Quota().ListPlans(context.Background(), nil)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ListPlans() error = %v, wantErr %v", err, tt.wantErr)
@@ -491,7 +491,7 @@ func TestBillingService_ListPricingPlans(t *testing.T) {
 
 			client, err := NewClient(WithEndpoint(server.URL))
 			require.NoError(t, err)
-			plans, total, err := client.Billing().ListPricingPlans(context.Background())
+			plans, total, err := client.Billing().ListPricingPlans(context.Background(), nil)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ListPricingPlans() error = %v, wantErr %v", err, tt.wantErr)
@@ -822,7 +822,7 @@ func TestBillingService_ListPricingPlanPeriods(t *testing.T) {
 
 			client, err := NewClient(WithEndpoint(server.URL))
 			require.NoError(t, err)
-			periods, total, err := client.Billing().ListPricingPlanPeriods(context.Background())
+			periods, total, err := client.Billing().ListPricingPlanPeriods(context.Background(), nil)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ListPricingPlanPeriods() error = %v, wantErr %v", err, tt.wantErr)
@@ -907,7 +907,7 @@ func TestBillingService_ListPriceLines(t *testing.T) {
 
 			client, err := NewClient(WithEndpoint(server.URL))
 			require.NoError(t, err)
-			lines, total, err := client.Billing().ListPriceLines(context.Background())
+			lines, total, err := client.Billing().ListPriceLines(context.Background(), nil)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ListPriceLines() error = %v, wantErr %v", err, tt.wantErr)
@@ -1006,7 +1006,7 @@ func TestQuotaService_ListUserConfigs(t *testing.T) {
 
 			client, err := NewClient(WithEndpoint(server.URL))
 			require.NoError(t, err)
-			configs, total, err := client.Quota().ListUserConfigs(context.Background())
+			configs, total, err := client.Quota().ListUserConfigs(context.Background(), nil)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ListUserConfigs() error = %v, wantErr %v", err, tt.wantErr)
@@ -1573,7 +1573,7 @@ func TestQuotaService_ListAllowances(t *testing.T) {
 
 			client, err := NewClient(WithEndpoint(server.URL))
 			require.NoError(t, err)
-			allowances, _, err := client.Quota().ListAllowances(context.Background())
+			allowances, _, err := client.Quota().ListAllowances(context.Background(), nil)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ListAllowances() error = %v, wantErr %v", err, tt.wantErr)
@@ -1980,7 +1980,7 @@ func TestBillingService_ListSubscribers(t *testing.T) {
 
 			client, err := NewClient(WithEndpoint(server.URL))
 			require.NoError(t, err)
-			subs, total, err := client.Billing().ListSubscribers(context.Background())
+			subs, total, err := client.Billing().ListSubscribers(context.Background(), nil)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ListSubscribers() error = %v, wantErr %v", err, tt.wantErr)
