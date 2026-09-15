@@ -141,10 +141,14 @@ func (p *PlatformDomainService) SetRequestExecutor(client admin.ClientWithRespon
 	p.client = client
 }
 
+// GetApiIpfsPlatformDomainsParams defines parameters for ListPlatformDomains.
+// This type aliases the generated type for convenience.
+type GetApiIpfsPlatformDomainsParams = admin.GetApiIpfsPlatformDomainsParams
+
 // ListPlatformDomains lists all registered platform-owned root domains,
 // including disabled ones.
-func (p *PlatformDomainService) ListPlatformDomains(ctx context.Context) ([]*PlatformDomain, int, error) {
-	resp, err := p.client.GetApiIpfsPlatformDomainsWithResponse(ctx)
+func (p *PlatformDomainService) ListPlatformDomains(ctx context.Context, params *GetApiIpfsPlatformDomainsParams) ([]*PlatformDomain, int, error) {
+	resp, err := p.client.GetApiIpfsPlatformDomainsWithResponse(ctx, params)
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to list platform domains: %w", err)
 	}

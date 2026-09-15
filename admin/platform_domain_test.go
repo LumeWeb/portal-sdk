@@ -67,7 +67,7 @@ func TestPlatformDomainService_ListPlatformDomains(t *testing.T) {
 			client, err := NewClient(WithEndpoint(server.URL))
 			require.NoError(t, err)
 
-			domains, total, err := client.PlatformDomains().ListPlatformDomains(context.Background())
+			domains, total, err := client.PlatformDomains().ListPlatformDomains(context.Background(), nil)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ListPlatformDomains() error = %v, wantErr %v", err, tt.wantErr)

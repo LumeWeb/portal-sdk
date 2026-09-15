@@ -150,10 +150,14 @@ func (s *SocialProviderService) SetRequestExecutor(client admin.ClientWithRespon
 	s.client = client
 }
 
+// GetApiSocialProvidersParams defines parameters for ListSocialProviders.
+// This type aliases the generated type for convenience.
+type GetApiSocialProvidersParams = admin.GetApiSocialProvidersParams
+
 // ListSocialProviders lists all configured social login providers. Secrets are
 // never returned.
-func (s *SocialProviderService) ListSocialProviders(ctx context.Context) ([]*SocialProvider, int, error) {
-	resp, err := s.client.GetApiSocialProvidersWithResponse(ctx)
+func (s *SocialProviderService) ListSocialProviders(ctx context.Context, params *GetApiSocialProvidersParams) ([]*SocialProvider, int, error) {
+	resp, err := s.client.GetApiSocialProvidersWithResponse(ctx, params)
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to list social login providers: %w", err)
 	}

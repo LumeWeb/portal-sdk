@@ -95,7 +95,7 @@ func TestSocialProviderService_ListSocialProviders(t *testing.T) {
 			client, err := NewClient(WithEndpoint(server.URL))
 			require.NoError(t, err)
 
-			providers, total, err := client.SocialProviders().ListSocialProviders(context.Background())
+			providers, total, err := client.SocialProviders().ListSocialProviders(context.Background(), nil)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ListSocialProviders() error = %v, wantErr %v", err, tt.wantErr)
