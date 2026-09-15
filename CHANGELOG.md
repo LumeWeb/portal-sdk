@@ -1,3 +1,9 @@
+## 0.1.74 (2026-09-15)
+
+### Features
+
+- add server-side pagination params
+
 ## 0.1.73 (2026-09-13)
 
 ### Features
